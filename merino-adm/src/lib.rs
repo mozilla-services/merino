@@ -1,8 +1,9 @@
 use actix_web::http::Uri;
 use serde_derive::{Deserialize, Serialize};
-use std::net::Ipv4Addr;
 
+/// Parameters for AdM Conducive API Instant Suggest endpoint, v4.7.21
 #[derive(Debug, Serialize, Deserialize, PartialEq)]
+#[serde(rename_all = "kebab-case")]
 struct SuggestionEndpointParameters {
     /// The partner name assigned by adMarketplace.
     partner: String,
@@ -12,19 +13,29 @@ struct SuggestionEndpointParameters {
     #[serde(rename = "qt")]
     query_term: String,
 
-    /// Originally, the IP address of the user making the request. In our
-    /// implementation, one of regional IP addresses we make requests from to
-    /// mask client IPs.
-    ip: Ipv4Addr,
-
-    /// Originally, the user agent of the user's browser. In our implementation,
-    /// a normalized version of it to protect privacy.
-    #[serde(rename = "ua")]
-    user_agent: String,
-
     /// The version of the API
     #[serde(rename = "v")]
     api_version: String,
+
+    /// The ISO 3166-1 alpha-2 code of the country the user is in. Example: US
+    country_code: String,
+
+    /// The ISO 3166-2 code of the country subdivision the user is in. In the US
+    /// this is the level of states. Example: NY
+    region_code: String,
+
+    /// The name of the city the user is in. Example: Albany
+    city: String,
+
+    /// The three-digit numeric code for Direct Marketing Area. Only used when
+    /// `country_code` is `"US"`.
+    dma_code: Option<u32>,
+
+    /// The form-factor the user's device
+    form_factor: FormFactor,
+
+    /// The family of operating system the user is using.
+    os_family: OsFamily,
 
     /// Maximum number of paid suggestions to return.
     #[serde(rename = "results-ta")]
@@ -49,6 +60,29 @@ struct SuggestionEndpointParameters {
     /// Used to further subdivide publisher traffic from a given sub3. Only
     /// alphanumeric characters. Maximum 128 characters.
     sub4: Option<String>,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq)]
+#[serde(rename_all = "lowercase")]
+enum FormFactor {
+    Desktop,
+    Phone,
+    Tablet,
+    Other,
+}
+#[derive(Debug, Serialize, Deserialize, PartialEq)]
+enum OsFamily {
+    Windows,
+    #[serde(rename = "macOS")]
+    Mac,
+    Linux,
+    #[serde(rename = "iOS")]
+    Ios,
+    Android,
+    #[serde(rename = "ChromeOS")]
+    ChromeOs,
+    BlackBerry,
+    Other,
 }
 
 impl From<SuggestionEndpointParameters> for Uri {
@@ -135,21 +169,39 @@ mod tests {
         let params = SuggestionEndpointParameters {
             partner: "test_partner".into(),
             query_term: "am".into(),
-            ip: Ipv4Addr::new(130, 245, 32, 23),
-            user_agent: "Mozilla/5.0 (X11; Linux x86_64; rv:89.0) Gecko/20100101 Firefox/89.0"
-                .into(),
             api_version: "1.0".into(),
+            country_code: "US".into(),
+            region_code: "NY".into(),
+            city: "Albany".into(),
+            dma_code: Some(532),
+            form_factor: FormFactor::Desktop,
+            os_family: OsFamily::Mac,
             max_paid_results: None,
             max_organic_results: None,
-            sub1: "quick_suggest".into(),
-            sub2: None,
-            sub3: None,
-            sub4: None,
+            sub1: "level1".into(),
+            sub2: Some("level2".into()),
+            sub3: Some("level3".into()),
+            sub4: Some("level4".into()),
         };
         assert_eq!(
             Into::<Uri>::into(params),
-            Uri::from_maybe_shared("https://test_partner.cpsp.ampfeed.com/suggestionsp?partner=test_partner&qt=am&ip=130.245.32.23&ua=Mozilla%2F5.0+%28X11%3B+Linux+x86_64%3B+rv%3A89.0%29+Gecko%2F20100101+Firefox%2F89.0&v=1.0&sub1=quick_suggest")
-                .expect("bad test data")
+            Uri::from_maybe_shared(concat!(
+                "https://test_partner.cpsp.ampfeed.com/suggestionsp",
+                "?partner=test_partner",
+                "&qt=am",
+                "&v=1.0",
+                "&country-code=US",
+                "&region-code=NY",
+                "&city=Albany",
+                "&dma-code=532",
+                "&form-factor=desktop",
+                "&os-family=macOS",
+                "&sub1=level1",
+                "&sub2=level2",
+                "&sub3=level3",
+                "&sub4=level4",
+            ))
+            .expect("bad test data")
         );
     }
 
