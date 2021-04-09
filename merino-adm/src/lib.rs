@@ -5,7 +5,7 @@ use serde_derive::{Deserialize, Serialize};
 #[derive(Debug, Serialize, Deserialize, PartialEq)]
 #[serde(rename_all = "kebab-case")]
 struct SuggestionEndpointParameters {
-    /// The partner name assigned by adMarketplace.
+    /// A code assigned to us by adM.
     partner: String,
 
     /// The URL encoded partially typed search term (query term). Minimum of 2
@@ -25,10 +25,10 @@ struct SuggestionEndpointParameters {
     region_code: String,
 
     /// The name of the city the user is in. Example: Albany
-    city: String,
+    city: Option<String>,
 
     /// The three-digit numeric code for Direct Marketing Area. Only used when
-    /// `country_code` is `"US"`.
+    /// `country_code` is `"US"` and city is specified.
     dma_code: Option<u32>,
 
     /// The form-factor the user's device
@@ -71,6 +71,7 @@ enum FormFactor {
     Other,
 }
 #[derive(Debug, Serialize, Deserialize, PartialEq)]
+#[serde(rename_all = "lowercase")]
 enum OsFamily {
     Windows,
     #[serde(rename = "macOS")]
@@ -172,7 +173,7 @@ mod tests {
             api_version: "1.0".into(),
             country_code: "US".into(),
             region_code: "NY".into(),
-            city: "Albany".into(),
+            city: Some("Albany".into()),
             dma_code: Some(532),
             form_factor: FormFactor::Desktop,
             os_family: OsFamily::Mac,
