@@ -16,6 +16,12 @@ workflows:
               only: /.*/
 
       - build-and-test:
+          name: build-and-test-with-sccache
+          useSccache: true
+
+      - build-and-test:
+          name: build-and-test-no-sccache
+          useSccache: true
           filters:
             tags:
               only: /.*/
@@ -40,7 +46,7 @@ workflows:
       # - docker-image-publish:
       #     requires:
       #       - checks
-      #       - build-and-test
+      #       - build-and-test-no-sccache
       #       - docker-image-build-deploy
       #     filters:
       #       branches:
@@ -51,20 +57,23 @@ workflows:
 jobs:
   checks:
     docker:
-      - image: circleci/rust:latest
+      - image: mozilla/cidockerbases:rust-latest
         auth:
           username: $DOCKER_USER
           password: $DOCKER_PASS
     steps:
       - checkout
-      - setup-rust
-      - setup-rust-check
       - rust-check
       - rust-clippy
 
   build-and-test:
+    parameters:
+      useSccache:
+        type: boolean
+        default: false
+
     docker:
-      - image: circleci/rust:latest
+      - image: mozilla/cidockerbases:rust-latest
         auth:
           username: $DOCKER_USER
           password: $DOCKER_PASS
@@ -72,13 +81,18 @@ jobs:
             RUST_BACKTRACE: 1
     steps:
       - checkout
-      - setup-rust
-      - setup-sccache
-      - restore-sccache-cache
+      - when:
+          condition: << parameters.useSccache >>
+          steps:
+            - setup-sccache
+            - restore-sccache-cache
       - write-version
       - cargo-build
       - run-tests
-      - save-sccache-cache
+      - when:
+          condition: << parameters.useSccache >>
+          steps:
+            - save-sccache-cache
 
   docker-image-build:
     parameters:
@@ -87,7 +101,7 @@ jobs:
         default: true
 
     docker:
-      - image: circleci/rust:latest
+      - image: mozilla/cidockerbases:rust-latest
 
     steps:
       - checkout
@@ -104,16 +118,16 @@ jobs:
                 name: Save image into workspace
                 command: |
                   mkdir -p workspace
-                  docker save -o workspace/normandy-web.tar normandy:web
-                  gzip workspace/normandy-web.tar
+                  docker save -o workspace/merino.tar merino:web
+                  gzip workspace/merino.tar
             - persist_to_workspace:
                 root: workspace
                 paths:
-                  - normandy-web.tar.gz
+                  - merino.tar.gz
 
   docker-image-publish:
     docker:
-      - image: docker:18.02.0-ce
+      - image: mozilla/cidockerbases:docker-latest
         auth:
           username: $DOCKER_USER
           password: $DOCKER_PASS
@@ -125,7 +139,7 @@ jobs:
       - dockerhub-login
       - run:
           name: Load Docker image from workspace
-          command: docker load -i workspace/normandy-web.tar.gz
+          command: docker load -i workspace/merino.tar.gz
       - run:
           name: Push to Dockerhub
           command: |
@@ -157,25 +171,6 @@ commands:
             else
               echo "${DOCKER_PASS}" | docker login -u="${DOCKER_USER}" --password-stdin
             fi
-
-  setup-rust:
-    steps:
-      - run:
-          name: Setup Rust
-          command: |
-            rustup install stable
-            rustup default stable
-            rustup update
-            rustc --version
-
-  setup-rust-check:
-    steps:
-      - run:
-          name: Setup Rust checks
-          command: |
-            rustup component add rustfmt
-            cargo install cargo-audit
-            rustup component add clippy
 
   rust-check:
     steps:
