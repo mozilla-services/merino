@@ -21,7 +21,7 @@ workflows:
 
       - build-and-test:
           name: build-and-test-no-sccache
-          useSccache: true
+          useSccache: false
           filters:
             tags:
               only: /.*/
@@ -85,7 +85,6 @@ jobs:
           condition: << parameters.useSccache >>
           steps:
             - setup-sccache
-            - restore-sccache-cache
       - write-version
       - cargo-build
       - run-tests
@@ -216,17 +215,13 @@ commands:
   setup-sccache:
     steps:
       - run:
-          name: Install sccache
+          name: Setup sccache
           command: |
-            cargo install sccache
+            sccache --version
             # This configures Rust to use sccache.
             echo 'export "RUSTC_WRAPPER"="sccache"' >> $BASH_ENV
             # This is the maximum space sccache cache will use on disk.
             echo 'export "SCCACHE_CACHE_SIZE"="1G"' >> $BASH_ENV
-            sccache --version
-
-  restore-sccache-cache:
-    steps:
       - restore_cache:
           name: Restore sccache cache
           key: sccache-cache-stable-{{ .Branch }}-{{ .Environment.CIRCLE_TAG }}
