@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 
 use merino_suggest::{Suggester, Suggestion, WikiFruit};
 
-/// Handles required Dockerflow Endpoints
+/// Handles suggesting completions for Quantumbar queries
 pub fn service(config: &mut web::ServiceConfig) {
     config.service(suggest);
 }

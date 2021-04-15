@@ -13,8 +13,8 @@ async fn main() -> std::io::Result<()> {
 }
 
 pub fn configure_app(cfg: &mut web::ServiceConfig) {
-  cfg
-      // Add the behavior necessary to satisfy Dockerflow
-      .service(web::scope("/api/v1/suggest").configure(suggest::service))
-      .service(web::scope("/").configure(dockerflow::service));
+    cfg
+        // Add the behavior necessary to satisfy Dockerflow
+        .service(web::scope("/api/v1/suggest").configure(suggest::service))
+        .service(web::scope("/").configure(dockerflow::service));
 }

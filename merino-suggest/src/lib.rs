@@ -20,7 +20,9 @@ impl Suggester for WikiFruit {
             _ => None,
         };
         if let Some(url) = url {
-            vec![Suggestion { url: url.to_string() }]
+            vec![Suggestion {
+                url: url.to_string(),
+            }]
         } else {
             vec![]
         }
