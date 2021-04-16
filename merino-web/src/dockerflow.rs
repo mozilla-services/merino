@@ -1,3 +1,5 @@
+//! An actix-web service to implement [Dockerflow](https://github.com/mozilla-services/Dockerflow).
+
 use std::collections::HashMap;
 
 use actix_web::{get, web, HttpRequest, HttpResponse};
@@ -5,7 +7,7 @@ use serde_json::Value;
 
 use crate::errors::HandlerError;
 
-/// Handles required Dockerflow Endpoints
+/// Handles required Dockerflow Endpoints.
 pub fn service(config: &mut web::ServiceConfig) {
     config
         .service(lbheartbeat)
@@ -30,7 +32,7 @@ fn version(_: HttpRequest) -> HttpResponse {
         .body(include_str!("../version.json"))
 }
 
-/// Returns a status message indicating the current state of the server
+/// Returns a status message indicating the current state of the server.
 #[get("__heartbeat__")]
 fn heartbeat(_: HttpRequest) -> HttpResponse {
     let mut checklist = HashMap::new();
@@ -41,7 +43,7 @@ fn heartbeat(_: HttpRequest) -> HttpResponse {
     HttpResponse::Ok().json(checklist)
 }
 
-/// Returning an API error to test error handling
+/// Returning an API error to test error handling.
 #[get("__error__")]
 async fn test_error(_: HttpRequest) -> Result<HttpResponse, HandlerError> {
     Err(HandlerError::Internal)

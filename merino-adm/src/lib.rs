@@ -1,10 +1,14 @@
+#![warn(missing_docs, clippy::missing_docs_in_private_items)]
+
+//! Integration between [Merino](../merino/index.html) and AdMarketplace APIs.
+
 use actix_web::http::Uri;
 use serde_derive::{Deserialize, Serialize};
 
 /// Parameters for AdM Conducive API Instant Suggest endpoint, v4.7.21
 #[derive(Debug, Serialize, Deserialize, PartialEq)]
 #[serde(rename_all = "kebab-case")]
-struct SuggestionEndpointParameters {
+pub struct SuggestionEndpointParameters {
     /// A code assigned to us by adM.
     partner: String,
 
@@ -62,17 +66,22 @@ struct SuggestionEndpointParameters {
     sub4: Option<String>,
 }
 
+/// The form factor of a user's device.
 #[derive(Debug, Serialize, Deserialize, PartialEq)]
 #[serde(rename_all = "lowercase")]
-enum FormFactor {
+#[allow(missing_docs, clippy::missing_docs_in_private_items)]
+pub enum FormFactor {
     Desktop,
     Phone,
     Tablet,
     Other,
 }
+
+/// The operation system a user's device is running.
 #[derive(Debug, Serialize, Deserialize, PartialEq)]
 #[serde(rename_all = "lowercase")]
-enum OsFamily {
+#[allow(missing_docs, clippy::missing_docs_in_private_items)]
+pub enum OsFamily {
     Windows,
     #[serde(rename = "macOS")]
     Mac,
@@ -102,26 +111,33 @@ impl From<SuggestionEndpointParameters> for Uri {
     }
 }
 
+/// The response from the adM suggestion API.
 #[derive(Debug, Serialize, Deserialize, PartialEq)]
 #[serde(rename_all = "camelCase")]
-struct SuggestionEndpointResponse {
+pub struct SuggestionEndpointResponse {
+    /// The query that generated these suggestions.
     #[serde(rename = "originalQt")]
     original_query_term: String,
 
+    /// Non-paid suggestions from sources such as Wikipedia.
     organic_suggestions: Vec<Suggestion>,
 
+    /// Paid suggestions from advertisers.
     paid_suggestions: PaidSuggestionsResponse,
 }
 
+/// Internal structure of paid suggestion responses.
 #[derive(Debug, Serialize, Deserialize, PartialEq)]
 #[serde(rename_all = "camelCase")]
-struct PaidSuggestionsResponse {
+pub struct PaidSuggestionsResponse {
+    /// This API only includes text results
     text_ads: PaidSuggestionsTextAdsResponse,
 }
 
+/// A collection of paid text suggestions.
 #[derive(Debug, Serialize, Deserialize, PartialEq)]
 #[serde(rename_all = "camelCase")]
-struct PaidSuggestionsTextAdsResponse {
+pub struct PaidSuggestionsTextAdsResponse {
     /// Number of results returned
     results_count: u32,
 
@@ -129,9 +145,10 @@ struct PaidSuggestionsTextAdsResponse {
     ads: Vec<Suggestion>,
 }
 
+/// A suggestion (paid or not) from the adM API.
 #[derive(Debug, Serialize, Deserialize, PartialEq)]
 #[serde(rename_all = "camelCase")]
-struct Suggestion {
+pub struct Suggestion {
     /// The title of the suggestion
     #[serde(rename = "term")]
     title: String,
