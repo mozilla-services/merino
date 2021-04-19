@@ -29,7 +29,7 @@ fn lbheartbeat(_: HttpRequest) -> HttpResponse {
 fn version(_: HttpRequest) -> HttpResponse {
     HttpResponse::Ok()
         .content_type("application/json")
-        .body(include_str!("../version.json"))
+        .body(include_str!("../../version.json"))
 }
 
 /// Returns a status message indicating the current state of the server.
