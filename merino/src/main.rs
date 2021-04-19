@@ -8,6 +8,7 @@
 //! Merino is split into several subcrates that work in collaboration.
 //!
 //! - [merino-adm](../merino_adm/index.html)
+//! - [merino-integration-tests](../merino_integration_tests/index.html)
 //! - [merino-suggest](../merino_suggest/index.html)
 //! - [merino-web](../merino_web/index.html)
 
