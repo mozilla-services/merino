@@ -12,17 +12,33 @@ workflows:
     jobs:
       - checks:
           filters:
+            branches:
+              ignore:
+                # Bors temporary branches
+                - staging.tmp
+                - trying.tmp
             tags:
               only: /.*/
 
       - build-and-test:
           name: build-and-test-with-sccache
           useSccache: true
+          filters:
+            branches:
+              ignore:
+                # Bors temporary branches
+                - staging.tmp
+                - trying.tmp
 
       - build-and-test:
           name: build-and-test-no-sccache
           useSccache: false
           filters:
+            branches:
+              ignore:
+                # Bors temporary branches
+                - staging.tmp
+                - trying.tmp
             tags:
               only: /.*/
 
