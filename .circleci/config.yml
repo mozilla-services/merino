@@ -78,7 +78,7 @@ jobs:
           username: $DOCKER_USER
           password: $DOCKER_PASS
         environment:
-            RUST_BACKTRACE: 1
+          RUST_BACKTRACE: 1
     steps:
       - checkout
       - when:
@@ -177,7 +177,7 @@ commands:
           name: Core Rust Checks
           command: |
             cargo fmt -- --check
-            cargo audit --ignore RUSTSEC-2020-0041
+            cargo audit
 
   rust-clippy:
     steps:
@@ -230,6 +230,8 @@ commands:
     steps:
       - save_cache:
           name: Save sccache cache
-          key: sccache-cache-stable-{{ .Branch }}-{{ .Environment.CIRCLE_TAG }}-{{ epoch }}
+          key:
+            sccache-cache-stable-{{ .Branch }}-{{ .Environment.CIRCLE_TAG }}-{{
+            epoch }}
           paths:
             - "~/.cache/sccache"
