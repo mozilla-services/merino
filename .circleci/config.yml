@@ -1,0 +1,237 @@
+# These environment variables must be set in CircleCI UI
+#
+# DOCKERHUB_REPO - docker hub repo, format: <username>/<repo>
+# DOCKER_USER    - login info for docker hub
+# DOCKER_PASS
+
+version: 2.1
+
+workflows:
+  version: 2
+  build-deploy:
+    jobs:
+      - checks:
+          filters:
+            tags:
+              only: /.*/
+
+      - build-and-test:
+          name: build-and-test-with-sccache
+          useSccache: true
+
+      - build-and-test:
+          name: build-and-test-no-sccache
+          useSccache: false
+          filters:
+            tags:
+              only: /.*/
+
+      # TODO Enable these after setting up Docker
+      # - docker-image-build:
+      #     name: docker-image-build-pr
+      #     saveToWorkspace: false
+      #     filters:
+      #       branches:
+      #         ignore: main
+      #
+      # - docker-image-build:
+      #     name: docker-image-build-deploy
+      #     saveToWorkspace: true
+      #     filters:
+      #       branches:
+      #         only: main
+      #       tags:
+      #         only: /.+/
+      #
+      # - docker-image-publish:
+      #     requires:
+      #       - checks
+      #       - build-and-test-no-sccache
+      #       - docker-image-build-deploy
+      #     filters:
+      #       branches:
+      #         only: main
+      #       tags:
+      #         only: /v.+/
+
+jobs:
+  checks:
+    docker:
+      - image: mozilla/cidockerbases:rust-latest
+        auth:
+          username: $DOCKER_USER
+          password: $DOCKER_PASS
+    steps:
+      - checkout
+      - rust-check
+      - rust-clippy
+
+  build-and-test:
+    parameters:
+      useSccache:
+        type: boolean
+        default: false
+
+    docker:
+      - image: mozilla/cidockerbases:rust-latest
+        auth:
+          username: $DOCKER_USER
+          password: $DOCKER_PASS
+        environment:
+          RUST_BACKTRACE: 1
+    steps:
+      - checkout
+      - when:
+          condition: << parameters.useSccache >>
+          steps:
+            - setup-sccache
+      - write-version
+      - cargo-build
+      - run-tests
+      - when:
+          condition: << parameters.useSccache >>
+          steps:
+            - save-sccache-cache
+
+  docker-image-build:
+    parameters:
+      saveToWorkspace:
+        type: boolean
+        default: true
+
+    docker:
+      - image: mozilla/cidockerbases:rust-latest
+
+    steps:
+      - checkout
+      - setup_remote_docker:
+          docker_layer_caching: true
+      - write-version
+      - run:
+          name: Build Docker image
+          command: docker build -t app:build .
+      - when:
+          condition: << parameters.saveToWorkspace >>
+          steps:
+            - run:
+                name: Save image into workspace
+                command: |
+                  mkdir -p workspace
+                  docker save -o workspace/merino.tar merino:web
+                  gzip workspace/merino.tar
+            - persist_to_workspace:
+                root: workspace
+                paths:
+                  - merino.tar.gz
+
+  docker-image-publish:
+    docker:
+      - image: mozilla/cidockerbases:docker-latest
+        auth:
+          username: $DOCKER_USER
+          password: $DOCKER_PASS
+    steps:
+      - checkout
+      - setup_remote_docker
+      - attach_workspace:
+          at: workspace
+      - dockerhub-login
+      - run:
+          name: Load Docker image from workspace
+          command: docker load -i workspace/merino.tar.gz
+      - run:
+          name: Push to Dockerhub
+          command: |
+            if [ "${CIRCLE_BRANCH}" == "main" ]; then
+              DOCKER_TAG="${CIRCLE_SHA1}""
+            fi
+
+            if [ -n "${CIRCLE_TAG}" ]; then
+              DOCKER_TAG="$CIRCLE_TAG"
+            fi
+
+            if [ -n "${DOCKER_TAG}" ]; then
+              echo ${DOCKERHUB_REPO}:${DOCKER_TAG}
+              docker tag app:build ${DOCKERHUB_REPO}:${DOCKER_TAG}
+              docker images
+              docker push "${DOCKERHUB_REPO}:${DOCKER_TAG}"
+            else
+              echo "Not pushing to dockerhub for tag=${CIRCLE_TAG} branch=${CIRCLE_BRANCH}"
+            fi
+
+commands:
+  dockerhub-login:
+    steps:
+      - run:
+          name: Login to Dockerhub
+          command: |
+            if [ "${DOCKER_USER}" == "" ] || [ "${DOCKER_PASS}" == "" ]; then
+              echo "Skipping Login to DockerHub, credentials unavailable"
+            else
+              echo "${DOCKER_PASS}" | docker login -u="${DOCKER_USER}" --password-stdin
+            fi
+
+  rust-check:
+    steps:
+      - run:
+          name: Core Rust Checks
+          command: |
+            cargo fmt -- --check
+            cargo audit
+
+  rust-clippy:
+    steps:
+      - run:
+          name: Rust Clippy
+          command: |
+            cargo clippy --all --all-targets --all-features -- -D warnings
+
+  cargo-build:
+    steps:
+      - run:
+          name: cargo build
+          command: cargo build
+
+  write-version:
+    steps:
+      - run:
+          name: Create a version.json
+          command: |
+            # create a version.json per
+            # https://github.com/mozilla-services/Dockerflow/blob/master/docs/version_object.md
+            printf '{"commit":"%s","version":"%s","source":"https://github.com/%s/%s","build":"%s"}\n' \
+            "$CIRCLE_SHA1" \
+            "$CIRCLE_TAG" \
+            "$CIRCLE_PROJECT_USERNAME" \
+            "$CIRCLE_PROJECT_REPONAME" \
+            "$CIRCLE_BUILD_URL" > version.json
+
+  run-tests:
+    steps:
+      - run:
+          name: cargo test
+          command: cargo test --all --verbose
+
+  setup-sccache:
+    steps:
+      - run:
+          name: Setup sccache
+          command: |
+            sccache --version
+            # This configures Rust to use sccache.
+            echo 'export "RUSTC_WRAPPER"="sccache"' >> $BASH_ENV
+            # This is the maximum space sccache cache will use on disk.
+            echo 'export "SCCACHE_CACHE_SIZE"="1G"' >> $BASH_ENV
+      - restore_cache:
+          name: Restore sccache cache
+          key: sccache-cache-stable-{{ .Branch }}-{{ .Environment.CIRCLE_TAG }}
+
+  save-sccache-cache:
+    steps:
+      - save_cache:
+          name: Save sccache cache
+          key:
+            sccache-cache-stable-{{ .Branch }}-{{ .Environment.CIRCLE_TAG }}-{{
+            epoch }}
+          paths:
+            - "~/.cache/sccache"
