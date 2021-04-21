@@ -1,11 +1,15 @@
+//! Any errors that merino-web might generate, and supporting implementations.
+
 use std::collections::HashMap;
 
 use actix_web::{http::StatusCode, HttpResponse, ResponseError};
 use serde_json::Value;
 use thiserror::Error;
 
+/// An error that happened in a web handler.
 #[derive(Error, Debug)]
 pub enum HandlerError {
+    /// A generic error, when there is nothing more specific to say.
     #[error("Internal error")]
     Internal,
 }

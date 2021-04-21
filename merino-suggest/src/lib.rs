@@ -1,14 +1,23 @@
+#![warn(missing_docs, clippy::missing_docs_in_private_items)]
+
+//! Suggestion backends for [Merino](../merino/index.html).
+
 use serde::Serialize;
 
+/// A suggestion to provide to a user.
 #[derive(Debug, Serialize)]
 pub struct Suggestion {
+    /// The URL to send the user to if they select this suggestion.
     url: String,
 }
 
+/// A backend that can provide suggestions for queries.
 pub trait Suggester {
+    /// Provide suggested results for `query`.
     fn suggest(query: &str) -> Vec<Suggestion>;
 }
 
+/// A toy suggester to test the system.
 pub struct WikiFruit;
 
 impl Suggester for WikiFruit {

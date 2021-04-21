@@ -1,3 +1,7 @@
+#![warn(missing_docs, clippy::missing_docs_in_private_items)]
+
+//! Web server for [Merino](../merino/index.html)'s public API.
+
 mod dockerflow;
 mod errors;
 mod suggest;
@@ -5,6 +9,7 @@ mod suggest;
 use actix_cors::Cors;
 use actix_web::{web, App, HttpServer};
 
+/// Run the server.
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     HttpServer::new(move || App::new().wrap(Cors::permissive()).configure(configure_app))
@@ -13,6 +18,7 @@ async fn main() -> std::io::Result<()> {
         .await
 }
 
+/// Create a `actix_web::App` configured with all routes. Does not include middleware.
 pub fn configure_app(cfg: &mut web::ServiceConfig) {
     cfg
         // The core functionality of Merino
