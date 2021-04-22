@@ -20,7 +20,7 @@ use actix_web::{dev::Server, web, App, HttpServer};
 ///
 /// Run the server forever:
 ///
-/// ```ignore
+/// ```
 /// use std::net::TcpListener;
 ///
 /// tokio_test::block_on(async {
@@ -34,7 +34,7 @@ use actix_web::{dev::Server, web, App, HttpServer};
 ///
 /// Run the server as a background task:
 ///
-/// ```ignore
+/// ```
 /// use std::net::TcpListener;
 /// let listener = TcpListener::bind("127.0.0.1:8080")
 ///     .expect("Failed to bind port");
