@@ -13,7 +13,7 @@ pub fn service(config: &mut web::ServiceConfig) {
 /// Suggest content in response to the queried text.
 #[get("")]
 fn suggest(query: web::Query<SuggestQuery>) -> HttpResponse {
-    let suggestions = WikiFruit::suggest(&query.q);
+    let suggestions = WikiFruit.suggest(&query.q);
     HttpResponse::Ok().json(SuggestResponse { suggestions })
 }
 
