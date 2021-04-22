@@ -7,6 +7,9 @@ use serde::Serialize;
 /// A suggestion to provide to a user.
 #[derive(Clone, Debug, Serialize, PartialEq)]
 pub struct Suggestion {
+    /// The title to display to the user.
+    pub title: String,
+
     /// The URL to send the user to if they select this suggestion.
     pub url: String,
 }
@@ -30,6 +33,7 @@ impl Suggester for WikiFruit {
         };
         if let Some(url) = url {
             vec![Suggestion {
+                title: format!("Wikipedia - {}", query),
                 url: url.to_string(),
             }]
         } else {
