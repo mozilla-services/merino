@@ -1,0 +1,1 @@
+initSidebarItems({"enum":[["Body","Represents various types of HTTP message body."],["BodySize","Body size hint."],["ResponseBody",""]],"struct":[["BodyStream","Streaming response wrapper."],["SizedStream","Known sized streaming response wrapper."]],"trait":[["MessageBody","Type that implement this trait can be streamed to a peer."]]});

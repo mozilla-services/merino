@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["service","Handles suggesting completions for Quantumbar queries."]],"struct":[["SuggestQuery","A query passed to the API."],["SuggestResponse","The response the API generates."],["suggest","Suggest content in response to the queried text."]]});

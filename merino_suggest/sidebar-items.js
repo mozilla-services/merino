@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["Suggestion","A suggestion to provide to a user."],["WikiFruit","A toy suggester to test the system."]],"trait":[["Suggester","A backend that can provide suggestions for queries."]]});

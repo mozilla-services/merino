@@ -1,0 +1,1 @@
+initSidebarItems({"enum":[["Error","Represents all possible errors that can occur when serializing into URL parameters."]],"type":[["Result","Alias for `Result` with error type `serde_url_params::Error`."]]});
