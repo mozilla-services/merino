@@ -26,6 +26,15 @@ workflows:
             tags:
               only: /.*/
 
+      - docs-build
+
+      - docs-publish-github-pages:
+          requires:
+            - docs-build
+          filters:
+            branches:
+              only: main
+
       # TODO Enable these after setting up Docker
       # - docker-image-build:
       #     name: docker-image-build-pr
@@ -158,6 +167,49 @@ jobs:
             else
               echo "Not pushing to dockerhub for tag=${CIRCLE_TAG} branch=${CIRCLE_BRANCH}"
             fi
+
+  docs-build:
+    docker:
+      - image: mozilla/cidockerbases:rust-latest
+        auth:
+          username: $DOCKER_USER
+          password: $DOCKER_PASS
+    steps:
+      - checkout
+      - run:
+          name: Build docs
+          command: |
+            cargo doc --document-private-items --workspace
+            mkdir workspace
+            cp -r target/doc workspace/
+      - persist_to_workspace:
+          root: workspace
+          paths:
+            - doc
+
+  docs-publish-github-pages:
+    docker:
+      - image: node
+        auth:
+          username: $DOCKER_USER
+          password: $DOCKER_PASS
+    steps:
+      - checkout
+      - attach_workspace:
+          at: workspace
+      - run:
+          name: Disable jekyll builds
+          command: touch workspace/doc/.nojekyll
+      - add_ssh_keys:
+          fingerprints:
+            - "d7:41:54:5a:2e:e0:17:68:12:59:08:8e:7a:21:dc:cc"
+      - run:
+          name: Deploy docs to gh-pages
+          command: |
+            npx --yes gh-pages \
+              --user "ci-build <ci-build@merino.mozilla.org>" \
+              --message "[skip ci] Docs updates" \
+              --dist workspace/doc
 
 commands:
   dockerhub-login:
