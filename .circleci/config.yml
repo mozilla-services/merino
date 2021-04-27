@@ -180,6 +180,8 @@ jobs:
           name: Build docs
           command: |
             cargo doc --document-private-items --workspace
+            # Add a root index.html that redirects to a specific crate's docs.
+            echo '<meta http-equiv="refresh" content="time; URL=new_url" />' > target/doc/index.html
             mkdir workspace
             cp -r target/doc workspace/
       - persist_to_workspace:
