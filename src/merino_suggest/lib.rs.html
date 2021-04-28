@@ -40,6 +40,10 @@
 <span id="37">37</span>
 <span id="38">38</span>
 <span id="39">39</span>
+<span id="40">40</span>
+<span id="41">41</span>
+<span id="42">42</span>
+<span id="43">43</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="attribute">#![<span class="ident">warn</span>(<span class="ident">missing_docs</span>, <span class="ident">clippy</span>::<span class="ident">missing_docs_in_private_items</span>)]</span>
 
@@ -48,23 +52,26 @@
 <span class="kw">use</span> <span class="ident">serde</span>::<span class="ident">Serialize</span>;
 
 <span class="doccomment">/// A suggestion to provide to a user.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">PartialEq</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Suggestion</span> {
+    <span class="doccomment">/// The title to display to the user.</span>
+    <span class="kw">pub</span> <span class="ident">title</span>: <span class="ident">String</span>,
+
     <span class="doccomment">/// The URL to send the user to if they select this suggestion.</span>
-    <span class="ident">url</span>: <span class="ident">String</span>,
+    <span class="kw">pub</span> <span class="ident">url</span>: <span class="ident">String</span>,
 }
 
 <span class="doccomment">/// A backend that can provide suggestions for queries.</span>
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Suggester</span> {
     <span class="doccomment">/// Provide suggested results for `query`.</span>
-    <span class="kw">fn</span> <span class="ident">suggest</span>(<span class="ident">query</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Suggestion</span><span class="op">&gt;</span>;
+    <span class="kw">fn</span> <span class="ident">suggest</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">query</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Suggestion</span><span class="op">&gt;</span>;
 }
 
 <span class="doccomment">/// A toy suggester to test the system.</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">WikiFruit</span>;
 
 <span class="kw">impl</span> <span class="ident">Suggester</span> <span class="kw">for</span> <span class="ident">WikiFruit</span> {
-    <span class="kw">fn</span> <span class="ident">suggest</span>(<span class="ident">query</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Suggestion</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">suggest</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">query</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Suggestion</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">query</span> {
             <span class="string">&quot;apple&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="string">&quot;https://en.wikipedia.org/wiki/Apple&quot;</span>),
             <span class="string">&quot;banana&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="string">&quot;https://en.wikipedia.org/wiki/Banana&quot;</span>),
@@ -73,6 +80,7 @@
         };
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">url</span>) <span class="op">=</span> <span class="ident">url</span> {
             <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">Suggestion</span> {
+                <span class="ident">title</span>: <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Wikipedia - {}&quot;</span>, <span class="ident">query</span>),
                 <span class="ident">url</span>: <span class="ident">url</span>.<span class="ident">to_string</span>(),
             }]
         } <span class="kw">else</span> {

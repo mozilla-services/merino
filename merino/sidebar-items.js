@@ -1,1 +1,1 @@
-initSidebarItems({});
+initSidebarItems({"fn":[["main","Primary entry point"]]});
