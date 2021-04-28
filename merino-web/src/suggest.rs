@@ -1,20 +1,55 @@
 //! Web handlers for the suggestions API.
 
-use actix_web::{get, web, HttpResponse};
+use actix_web::{
+    get,
+    web::{Data, Query, ServiceConfig},
+    HttpResponse,
+};
+use anyhow::{Context, Result};
 use serde::{Deserialize, Serialize};
+use tokio::sync::OnceCell;
 
 use merino_suggest::{Suggester, Suggestion, WikiFruit};
 
-/// Handles suggesting completions for Quantumbar queries.
-pub fn service(config: &mut web::ServiceConfig) {
-    config.service(suggest);
+use crate::errors::HandlerError;
+
+/// A set of suggesters stored in Actix's app_data.
+type SuggesterSet = OnceCell<Vec<Box<dyn Suggester>>>;
+
+/// Configure a route to use the Suggest service.
+pub fn configure(config: &mut ServiceConfig) {
+    config
+        .data::<SuggesterSet>(OnceCell::new())
+        .service(suggest);
+}
+
+/// Set up configured suggestion providers.
+async fn setup_suggesters() -> Result<Vec<Box<dyn Suggester>>> {
+    println!("Setting up suggesters");
+    let mut adm_rs_provider = merino_adm::remote_settings::RemoteSettingsSuggester::default();
+    adm_rs_provider.sync().await.context("syncing provider")?;
+    Ok(vec![Box::new(WikiFruit), Box::new(adm_rs_provider)])
 }
 
 /// Suggest content in response to the queried text.
 #[get("")]
-fn suggest(query: web::Query<SuggestQuery>) -> HttpResponse {
-    let suggestions = WikiFruit::suggest(&query.q);
-    HttpResponse::Ok().json(SuggestResponse { suggestions })
+async fn suggest(
+    query: Query<SuggestQuery>,
+    data: Data<SuggesterSet>,
+) -> Result<HttpResponse, HandlerError> {
+    let suggesters = data.get_or_try_init(setup_suggesters).await.map_err(|e| {
+        println!(
+            "suggester error {:?}\nchain: {:?}",
+            e,
+            e.chain().collect::<Vec<_>>(),
+        );
+        HandlerError::Internal
+    })?;
+    let suggestions = suggesters
+        .iter()
+        .flat_map(|sug| sug.suggest(&query.q))
+        .collect();
+    Ok(HttpResponse::Ok().json(SuggestResponse { suggestions }))
 }
 
 /// A query passed to the API.

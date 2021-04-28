@@ -31,6 +31,7 @@ interface MerinoApiResponse {
 }
 
 interface Suggestion {
+  title: string;
   url: string;
 }
 
@@ -77,7 +78,9 @@ const Controls: React.FC<StateProps> = ({ state, setState }) => {
         <label>Stay expanded</label>
       </div>
       <div>
-        <label className="block">Artificial Latency: {state.artificialLatency}ms</label>
+        <label className="block">
+          Artificial Latency: {state.artificialLatency}ms
+        </label>
         <input
           type="range"
           min={0}
@@ -91,7 +94,6 @@ const Controls: React.FC<StateProps> = ({ state, setState }) => {
             }))
           }
         />
-
       </div>
     </div>
   );
@@ -303,7 +305,9 @@ const CompletionList: React.FC<CompletionListProps> = ({
             }
           }
           if (artificialLatency > 0) {
-            await new Promise(resolve => setTimeout(resolve, artificialLatency));
+            await new Promise((resolve) =>
+              setTimeout(resolve, artificialLatency)
+            );
           }
           return options;
         },
@@ -321,7 +325,7 @@ const CompletionList: React.FC<CompletionListProps> = ({
     completions.push(
       <CompletionItem
         key={suggestion.url}
-        title={suggestion.url}
+        title={suggestion.title}
         url={suggestion.url}
         icon={
           <div
@@ -361,7 +365,7 @@ const CompletionItem: React.FC<CompletionItemProps> = ({
       <div className="w-4 h-4">{icon}</div>
       <div className="flex-shrink">{title}</div>
       <div>—</div>
-      <div className="flex-shrink">{url}</div>
+      <div className="flex-shrink text-xs text-opacity-50">{url}</div>
     </div>
   );
 };
