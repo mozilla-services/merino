@@ -2,6 +2,7 @@
 
 //! Web server for [Merino](../merino/index.html)'s public API.
 
+mod debug;
 mod dockerflow;
 mod errors;
 mod suggest;
@@ -10,6 +11,7 @@ use std::net::TcpListener;
 
 use actix_cors::Cors;
 use actix_web::{dev::Server, web, App, HttpServer};
+use merino_settings::Settings;
 
 /// Run the web server
 ///
@@ -43,17 +45,26 @@ use actix_web::{dev::Server, web, App, HttpServer};
 /// let join_handle = tokio::spawn(server);
 /// // The server can be stopped with join_handle::abort();
 /// ```
-pub fn run(listener: TcpListener) -> Result<Server, std::io::Error> {
-    let server = HttpServer::new(|| {
+pub fn run(listener: TcpListener, settings: Settings) -> Result<Server, std::io::Error> {
+    let num_workers = settings.http.workers;
+
+    let mut server = HttpServer::new(move || {
         App::new()
+            .data((&settings).clone())
             .wrap(Cors::permissive())
             // The core functionality of Merino
-            .service(web::scope("/api/v1/suggest").configure(suggest::configure))
-            // Add the behavior necessary to satisfy Dockerflow
-            .service(web::scope("/").configure(dockerflow::service))
+            .service(web::scope("api/v1/suggest").configure(suggest::configure))
+            // Add some debugging views
+            .service(web::scope("debug").configure(debug::configure))
+            // Add the behavior necessary to satisfy Dockerflow.
+            .service(web::scope("").configure(dockerflow::configure))
     })
-    .workers(2)
-    .listen(listener)?
-    .run();
+    .listen(listener)?;
+
+    if let Some(n) = num_workers {
+        server = server.workers(n);
+    }
+
+    let server = server.run();
     Ok(server)
 }

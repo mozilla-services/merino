@@ -8,7 +8,7 @@ use serde::Serialize;
 use crate::errors::HandlerError;
 
 /// Handles required Dockerflow Endpoints.
-pub fn service(config: &mut web::ServiceConfig) {
+pub fn configure(config: &mut web::ServiceConfig) {
     config
         .service(lbheartbeat)
         .service(heartbeat)

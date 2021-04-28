@@ -6,6 +6,7 @@ use actix_web::{
     HttpResponse,
 };
 use anyhow::{Context, Result};
+use merino_settings::Settings;
 use serde::{Deserialize, Serialize};
 use tokio::sync::OnceCell;
 
@@ -24,10 +25,13 @@ pub fn configure(config: &mut ServiceConfig) {
 }
 
 /// Set up configured suggestion providers.
-async fn setup_suggesters() -> Result<Vec<Box<dyn Suggester>>> {
+async fn setup_suggesters(settings: &Settings) -> Result<Vec<Box<dyn Suggester>>> {
     println!("Setting up suggesters");
     let mut adm_rs_provider = merino_adm::remote_settings::RemoteSettingsSuggester::default();
-    adm_rs_provider.sync().await.context("syncing provider")?;
+    adm_rs_provider
+        .sync(settings)
+        .await
+        .context("syncing provider")?;
     Ok(vec![Box::new(WikiFruit), Box::new(adm_rs_provider)])
 }
 
@@ -35,16 +39,20 @@ async fn setup_suggesters() -> Result<Vec<Box<dyn Suggester>>> {
 #[get("")]
 async fn suggest(
     query: Query<SuggestQuery>,
-    data: Data<SuggesterSet>,
+    suggesters: Data<SuggesterSet>,
+    settings: Data<&Settings>,
 ) -> Result<HttpResponse, HandlerError> {
-    let suggesters = data.get_or_try_init(setup_suggesters).await.map_err(|e| {
-        println!(
-            "suggester error {:?}\nchain: {:?}",
-            e,
-            e.chain().collect::<Vec<_>>(),
-        );
-        HandlerError::Internal
-    })?;
+    let suggesters = suggesters
+        .get_or_try_init(|| setup_suggesters(settings.as_ref()))
+        .await
+        .map_err(|e| {
+            println!(
+                "suggester error {:?}\nchain: {:?}",
+                e,
+                e.chain().collect::<Vec<_>>(),
+            );
+            HandlerError::Internal
+        })?;
     let suggestions = suggesters
         .iter()
         .flat_map(|sug| sug.suggest(&query.q))
