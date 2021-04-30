@@ -2,6 +2,7 @@
 
 use anyhow::{anyhow, Result};
 use futures::stream::{self, StreamExt};
+use merino_settings::Settings;
 use merino_suggest::{Suggester, Suggestion};
 use radix_trie::Trie;
 use remote_settings_client::client::FileStorage;
@@ -25,15 +26,15 @@ impl RemoteSettingsSuggester {
     /// Download suggestions from Remote Settings
     ///
     /// This must be called at least once before any suggestions will be provided
-    pub async fn sync(&mut self) -> Result<()> {
+    pub async fn sync(&mut self, settings: &Settings) -> Result<()> {
         let reqwest_client = reqwest::Client::new();
 
         // Set up and sync a Remote Settings client for the quicksuggest collection.
-        std::fs::create_dir_all("./rs-cache")?;
+        std::fs::create_dir_all(&settings.adm.remote_settings_storage_path)?;
         let mut rs_client = remote_settings_client::Client::builder()
             .collection_name("quicksuggest")
             .storage(Box::new(FileStorage {
-                folder: "./rs-cache".into(),
+                folder: settings.adm.remote_settings_storage_path.clone(),
                 ..Default::default()
             }))
             .build()

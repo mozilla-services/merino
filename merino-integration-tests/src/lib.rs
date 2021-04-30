@@ -11,30 +11,28 @@
 //! binary instead of one test per file like would happen if this were
 //! `merino/tests/...`. This improves compilation and test times.
 
+use reqwest::{Client, RequestBuilder};
 use std::net::TcpListener;
 
-use reqwest::{Client, RequestBuilder};
+use merino_settings::Settings;
 
+mod debug;
 mod dockerflow;
 
 /// Start the fully configured application server.
 ///
 /// The server will listen on a port assigned arbitrarily by the OS. A test HTTP
 /// client that automatically targets the server will be returned.
-pub(crate) fn start_app_server() -> TestReqwestClient {
-    const LISTEN_IP: &str = "127.0.0.1";
-    // Port `:0` asks the OS to assign a port arbitrarily
-    let listener =
-        TcpListener::bind(format!("{}:0", LISTEN_IP)).expect("Failed to bind to a random port");
-    let port = listener.local_addr().unwrap().port();
-    let server = merino_web::run(listener).expect("Failed to start server");
+pub(crate) fn start_app_server<F: FnOnce(&mut Settings)>(settings_changer: F) -> TestReqwestClient {
+    let settings = Settings::load_for_tests(settings_changer);
+    let listener = TcpListener::bind(settings.http.listen).expect("Failed to bind to a port");
+    let address = listener.local_addr().unwrap().to_string();
+    let server = merino_web::run(listener, settings).expect("Failed to start server");
 
     // Run the server in the background
     tokio::spawn(server);
-    let address = format!("http://{}:{}", LISTEN_IP, port);
-    let client = Client::new();
 
-    TestReqwestClient { address, client }
+    TestReqwestClient::new(address)
 }
 
 /// A wrapper around a `[reqwest::client]` that automatically sends requests to
@@ -48,12 +46,19 @@ pub struct TestReqwestClient {
 }
 
 impl TestReqwestClient {
+    fn new(address: String) -> Self {
+        Self {
+            address,
+            client: Client::new(),
+        }
+    }
+
     /// Start building a GET request to the test server with the path specified.
     ///
     /// The path should start with `/`, such as `/__heartbeat__`.
     fn get(&self, path: &str) -> RequestBuilder {
         assert!(path.starts_with('/'));
-        let url = format!("{}{}", &self.address, path);
+        let url = format!("http://{}{}", &self.address, path);
         self.client.get(url)
     }
 }
