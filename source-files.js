@@ -89,6 +89,7 @@ sourcesIndex["matches"] = {"name":"","files":["lib.rs"]};
 sourcesIndex["memchr"] = {"name":"","dirs":[{"name":"x86","files":["avx.rs","mod.rs","sse2.rs"]}],"files":["fallback.rs","iter.rs","lib.rs","naive.rs"]};
 sourcesIndex["merino"] = {"name":"","files":["main.rs"]};
 sourcesIndex["merino_adm"] = {"name":"","files":["lib.rs","remote_settings.rs","server_side.rs"]};
+sourcesIndex["merino_integration_tests"] = {"name":"","files":["lib.rs"]};
 sourcesIndex["merino_suggest"] = {"name":"","files":["lib.rs"]};
 sourcesIndex["merino_web"] = {"name":"","files":["dockerflow.rs","errors.rs","lib.rs","suggest.rs"]};
 sourcesIndex["mime"] = {"name":"","files":["lib.rs","parse.rs"]};
