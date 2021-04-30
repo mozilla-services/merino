@@ -25,6 +25,10 @@
 //! format, simply use a different extension for your file, like
 //! `config/local.toml`.
 
+mod logging;
+
+pub use logging::LoggingSettings;
+
 use config::{Config, ConfigError, Environment, File};
 use serde::{Deserialize, Serialize};
 use std::{net::SocketAddr, path::PathBuf};
@@ -35,7 +39,6 @@ use std::{net::SocketAddr, path::PathBuf};
 pub struct Settings {
     /// The environment Merino is running in. Should only be set with the
     /// `MERINO_ENV` environment variable.
-    #[doc()]
     pub env: String,
 
     /// Enable additional features to debug the application. This should not be
@@ -43,12 +46,13 @@ pub struct Settings {
     pub debug: bool,
 
     /// Settings for the HTTP server.
-    #[doc(inline)]
     pub http: HttpSettings,
 
     /// Settings for adM integration.
-    #[doc(inline)]
     pub adm: AdmSettings,
+
+    /// Logging settings.
+    pub logging: LoggingSettings,
 }
 
 /// Settings for the HTTP server.
