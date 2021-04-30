@@ -24,6 +24,6 @@ impl ResponseError for HandlerError {
     fn error_response(&self) -> HttpResponse {
         let mut response = HashMap::new();
         response.insert("error".to_owned(), Value::String(format!("{}", self)));
-        HttpResponse::Ok().json(response)
+        HttpResponse::InternalServerError().json(response)
     }
 }
