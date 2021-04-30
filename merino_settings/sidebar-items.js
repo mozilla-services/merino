@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["AdmSettings","Settings for the adM integration."],["HttpSettings","Settings for the HTTP server."],["Settings","Top level settings object for Merino."]]});

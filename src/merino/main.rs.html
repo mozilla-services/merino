@@ -31,6 +31,9 @@
 <span id="28">28</span>
 <span id="29">29</span>
 <span id="30">30</span>
+<span id="31">31</span>
+<span id="32">32</span>
+<span id="33">33</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Only overview documentation that is not relevant to one of the more specific</span>
 <span class="comment">// crates should go here.</span>
@@ -43,6 +46,7 @@
 <span class="doccomment">//!</span>
 <span class="doccomment">//! - [merino-adm](../merino_adm/index.html)</span>
 <span class="doccomment">//! - [merino-integration-tests](../merino_integration_tests/index.html)</span>
+<span class="doccomment">//! - [merino-settings](../merino_settings/index.html)</span>
 <span class="doccomment">//! - [merino-suggest](../merino_suggest/index.html)</span>
 <span class="doccomment">//! - [merino-web](../merino_web/index.html)</span>
 
@@ -53,9 +57,11 @@
 <span class="doccomment">/// Primary entry point</span>
 <span class="attribute">#[<span class="ident">actix_rt</span>::<span class="ident">main</span>]</span>
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">main</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="ident">settings</span> <span class="op">=</span> <span class="ident">merino_settings</span>::<span class="ident">Settings</span>::<span class="ident">load</span>()<span class="question-mark">?</span>;
     <span class="ident">viaduct</span>::<span class="ident">set_backend</span>(<span class="kw-2">&amp;</span><span class="ident">ReqwestBackend</span>).<span class="ident">context</span>(<span class="string">&quot;setting viaduct backend&quot;</span>)<span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">listener</span> <span class="op">=</span> <span class="ident">TcpListener</span>::<span class="ident">bind</span>(<span class="string">&quot;0.0.0.0:8080&quot;</span>).<span class="ident">context</span>(<span class="string">&quot;Binding port&quot;</span>)<span class="question-mark">?</span>;
-    <span class="ident">merino_web</span>::<span class="ident">run</span>(<span class="ident">listener</span>)
+    <span class="kw">let</span> <span class="ident">listener</span> <span class="op">=</span> <span class="ident">TcpListener</span>::<span class="ident">bind</span>(<span class="ident">settings</span>.<span class="ident">http</span>.<span class="ident">listen</span>).<span class="ident">context</span>(<span class="string">&quot;Binding port&quot;</span>)<span class="question-mark">?</span>;
+
+    <span class="ident">merino_web</span>::<span class="ident">run</span>(<span class="ident">listener</span>, <span class="ident">settings</span>)
         .<span class="ident">context</span>(<span class="string">&quot;Starting merino-web server&quot;</span>)<span class="question-mark">?</span>
         .<span class="kw">await</span>
         .<span class="ident">context</span>(<span class="string">&quot;Running merino-web server&quot;</span>)<span class="question-mark">?</span>;

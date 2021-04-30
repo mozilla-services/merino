@@ -232,11 +232,13 @@
 <span id="229">229</span>
 <span id="230">230</span>
 <span id="231">231</span>
+<span id="232">232</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! AdM integration that uses the remote-settings provided data.</span>
 
 <span class="kw">use</span> <span class="ident">anyhow</span>::{<span class="ident">anyhow</span>, <span class="prelude-ty">Result</span>};
 <span class="kw">use</span> <span class="ident">futures</span>::<span class="ident">stream</span>::{<span class="self">self</span>, <span class="ident">StreamExt</span>};
+<span class="kw">use</span> <span class="ident">merino_settings</span>::<span class="ident">Settings</span>;
 <span class="kw">use</span> <span class="ident">merino_suggest</span>::{<span class="ident">Suggester</span>, <span class="ident">Suggestion</span>};
 <span class="kw">use</span> <span class="ident">radix_trie</span>::<span class="ident">Trie</span>;
 <span class="kw">use</span> <span class="ident">remote_settings_client</span>::<span class="ident">client</span>::<span class="ident">FileStorage</span>;
@@ -260,15 +262,15 @@
     <span class="doccomment">/// Download suggestions from Remote Settings</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// This must be called at least once before any suggestions will be provided</span>
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">sync</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">sync</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">settings</span>: <span class="kw-2">&amp;</span><span class="ident">Settings</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">reqwest_client</span> <span class="op">=</span> <span class="ident">reqwest</span>::<span class="ident">Client</span>::<span class="ident">new</span>();
 
         <span class="comment">// Set up and sync a Remote Settings client for the quicksuggest collection.</span>
-        <span class="ident">std</span>::<span class="ident">fs</span>::<span class="ident">create_dir_all</span>(<span class="string">&quot;./rs-cache&quot;</span>)<span class="question-mark">?</span>;
+        <span class="ident">std</span>::<span class="ident">fs</span>::<span class="ident">create_dir_all</span>(<span class="kw-2">&amp;</span><span class="ident">settings</span>.<span class="ident">adm</span>.<span class="ident">remote_settings_storage_path</span>)<span class="question-mark">?</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rs_client</span> <span class="op">=</span> <span class="ident">remote_settings_client</span>::<span class="ident">Client</span>::<span class="ident">builder</span>()
             .<span class="ident">collection_name</span>(<span class="string">&quot;quicksuggest&quot;</span>)
             .<span class="ident">storage</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">FileStorage</span> {
-                <span class="ident">folder</span>: <span class="string">&quot;./rs-cache&quot;</span>.<span class="ident">into</span>(),
+                <span class="ident">folder</span>: <span class="ident">settings</span>.<span class="ident">adm</span>.<span class="ident">remote_settings_storage_path</span>.<span class="ident">clone</span>(),
                 ..<span class="ident">Default</span>::<span class="ident">default</span>()
             }))
             .<span class="ident">build</span>()
