@@ -2,11 +2,11 @@
 
 use reqwest::StatusCode;
 
-use crate::start_app_server;
+use crate::TestingTools;
 
 #[actix_rt::test]
 async fn cant_use_debug_settings_route_when_debug_is_false() {
-    let test_client = start_app_server(|settings| settings.debug = false);
+    let TestingTools { test_client, .. } = TestingTools::new(|settings| settings.debug = false);
 
     let response = test_client
         .get("/debug/settings")
@@ -20,7 +20,7 @@ async fn cant_use_debug_settings_route_when_debug_is_false() {
 
 #[actix_rt::test]
 async fn can_use_debug_settings_route_when_debug_is_true() {
-    let test_client = start_app_server(|settings| {
+    let TestingTools { test_client, .. } = TestingTools::new(|settings| {
         settings.debug = true;
     });
 

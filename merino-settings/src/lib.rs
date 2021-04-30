@@ -65,8 +65,21 @@ pub struct HttpSettings {
 /// Settings for the adM integration.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct AdmSettings {
+    /// Configuration for connection to Remote Settings to provide suggestions.
+    pub remote_settings: AdmRemoteSettingsConfig,
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct AdmRemoteSettingsConfig {
     /// The path, relative or absolute, to where to store remote settings data.
-    pub remote_settings_storage_path: PathBuf,
+    pub storage_path: PathBuf,
+
+    /// The server to sync from. If no value is provided, a default is provided
+    /// by the remote settings client.
+    pub server: Option<String>,
+
+    /// The collection to sync form.
+    pub collection: String,
 }
 
 impl Settings {

@@ -11,28 +11,57 @@
 //! binary instead of one test per file like would happen if this were
 //! `merino/tests/...`. This improves compilation and test times.
 
+use httpmock::MockServer;
 use reqwest::{Client, RequestBuilder};
-use std::net::TcpListener;
+use std::{net::TcpListener, sync::Once};
 
 use merino_settings::Settings;
 
 mod debug;
 mod dockerflow;
+mod suggest;
 
-/// Start the fully configured application server.
-///
-/// The server will listen on a port assigned arbitrarily by the OS. A test HTTP
-/// client that automatically targets the server will be returned.
-pub(crate) fn start_app_server<F: FnOnce(&mut Settings)>(settings_changer: F) -> TestReqwestClient {
-    let settings = Settings::load_for_tests(settings_changer);
-    let listener = TcpListener::bind(settings.http.listen).expect("Failed to bind to a port");
-    let address = listener.local_addr().unwrap().to_string();
-    let server = merino_web::run(listener, settings).expect("Failed to start server");
+static ONE_TIME_INIT: Once = Once::new();
 
-    // Run the server in the background
-    tokio::spawn(server);
+#[non_exhaustive]
+pub(crate) struct TestingTools {
+    test_client: TestReqwestClient,
+    remote_settings_mock: MockServer,
+}
 
-    TestReqwestClient::new(address)
+impl TestingTools {
+    /// Start the fully configured application server.
+    ///
+    /// The server will listen on a port assigned arbitrarily by the OS. A test HTTP
+    /// client that automatically targets the server will be returned.
+    pub(crate) fn new<F: FnOnce(&mut Settings)>(settings_changer: F) -> Self {
+        // Set up a mock server for remote settings to talk to
+        let remote_settings_mock = MockServer::start();
+
+        // remote_settings_client uses viaduct. Tell viaduct to use reqwest.
+        ONE_TIME_INIT.call_once(|| {
+            viaduct::set_backend(&viaduct_reqwest::ReqwestBackend)
+                .expect("Failed to set viaduct backend");
+        });
+
+        let settings = Settings::load_for_tests(|settings| {
+            settings.adm.remote_settings.server = Some(remote_settings_mock.url(""));
+            settings_changer(settings);
+        });
+        let listener = TcpListener::bind(settings.http.listen).expect("Failed to bind to a port");
+        let address = listener.local_addr().unwrap().to_string();
+        let server = merino_web::run(listener, settings).expect("Failed to start server");
+
+        // Run the server in the background
+        tokio::spawn(server);
+
+        let test_client = TestReqwestClient::new(address);
+
+        Self {
+            test_client,
+            remote_settings_mock,
+        }
+    }
 }
 
 /// A wrapper around a `[reqwest::client]` that automatically sends requests to
@@ -40,7 +69,7 @@ pub(crate) fn start_app_server<F: FnOnce(&mut Settings)>(settings_changer: F) ->
 ///
 /// Note: This only handles `GET` requests right now. Other methods should be
 /// added as needed.
-pub struct TestReqwestClient {
+pub(crate) struct TestReqwestClient {
     client: Client,
     address: String,
 }
