@@ -20,7 +20,7 @@ use viaduct_reqwest::ReqwestBackend;
 #[actix_rt::main]
 async fn main() -> Result<()> {
     viaduct::set_backend(&ReqwestBackend).context("setting viaduct backend")?;
-    let listener = TcpListener::bind("127.0.0.1:8080").context("Binding port")?;
+    let listener = TcpListener::bind("0.0.0.0:8080").context("Binding port")?;
     merino_web::run(listener)
         .context("Starting merino-web server")?
         .await

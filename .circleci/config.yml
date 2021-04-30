@@ -35,14 +35,14 @@ workflows:
             branches:
               only: main
 
-      # TODO Enable these after setting up Docker
-      # - docker-image-build:
-      #     name: docker-image-build-pr
-      #     saveToWorkspace: false
-      #     filters:
-      #       branches:
-      #         ignore: main
-      #
+      - docker-image-build:
+          name: docker-image-build-pr
+          saveToWorkspace: false
+          filters:
+            branches:
+              ignore: main
+
+      # TODO Enable these after setting up Docker publishing credentials
       # - docker-image-build:
       #     name: docker-image-build-deploy
       #     saveToWorkspace: true
@@ -73,7 +73,6 @@ jobs:
     steps:
       - checkout
       - rust-check
-      - rust-clippy
 
   build-and-test:
     parameters:
@@ -109,7 +108,7 @@ jobs:
         default: true
 
     docker:
-      - image: mozilla/cidockerbases:rust-latest
+      - image: mozilla/cidockerbases:docker-latest
 
     steps:
       - checkout
@@ -228,16 +227,10 @@ commands:
   rust-check:
     steps:
       - run:
-          name: Core Rust Checks
+          name: Rust Checks
           command: |
             cargo fmt -- --check
             cargo audit
-
-  rust-clippy:
-    steps:
-      - run:
-          name: Rust Clippy
-          command: |
             cargo clippy --all --all-targets --all-features -- -D warnings
 
   cargo-build:
