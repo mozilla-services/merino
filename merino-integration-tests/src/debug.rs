@@ -6,11 +6,10 @@ use crate::start_app_server;
 
 #[actix_rt::test]
 async fn cant_use_debug_settings_route_when_debug_is_false() {
-    let address = start_app_server(|settings| settings.debug = false);
-    let client = reqwest::Client::new();
+    let test_client = start_app_server(|settings| settings.debug = false);
 
-    let response = client
-        .get(&format!("{}/debug/settings", &address))
+    let response = test_client
+        .get("/debug/settings")
         .send()
         .await
         .expect("failed to execute request");
@@ -21,13 +20,12 @@ async fn cant_use_debug_settings_route_when_debug_is_false() {
 
 #[actix_rt::test]
 async fn can_use_debug_settings_route_when_debug_is_true() {
-    let address = start_app_server(|settings| {
+    let test_client = start_app_server(|settings| {
         settings.debug = true;
     });
-    let client = reqwest::Client::new();
 
-    let response = client
-        .get(&format!("{}/debug/settings", &address))
+    let response = test_client
+        .get("/debug/settings")
         .send()
         .await
         .expect("failed to execute request");

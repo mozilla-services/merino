@@ -25,8 +25,8 @@ mod dockerflow;
 /// client that automatically targets the server will be returned.
 pub(crate) fn start_app_server<F: FnOnce(&mut Settings)>(settings_changer: F) -> TestReqwestClient {
     let settings = Settings::load_for_tests(settings_changer);
-    let listener =
-        TcpListener::bind(settings.http.listen).expect("Failed to bind to a random port");
+    let listener = TcpListener::bind(settings.http.listen).expect("Failed to bind to a port");
+    let address = listener.local_addr().unwrap().to_string();
     let server = merino_web::run(listener, settings).expect("Failed to start server");
 
     // Run the server in the background
@@ -58,7 +58,7 @@ impl TestReqwestClient {
     /// The path should start with `/`, such as `/__heartbeat__`.
     fn get(&self, path: &str) -> RequestBuilder {
         assert!(path.starts_with('/'));
-        let url = format!("{}{}", &self.address, path);
+        let url = format!("http://{}{}", &self.address, path);
         self.client.get(url)
     }
 }
