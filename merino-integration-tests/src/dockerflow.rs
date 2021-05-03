@@ -4,11 +4,11 @@ use anyhow::Result;
 use reqwest::StatusCode;
 use serde::Deserialize;
 
-use crate::start_app_server;
+use crate::TestingTools;
 
 #[actix_rt::test]
 async fn lbheartbeat_works() {
-    let test_client = start_app_server(|_| ());
+    let TestingTools { test_client, .. } = TestingTools::new(|_| ());
 
     let response = test_client
         .get("/__lbheartbeat__")
@@ -22,7 +22,7 @@ async fn lbheartbeat_works() {
 
 #[actix_rt::test]
 async fn heartbeat_works() -> Result<()> {
-    let test_client = start_app_server(|_| ());
+    let TestingTools { test_client, .. } = TestingTools::new(|_| ());
 
     let response = test_client
         .get("/__heartbeat__")
@@ -44,7 +44,7 @@ async fn heartbeat_works() -> Result<()> {
 
 #[actix_rt::test]
 async fn version_works() -> Result<()> {
-    let test_client = start_app_server(|_| ());
+    let TestingTools { test_client, .. } = TestingTools::new(|_| ());
 
     let response = test_client
         .get("/__version__")
@@ -78,7 +78,7 @@ async fn version_works() -> Result<()> {
 
 #[actix_rt::test]
 async fn error_works() -> Result<()> {
-    let test_client = start_app_server(|_| ());
+    let TestingTools { test_client, .. } = TestingTools::new(|_| ());
 
     let response = test_client
         .get("/__error__")

@@ -50,7 +50,7 @@ pub fn run(listener: TcpListener, settings: Settings) -> Result<Server, std::io:
 
     let mut server = HttpServer::new(move || {
         App::new()
-            .data((&settings).clone())
+            .data::<Settings>((&settings).clone())
             .wrap(Cors::permissive())
             // The core functionality of Merino
             .service(web::scope("api/v1/suggest").configure(suggest::configure))

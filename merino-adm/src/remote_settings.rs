@@ -4,7 +4,7 @@ use anyhow::{anyhow, Result};
 use futures::stream::{self, StreamExt};
 use merino_settings::Settings;
 use merino_suggest::{Suggester, Suggestion};
-use radix_trie::Trie;
+use radix_trie::{Trie, TrieCommon};
 use remote_settings_client::client::FileStorage;
 use serde::Deserialize;
 use serde_json::Value;
@@ -30,15 +30,20 @@ impl RemoteSettingsSuggester {
         let reqwest_client = reqwest::Client::new();
 
         // Set up and sync a Remote Settings client for the quicksuggest collection.
-        std::fs::create_dir_all(&settings.adm.remote_settings_storage_path)?;
-        let mut rs_client = remote_settings_client::Client::builder()
-            .collection_name("quicksuggest")
-            .storage(Box::new(FileStorage {
-                folder: settings.adm.remote_settings_storage_path.clone(),
-                ..Default::default()
-            }))
-            .build()
-            .map_err(|s| anyhow!("{}", s))?;
+        std::fs::create_dir_all(&settings.adm.remote_settings.storage_path)?;
+        let mut rs_client = {
+            let mut rs_client_builder = remote_settings_client::Client::builder()
+                .collection_name(&settings.adm.remote_settings.collection)
+                .storage(Box::new(FileStorage {
+                    folder: settings.adm.remote_settings.storage_path.clone(),
+                    ..Default::default()
+                }));
+            if let Some(server) = &settings.adm.remote_settings.server {
+                rs_client_builder = rs_client_builder.server_url(server);
+            }
+            rs_client_builder.build().map_err(|s| anyhow!("{}", s))?
+        };
+
         // `.sync()` blocks while doing IO
         rs_client.sync(None)?;
 
@@ -55,7 +60,7 @@ impl RemoteSettingsSuggester {
             .collect::<Result<_, <Value as serde::Deserializer>::Error>>()?;
 
         // Sort records by type
-        let records_by_type: HashMap<&str, Vec<&SuggestRecord>> =
+        let mut records_by_type: HashMap<&str, Vec<&SuggestRecord>> =
             records.iter().fold(HashMap::new(), |mut acc, record| {
                 acc.entry(&record.record_type)
                     .or_insert_with(Vec::new)
@@ -65,8 +70,8 @@ impl RemoteSettingsSuggester {
 
         // The suggestion options are stored in attachments instead of directly in the RS records.
         let suggestion_attachment_metas = records_by_type
-            .get("data")
-            .ok_or_else(|| anyhow!("No data records found"))?
+            .entry("data")
+            .or_insert_with(Vec::new)
             .iter()
             .flat_map(|r| r.attachment.as_ref());
 
@@ -105,6 +110,11 @@ impl RemoteSettingsSuggester {
                 }
             }
         }
+
+        if suggestions.is_empty() {
+            println!("Warn: No suggestion records found on Remote Settings");
+        }
+
         self.suggestions = suggestions;
 
         Ok(())

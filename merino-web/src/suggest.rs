@@ -40,7 +40,7 @@ async fn setup_suggesters(settings: &Settings) -> Result<Vec<Box<dyn Suggester>>
 async fn suggest(
     query: Query<SuggestQuery>,
     suggesters: Data<SuggesterSet>,
-    settings: Data<&Settings>,
+    settings: Data<Settings>,
 ) -> Result<HttpResponse, HandlerError> {
     let suggesters = suggesters
         .get_or_try_init(|| setup_suggesters(settings.as_ref()))
