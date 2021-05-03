@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["deserialize","Deserialize function, see crate docs to see how to use it"],["serialize","Deserialize function, see crate docs to see how to use it"]],"struct":[["Serde","A wrapper type which implements `Serialize` and `Deserialize` for types involving `Regex`"]]});

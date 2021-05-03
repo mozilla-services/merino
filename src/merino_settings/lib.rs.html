@@ -124,6 +124,19 @@
 <span id="121">121</span>
 <span id="122">122</span>
 <span id="123">123</span>
+<span id="124">124</span>
+<span id="125">125</span>
+<span id="126">126</span>
+<span id="127">127</span>
+<span id="128">128</span>
+<span id="129">129</span>
+<span id="130">130</span>
+<span id="131">131</span>
+<span id="132">132</span>
+<span id="133">133</span>
+<span id="134">134</span>
+<span id="135">135</span>
+<span id="136">136</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! # Merino Settings</span>
 <span class="doccomment">//!</span>
@@ -192,8 +205,21 @@
 <span class="doccomment">/// Settings for the adM integration.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">AdmSettings</span> {
+    <span class="doccomment">/// Configuration for connection to Remote Settings to provide suggestions.</span>
+    <span class="kw">pub</span> <span class="ident">remote_settings</span>: <span class="ident">AdmRemoteSettingsConfig</span>,
+}
+
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">AdmRemoteSettingsConfig</span> {
     <span class="doccomment">/// The path, relative or absolute, to where to store remote settings data.</span>
-    <span class="kw">pub</span> <span class="ident">remote_settings_storage_path</span>: <span class="ident">PathBuf</span>,
+    <span class="kw">pub</span> <span class="ident">storage_path</span>: <span class="ident">PathBuf</span>,
+
+    <span class="doccomment">/// The server to sync from. If no value is provided, a default is provided</span>
+    <span class="doccomment">/// by the remote settings client.</span>
+    <span class="kw">pub</span> <span class="ident">server</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+
+    <span class="doccomment">/// The collection to sync form.</span>
+    <span class="kw">pub</span> <span class="ident">collection</span>: <span class="ident">String</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">Settings</span> {
