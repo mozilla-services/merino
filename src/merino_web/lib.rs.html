@@ -71,6 +71,24 @@
 <span id="68">68</span>
 <span id="69">69</span>
 <span id="70">70</span>
+<span id="71">71</span>
+<span id="72">72</span>
+<span id="73">73</span>
+<span id="74">74</span>
+<span id="75">75</span>
+<span id="76">76</span>
+<span id="77">77</span>
+<span id="78">78</span>
+<span id="79">79</span>
+<span id="80">80</span>
+<span id="81">81</span>
+<span id="82">82</span>
+<span id="83">83</span>
+<span id="84">84</span>
+<span id="85">85</span>
+<span id="86">86</span>
+<span id="87">87</span>
+<span id="88">88</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="attribute">#![<span class="ident">warn</span>(<span class="ident">missing_docs</span>, <span class="ident">clippy</span>::<span class="ident">missing_docs_in_private_items</span>)]</span>
 
@@ -92,32 +110,50 @@
 <span class="doccomment">/// The returned server is a `Future` that must either be `.await`ed, or run it</span>
 <span class="doccomment">/// as a background task using `tokio::spawn`.</span>
 <span class="doccomment">///</span>
+<span class="doccomment">/// Most of the details from `settings` will be respected, except for those that</span>
+<span class="doccomment">/// go into building the listener (the host and port). If you want to respect the</span>
+<span class="doccomment">/// settings specified in that object, you must include them in the construction</span>
+<span class="doccomment">/// of `listener`.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// # Errors</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// Returns an error if the server cannot be started on the provided listener.</span>
+<span class="doccomment">///</span>
 <span class="doccomment">/// # Examples</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// Run the server forever:</span>
+<span class="doccomment">/// Run the server in the foreground. This will only return if there is an error</span>
+<span class="doccomment">/// that causes the server to shut down. This is used to run Merino as a service,</span>
+<span class="doccomment">/// such as in production.</span>
 <span class="doccomment">///</span>
+<span class="doccomment">/// ```no_run</span>
+<span class="doccomment">/// # tokio_test::block_on(async {</span>
+<span class="doccomment">/// let listener = std::net::TcpListener::bind(&quot;127.0.0.1:8080&quot;)</span>
+<span class="doccomment">///     .expect(&quot;Failed to bind port&quot;);</span>
+<span class="doccomment">/// let settings = merino_settings::Settings::load()</span>
+<span class="doccomment">///     .expect(&quot;Failed to load settings&quot;);</span>
+<span class="doccomment">/// merino_web::run(listener, settings)</span>
+<span class="doccomment">///     .expect(&quot;Failed to start server&quot;)</span>
+<span class="doccomment">///     .await</span>
+<span class="doccomment">///     .expect(&quot;Fatal error while running server&quot;);</span>
+<span class="doccomment">/// # })</span>
 <span class="doccomment">/// ```</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// Run the server as a background task. This will return immediately and process</span>
+<span class="doccomment">/// requests. This is useful for tests.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// ```no_run</span>
 <span class="doccomment">/// use std::net::TcpListener;</span>
+<span class="doccomment">/// use merino_settings::Settings;</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// tokio_test::block_on(async {</span>
-<span class="doccomment">///     let listener = TcpListener::bind(&quot;127.0.0.1:8080&quot;)</span>
-<span class="doccomment">///         .expect(&quot;Failed to bind port&quot;);</span>
-<span class="doccomment">///     merino_web::run(listener)</span>
-<span class="doccomment">///         .expect(&quot;Failed to bind address&quot;)</span>
-<span class="doccomment">///         .await;</span>
-<span class="doccomment">/// })</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Run the server as a background task:</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">/// use std::net::TcpListener;</span>
 <span class="doccomment">/// let listener = TcpListener::bind(&quot;127.0.0.1:8080&quot;)</span>
 <span class="doccomment">///     .expect(&quot;Failed to bind port&quot;);</span>
-<span class="doccomment">/// let server = merino_web::run(listener)</span>
-<span class="doccomment">///     .expect(&quot;Failed to find address&quot;);</span>
+<span class="doccomment">/// let settings = merino_settings::Settings::load()</span>
+<span class="doccomment">///     .expect(&quot;Failed to load settings&quot;);</span>
+<span class="doccomment">/// let server = merino_web::run(listener, settings)</span>
+<span class="doccomment">///     .expect(&quot;Failed to start server&quot;);</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// /// The server can be stopped with `join_handle::abort()`, if needed.</span>
 <span class="doccomment">/// let join_handle = tokio::spawn(server);</span>
-<span class="doccomment">/// // The server can be stopped with join_handle::abort();</span>
 <span class="doccomment">/// ```</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">run</span>(<span class="ident">listener</span>: <span class="ident">TcpListener</span>, <span class="ident">settings</span>: <span class="ident">Settings</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Server</span>, <span class="ident">std</span>::<span class="ident">io</span>::<span class="ident">Error</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">num_workers</span> <span class="op">=</span> <span class="ident">settings</span>.<span class="ident">http</span>.<span class="ident">workers</span>;
