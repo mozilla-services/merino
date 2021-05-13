@@ -1,0 +1,114 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Choosing a logging library for Merino"><meta name="keywords" content="rust, rustlang, rust-lang, adr_0001_logging"><title>merino::docs::adrs::adr_0001_logging - Rust</title><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../../storage.js"></script><script src="../../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg">
+<link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png">
+<link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../../down-arrow.svg");}</style></head><body class="rustdoc mod"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../../merino/index.html'><div class='logo-container rust-logo'><img src='../../../../rust-logo.png' alt='logo'></div></a><p class="location">Module adr_0001_logging</p><div class="sidebar-elems"><p class="location"><a href="../../../index.html">merino</a>::<wbr><a href="../../index.html">docs</a>::<wbr><a href="../index.html">adrs</a></p><div id="sidebar-vars" data-name="adr_0001_logging" data-ty="mod" data-relpath="../"></div><script defer src="../sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+                <a id="settings-menu" href="../../../../settings.html"><img src="../../../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Module <a href="../../../index.html">merino</a>::<wbr><a href="../../index.html">docs</a>::<wbr><a href="../index.html">adrs</a>::<wbr><a class="mod" href="">adr_0001_logging</a></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../../../../src/merino/docs/adrs/adr_0001_logging.rs.html#1-130" title="goto source code">[src]</a></span></h1><div class="docblock"><h1 id="choosing-a-logging-library-for-merino" class="section-header"><a href="#choosing-a-logging-library-for-merino">Choosing a logging library for Merino</a></h1>
+<ul>
+<li>Status: accepted</li>
+<li>Date: 2021-05-11</li>
+</ul>
+<p>Tracking issue:
+<a href="https://github.com/mozilla-services/merino/issues/15">mozilla-services/merino#15</a></p>
+<h2 id="context-and-problem-statement" class="section-header"><a href="#context-and-problem-statement">Context and Problem Statement</a></h2>
+<p>Merino needs a system to produce logging. Rust has several options to do this,
+with no clear winner. What library should Merino use?</p>
+<h3 id="the-log-crate" class="section-header"><a href="#the-log-crate">The <code>log</code> Crate</a></h3>
+<p>There is a de facto standard logging library for Rust,
+<a href="https://crates.io/crates/log"><code>log</code></a>. It is an important part of the decision,
+but it is not a solution to the problem: it is a logging <em>facade</em> that provides
+a way for libraries to produce their own logs, but does not provide any logging
+capabilities itself. Without a logger crate to use it with, the logs compile
+away to nothing.</p>
+<h2 id="decision-drivers" class="section-header"><a href="#decision-drivers">Decision Drivers</a></h2>
+<ul>
+<li>Sentry integration should be available</li>
+<li>MozLog format should be supported</li>
+<li>There should be both human and machine friendly logging output options.</li>
+<li>Library compatibility</li>
+</ul>
+<h2 id="considered-options" class="section-header"><a href="#considered-options">Considered Options</a></h2>
+<ol>
+<li><a href="https://crates.io/crates/slog">slog</a></li>
+<li><a href="https://crates.io/crates/tracing">tracing</a></li>
+</ol>
+<ul>
+<li>Something from the <code>log</code> ecosystem</li>
+</ul>
+<h2 id="decision-outcome" class="section-header"><a href="#decision-outcome">Decision Outcome</a></h2>
+<p>Option 2 - Tracing. Although Slog has more momentum at this time, Tracing
+sets us up for a better set of tools long term.</p>
+<h2 id="pros-and-cons-of-the-options-" class="section-header"><a href="#pros-and-cons-of-the-options-">Pros and Cons of the Options <!-- optional --></a></h2><h3 id="option-1---slog" class="section-header"><a href="#option-1---slog">Option 1 - Slog</a></h3>
+<blockquote>
+<p><code>slog</code> is an ecosystem of reusable components for structured, extensible,
+composable and contextual logging for Rust.</p>
+</blockquote>
+<p>Slog’s first release was 0.1.0 in June of 2016, and it’s 1.0 release was in
+September of 2016.</p>
+<p>To use it, developers create logger objects that provide methods to produce log
+lines and create sub-loggers. These loggers must be passed to lower level code
+explicitly to be used.</p>
+<p>Slog is compatible with the de facto <code>log</code> crate. Log lines emitted using that
+system (such as by libraries) can be routed to a logger object, with no loss of
+detail. Few libraries use slog directly, and none of the libraries that are
+currently used in Merino do at all. Since libraries aren’t using <code>slog</code>, it will
+be harder to make them participate in the logging hierarchy.</p>
+<p>Structured logging is supported. Logs can carry associated data, which can aid
+in the machine readability of logs.</p>
+<p>The tree of loggers is built explicitly through the loggers objects, and
+subloggers must be aware of superloggers, since the only way to get a sublogger
+is to call a method on a logger. This separates the logging structure from the
+call stack, but makes it awkward to recover that information should it be
+helpful. This means that logging generally has to be passed as arguments to many
+functions, making the tree of loggers less flexible.</p>
+<p>The Sentry library for Rust has support for slog. There is a a
+<a href="https://crates.io/crates/slog-mozlog-json">MozLog crate</a> for slog that Mozilla
+wrote.</p>
+<ul>
+<li>Good, because structured logging helps provide more useful logs.</li>
+<li>Good, because it has Sentry integration.</li>
+<li>Good, because it already has MozLog integration.</li>
+<li>Bad, because it has little library support.</li>
+<li>Bad, because explicitly building the logging tree is rigid.</li>
+</ul>
+<h3 id="option-2---tracing" class="section-header"><a href="#option-2---tracing">Option 2 - Tracing</a></h3>
+<blockquote>
+<p><code>tracing</code> is a framework for instrumenting Rust programs to collect
+structured, event-based diagnostic information.</p>
+</blockquote>
+<p>Tracing’s first release was 0.0.0 in November of 2017. It has not had a 1.0
+release. It’s latest release is 0.1.26, published April 2021.</p>
+<p>To use it, developers set up a global or scope-based subscriber of logs, which
+collects <em>spans</em> and <em>events</em> that are generated in the code. Spans can be
+<code>enter</code>ed and <code>exit</code>ed. During the time between these, all spans and events are
+associated with the entered span as their parent. This association happens
+explicitly, and can cross call boundaries. However, spans can be entered and
+exited in more fine grained ways if needed.</p>
+<p>Tracing is compatible with the de facto <code>log</code> crate. Log lines emitted using
+that system are seen as events in Tracing, with no loss of detail.</p>
+<p>Structured logging is supported. Both spans and events can carry associated
+data. This data can be accessed hierarchically, building up a context of
+execution.</p>
+<p>The tree of spans is built by entering spans. Loggers do not have to be aware of
+their parents, their logs are placed in the context of whatever set of spans has
+been entered at that moment. because [ one like we did with slog.</p>
+<p>Tracing is developed as a part of the Tokio ecosystem, the same that our web
+framework (Actix), http client (Reqwest), and async runtime (Tokio) are
+developed under. It has some library support. Additionally, since the tree of
+spans is built more implicitly, libraries that use the <code>log</code> facade can
+participate in our structured logging.</p>
+<ul>
+<li>Good, because structured logging helps provide more useful logs.</li>
+<li>Good, because it has good integration into the libraries we use.</li>
+<li>Good, because implicitly building the logging hierarchy and context is
+flexible.</li>
+<li>Bad, because it lacks Sentry support.</li>
+<li>Bad, because it lacks MozLog support.</li>
+</ul>
+<h3 id="option-3---something-in-the-log-ecosystem" class="section-header"><a href="#option-3---something-in-the-log-ecosystem">Option 3 - Something in the <code>log</code> ecosystem</a></h3>
+<p>This option was not considered deeply because <code>log</code> does not support structured
+logging. Not being able to attach concrete data to logs makes much of the
+logging tasks much harder.</p>
+<ul>
+<li>Bad, because it lacks structured logging.</li>
+</ul>
+</div></section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="merino" data-search-js="../../../../search-index.js"></div>
+    <script src="../../../../main.js"></script></body></html>

@@ -1,0 +1,3 @@
+(function() {var implementors = {};
+implementors["merino_web"] = [{"text":"impl <a class=\"trait\" href=\"tracing_actix_web/root_span_builder/trait.RootSpanBuilder.html\" title=\"trait tracing_actix_web::root_span_builder::RootSpanBuilder\">RootSpanBuilder</a> for <a class=\"struct\" href=\"merino_web/logging/struct.MerinoRootSpanBuilder.html\" title=\"struct merino_web::logging::MerinoRootSpanBuilder\">MerinoRootSpanBuilder</a>","synthetic":false,"types":["merino_web::logging::MerinoRootSpanBuilder"]}];
+if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()
