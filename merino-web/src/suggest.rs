@@ -19,6 +19,7 @@ type SuggesterSet = OnceCell<Vec<Box<dyn Suggester>>>;
 
 /// Configure a route to use the Suggest service.
 pub fn configure(config: &mut ServiceConfig) {
+    tracing::info!("configuring suggest service");
     config
         .data::<SuggesterSet>(OnceCell::new())
         .service(suggest);
@@ -26,7 +27,7 @@ pub fn configure(config: &mut ServiceConfig) {
 
 /// Set up configured suggestion providers.
 async fn setup_suggesters(settings: &Settings) -> Result<Vec<Box<dyn Suggester>>> {
-    println!("Setting up suggesters");
+    tracing::info!("Setting up suggesters");
     let mut adm_rs_provider = merino_adm::remote_settings::RemoteSettingsSuggester::default();
     adm_rs_provider
         .sync(settings)
@@ -37,6 +38,7 @@ async fn setup_suggesters(settings: &Settings) -> Result<Vec<Box<dyn Suggester>>
 
 /// Suggest content in response to the queried text.
 #[get("")]
+#[tracing::instrument(skip(query, suggesters, settings))]
 async fn suggest(
     query: Query<SuggestQuery>,
     suggesters: Data<SuggesterSet>,
@@ -46,17 +48,21 @@ async fn suggest(
         .get_or_try_init(|| setup_suggesters(settings.as_ref()))
         .await
         .map_err(|e| {
-            println!(
+            tracing::error!(
                 "suggester error {:?}\nchain: {:?}",
                 e,
                 e.chain().collect::<Vec<_>>(),
             );
             HandlerError::Internal
         })?;
-    let suggestions = suggesters
+    let suggestions: Vec<Suggestion> = suggesters
         .iter()
         .flat_map(|sug| sug.suggest(&query.q))
         .collect();
+    tracing::info!(
+        suggestion_count = suggestions.len(),
+        "Providing suggestions"
+    );
     Ok(HttpResponse::Ok().json(SuggestResponse { suggestions }))
 }
 

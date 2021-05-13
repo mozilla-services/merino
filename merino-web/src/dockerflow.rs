@@ -4,6 +4,7 @@ use std::collections::HashMap;
 
 use actix_web::{get, web, HttpRequest, HttpResponse};
 use serde::Serialize;
+use tracing::Level;
 
 use crate::errors::HandlerError;
 
@@ -114,6 +115,7 @@ fn heartbeat(_: HttpRequest) -> HttpResponse {
 
 /// Returning an API error to test error handling.
 #[get("__error__")]
-async fn test_error(_: HttpRequest) -> Result<HttpResponse, HandlerError> {
+async fn test_error() -> Result<HttpResponse, HandlerError> {
+    tracing::event!(Level::ERROR, "The __error__ endpoint was called");
     Err(HandlerError::Internal)
 }
