@@ -2,6 +2,11 @@
 # and optimize usage of layer caching. Docker 17.05 or higher required for
 # multi-stage builds.
 
+# Updating this argument will clear the cache of the package installations
+# below. This will cause a full rebuild, but it is the only way to get package
+# updates with out changing the base image.
+ARG CACHE_BUST="2021-05-13"
+
 # =============================================================================
 # Analyze the project, and produce a plan to compile its dependcies. This will
 # be run every time. The output should only change if the dependencies of the
@@ -26,7 +31,7 @@ RUN cargo chef cook --release --recipe-path recipe.json
 FROM rust:1.51 as builder
 WORKDIR /app
 ARG RUST_TOOLCHAIN=stable
-ARG CACHE_BUST="2021-05-13"
+ARG CACHE_BUST
 
 RUN mkdir -m 755 bin
 RUN apt-get -qq update && \
@@ -45,7 +50,7 @@ RUN cp /app/target/release/merino /app/bin
 # Finally prepare a Docker image based on a slim image that only contains the
 # files needed to run the project.
 FROM debian:buster-slim as runtime
-ARG CACHE_BUST="2021-05-13"
+ARG CACHE_BUST
 
 RUN apt-get -qq update && \
     apt-get -qq upgrade && \
