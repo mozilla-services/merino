@@ -31,7 +31,10 @@
 //!
 //! ### Create a local override
 //!
-//! For local changes to adapt to your machine or tastes, you can put the configuration in `config/local.yaml`. These file doesn't exist by default. These changes won't be a part of the git history, so it is safe to put secrets here, if needed.
+//! For local changes to adapt to your machine or tastes, you can put the
+//! configuration in `config/local.yaml`. These file doesn't exist by default.
+//! These changes won't be a part of the git history, so it is safe to put
+//! secrets here, if needed.
 //!
 //! ### Create a new configuration
 //!
@@ -51,9 +54,9 @@
 //! Since this file is meant to be checked into the repository, it is **not**
 //! suitable for secrets.
 //!
-//! > Note that none of the above overrides are uses in tests. If you need to >
-//! configure the test environment, you can edit `config/test.yaml` or create >
-//! `config/local_test.yaml`.
+//! > Note that none of the above overrides are uses in tests. If you need to
+//! > configure the test environment, you can edit `config/test.yaml` or create
+//! > `config/local_test.yaml`.
 //!
 //! ## Recommended Tools
 //!
