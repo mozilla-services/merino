@@ -17,7 +17,7 @@
 //!
 //! This is the main Merino application, and one of the *binary* crates in the
 //! repository. It brings together and configures the other crates to create a
-//! production-like environment for Firefox suggest.
+//! production-like environment for Firefox Suggest.
 //!
 //! ## [`merino-settings`](../../merino_settings/index.html)
 //!
@@ -27,7 +27,7 @@
 //!
 //! ## [`merino-web`](../../merino_web/index.html)
 //!
-//! This crate provides and HTTP API to access Merino, including providing
+//! This crate provides an HTTP API to access Merino, including providing
 //! observability into the running of the application via that API.
 //!
 //! ## [`merino-suggest`](../../merino_suggest/index.html)
