@@ -8,20 +8,17 @@ use serde::Deserialize;
 
 #[actix_rt::test]
 async fn lbheartbeat_works() {
-    merino_test(
-        |_| (),
-        |TestingTools { test_client, .. }| async move {
-            let response = test_client
-                .get("/__lbheartbeat__")
-                .send()
-                .await
-                .expect("failed to execute request");
+    let test = |TestingTools { test_client, .. }| async move {
+        let response = test_client
+            .get("/__lbheartbeat__")
+            .send()
+            .await
+            .expect("failed to execute request");
 
-            assert_eq!(response.status(), StatusCode::OK);
-            assert_eq!(response.content_length(), Some(0));
-        },
-    )
-    .await
+        assert_eq!(response.status(), StatusCode::OK);
+        assert_eq!(response.content_length(), Some(0));
+    };
+    merino_test(|_| (), test).await
 }
 
 #[actix_rt::test]
