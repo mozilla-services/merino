@@ -18,6 +18,26 @@
 //! servers, sets up the application for testing, and provides helpers to inspect
 //! the state of the app. It then calls the test function that is passed to it,
 //! providing the above tools as an argument.
+//!
+//! ```
+//! #[actix_rt::test]
+//! async fn lbheartbeat_works() {
+//!     merino_test(
+//!         |_| (),
+//!         |TestingTools { test_client, .. }| async move {
+//!             let response = test_client
+//!                 .get("/__lbheartbeat__")
+//!                 .send()
+//!                 .await
+//!                 .expect("failed to execute request");
+//!
+//!             assert_eq!(response.status(), StatusCode::OK);
+//!             assert_eq!(response.content_length(), Some(0));
+//!         },
+//!     )
+//!     .await
+//! }
+//! ```
 
 mod debug;
 mod dockerflow;
@@ -36,14 +56,15 @@ use tracing_subscriber::{fmt::MakeWriter, layer::SubscriberExt};
 /// A marker to track that the viaduct backend has been initialized.
 static VIADUCT_INIT: Once = Once::new();
 
-/// Run a test with a full configured Merino server.
+/// Run a test with a fully configured Merino server.
 ///
 /// The server will listen on a port assigned arbitrarily by the OS.
 ///
-/// A suite of tools will be passed to the test function, which will include an
-/// HTTP client configured to use the test server, an HTTP mock server that
-/// Remote Settings has been configured to read from, and a log collector that
-/// can make assertions about logs that were printed.
+/// A suite of tools will be passed to the test function in the form of an
+/// instance of [`TestingTools`]. It includes an HTTP client configured to use
+/// the test server, an HTTP mock server that Remote Settings has been configured
+/// to read from, and a log collector that can make assertions about logs that
+/// were printed.
 ///
 /// # Example
 ///
