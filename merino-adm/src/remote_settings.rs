@@ -2,14 +2,20 @@
 
 use anyhow::{anyhow, Result};
 use futures::stream::{self, StreamExt};
+use lazy_static::lazy_static;
 use merino_settings::Settings;
 use merino_suggest::{Suggester, Suggestion};
 use radix_trie::{Trie, TrieCommon};
 use remote_settings_client::client::FileStorage;
 use serde::Deserialize;
 use serde_json::Value;
+use serde_with::{serde_as, DisplayFromStr};
 use std::{collections::HashMap, rc::Rc};
 use tokio::sync::OnceCell;
+
+lazy_static! {
+    static ref NON_SPONSORED_IAB_CATEGORIES: Vec<&'static str> = vec!["5 - Education"];
+}
 
 /// Make suggestions based on data in Remote Settings
 #[derive(Debug, Default)]
@@ -49,6 +55,12 @@ impl RemoteSettingsSuggester {
         // `.sync()` blocks while doing IO
         rs_client.sync(None)?;
 
+        // Get the base URL to download attachments from.
+        let attachment_base_url = &REMOTE_SETTINGS_SERVER_INFO
+            .get_or_try_init(|| RemoteSettingsServerInfo::fetch(&reqwest_client))
+            .await?
+            .attachment_base_url()?;
+
         // Get records from Remote Settings, and convert them into a schema instead of using JSON `Value`s.
         let records: Vec<SuggestRecord> = rs_client
             // `.get()` blocks while doing IO
@@ -70,18 +82,26 @@ impl RemoteSettingsSuggester {
                 acc
             });
 
-        // The suggestion options are stored in attachments instead of directly in the RS records.
-        let suggestion_attachment_metas = records_by_type
-            .entry("data")
-            .or_insert_with(Vec::new)
+        // Build a map of icon IDs to URLs.
+        let icon_urls: HashMap<String, String> = records_by_type
+            .entry("icon")
+            .or_default()
             .iter()
-            .flat_map(|r| r.attachment.as_ref());
+            .flat_map(|record| {
+                record.attachment.as_ref().map(|attachment| {
+                    let url = format!("{}{}", attachment_base_url, attachment.location);
+                    (record.id.clone(), url)
+                })
+            })
+            .collect();
 
-        // Get the base URL to download attachments from.
-        let attachment_base_url = &REMOTE_SETTINGS_SERVER_INFO
-            .get_or_try_init(|| RemoteSettingsServerInfo::fetch(&reqwest_client))
-            .await?
-            .attachment_base_url()?;
+        // The suggestion options are stored in attachments instead of directly in the RS records.
+        let suggestion_attachment_metas: Vec<_> = records_by_type
+            .entry("data")
+            .or_default()
+            .iter()
+            .flat_map(|r| r.attachment.as_ref())
+            .collect();
 
         // Download all the attachments, concurrently.
         let suggestion_attachments = stream::iter(suggestion_attachment_metas)
@@ -103,9 +123,33 @@ impl RemoteSettingsSuggester {
         let mut suggestions = Trie::new();
         for attachment in suggestion_attachments {
             for adm_suggestion in attachment? {
+                if adm_suggestion.keywords.is_empty() {
+                    continue;
+                }
+
+                let icon_key = format!("icon-{}", adm_suggestion.icon);
+                let icon_url = match icon_urls.get(&icon_key) {
+                    Some(url) => url.clone(),
+                    None => continue,
+                };
+
+                let full_keyword = adm_suggestion
+                    .keywords
+                    .iter()
+                    .max_by_key(|kw| kw.len())
+                    .expect("No keywords?")
+                    .clone();
+
                 let merino_suggestion = Rc::new(Suggestion {
+                    id: adm_suggestion.id,
                     title: adm_suggestion.title.clone(),
                     url: adm_suggestion.url.clone(),
+                    impression_url: adm_suggestion.impression_url,
+                    full_keyword,
+                    advertiser: adm_suggestion.advertiser,
+                    is_sponsored: !NON_SPONSORED_IAB_CATEGORIES
+                        .contains(&adm_suggestion.iab_category.as_str()),
+                    icon: icon_url,
                 });
                 for keyword in adm_suggestion.keywords {
                     suggestions.insert(keyword, merino_suggestion.clone());
@@ -183,6 +227,9 @@ struct RemoteSettingsAttachmentsCapability {
 /// including fields needed to retrieve suggestions.
 #[derive(Deserialize)]
 struct SuggestRecord {
+    /// Record ID
+    id: String,
+
     /// Attachment information, if any.
     attachment: Option<AttachmentMeta>,
 
@@ -203,6 +250,7 @@ struct AttachmentMeta {
 }
 
 /// A suggestion record from AdM
+#[serde_as]
 #[derive(Debug, Deserialize)]
 #[allow(clippy::missing_docs_in_private_items)]
 struct AdmSuggestion {
@@ -211,7 +259,8 @@ struct AdmSuggestion {
     click_url: String,
     impression_url: String,
     iab_category: String,
-    icon: String,
+    #[serde_as(as = "DisplayFromStr")]
+    icon: u64,
     advertiser: String,
     title: String,
     keywords: Vec<String>,
@@ -230,16 +279,23 @@ mod tests {
             Rc::new(Suggestion {
                 title: "Wikipedia - Sheep".to_string(),
                 url: "https://en.wikipedia.org/wiki/Sheep".to_string(),
+                id: 1,
+                full_keyword: "sheep".to_string(),
+                impression_url: "https://127.0.0.1".to_string(),
+                advertiser: "test".to_string(),
+                is_sponsored: false,
+                icon: "https://en.wikipedia.org/favicon.ico".to_string(),
             }),
         );
         let rs_suggester = RemoteSettingsSuggester { suggestions };
 
         assert_eq!(
-            rs_suggester.suggest("sheep"),
-            vec![Suggestion {
-                title: "Wikipedia - Sheep".to_string(),
-                url: "https://en.wikipedia.org/wiki/Sheep".to_string(),
-            }]
+            rs_suggester
+                .suggest("sheep")
+                .iter()
+                .map(|s| &s.title)
+                .collect::<Vec<_>>(),
+            vec!["Wikipedia - Sheep"]
         );
     }
 }
