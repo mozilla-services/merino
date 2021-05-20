@@ -279,12 +279,24 @@
 <span id="276">276</span>
 <span id="277">277</span>
 <span id="278">278</span>
+<span id="279">279</span>
+<span id="280">280</span>
+<span id="281">281</span>
+<span id="282">282</span>
+<span id="283">283</span>
+<span id="284">284</span>
+<span id="285">285</span>
+<span id="286">286</span>
+<span id="287">287</span>
+<span id="288">288</span>
+<span id="289">289</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! AdM integration that uses adM&#39;s server-side API to retrieve suggestions to</span>
 <span class="doccomment">//! provide to Firefox.</span>
 
-<span class="kw">use</span> <span class="ident">actix_web</span>::<span class="ident">http</span>::<span class="ident">Uri</span>;
+<span class="kw">use</span> <span class="ident">http</span>::<span class="ident">Uri</span>;
 <span class="kw">use</span> <span class="ident">serde_derive</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
+<span class="kw">use</span> <span class="ident">serde_with</span>::{<span class="ident">serde_as</span>, <span class="ident">DisplayFromStr</span>};
 
 <span class="doccomment">/// Parameters for AdM Conducive API Instant Suggest endpoint, v4.7.21</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>)]</span>
@@ -427,6 +439,7 @@
 }
 
 <span class="doccomment">/// A suggestion (paid or not) from the adM API.</span>
+<span class="attribute">#[<span class="ident">serde_as</span>]</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>)]</span>
 <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename_all</span> <span class="op">=</span> <span class="string">&quot;camelCase&quot;</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Suggestion</span> {
@@ -435,13 +448,16 @@
     <span class="ident">title</span>: <span class="ident">String</span>,
 
     <span class="doccomment">/// The URL to direct the user to on click</span>
-    <span class="ident">click_url</span>: <span class="ident">String</span>,
+    <span class="attribute">#[<span class="ident">serde_as</span>(<span class="kw">as</span> <span class="op">=</span> <span class="string">&quot;DisplayFromStr&quot;</span>)]</span>
+    <span class="ident">click_url</span>: <span class="ident">Uri</span>,
 
-    <span class="doccomment">/// The image to show along side the suggestion</span>
-    <span class="ident">image_url</span>: <span class="ident">String</span>,
+    <span class="doccomment">/// The URL of the image to show along side the suggestion</span>
+    <span class="attribute">#[<span class="ident">serde_as</span>(<span class="kw">as</span> <span class="op">=</span> <span class="string">&quot;DisplayFromStr&quot;</span>)]</span>
+    <span class="ident">image_url</span>: <span class="ident">Uri</span>,
 
     <span class="doccomment">/// The URL to notify when the suggestion is displayed</span>
-    <span class="ident">impression_url</span>: <span class="ident">String</span>,
+    <span class="attribute">#[<span class="ident">serde_as</span>(<span class="kw">as</span> <span class="op">=</span> <span class="string">&quot;DisplayFromStr&quot;</span>)]</span>
+    <span class="ident">impression_url</span>: <span class="ident">Uri</span>,
 
     <span class="doccomment">/// Indicates if visual ad labeling is required to be displayed alongside the suggestion.</span>
     <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;labelRequired&quot;</span>)]</span>
@@ -455,7 +471,8 @@
     <span class="ident">brand_domain</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
 
     <span class="doccomment">/// The advertiser URL</span>
-    <span class="ident">advertiser_url</span>: <span class="ident">String</span>,
+    <span class="attribute">#[<span class="ident">serde_as</span>(<span class="kw">as</span> <span class="op">=</span> <span class="string">&quot;DisplayFromStr&quot;</span>)]</span>
+    <span class="ident">advertiser_url</span>: <span class="ident">Uri</span>,
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
@@ -541,16 +558,21 @@
                         <span class="ident">results_count</span>: <span class="number">1</span>,
                         <span class="ident">ads</span>: <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">Suggestion</span> {
                             <span class="ident">title</span>: <span class="string">&quot;amazon.com - Huge Selection &amp; Amazing Prices&quot;</span>.<span class="ident">into</span>(),
-                            <span class="ident">click_url</span>: <span class="string">&quot;https://bridge.lga1.admarketplace.net/ctp?version=1...&quot;</span>
-                                .<span class="ident">into</span>(),
-                            <span class="ident">image_url</span>: <span class="string">&quot;https://cdn.45tu1c0.com/account/74042/200/152122808...&quot;</span>
-                                .<span class="ident">into</span>(),
-                            <span class="ident">impression_url</span>: <span class="string">&quot;https://imp.mt48.net/imp?id=7R7wx...&quot;</span>.<span class="ident">into</span>(),
+                            <span class="ident">click_url</span>: <span class="ident">Uri</span>::<span class="ident">from_static</span>(
+                                <span class="string">&quot;https://bridge.lga1.admarketplace.net/ctp?version=1...&quot;</span>
+                            ),
+                            <span class="ident">image_url</span>: <span class="ident">Uri</span>::<span class="ident">from_static</span>(
+                                <span class="string">&quot;https://cdn.45tu1c0.com/account/74042/200/152122808...&quot;</span>
+                            ),
+                            <span class="ident">impression_url</span>: <span class="ident">Uri</span>::<span class="ident">from_static</span>(
+                                <span class="string">&quot;https://imp.mt48.net/imp?id=7R7wx...&quot;</span>
+                            ),
                             <span class="ident">is_ad_label_required</span>: <span class="bool-val">false</span>,
                             <span class="ident">is_brand_ad</span>: <span class="bool-val">true</span>,
                             <span class="ident">brand_domain</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;amazon.com&quot;</span>.<span class="ident">into</span>()),
-                            <span class="ident">advertiser_url</span>: <span class="string">&quot;https://www.amazon.com/?tag=admarketus-20&amp;ref=p...&quot;</span>
-                                .<span class="ident">into</span>(),
+                            <span class="ident">advertiser_url</span>: <span class="ident">Uri</span>::<span class="ident">from_static</span>(
+                                <span class="string">&quot;https://www.amazon.com/?tag=admarketus-20&amp;ref=p...&quot;</span>
+                            ),
                         }],
                     }
                 }

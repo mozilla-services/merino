@@ -78,10 +78,6 @@
 <span id="75">75</span>
 <span id="76">76</span>
 <span id="77">77</span>
-<span id="78">78</span>
-<span id="79">79</span>
-<span id="80">80</span>
-<span id="81">81</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Web handlers for the suggestions API.</span>
 
@@ -117,7 +113,7 @@
     <span class="ident">adm_rs_provider</span>
         .<span class="ident">sync</span>(<span class="ident">settings</span>)
         .<span class="kw">await</span>
-        .<span class="ident">context</span>(<span class="string">&quot;syncing provider&quot;</span>)<span class="question-mark">?</span>;
+        .<span class="ident">context</span>(<span class="string">&quot;Syncing ADM suggestion data from Remote Settings&quot;</span>)<span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">WikiFruit</span>), <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">adm_rs_provider</span>)])
 }
 
@@ -132,12 +128,8 @@
     <span class="kw">let</span> <span class="ident">suggesters</span> <span class="op">=</span> <span class="ident">suggesters</span>
         .<span class="ident">get_or_try_init</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">setup_suggesters</span>(<span class="ident">settings</span>.<span class="ident">as_ref</span>()))
         .<span class="kw">await</span>
-        .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> {
-            <span class="ident">tracing</span>::<span class="macro">error</span><span class="macro">!</span>(
-                <span class="string">&quot;suggester error {:?}\nchain: {:?}&quot;</span>,
-                <span class="ident">e</span>,
-                <span class="ident">e</span>.<span class="ident">chain</span>().<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>(),
-            );
+        .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">error</span><span class="op">|</span> {
+            <span class="ident">tracing</span>::<span class="macro">error</span><span class="macro">!</span>(<span class="question-mark">?</span><span class="ident">error</span>, <span class="string">&quot;suggester error&quot;</span>);
             <span class="ident">HandlerError</span>::<span class="ident">Internal</span>
         })<span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">suggestions</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Suggestion</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">suggesters</span>
