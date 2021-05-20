@@ -5,7 +5,6 @@
 mod debug;
 mod dockerflow;
 mod errors;
-mod logging;
 mod suggest;
 
 use actix_cors::Cors;
@@ -15,9 +14,9 @@ use actix_web::{
     web::{self, Data},
     App, HttpResponse, HttpServer,
 };
-use logging::MerinoRootSpanBuilder;
 use merino_settings::Settings;
 use std::net::TcpListener;
+use tracing_actix_web_mozlog::MozLogMiddleware;
 
 /// Run the web server
 ///
@@ -75,7 +74,7 @@ pub fn run(listener: TcpListener, settings: Settings) -> Result<Server, std::io:
     let mut server = HttpServer::new(move || {
         App::new()
             .data::<Settings>((&settings).clone())
-            .wrap(tracing_actix_web::TracingLogger::<MerinoRootSpanBuilder>::new())
+            .wrap(MozLogMiddleware::new())
             .wrap(Cors::permissive())
             // The core functionality of Merino
             .service(web::scope("api/v1/suggest").configure(suggest::configure))

@@ -116,6 +116,10 @@ fn heartbeat(_: HttpRequest) -> HttpResponse {
 /// Returning an API error to test error handling.
 #[get("__error__")]
 async fn test_error() -> Result<HttpResponse, HandlerError> {
-    tracing::event!(Level::ERROR, "The __error__ endpoint was called");
+    tracing::event!(
+        Level::ERROR,
+        r#type = "dockerflow.error_endpoint",
+        "The __error__ endpoint was called"
+    );
     Err(HandlerError::Internal)
 }

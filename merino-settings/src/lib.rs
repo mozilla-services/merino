@@ -27,7 +27,7 @@
 
 mod logging;
 
-pub use logging::LoggingSettings;
+pub use logging::{LogFormat, LoggingSettings};
 
 use anyhow::{Context, Result};
 use config::{Config, Environment, File};

@@ -37,6 +37,24 @@ pub struct LoggingSettings {
     /// RUST_LOG=INFO,merino_web=DEBUG,viaduct=WARN
     /// ```
     pub levels: DirectiveWrapper,
+
+    /// The format to output logs in.
+    pub format: LogFormat,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "lowercase")]
+pub enum LogFormat {
+    /// [`tracing-subscriber`]'s human targeted, pretty format. Includes more
+    /// information, Multiple lines per log event.
+    Pretty,
+
+    /// [MozLog](https://wiki.mozilla.org/Firefox/Services/Logging) JSON format.
+    /// One line per log event.
+    MozLog,
+
+    /// [`tracing-subscriber`]'s default format. One line per log event.
+    Compact,
 }
 
 /// Tracing's Directive object for filter logs isn't `Clone` or `Serializable`.
