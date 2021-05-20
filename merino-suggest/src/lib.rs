@@ -2,9 +2,12 @@
 
 //! Suggestion backends for [Merino](../merino/index.html).
 
+use http::Uri;
 use serde::Serialize;
+use serde_with::{serde_as, DisplayFromStr};
 
 /// A suggestion to provide to a user.
+#[serde_as]
 #[derive(Clone, Debug, Serialize, PartialEq)]
 pub struct Suggestion {
     /// The content provider ID of the suggestion.
@@ -19,10 +22,16 @@ pub struct Suggestion {
     pub title: String,
 
     /// The URL to send the user to if they select this suggestion.
-    pub url: String,
+    #[serde_as(as = "DisplayFromStr")]
+    pub url: Uri,
 
     /// The URL to notify when this keyword is presented to a user.
-    pub impression_url: String,
+    #[serde_as(as = "DisplayFromStr")]
+    pub impression_url: Uri,
+
+    /// The URL to notify when this keyword is clicked on by a user.
+    #[serde_as(as = "DisplayFromStr")]
+    pub click_url: Uri,
 
     /// The name of the advertiser associated with this suggestion.
     pub advertiser: String,
@@ -31,7 +40,8 @@ pub struct Suggestion {
     pub is_sponsored: bool,
 
     /// The URL of the icon to show along side this suggestion.
-    pub icon: String,
+    #[serde_as(as = "DisplayFromStr")]
+    pub icon: Uri,
 }
 
 /// A backend that can provide suggestions for queries.
@@ -50,31 +60,34 @@ impl Suggester for WikiFruit {
                 id: 1,
                 full_keyword: "apple".to_string(),
                 title: "Wikipedia - Apple".to_string(),
-                url: "https://en.wikipedia.org/wiki/Apple".to_string(),
-                impression_url: "https://127.0.0.1/".to_string(),
+                url: Uri::from_static("https://en.wikipedia.org/wiki/Apple"),
+                impression_url: Uri::from_static("https://127.0.0.1/"),
+                click_url: Uri::from_static("https://127.0.0.1/"),
                 advertiser: "Merino::WikiFruit".to_string(),
                 is_sponsored: false,
-                icon: "https://en.wikipedia.org/favicon.ico".to_string(),
+                icon: Uri::from_static("https://en.wikipedia.org/favicon.ico"),
             }),
             "banana" => Some(Suggestion {
                 id: 1,
                 full_keyword: "banana".to_string(),
                 title: "Wikipedia - Banana".to_string(),
-                url: "https://en.wikipedia.org/wiki/Banana".to_string(),
-                impression_url: "https://127.0.0.1/".to_string(),
+                url: Uri::from_static("https://en.wikipedia.org/wiki/Banana"),
+                impression_url: Uri::from_static("https://127.0.0.1/"),
+                click_url: Uri::from_static("https://127.0.0.1/"),
                 advertiser: "Merino::WikiFruit".to_string(),
                 is_sponsored: false,
-                icon: "https://en.wikipedia.org/favicon.ico".to_string(),
+                icon: Uri::from_static("https://en.wikipedia.org/favicon.ico"),
             }),
             "cherry" => Some(Suggestion {
                 id: 1,
                 full_keyword: "cherry".to_string(),
                 title: "Wikipedia - Cherry".to_string(),
-                url: "https://en.wikipedia.org/wiki/Cherry".to_string(),
-                impression_url: "https://127.0.0.1/".to_string(),
+                url: Uri::from_static("https://en.wikipedia.org/wiki/Cherry"),
+                impression_url: Uri::from_static("https://127.0.0.1/"),
+                click_url: Uri::from_static("https://127.0.0.1/"),
                 advertiser: "Merino::WikiFruit".to_string(),
                 is_sponsored: false,
-                icon: "https://en.wikipedia.org/favicon.ico".to_string(),
+                icon: Uri::from_static("https://en.wikipedia.org/favicon.ico"),
             }),
             _ => None,
         };

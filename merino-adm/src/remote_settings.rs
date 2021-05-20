@@ -2,6 +2,7 @@
 
 use anyhow::{anyhow, Result};
 use futures::stream::{self, StreamExt};
+use http::Uri;
 use lazy_static::lazy_static;
 use merino_settings::Settings;
 use merino_suggest::{Suggester, Suggestion};
@@ -10,7 +11,7 @@ use remote_settings_client::client::FileStorage;
 use serde::Deserialize;
 use serde_json::Value;
 use serde_with::{serde_as, DisplayFromStr};
-use std::{collections::HashMap, rc::Rc};
+use std::{collections::HashMap, convert::TryFrom, rc::Rc};
 use tokio::sync::OnceCell;
 
 lazy_static! {
@@ -129,8 +130,17 @@ impl RemoteSettingsSuggester {
 
                 let icon_key = format!("icon-{}", adm_suggestion.icon);
                 let icon_url = match icon_urls.get(&icon_key) {
-                    Some(url) => url.clone(),
-                    None => continue,
+                    Some(s) => match Uri::try_from(s) {
+                        Ok(url) => url,
+                        Err(error) => {
+                            tracing::warn!(suggestion_id = %adm_suggestion.id, %error, url = %s, "ADM suggestion has invalid icon URL");
+                            continue;
+                        }
+                    },
+                    None => {
+                        tracing::warn!(suggestion_id = %adm_suggestion.id, "ADM suggestion has no icon");
+                        continue;
+                    }
                 };
 
                 let full_keyword = adm_suggestion
@@ -145,6 +155,7 @@ impl RemoteSettingsSuggester {
                     title: adm_suggestion.title.clone(),
                     url: adm_suggestion.url.clone(),
                     impression_url: adm_suggestion.impression_url,
+                    click_url: adm_suggestion.click_url,
                     full_keyword,
                     advertiser: adm_suggestion.advertiser,
                     is_sponsored: !NON_SPONSORED_IAB_CATEGORIES
@@ -255,9 +266,12 @@ struct AttachmentMeta {
 #[allow(clippy::missing_docs_in_private_items)]
 struct AdmSuggestion {
     id: u32,
-    url: String,
-    click_url: String,
-    impression_url: String,
+    #[serde_as(as = "DisplayFromStr")]
+    url: Uri,
+    #[serde_as(as = "DisplayFromStr")]
+    click_url: Uri,
+    #[serde_as(as = "DisplayFromStr")]
+    impression_url: Uri,
     iab_category: String,
     #[serde_as(as = "DisplayFromStr")]
     icon: u64,
@@ -278,13 +292,14 @@ mod tests {
             "sheep".to_string(),
             Rc::new(Suggestion {
                 title: "Wikipedia - Sheep".to_string(),
-                url: "https://en.wikipedia.org/wiki/Sheep".to_string(),
+                url: Uri::from_static("https://en.wikipedia.org/wiki/Sheep"),
                 id: 1,
                 full_keyword: "sheep".to_string(),
-                impression_url: "https://127.0.0.1".to_string(),
+                impression_url: Uri::from_static("https://127.0.0.1"),
+                click_url: Uri::from_static("https://127.0.0.1"),
                 advertiser: "test".to_string(),
                 is_sponsored: false,
-                icon: "https://en.wikipedia.org/favicon.ico".to_string(),
+                icon: Uri::from_static("https://en.wikipedia.org/favicon.ico"),
             }),
         );
         let rs_suggester = RemoteSettingsSuggester { suggestions };

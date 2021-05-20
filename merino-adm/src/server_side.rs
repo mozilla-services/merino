@@ -1,8 +1,9 @@
 //! AdM integration that uses adM's server-side API to retrieve suggestions to
 //! provide to Firefox.
 
-use actix_web::http::Uri;
+use http::Uri;
 use serde_derive::{Deserialize, Serialize};
+use serde_with::{serde_as, DisplayFromStr};
 
 /// Parameters for AdM Conducive API Instant Suggest endpoint, v4.7.21
 #[derive(Debug, Serialize, Deserialize, PartialEq)]
@@ -145,6 +146,7 @@ pub struct PaidSuggestionsTextAdsResponse {
 }
 
 /// A suggestion (paid or not) from the adM API.
+#[serde_as]
 #[derive(Debug, Serialize, Deserialize, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub struct Suggestion {
@@ -153,13 +155,16 @@ pub struct Suggestion {
     title: String,
 
     /// The URL to direct the user to on click
-    click_url: String,
+    #[serde_as(as = "DisplayFromStr")]
+    click_url: Uri,
 
-    /// The image to show along side the suggestion
-    image_url: String,
+    /// The URL of the image to show along side the suggestion
+    #[serde_as(as = "DisplayFromStr")]
+    image_url: Uri,
 
     /// The URL to notify when the suggestion is displayed
-    impression_url: String,
+    #[serde_as(as = "DisplayFromStr")]
+    impression_url: Uri,
 
     /// Indicates if visual ad labeling is required to be displayed alongside the suggestion.
     #[serde(rename = "labelRequired")]
@@ -173,7 +178,8 @@ pub struct Suggestion {
     brand_domain: Option<String>,
 
     /// The advertiser URL
-    advertiser_url: String,
+    #[serde_as(as = "DisplayFromStr")]
+    advertiser_url: Uri,
 }
 
 #[cfg(test)]
@@ -259,16 +265,21 @@ mod tests {
                         results_count: 1,
                         ads: vec![Suggestion {
                             title: "amazon.com - Huge Selection & Amazing Prices".into(),
-                            click_url: "https://bridge.lga1.admarketplace.net/ctp?version=1..."
-                                .into(),
-                            image_url: "https://cdn.45tu1c0.com/account/74042/200/152122808..."
-                                .into(),
-                            impression_url: "https://imp.mt48.net/imp?id=7R7wx...".into(),
+                            click_url: Uri::from_static(
+                                "https://bridge.lga1.admarketplace.net/ctp?version=1..."
+                            ),
+                            image_url: Uri::from_static(
+                                "https://cdn.45tu1c0.com/account/74042/200/152122808..."
+                            ),
+                            impression_url: Uri::from_static(
+                                "https://imp.mt48.net/imp?id=7R7wx..."
+                            ),
                             is_ad_label_required: false,
                             is_brand_ad: true,
                             brand_domain: Some("amazon.com".into()),
-                            advertiser_url: "https://www.amazon.com/?tag=admarketus-20&ref=p..."
-                                .into(),
+                            advertiser_url: Uri::from_static(
+                                "https://www.amazon.com/?tag=admarketus-20&ref=p..."
+                            ),
                         }],
                     }
                 }
