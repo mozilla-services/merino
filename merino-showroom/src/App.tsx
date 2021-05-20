@@ -31,8 +31,14 @@ interface MerinoApiResponse {
 }
 
 interface Suggestion {
+  id: number;
+  full_keyword: string;
   title: string;
   url: string;
+  impression_url: string;
+  advertiser: string;
+  is_sponsored: string;
+  icon: string;
 }
 
 const App: React.FC = () => {
@@ -323,16 +329,7 @@ const CompletionList: React.FC<CompletionListProps> = ({
   let completions = [...placeholderCompletions];
   for (let suggestion of data?.suggestions ?? []) {
     completions.push(
-      <CompletionItem
-        key={suggestion.url}
-        title={suggestion.title}
-        url={suggestion.url}
-        icon={
-          <div
-            className={`inline-block w-4 h-4 bg-gray-500 flex-grow-0 flex-shrink-0`}
-          ></div>
-        }
-      />
+      <CompletionItem key={suggestion.url} suggestion={suggestion} />
     );
   }
 
@@ -350,22 +347,18 @@ const CompletionList: React.FC<CompletionListProps> = ({
 };
 
 interface CompletionItemProps {
-  icon: React.ReactElement;
-  title: string;
-  url: string;
+  suggestion: Suggestion;
 }
 
-const CompletionItem: React.FC<CompletionItemProps> = ({
-  icon,
-  title,
-  url,
-}) => {
+const CompletionItem: React.FC<CompletionItemProps> = ({ suggestion }) => {
   return (
     <div className="mx-2 mt-2 flex flex-row items-center space-x-2">
-      <div className="w-4 h-4">{icon}</div>
-      <div className="flex-shrink">{title}</div>
+      <img src={suggestion.icon} className="w-4 h-4" />
+      <div className="flex-shrink">{suggestion.title}</div>
       <div>—</div>
-      <div className="flex-shrink text-xs text-opacity-50">{url}</div>
+      <div className="flex-shrink text-xs text-opacity-50">
+        {suggestion.url}
+      </div>
     </div>
   );
 };

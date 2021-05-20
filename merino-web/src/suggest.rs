@@ -32,7 +32,7 @@ async fn setup_suggesters(settings: &Settings) -> Result<Vec<Box<dyn Suggester>>
     adm_rs_provider
         .sync(settings)
         .await
-        .context("syncing provider")?;
+        .context("Syncing ADM suggestion data from Remote Settings")?;
     Ok(vec![Box::new(WikiFruit), Box::new(adm_rs_provider)])
 }
 
@@ -47,12 +47,8 @@ async fn suggest(
     let suggesters = suggesters
         .get_or_try_init(|| setup_suggesters(settings.as_ref()))
         .await
-        .map_err(|e| {
-            tracing::error!(
-                "suggester error {:?}\nchain: {:?}",
-                e,
-                e.chain().collect::<Vec<_>>(),
-            );
+        .map_err(|error| {
+            tracing::error!(?error, "suggester error");
             HandlerError::Internal
         })?;
     let suggestions: Vec<Suggestion> = suggesters
