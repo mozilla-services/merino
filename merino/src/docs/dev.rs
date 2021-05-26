@@ -77,3 +77,4 @@
 //! * The Contextual Services [Skeleton Actix
 //!   project](https://github.com/mozilla-services/skeleton/)
 //! * [Zero to Production in Rust](https://www.zero2prod.com/) by Luca Palmieri
+//! * [Error Handling Isn't All About Errors](https://www.youtube.com/watch?v=rAF8mLI0naQ), by Jane "[yaahc](https://twitter.com/yaahc_/)" Lusby, from RustConf 2020.
