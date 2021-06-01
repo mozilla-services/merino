@@ -30,7 +30,8 @@ mod logging;
 pub use logging::LoggingSettings;
 
 use anyhow::{Context, Result};
-use config::{Config, ConfigError, Environment, File};
+use config::{Config, Environment, File};
+use http::Uri;
 use serde::{Deserialize, Serialize};
 use serde_with::{serde_as, DisplayFromStr};
 use std::{net::SocketAddr, path::PathBuf};
@@ -56,6 +57,11 @@ pub struct Settings {
 
     /// Logging settings.
     pub logging: LoggingSettings,
+
+    /// URL to redirect curious users to, that explains what this service is.
+    /// Preferable a public wiki page. Optional.
+    #[serde_as(as = "Option<DisplayFromStr>")]
+    pub public_documentation: Option<Uri>,
 }
 
 /// Settings for the HTTP server.
