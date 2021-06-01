@@ -25,7 +25,7 @@ use viaduct_reqwest::ReqwestBackend;
 /// Primary entry point
 #[actix_rt::main]
 async fn main() -> Result<()> {
-    let settings = merino_settings::Settings::load()?;
+    let settings = merino_settings::Settings::load().context("Loading settings")?;
     init_logging(&settings)?;
     viaduct::set_backend(&ReqwestBackend).context("setting viaduct backend")?;
     let listener = TcpListener::bind(settings.http.listen).context("Binding port")?;

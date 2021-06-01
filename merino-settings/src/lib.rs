@@ -29,11 +29,14 @@ mod logging;
 
 pub use logging::LoggingSettings;
 
+use anyhow::{Context, Result};
 use config::{Config, ConfigError, Environment, File};
 use serde::{Deserialize, Serialize};
+use serde_with::{serde_as, DisplayFromStr};
 use std::{net::SocketAddr, path::PathBuf};
 
 /// Top level settings object for Merino.
+#[serde_as]
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[doc(inline)]
 pub struct Settings {
@@ -92,26 +95,31 @@ impl Settings {
     /// # Errors
     /// If any of the configured values are invalid, or if any of the required
     /// configuration files are missing.
-    pub fn load() -> Result<Self, ConfigError> {
+    pub fn load() -> Result<Self> {
         let mut s = Config::new();
 
         // Start off with the base config.
-        s.merge(File::with_name("./config/base"))?;
+        s.merge(File::with_name("./config/base"))
+            .context("loading base config")?;
 
         // Merge in an environment specific config.
         let merino_env = std::env::var("MERINO_ENV").unwrap_or_else(|_| "development".to_string());
-        s.set("env", merino_env.as_str())?;
-        s.merge(File::with_name(&format!("config/{}", s.get::<String>("env")?)).required(false))?;
+        s.set("env", merino_env.as_str())
+            .context("loading merino environment name")?;
+        s.merge(File::with_name(&format!("config/{}", s.get::<String>("env")?)).required(false))
+            .context("loading environment config")?;
 
         // Add a local configuration file that is `.gitignore`ed.
-        s.merge(File::with_name("config/local").required(false))?;
+        s.merge(File::with_name("config/local").required(false))
+            .context("loading local config overrides")?;
 
         // Add environment variables that start with "MERINO_" and have "__" to
         // separate levels. For example, `MERINO_HTTP__LISTEN` maps to
         // `Settings::http::listen`.
-        s.merge(Environment::default().prefix("MERINO").separator("__"))?;
+        s.merge(Environment::default().prefix("MERINO").separator("__"))
+            .context("merging config")?;
 
-        s.try_into()
+        serde_path_to_error::deserialize(s).context("Deserializing settings")
     }
 
     /// Load settings from configuration files for tests.
