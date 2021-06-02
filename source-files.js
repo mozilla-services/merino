@@ -179,6 +179,7 @@ sourcesIndex["serde"] = {"name":"","dirs":[{"name":"de","files":["ignored_any.rs
 sourcesIndex["serde_derive"] = {"name":"","dirs":[{"name":"internals","files":["ast.rs","attr.rs","case.rs","check.rs","ctxt.rs","mod.rs","receiver.rs","respan.rs","symbol.rs"]}],"files":["bound.rs","de.rs","dummy.rs","fragment.rs","lib.rs","pretend.rs","ser.rs","try.rs"]};
 sourcesIndex["serde_hjson"] = {"name":"","files":["builder.rs","de.rs","error.rs","forward.rs","lib.rs","ser.rs","util.rs","value.rs"]};
 sourcesIndex["serde_json"] = {"name":"","dirs":[{"name":"features_check","files":["mod.rs"]},{"name":"io","files":["mod.rs"]},{"name":"value","files":["de.rs","from.rs","index.rs","mod.rs","partial_eq.rs","ser.rs"]}],"files":["de.rs","error.rs","iter.rs","lib.rs","macros.rs","map.rs","number.rs","read.rs","ser.rs"]};
+sourcesIndex["serde_path_to_error"] = {"name":"","files":["lib.rs","path.rs"]};
 sourcesIndex["serde_qs"] = {"name":"","dirs":[{"name":"de","files":["mod.rs","parse.rs"]}],"files":["error.rs","lib.rs","ser.rs"]};
 sourcesIndex["serde_regex"] = {"name":"","files":["lib.rs"]};
 sourcesIndex["serde_urlencoded"] = {"name":"","dirs":[{"name":"ser","files":["key.rs","mod.rs","pair.rs","part.rs","value.rs"]}],"files":["de.rs","lib.rs"]};

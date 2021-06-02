@@ -188,6 +188,10 @@
 <span id="185">185</span>
 <span id="186">186</span>
 <span id="187">187</span>
+<span id="188">188</span>
+<span id="189">189</span>
+<span id="190">190</span>
+<span id="191">191</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="attribute">#![<span class="ident">warn</span>(<span class="ident">missing_docs</span>, <span class="ident">clippy</span>::<span class="ident">missing_docs_in_private_items</span>)]</span>
 <span class="comment">// None of the tests are seen by the linter, so none of the utilities are marked</span>
@@ -232,6 +236,7 @@
 
 <span class="kw">mod</span> <span class="ident">debug</span>;
 <span class="kw">mod</span> <span class="ident">dockerflow</span>;
+<span class="kw">mod</span> <span class="ident">general</span>;
 <span class="kw">mod</span> <span class="ident">logging</span>;
 <span class="kw">mod</span> <span class="ident">suggest</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">utils</span>;
@@ -239,7 +244,7 @@
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">utils</span>::<span class="ident">logging</span>::<span class="ident">LogWatcher</span>;
 <span class="kw">use</span> <span class="ident">httpmock</span>::<span class="ident">MockServer</span>;
 <span class="kw">use</span> <span class="ident">merino_settings</span>::<span class="ident">Settings</span>;
-<span class="kw">use</span> <span class="ident">reqwest</span>::{<span class="ident">Client</span>, <span class="ident">RequestBuilder</span>};
+<span class="kw">use</span> <span class="ident">reqwest</span>::{<span class="ident">redirect</span>, <span class="ident">Client</span>, <span class="ident">ClientBuilder</span>, <span class="ident">RequestBuilder</span>};
 <span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">net</span>::<span class="ident">TcpListener</span>, <span class="ident">sync</span>::<span class="ident">Once</span>};
 
 <span class="kw">use</span> <span class="ident">tracing_subscriber</span>::{<span class="ident">fmt</span>::<span class="ident">MakeWriter</span>, <span class="ident">layer</span>::<span class="ident">SubscriberExt</span>};
@@ -348,8 +353,10 @@
 <span class="doccomment">/// A wrapper around a `[reqwest::client]` that automatically sends requests to</span>
 <span class="doccomment">/// the test server.</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// Note: This only handles `GET` requests right now. Other methods should be</span>
+<span class="doccomment">/// This only handles `GET` requests right now. Other methods should be</span>
 <span class="doccomment">/// added as needed.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// The client is configured to not follow any redirects.</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">TestReqwestClient</span> {
     <span class="doccomment">/// The wrapped client.</span>
     <span class="ident">client</span>: <span class="ident">Client</span>,
@@ -361,10 +368,11 @@
 <span class="kw">impl</span> <span class="ident">TestReqwestClient</span> {
     <span class="doccomment">/// Construct a new test client that uses `address` for every request given.</span>
     <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">address</span>: <span class="ident">String</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="self">Self</span> {
-            <span class="ident">address</span>,
-            <span class="ident">client</span>: <span class="ident">Client</span>::<span class="ident">new</span>(),
-        }
+        <span class="kw">let</span> <span class="ident">client</span> <span class="op">=</span> <span class="ident">ClientBuilder</span>::<span class="ident">new</span>()
+            .<span class="ident">redirect</span>(<span class="ident">redirect</span>::<span class="ident">Policy</span>::<span class="ident">none</span>())
+            .<span class="ident">build</span>()
+            .<span class="ident">expect</span>(<span class="string">&quot;Could not build test client&quot;</span>);
+        <span class="self">Self</span> { <span class="ident">client</span>, <span class="ident">address</span> }
     }
 
     <span class="doccomment">/// Start building a GET request to the test server with the path specified.</span>
