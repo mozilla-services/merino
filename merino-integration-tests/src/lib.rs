@@ -41,6 +41,7 @@
 
 mod debug;
 mod dockerflow;
+mod general;
 mod logging;
 mod suggest;
 pub mod utils;
@@ -48,7 +49,7 @@ pub mod utils;
 use crate::utils::logging::LogWatcher;
 use httpmock::MockServer;
 use merino_settings::Settings;
-use reqwest::{Client, RequestBuilder};
+use reqwest::{redirect, Client, ClientBuilder, RequestBuilder};
 use std::{net::TcpListener, sync::Once};
 
 use tracing_subscriber::{fmt::MakeWriter, layer::SubscriberExt};
@@ -157,8 +158,10 @@ pub struct TestingTools {
 /// A wrapper around a `[reqwest::client]` that automatically sends requests to
 /// the test server.
 ///
-/// Note: This only handles `GET` requests right now. Other methods should be
+/// This only handles `GET` requests right now. Other methods should be
 /// added as needed.
+///
+/// The client is configured to not follow any redirects.
 pub struct TestReqwestClient {
     /// The wrapped client.
     client: Client,
@@ -170,10 +173,11 @@ pub struct TestReqwestClient {
 impl TestReqwestClient {
     /// Construct a new test client that uses `address` for every request given.
     fn new(address: String) -> Self {
-        Self {
-            address,
-            client: Client::new(),
-        }
+        let client = ClientBuilder::new()
+            .redirect(redirect::Policy::none())
+            .build()
+            .expect("Could not build test client");
+        Self { client, address }
     }
 
     /// Start building a GET request to the test server with the path specified.

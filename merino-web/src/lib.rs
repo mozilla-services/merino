@@ -9,7 +9,12 @@ mod logging;
 mod suggest;
 
 use actix_cors::Cors;
-use actix_web::{dev::Server, web, App, HttpServer};
+use actix_web::{
+    dev::Server,
+    get,
+    web::{self, Data},
+    App, HttpResponse, HttpServer,
+};
 use logging::MerinoRootSpanBuilder;
 use merino_settings::Settings;
 use std::net::TcpListener;
@@ -76,6 +81,7 @@ pub fn run(listener: TcpListener, settings: Settings) -> Result<Server, std::io:
             .service(web::scope("api/v1/suggest").configure(suggest::configure))
             // Add some debugging views
             .service(web::scope("debug").configure(debug::configure))
+            .service(root_info)
             // Add the behavior necessary to satisfy Dockerflow.
             .service(web::scope("").configure(dockerflow::configure))
     })
@@ -87,4 +93,27 @@ pub fn run(listener: TcpListener, settings: Settings) -> Result<Server, std::io:
 
     let server = server.run();
     Ok(server)
+}
+
+/// The root view, to provide infomration about what this service is.
+///
+/// This is intended to be seen by people trying to investigate what this service
+/// is. It should redirect to documentation, if it is available, or provide a
+/// short message otherwise.
+#[get("/")]
+pub fn root_info(settings: Data<Settings>) -> HttpResponse {
+    match dbg!(&settings.public_documentation) {
+        Some(redirect_url) => {
+            println!("making redirect");
+            HttpResponse::Found()
+                .insert_header(("location", redirect_url.to_string()))
+                .finish()
+        }
+        None => {
+            println!("making fallback");
+            HttpResponse::Ok().content_type("text/plain").body(
+                "Merino is a Mozilla service providing information to the Firefox Suggest feature.",
+            )
+        }
+    }
 }
