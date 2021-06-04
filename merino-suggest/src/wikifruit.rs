@@ -3,6 +3,8 @@
 //! It is useful in that it is fully self contained and very simple. It is meant
 //! to be used in development and testing.
 
+use std::borrow::Cow;
+
 use anyhow::anyhow;
 use async_trait::async_trait;
 use http::Uri;
@@ -14,8 +16,12 @@ use crate::{SetupError, SuggestError, Suggestion, SuggestionProvider};
 pub struct WikiFruit;
 
 #[async_trait]
-impl SuggestionProvider for WikiFruit {
-    async fn setup<'a>(&mut self, settings: &'a Settings) -> Result<(), SetupError> {
+impl<'a> SuggestionProvider<'a> for WikiFruit {
+    fn name(&self) -> Cow<'a, str> {
+        Cow::from("WikiFruit")
+    }
+
+    async fn setup(&mut self, settings: &Settings) -> Result<(), SetupError> {
         if !settings.debug {
             Err(SetupError::InvalidConfiguration(anyhow!(
                 "WikiFruit suggestion provider can only be used in debug mode",

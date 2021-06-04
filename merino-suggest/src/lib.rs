@@ -4,7 +4,7 @@
 
 mod wikifruit;
 
-pub use crate::wikifruit::WikiFruit;
+use std::borrow::Cow;
 
 use async_trait::async_trait;
 use http::Uri;
@@ -12,6 +12,8 @@ use merino_settings::Settings;
 use serde::Serialize;
 use serde_with::{serde_as, DisplayFromStr};
 use thiserror::Error;
+
+pub use crate::wikifruit::WikiFruit;
 
 /// A suggestion to provide to a user.
 #[serde_as]
@@ -53,11 +55,12 @@ pub struct Suggestion {
 
 /// A backend that can provide suggestions for queries.
 #[async_trait]
-pub trait SuggestionProvider {
-    /// Perform first time initialization.
-    ///
+pub trait SuggestionProvider<'a> {
+    /// An operator-visible name for this suggestion provider.
+    fn name(&self) -> Cow<'a, str>;
+
     /// May spawn recurring tasks.
-    async fn setup<'a>(&mut self, settings: &'a Settings) -> Result<(), SetupError>;
+    async fn setup(&mut self, settings: &Settings) -> Result<(), SetupError>;
 
     /// Provide suggested results for `query`.
     async fn suggest(&self, query: &str) -> Result<Vec<Suggestion>, SuggestError>;

@@ -11,7 +11,7 @@ use remote_settings_client::client::FileStorage;
 use serde::Deserialize;
 use serde_json::Value;
 use serde_with::{serde_as, DisplayFromStr};
-use std::{collections::HashMap, convert::TryFrom, sync::Arc};
+use std::{borrow::Cow, collections::HashMap, convert::TryFrom, sync::Arc};
 use tokio::sync::OnceCell;
 
 lazy_static! {
@@ -19,7 +19,7 @@ lazy_static! {
 }
 
 /// Make suggestions based on data in Remote Settings
-#[derive(Debug, Default)]
+#[derive(Default, Debug)]
 pub struct RemoteSettingsSuggester {
     /// A map from keywords to suggestions that can be provided.
     suggestions: HashMap<String, Arc<Suggestion>>,
@@ -39,20 +39,21 @@ impl RemoteSettingsSuggester {
             r#type = "adm.remote-settings.sync-start",
             "Syncing quicksuggest records from Remote Settings"
         );
+        let provider_settings = &settings.providers.adm_rs;
         let reqwest_client = reqwest::Client::new();
 
         // Set up and sync a Remote Settings client for the quicksuggest collection.
-        std::fs::create_dir_all(&settings.adm.remote_settings.storage_path)
+        std::fs::create_dir_all(&provider_settings.storage_path)
             .context("Creating RemoteSettings file cache")
             .map_err(SetupError::Io)?;
         let mut rs_client = {
             let mut rs_client_builder = remote_settings_client::Client::builder()
-                .collection_name(&settings.adm.remote_settings.collection)
+                .collection_name(&provider_settings.collection)
                 .storage(Box::new(FileStorage {
-                    folder: settings.adm.remote_settings.storage_path.clone(),
+                    folder: provider_settings.storage_path.clone(),
                     ..Default::default()
                 }));
-            if let Some(server) = &settings.adm.remote_settings.server {
+            if let Some(server) = &provider_settings.server {
                 rs_client_builder = rs_client_builder.server_url(server);
             }
             rs_client_builder
@@ -145,8 +146,6 @@ impl RemoteSettingsSuggester {
         // table of keyword -> merino suggestion.
         let mut suggestions = HashMap::new();
         while let Some(attachment) = suggestion_attachments.next().await {
-            // for attachment in suggestion_attachments.into_iter() {
-            // let attachment = attachment.await;
             for adm_suggestion in attachment? {
                 if adm_suggestion.keywords.is_empty() {
                     continue;
@@ -210,7 +209,16 @@ impl RemoteSettingsSuggester {
 }
 
 #[async_trait]
-impl SuggestionProvider for RemoteSettingsSuggester {
+impl<'a> SuggestionProvider<'a> for RemoteSettingsSuggester {
+    fn name(&self) -> std::borrow::Cow<'a, str> {
+        Cow::from("AdmRemoteSettings")
+    }
+
+    async fn setup(&mut self, settings: &Settings) -> Result<(), SetupError> {
+        self.sync(settings).await?;
+        Ok(())
+    }
+
     async fn suggest(&self, query: &str) -> Result<Vec<Suggestion>, SuggestError> {
         let suggestions = {
             match self.suggestions.get(query) {
@@ -219,11 +227,6 @@ impl SuggestionProvider for RemoteSettingsSuggester {
             }
         };
         Ok(suggestions)
-    }
-
-    async fn setup<'a>(&mut self, settings: &'a Settings) -> Result<(), SetupError> {
-        self.sync(settings).await?;
-        Ok(())
     }
 }
 

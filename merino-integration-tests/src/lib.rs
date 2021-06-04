@@ -96,7 +96,7 @@ where
 
     // Load settings
     let settings = Settings::load_for_tests(|settings| {
-        settings.adm.remote_settings.server = Some(remote_settings_mock.url(""));
+        settings.providers.adm_rs.server = Some(remote_settings_mock.url(""));
         settings_changer(settings);
     });
 
@@ -133,7 +133,6 @@ where
         remote_settings_mock,
         log_watcher,
     };
-
     // Run the test
     let test_span = tracing::info_span!("merino_test");
     let rv = test(tools).instrument(test_span).await;

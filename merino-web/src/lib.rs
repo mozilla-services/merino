@@ -103,18 +103,12 @@ pub fn run(listener: TcpListener, settings: Settings) -> Result<Server, std::io:
 /// short message otherwise.
 #[get("/")]
 pub fn root_info(settings: Data<Settings>) -> HttpResponse {
-    match dbg!(&settings.public_documentation) {
-        Some(redirect_url) => {
-            println!("making redirect");
-            HttpResponse::Found()
-                .insert_header(("location", redirect_url.to_string()))
-                .finish()
-        }
-        None => {
-            println!("making fallback");
-            HttpResponse::Ok().content_type("text/plain").body(
-                "Merino is a Mozilla service providing information to the Firefox Suggest feature.",
-            )
-        }
+    match &settings.public_documentation {
+        Some(redirect_url) => HttpResponse::Found()
+            .insert_header(("location", redirect_url.to_string()))
+            .finish(),
+        None => HttpResponse::Ok().content_type("text/plain").body(
+            "Merino is a Mozilla service providing information to the Firefox Suggest feature.",
+        ),
     }
 }
