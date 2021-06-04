@@ -10,12 +10,12 @@ use merino_settings::Settings;
 use serde::{Deserialize, Serialize};
 use tokio::sync::OnceCell;
 
-use merino_suggest::{Suggester, Suggestion, WikiFruit};
+use merino_suggest::{Suggestion, SuggestionProvider, WikiFruit};
 
 use crate::errors::HandlerError;
 
 /// A set of suggesters stored in Actix's app_data.
-type SuggesterSet = OnceCell<Vec<Box<dyn Suggester>>>;
+type SuggesterSet = OnceCell<Vec<Box<dyn SuggestionProvider>>>;
 
 /// Configure a route to use the Suggest service.
 pub fn configure(config: &mut ServiceConfig) {
@@ -25,7 +25,7 @@ pub fn configure(config: &mut ServiceConfig) {
 }
 
 /// Set up configured suggestion providers.
-async fn setup_suggesters(settings: &Settings) -> Result<Vec<Box<dyn Suggester>>> {
+async fn setup_suggesters(settings: &Settings) -> Result<Vec<Box<dyn SuggestionProvider>>> {
     tracing::info!(
         r#type = "web.configuring-suggesters",
         "setting up suggestion providers"
@@ -57,11 +57,18 @@ async fn suggest(
             );
             HandlerError::Internal
         })?;
-    let suggestions: Vec<Suggestion> = suggesters
-        .iter()
-        .flat_map(|sug| sug.suggest(&query.q))
-        .collect();
-    tracing::debug!(
+    let mut suggestions: Vec<Suggestion> = Vec::new();
+    for provider in suggesters {
+        match provider.suggest(&query.q).await {
+            Ok(provider_suggestions) => {
+                suggestions.extend_from_slice(&provider_suggestions);
+            }
+            Err(error) => {
+                tracing::error!(%error, "Error providing suggestions");
+            }
+        }
+    }
+    tracing::info!(
         r#type = "web.suggest.provided-count",
         suggestion_count = suggestions.len(),
         "Providing suggestions"
