@@ -19,7 +19,6 @@ type SuggesterSet = OnceCell<Vec<Box<dyn Suggester>>>;
 
 /// Configure a route to use the Suggest service.
 pub fn configure(config: &mut ServiceConfig) {
-    tracing::info!("configuring suggest service");
     config
         .data::<SuggesterSet>(OnceCell::new())
         .service(suggest);
@@ -27,7 +26,10 @@ pub fn configure(config: &mut ServiceConfig) {
 
 /// Set up configured suggestion providers.
 async fn setup_suggesters(settings: &Settings) -> Result<Vec<Box<dyn Suggester>>> {
-    tracing::info!("Setting up suggesters");
+    tracing::info!(
+        r#type = "web.configuring-suggesters",
+        "setting up suggestion providers"
+    );
     let mut adm_rs_provider = merino_adm::remote_settings::RemoteSettingsSuggester::default();
     adm_rs_provider
         .sync(settings)
@@ -48,14 +50,19 @@ async fn suggest(
         .get_or_try_init(|| setup_suggesters(settings.as_ref()))
         .await
         .map_err(|error| {
-            tracing::error!(?error, "suggester error");
+            tracing::error!(
+                ?error,
+                r#type = "web.suggest.setup-error",
+                "suggester error"
+            );
             HandlerError::Internal
         })?;
     let suggestions: Vec<Suggestion> = suggesters
         .iter()
         .flat_map(|sug| sug.suggest(&query.q))
         .collect();
-    tracing::info!(
+    tracing::debug!(
+        r#type = "web.suggest.provided-count",
         suggestion_count = suggestions.len(),
         "Providing suggestions"
     );

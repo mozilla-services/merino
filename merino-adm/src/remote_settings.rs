@@ -35,7 +35,10 @@ impl RemoteSettingsSuggester {
     /// This must be called at least once before any suggestions will be provided
     #[tracing::instrument(skip(self, settings))]
     pub async fn sync(&mut self, settings: &Settings) -> Result<()> {
-        tracing::info!("Syncing quicksuggest records from Remote Settings");
+        tracing::info!(
+            r#type = "adm.remote-settings.sync-start",
+            "Syncing quicksuggest records from Remote Settings"
+        );
         let reqwest_client = reqwest::Client::new();
 
         // Set up and sync a Remote Settings client for the quicksuggest collection.
@@ -169,11 +172,17 @@ impl RemoteSettingsSuggester {
         }
 
         if suggestions.is_empty() {
-            tracing::warn!("No suggestion records found on Remote Settings");
+            tracing::warn!(
+                r#type = "adm.remote-settings.empty",
+                "No suggestion records found on Remote Settings"
+            );
         }
 
         self.suggestions = suggestions;
-        tracing::info!("Completed syncing quicksuggest records from Remote Settings");
+        tracing::info!(
+            r#type = "adm.remote-settings.sync-done",
+            "Completed syncing quicksuggest records from Remote Settings"
+        );
 
         Ok(())
     }
