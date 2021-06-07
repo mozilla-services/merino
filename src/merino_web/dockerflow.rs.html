@@ -122,6 +122,10 @@
 <span id="119">119</span>
 <span id="120">120</span>
 <span id="121">121</span>
+<span id="122">122</span>
+<span id="123">123</span>
+<span id="124">124</span>
+<span id="125">125</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! An actix-web service to implement [Dockerflow](https://github.com/mozilla-services/Dockerflow).</span>
 
@@ -241,7 +245,11 @@
 <span class="doccomment">/// Returning an API error to test error handling.</span>
 <span class="attribute">#[<span class="ident">get</span>(<span class="string">&quot;__error__&quot;</span>)]</span>
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">test_error</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">HttpResponse</span>, <span class="ident">HandlerError</span><span class="op">&gt;</span> {
-    <span class="ident">tracing</span>::<span class="macro">event</span><span class="macro">!</span>(<span class="ident">Level</span>::<span class="ident">ERROR</span>, <span class="string">&quot;The __error__ endpoint was called&quot;</span>);
+    <span class="ident">tracing</span>::<span class="macro">event</span><span class="macro">!</span>(
+        <span class="ident">Level</span>::<span class="ident">ERROR</span>,
+        <span class="ident">r#type</span> <span class="op">=</span> <span class="string">&quot;dockerflow.error_endpoint&quot;</span>,
+        <span class="string">&quot;The __error__ endpoint was called&quot;</span>
+    );
     <span class="prelude-val">Err</span>(<span class="ident">HandlerError</span>::<span class="ident">Internal</span>)
 }
 </pre></div>

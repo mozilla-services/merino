@@ -1,0 +1,25 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Get the standard host name for the current machine."><meta name="keywords" content="rust, rustlang, rust-lang, gethostname"><title>gethostname::gethostname - Rust</title><link rel="stylesheet" type="text/css" href="../normalize.css"><link rel="stylesheet" type="text/css" href="../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../ayu.css" disabled ><script id="default-settings"></script><script src="../storage.js"></script><script src="../crates.js"></script><noscript><link rel="stylesheet" href="../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../favicon.svg">
+<link rel="alternate icon" type="image/png" href="../favicon-16x16.png">
+<link rel="alternate icon" type="image/png" href="../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../down-arrow.svg");}</style></head><body class="rustdoc fn"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../gethostname/index.html'><div class='logo-container rust-logo'><img src='../rust-logo.png' alt='logo'></div></a><div class="sidebar-elems"><p class="location"><a href="index.html">gethostname</a></p><div id="sidebar-vars" data-name="gethostname" data-ty="fn" data-relpath=""></div><script defer src="sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+                <a id="settings-menu" href="../settings.html"><img src="../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Function <a href="index.html">gethostname</a>::<wbr><a class="fn" href="">gethostname</a></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../src/gethostname/lib.rs.html#51-53" title="goto source code">[src]</a></span></h1><pre class="rust fn">pub fn gethostname() -&gt; <a class="struct" href="https://doc.rust-lang.org/nightly/std/ffi/os_str/struct.OsString.html" title="struct std::ffi::os_str::OsString">OsString</a></pre><div class="docblock"><p>Get the standard host name for the current machine.</p>
+<p>On Unix simply wrap POSIX <a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/gethostname.html">gethostname</a> in a safe interface.  On Windows
+return the DNS host name of the local computer, as returned by
+<a href="https://docs.microsoft.com/en-us/windows/desktop/api/sysinfoapi/nf-sysinfoapi-getcomputernameexw">GetComputerNameExW</a> with <code>ComputerNamePhysicalDnsHostname</code> as <code>NameType</code>.</p>
+<p>This function panics if the buffer allocated for the hostname result of the
+operating system is too small; however we take great care to allocate a
+buffer of sufficient size:</p>
+<ul>
+<li>On Unix we allocate the buffer using the maximum permitted hostname size,
+as returned by <a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/sysconf.html">sysconf</a> via <code>sysconf(_SC_HOST_NAME_MAX)</code>, plus an extra
+byte for the trailing NUL byte.  A hostname cannot exceed this limit, so
+this function can’t realistically panic.</li>
+<li>On Windows we call <code>GetComputerNameExW</code> with a NULL buffer first, which
+makes it return the length of the current host name.  We then use this
+length to allocate a buffer for the actual result; this leaves a tiny
+tiny race condition in case the hostname changes to a longer name right
+in between those two calls but that’s a risk we don’t consider of any
+practical relevance.</li>
+</ul>
+<p>Hence <em>if</em> this function does panic please <a href="https://github.com/lunaryorn/gethostname.rs/issues/new">report an issue</a>.</p>
+</div></section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../" data-current-crate="gethostname" data-search-js="../search-index.js"></div>
+    <script src="../main.js"></script></body></html>

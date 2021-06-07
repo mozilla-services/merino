@@ -152,6 +152,24 @@
 <span id="149">149</span>
 <span id="150">150</span>
 <span id="151">151</span>
+<span id="152">152</span>
+<span id="153">153</span>
+<span id="154">154</span>
+<span id="155">155</span>
+<span id="156">156</span>
+<span id="157">157</span>
+<span id="158">158</span>
+<span id="159">159</span>
+<span id="160">160</span>
+<span id="161">161</span>
+<span id="162">162</span>
+<span id="163">163</span>
+<span id="164">164</span>
+<span id="165">165</span>
+<span id="166">166</span>
+<span id="167">167</span>
+<span id="168">168</span>
+<span id="169">169</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">ops</span>::<span class="ident">AddAssign</span>, <span class="ident">str</span>::<span class="ident">FromStr</span>};
 
@@ -192,6 +210,24 @@
     <span class="doccomment">/// RUST_LOG=INFO,merino_web=DEBUG,viaduct=WARN</span>
     <span class="doccomment">/// ```</span>
     <span class="kw">pub</span> <span class="ident">levels</span>: <span class="ident">DirectiveWrapper</span>,
+
+    <span class="doccomment">/// The format to output logs in.</span>
+    <span class="kw">pub</span> <span class="ident">format</span>: <span class="ident">LogFormat</span>,
+}
+
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
+<span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename_all</span> <span class="op">=</span> <span class="string">&quot;lowercase&quot;</span>)]</span>
+<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">LogFormat</span> {
+    <span class="doccomment">/// [`tracing-subscriber`]&#39;s human targeted, pretty format. Includes more</span>
+    <span class="doccomment">/// information, Multiple lines per log event.</span>
+    <span class="ident">Pretty</span>,
+
+    <span class="doccomment">/// [MozLog](https://wiki.mozilla.org/Firefox/Services/Logging) JSON format.</span>
+    <span class="doccomment">/// One line per log event.</span>
+    <span class="ident">MozLog</span>,
+
+    <span class="doccomment">/// [`tracing-subscriber`]&#39;s default format. One line per log event.</span>
+    <span class="ident">Compact</span>,
 }
 
 <span class="doccomment">/// Tracing&#39;s Directive object for filter logs isn&#39;t `Clone` or `Serializable`.</span>

@@ -1,1 +1,0 @@
-initSidebarItems({"fn":[["handle_error","Annotate the root request span with information about a request error."]],"struct":[["MerinoRootSpanBuilder","A root span builder for tracing_actix_web to customize the extra fields we log with requests, and to log an event when requests end."]]});
