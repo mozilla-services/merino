@@ -16,7 +16,7 @@ use actix_web::{
 };
 use merino_settings::Settings;
 use std::net::TcpListener;
-use tracing_actix_web_mozlog::MozLogMiddleware;
+use tracing_actix_web_mozlog::MozLog;
 
 /// Run the web server
 ///
@@ -71,10 +71,12 @@ use tracing_actix_web_mozlog::MozLogMiddleware;
 pub fn run(listener: TcpListener, settings: Settings) -> Result<Server, std::io::Error> {
     let num_workers = settings.http.workers;
 
+    let moz_log = MozLog::default();
+
     let mut server = HttpServer::new(move || {
         App::new()
             .data::<Settings>((&settings).clone())
-            .wrap(MozLogMiddleware::new())
+            .wrap(moz_log.clone())
             .wrap(Cors::permissive())
             // The core functionality of Merino
             .service(web::scope("api/v1/suggest").configure(suggest::configure))
@@ -94,7 +96,7 @@ pub fn run(listener: TcpListener, settings: Settings) -> Result<Server, std::io:
     Ok(server)
 }
 
-/// The root view, to provide infomration about what this service is.
+/// The root view, to provide information about what this service is.
 ///
 /// This is intended to be seen by people trying to investigate what this service
 /// is. It should redirect to documentation, if it is available, or provide a
