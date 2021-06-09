@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/usr/local/cargo/registry/src/github.com-1ecc6299db9ec823/tracing-actix-web-mozlog-0.1.0/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/usr/local/cargo/registry/src/github.com-1ecc6299db9ec823/tracing-actix-web-mozlog-0.2.0/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../favicon-16x16.png">
 <link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../tracing_actix_web_mozlog/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1"> 1</span>
@@ -92,6 +92,10 @@
 <span id="89">89</span>
 <span id="90">90</span>
 <span id="91">91</span>
+<span id="92">92</span>
+<span id="93">93</span>
+<span id="94">94</span>
+<span id="95">95</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! # tracing-actix-web-mozlog</span>
 <span class="doccomment">//!</span>
@@ -127,19 +131,23 @@
 <span class="doccomment">//!</span>
 <span class="doccomment">//! ## Middleware</span>
 <span class="doccomment">//!</span>
-<span class="doccomment">//! To use the middleware, register it while creating your app, as normal:</span>
+<span class="doccomment">//! To make sure that the correct Tracing context is captured, it is important to</span>
+<span class="doccomment">//! create the MozLog middleware outside of the `HttpServer::new` closure:</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! ```</span>
-<span class="doccomment">//! use tracing_actix_web_mozlog::MozLogMiddleware;</span>
-<span class="doccomment">//! use actix_web::App;</span>
+<span class="doccomment">//! use tracing_actix_web_mozlog::MozLog;</span>
+<span class="doccomment">//! use actix_web::{HttpServer, App};</span>
 <span class="doccomment">//!</span>
-<span class="doccomment">//! App::new()</span>
-<span class="doccomment">//!     .wrap(MozLogMiddleware::new());</span>
+<span class="doccomment">//! let moz_log = MozLog::default();</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! let server = HttpServer::new(move || {</span>
+<span class="doccomment">//!     App::new()</span>
+<span class="doccomment">//!         .wrap(moz_log.clone())</span>
+<span class="doccomment">//! });</span>
 <span class="doccomment">//! ```</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! This middleware will emit `request.summary` events for each request as it is</span>
-<span class="doccomment">//! completed, including timing information. For more information about</span>
-<span class="doccomment">//! customizing these events, see [`MozLogMiddleware`]&#39;s documentation.</span>
+<span class="doccomment">//! completed, including timing information.</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! ## Message Types</span>
 <span class="doccomment">//!</span>
@@ -167,7 +175,7 @@
 <span class="doccomment">//! ## MozLog extensions</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! In addition to all standard MozLog fields, this crate always adds a `spans`</span>
-<span class="doccomment">//! field messages. This contains a comma-separated list of the names of the</span>
+<span class="doccomment">//! field to messages. This contains a comma-separated list of the names of the</span>
 <span class="doccomment">//! spans enclosing the event, with the outermost span coming first. Top-level</span>
 <span class="doccomment">//! events will have an empty string for this value.</span>
 
@@ -177,7 +185,7 @@
 <span class="kw">mod</span> <span class="ident">middleware</span>;
 <span class="kw">mod</span> <span class="ident">subscriber</span>;
 
-<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">middleware</span>::<span class="ident">MozLogMiddleware</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">middleware</span>::<span class="ident">MozLog</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">subscriber</span>::{<span class="ident">MozLogFormatLayer</span>, <span class="ident">MozLogMessage</span>};
 
 <span class="doccomment">/// A layer to collect information about Tracing spans and provide it to other layers.</span>
