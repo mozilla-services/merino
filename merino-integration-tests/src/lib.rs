@@ -50,7 +50,8 @@ use crate::utils::logging::LogWatcher;
 use httpmock::MockServer;
 use merino_settings::Settings;
 use reqwest::{redirect, Client, ClientBuilder, RequestBuilder};
-use std::{net::TcpListener, sync::Once};
+use std::{future::Future, net::TcpListener, sync::Once};
+use tracing_futures::{Instrument, WithSubscriber};
 
 use tracing_subscriber::{fmt::MakeWriter, layer::SubscriberExt};
 
@@ -81,10 +82,14 @@ static VIADUCT_INIT: Once = Once::new();
 ///     ).await
 /// }
 /// ```
-pub fn merino_test<FSettings, FTest, R>(settings_changer: FSettings, test: FTest) -> R
+pub async fn merino_test<FSettings, FTest, Fut>(
+    settings_changer: FSettings,
+    test: FTest,
+) -> Fut::Output
 where
     FSettings: FnOnce(&mut Settings),
-    FTest: Fn(TestingTools) -> R,
+    FTest: Fn(TestingTools) -> Fut,
+    Fut: Future,
 {
     // Set up a mock server for Remote Settings to talk to
     let remote_settings_mock = MockServer::start();
@@ -113,11 +118,13 @@ where
         )
         .with(tracing_subscriber::fmt::layer().pretty().with_test_writer());
 
+    let _subscriber_guard = tracing::subscriber::set_default(subscriber);
+
     // Run server in the background
     let listener = TcpListener::bind(settings.http.listen).expect("Failed to bind to a port");
     let address = listener.local_addr().unwrap().to_string();
     let server = merino_web::run(listener, settings).expect("Failed to start server");
-    tokio::spawn(server);
+    let server_handle = tokio::spawn(server.with_current_subscriber());
     let test_client = TestReqwestClient::new(address);
 
     // Assemble the tools
@@ -128,7 +135,10 @@ where
     };
 
     // Run the test
-    tracing::subscriber::with_default(subscriber, || test(tools))
+    let test_span = tracing::info_span!("merino_test");
+    let rv = test(tools).instrument(test_span).await;
+    server_handle.abort();
+    rv
 }
 
 /// A set of tools for tests, including mock servers and logging helpers.
