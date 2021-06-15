@@ -201,7 +201,6 @@
 <span id="198">198</span>
 <span id="199">199</span>
 <span id="200">200</span>
-<span id="201">201</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="attribute">#![<span class="ident">warn</span>(<span class="ident">missing_docs</span>, <span class="ident">clippy</span>::<span class="ident">missing_docs_in_private_items</span>)]</span>
 <span class="comment">// None of the tests are seen by the linter, so none of the utilities are marked</span>
@@ -301,7 +300,7 @@
 
     <span class="comment">// Load settings</span>
     <span class="kw">let</span> <span class="ident">settings</span> <span class="op">=</span> <span class="ident">Settings</span>::<span class="ident">load_for_tests</span>(<span class="op">|</span><span class="ident">settings</span><span class="op">|</span> {
-        <span class="ident">settings</span>.<span class="ident">adm</span>.<span class="ident">remote_settings</span>.<span class="ident">server</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">remote_settings_mock</span>.<span class="ident">url</span>(<span class="string">&quot;&quot;</span>));
+        <span class="ident">settings</span>.<span class="ident">providers</span>.<span class="ident">adm_rs</span>.<span class="ident">server</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">remote_settings_mock</span>.<span class="ident">url</span>(<span class="string">&quot;&quot;</span>));
         <span class="ident">settings_changer</span>(<span class="ident">settings</span>);
     });
 
@@ -338,7 +337,6 @@
         <span class="ident">remote_settings_mock</span>,
         <span class="ident">log_watcher</span>,
     };
-
     <span class="comment">// Run the test</span>
     <span class="kw">let</span> <span class="ident">test_span</span> <span class="op">=</span> <span class="ident">tracing</span>::<span class="macro">info_span</span><span class="macro">!</span>(<span class="string">&quot;merino_test&quot;</span>);
     <span class="kw">let</span> <span class="ident">rv</span> <span class="op">=</span> <span class="ident">test</span>(<span class="ident">tools</span>).<span class="ident">instrument</span>(<span class="ident">test_span</span>).<span class="kw">await</span>;

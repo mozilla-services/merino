@@ -155,8 +155,27 @@
 <span id="152">152</span>
 <span id="153">153</span>
 <span id="154">154</span>
+<span id="155">155</span>
+<span id="156">156</span>
+<span id="157">157</span>
+<span id="158">158</span>
+<span id="159">159</span>
+<span id="160">160</span>
+<span id="161">161</span>
+<span id="162">162</span>
+<span id="163">163</span>
+<span id="164">164</span>
+<span id="165">165</span>
+<span id="166">166</span>
+<span id="167">167</span>
+<span id="168">168</span>
+<span id="169">169</span>
+<span id="170">170</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! # Merino Settings</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! The top level settings struct is [Settings]. If you are looking for</span>
+<span class="doccomment">//! documentation about the settings that can be set, start there.</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! Configuration is specified in several ways, with later methods overriding earlier ones.</span>
 <span class="doccomment">//!</span>
@@ -170,8 +189,8 @@
 <span class="doccomment">//! 3. A local configuration file not checked into the repository, at</span>
 <span class="doccomment">//!    `config/local.yaml`. This file is in `.gitignore` and is safe to use for</span>
 <span class="doccomment">//!    local configuration and secrets if desired.</span>
-<span class="doccomment">//! 4. Environment variables that begin with `MERINO_` and have a separator for</span>
-<span class="doccomment">//!    `__`. For example, `Settings::http::workers` can be controlled from the</span>
+<span class="doccomment">//! 4. Environment variables that begin with `MERINO_` and use `__` as a level</span>
+<span class="doccomment">//!    separator. For example, `Settings::http::workers` can be controlled from the</span>
 <span class="doccomment">//!    environment variable `MERINO_HTTP__WORKERS`.</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! Tests should use `Settings::load_for_test` which only reads from</span>
@@ -210,8 +229,9 @@
     <span class="doccomment">/// Settings for the HTTP server.</span>
     <span class="kw">pub</span> <span class="ident">http</span>: <span class="ident">HttpSettings</span>,
 
-    <span class="doccomment">/// Settings for adM integration.</span>
-    <span class="kw">pub</span> <span class="ident">adm</span>: <span class="ident">AdmSettings</span>,
+    <span class="doccomment">/// Configuration for providers. Each provider has a `enabled` field that</span>
+    <span class="doccomment">/// will control if it is active at all on the server.</span>
+    <span class="kw">pub</span> <span class="ident">providers</span>: <span class="ident">SuggestionProviderSettings</span>,
 
     <span class="doccomment">/// Logging settings.</span>
     <span class="kw">pub</span> <span class="ident">logging</span>: <span class="ident">LoggingSettings</span>,
@@ -233,16 +253,22 @@
     <span class="kw">pub</span> <span class="ident">workers</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>,
 }
 
-<span class="doccomment">/// Settings for the adM integration.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">AdmSettings</span> {
-    <span class="doccomment">/// Configuration for connection to Remote Settings to provide suggestions.</span>
-    <span class="kw">pub</span> <span class="ident">remote_settings</span>: <span class="ident">AdmRemoteSettingsConfig</span>,
+<span class="doccomment">/// Settings for individual providers. Each provider should have an `enabled` field.</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">SuggestionProviderSettings</span> {
+    <span class="doccomment">/// Settings for the Ad Marketplace Remote Settings-based provider.</span>
+    <span class="kw">pub</span> <span class="ident">adm_rs</span>: <span class="ident">AdmRsSettings</span>,
+
+    <span class="doccomment">/// Settings for the development provider.</span>
+    <span class="kw">pub</span> <span class="ident">wiki_fruit</span>: <span class="ident">WikiFruitSettings</span>,
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">AdmRemoteSettingsConfig</span> {
-    <span class="doccomment">/// The path, relative or absolute, to where to store remote settings data.</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">AdmRsSettings</span> {
+    <span class="doccomment">/// Whether this provider should be active.</span>
+    <span class="kw">pub</span> <span class="ident">enabled</span>: <span class="ident">bool</span>,
+
+    <span class="doccomment">/// The path, relative or absolute, to where to store Remote Settings data.</span>
     <span class="kw">pub</span> <span class="ident">storage_path</span>: <span class="ident">PathBuf</span>,
 
     <span class="doccomment">/// The server to sync from. If no value is provided, a default is provided</span>
@@ -251,6 +277,12 @@
 
     <span class="doccomment">/// The collection to sync form.</span>
     <span class="kw">pub</span> <span class="ident">collection</span>: <span class="ident">String</span>,
+}
+
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">WikiFruitSettings</span> {
+    <span class="doccomment">/// Whether this provider should be active.</span>
+    <span class="kw">pub</span> <span class="ident">enabled</span>: <span class="ident">bool</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">Settings</span> {

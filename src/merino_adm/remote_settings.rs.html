@@ -326,21 +326,67 @@
 <span id="323">323</span>
 <span id="324">324</span>
 <span id="325">325</span>
+<span id="326">326</span>
+<span id="327">327</span>
+<span id="328">328</span>
+<span id="329">329</span>
+<span id="330">330</span>
+<span id="331">331</span>
+<span id="332">332</span>
+<span id="333">333</span>
+<span id="334">334</span>
+<span id="335">335</span>
+<span id="336">336</span>
+<span id="337">337</span>
+<span id="338">338</span>
+<span id="339">339</span>
+<span id="340">340</span>
+<span id="341">341</span>
+<span id="342">342</span>
+<span id="343">343</span>
+<span id="344">344</span>
+<span id="345">345</span>
+<span id="346">346</span>
+<span id="347">347</span>
+<span id="348">348</span>
+<span id="349">349</span>
+<span id="350">350</span>
+<span id="351">351</span>
+<span id="352">352</span>
+<span id="353">353</span>
+<span id="354">354</span>
+<span id="355">355</span>
+<span id="356">356</span>
+<span id="357">357</span>
+<span id="358">358</span>
+<span id="359">359</span>
+<span id="360">360</span>
+<span id="361">361</span>
+<span id="362">362</span>
+<span id="363">363</span>
+<span id="364">364</span>
+<span id="365">365</span>
+<span id="366">366</span>
+<span id="367">367</span>
+<span id="368">368</span>
+<span id="369">369</span>
+<span id="370">370</span>
+<span id="371">371</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! AdM integration that uses the remote-settings provided data.</span>
 
-<span class="kw">use</span> <span class="ident">anyhow</span>::{<span class="ident">anyhow</span>, <span class="prelude-ty">Result</span>};
-<span class="kw">use</span> <span class="ident">futures</span>::<span class="ident">stream</span>::{<span class="self">self</span>, <span class="ident">StreamExt</span>};
+<span class="kw">use</span> <span class="ident">anyhow</span>::{<span class="ident">anyhow</span>, <span class="ident">Context</span>};
+<span class="kw">use</span> <span class="ident">async_trait</span>::<span class="ident">async_trait</span>;
+<span class="kw">use</span> <span class="ident">futures</span>::<span class="ident">StreamExt</span>;
 <span class="kw">use</span> <span class="ident">http</span>::<span class="ident">Uri</span>;
 <span class="kw">use</span> <span class="ident">lazy_static</span>::<span class="ident">lazy_static</span>;
 <span class="kw">use</span> <span class="ident">merino_settings</span>::<span class="ident">Settings</span>;
-<span class="kw">use</span> <span class="ident">merino_suggest</span>::{<span class="ident">Suggester</span>, <span class="ident">Suggestion</span>};
-<span class="kw">use</span> <span class="ident">radix_trie</span>::{<span class="ident">Trie</span>, <span class="ident">TrieCommon</span>};
+<span class="kw">use</span> <span class="ident">merino_suggest</span>::{<span class="ident">SetupError</span>, <span class="ident">SuggestError</span>, <span class="ident">Suggestion</span>, <span class="ident">SuggestionProvider</span>};
 <span class="kw">use</span> <span class="ident">remote_settings_client</span>::<span class="ident">client</span>::<span class="ident">FileStorage</span>;
 <span class="kw">use</span> <span class="ident">serde</span>::<span class="ident">Deserialize</span>;
 <span class="kw">use</span> <span class="ident">serde_json</span>::<span class="ident">Value</span>;
 <span class="kw">use</span> <span class="ident">serde_with</span>::{<span class="ident">serde_as</span>, <span class="ident">DisplayFromStr</span>};
-<span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">collections</span>::<span class="ident">HashMap</span>, <span class="ident">convert</span>::<span class="ident">TryFrom</span>, <span class="ident">rc</span>::<span class="ident">Rc</span>};
+<span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">borrow</span>::<span class="ident">Cow</span>, <span class="ident">collections</span>::<span class="ident">HashMap</span>, <span class="ident">convert</span>::<span class="ident">TryFrom</span>, <span class="ident">sync</span>::<span class="ident">Arc</span>};
 <span class="kw">use</span> <span class="ident">tokio</span>::<span class="ident">sync</span>::<span class="ident">OnceCell</span>;
 
 <span class="macro">lazy_static</span><span class="macro">!</span> {
@@ -348,10 +394,10 @@
 }
 
 <span class="doccomment">/// Make suggestions based on data in Remote Settings</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Default</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Default</span>, <span class="ident">Debug</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">RemoteSettingsSuggester</span> {
     <span class="doccomment">/// A map from keywords to suggestions that can be provided.</span>
-    <span class="ident">suggestions</span>: <span class="ident">Trie</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">Rc</span><span class="op">&lt;</span><span class="ident">Suggestion</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    <span class="ident">suggestions</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">Suggestion</span><span class="op">&gt;</span><span class="op">&gt;</span>,
 }
 
 <span class="doccomment">/// A lazy version of the server settings for the default Remote Settings server.</span>
@@ -363,30 +409,39 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// This must be called at least once before any suggestions will be provided</span>
     <span class="attribute">#[<span class="ident">tracing</span>::<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="self">self</span>, <span class="ident">settings</span>))]</span>
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">sync</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">settings</span>: <span class="kw-2">&amp;</span><span class="ident">Settings</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">sync</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">settings</span>: <span class="kw-2">&amp;</span><span class="ident">Settings</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">SetupError</span><span class="op">&gt;</span> {
         <span class="ident">tracing</span>::<span class="macro">info</span><span class="macro">!</span>(
             <span class="ident">r#type</span> <span class="op">=</span> <span class="string">&quot;adm.remote-settings.sync-start&quot;</span>,
             <span class="string">&quot;Syncing quicksuggest records from Remote Settings&quot;</span>
         );
+        <span class="kw">let</span> <span class="ident">provider_settings</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">settings</span>.<span class="ident">providers</span>.<span class="ident">adm_rs</span>;
         <span class="kw">let</span> <span class="ident">reqwest_client</span> <span class="op">=</span> <span class="ident">reqwest</span>::<span class="ident">Client</span>::<span class="ident">new</span>();
 
         <span class="comment">// Set up and sync a Remote Settings client for the quicksuggest collection.</span>
-        <span class="ident">std</span>::<span class="ident">fs</span>::<span class="ident">create_dir_all</span>(<span class="kw-2">&amp;</span><span class="ident">settings</span>.<span class="ident">adm</span>.<span class="ident">remote_settings</span>.<span class="ident">storage_path</span>)<span class="question-mark">?</span>;
+        <span class="ident">std</span>::<span class="ident">fs</span>::<span class="ident">create_dir_all</span>(<span class="kw-2">&amp;</span><span class="ident">provider_settings</span>.<span class="ident">storage_path</span>)
+            .<span class="ident">context</span>(<span class="string">&quot;Creating RemoteSettings file cache&quot;</span>)
+            .<span class="ident">map_err</span>(<span class="ident">SetupError</span>::<span class="ident">Io</span>)<span class="question-mark">?</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rs_client</span> <span class="op">=</span> {
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rs_client_builder</span> <span class="op">=</span> <span class="ident">remote_settings_client</span>::<span class="ident">Client</span>::<span class="ident">builder</span>()
-                .<span class="ident">collection_name</span>(<span class="kw-2">&amp;</span><span class="ident">settings</span>.<span class="ident">adm</span>.<span class="ident">remote_settings</span>.<span class="ident">collection</span>)
+                .<span class="ident">collection_name</span>(<span class="kw-2">&amp;</span><span class="ident">provider_settings</span>.<span class="ident">collection</span>)
                 .<span class="ident">storage</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">FileStorage</span> {
-                    <span class="ident">folder</span>: <span class="ident">settings</span>.<span class="ident">adm</span>.<span class="ident">remote_settings</span>.<span class="ident">storage_path</span>.<span class="ident">clone</span>(),
+                    <span class="ident">folder</span>: <span class="ident">provider_settings</span>.<span class="ident">storage_path</span>.<span class="ident">clone</span>(),
                     ..<span class="ident">Default</span>::<span class="ident">default</span>()
                 }));
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">server</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">settings</span>.<span class="ident">adm</span>.<span class="ident">remote_settings</span>.<span class="ident">server</span> {
+            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">server</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">provider_settings</span>.<span class="ident">server</span> {
                 <span class="ident">rs_client_builder</span> <span class="op">=</span> <span class="ident">rs_client_builder</span>.<span class="ident">server_url</span>(<span class="ident">server</span>);
             }
-            <span class="ident">rs_client_builder</span>.<span class="ident">build</span>().<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="macro">anyhow</span><span class="macro">!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">s</span>))<span class="question-mark">?</span>
+            <span class="ident">rs_client_builder</span>
+                .<span class="ident">build</span>()
+                .<span class="ident">context</span>(<span class="string">&quot;Creating RemoteSettings client&quot;</span>)
+                .<span class="ident">map_err</span>(<span class="ident">SetupError</span>::<span class="ident">InvalidConfiguration</span>)<span class="question-mark">?</span>
         };
 
         <span class="comment">// `.sync()` blocks while doing IO</span>
-        <span class="ident">rs_client</span>.<span class="ident">sync</span>(<span class="prelude-val">None</span>)<span class="question-mark">?</span>;
+        <span class="ident">rs_client</span>
+            .<span class="ident">sync</span>(<span class="prelude-val">None</span>)
+            .<span class="ident">context</span>(<span class="string">&quot;Syncing suggestions from remote settings&quot;</span>)
+            .<span class="ident">map_err</span>(<span class="ident">SetupError</span>::<span class="ident">Network</span>)<span class="question-mark">?</span>;
 
         <span class="comment">// Get the base URL to download attachments from.</span>
         <span class="kw">let</span> <span class="ident">attachment_base_url</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">REMOTE_SETTINGS_SERVER_INFO</span>
@@ -397,14 +452,18 @@
         <span class="comment">// Get records from Remote Settings, and convert them into a schema instead of using JSON `Value`s.</span>
         <span class="kw">let</span> <span class="ident">records</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">SuggestRecord</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">rs_client</span>
             <span class="comment">// `.get()` blocks while doing IO</span>
-            .<span class="ident">get</span>()<span class="question-mark">?</span>
+            .<span class="ident">get</span>()
+            .<span class="ident">context</span>(<span class="string">&quot;Fetching records from remote settings&quot;</span>)
+            .<span class="ident">map_err</span>(<span class="ident">SetupError</span>::<span class="ident">Network</span>)<span class="question-mark">?</span>
             .<span class="ident">into_iter</span>()
             .<span class="ident">filter</span>(<span class="op">|</span><span class="ident">r</span><span class="op">|</span> <span class="op">!</span><span class="ident">r</span>.<span class="ident">deleted</span>())
             .<span class="ident">map</span>(<span class="op">|</span><span class="ident">r</span><span class="op">|</span> {
                 <span class="kw">let</span> <span class="ident">value</span> <span class="op">=</span> <span class="ident">Value</span>::<span class="ident">Object</span>(<span class="ident">r</span>.<span class="ident">as_object</span>().<span class="ident">clone</span>());
                 <span class="op">&lt;</span><span class="ident">SuggestRecord</span> <span class="kw">as</span> <span class="ident">Deserialize</span><span class="op">&gt;</span>::<span class="ident">deserialize</span>(<span class="ident">value</span>)
             })
-            .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw">_</span>, <span class="op">&lt;</span><span class="ident">Value</span> <span class="kw">as</span> <span class="ident">serde</span>::<span class="ident">Deserializer</span><span class="op">&gt;</span>::<span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span>()<span class="question-mark">?</span>;
+            .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw">_</span>, <span class="op">&lt;</span><span class="ident">Value</span> <span class="kw">as</span> <span class="ident">serde</span>::<span class="ident">Deserializer</span><span class="op">&gt;</span>::<span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span>()
+            .<span class="ident">context</span>(<span class="string">&quot;Parsing suggestions records&quot;</span>)
+            .<span class="ident">map_err</span>(<span class="ident">SetupError</span>::<span class="ident">Format</span>)<span class="question-mark">?</span>;
 
         <span class="comment">// Sort records by type</span>
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">records_by_type</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">SuggestRecord</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span>
@@ -436,25 +495,32 @@
             .<span class="ident">flat_map</span>(<span class="op">|</span><span class="ident">r</span><span class="op">|</span> <span class="ident">r</span>.<span class="ident">attachment</span>.<span class="ident">as_ref</span>())
             .<span class="ident">collect</span>();
 
-        <span class="comment">// Download all the attachments, concurrently.</span>
-        <span class="kw">let</span> <span class="ident">suggestion_attachments</span> <span class="op">=</span> <span class="ident">stream</span>::<span class="ident">iter</span>(<span class="ident">suggestion_attachment_metas</span>)
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">attachment_meta</span><span class="op">|</span> {
-                <span class="kw">let</span> <span class="ident">reqwest_client</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">reqwest_client</span>;
-                <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}{}&quot;</span>, <span class="ident">attachment_base_url</span>, <span class="ident">attachment_meta</span>.<span class="ident">location</span>);
-                <span class="kw">async</span> <span class="kw">move</span> {
-                    <span class="kw">let</span> <span class="ident">resp</span> <span class="op">=</span> <span class="ident">reqwest_client</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">url</span>).<span class="ident">send</span>().<span class="kw">await</span><span class="question-mark">?</span>.<span class="ident">error_for_status</span>()<span class="question-mark">?</span>;
-                    <span class="kw">let</span> <span class="ident">rv</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">AdmSuggestion</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">resp</span>.<span class="ident">json</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-                    <span class="prelude-ty">Result</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">AdmSuggestion</span><span class="op">&gt;</span><span class="op">&gt;</span>::<span class="prelude-val">Ok</span>(<span class="ident">rv</span>)
-                }
-            })
-            .<span class="ident">buffer_unordered</span>(<span class="number">5</span>)
-            .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>()
-            .<span class="kw">await</span>;
+        <span class="comment">// Download all the attachments concurrently</span>
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">suggestion_attachments</span> <span class="op">=</span> <span class="ident">futures</span>::<span class="ident">stream</span>::<span class="ident">FuturesUnordered</span>::<span class="ident">new</span>();
+        <span class="kw">for</span> <span class="ident">attachment_meta</span> <span class="kw">in</span> <span class="ident">suggestion_attachment_metas</span> {
+            <span class="kw">let</span> <span class="ident">reqwest_client</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">reqwest_client</span>;
+            <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}{}&quot;</span>, <span class="ident">attachment_base_url</span>, <span class="ident">attachment_meta</span>.<span class="ident">location</span>);
+            <span class="ident">suggestion_attachments</span>.<span class="ident">push</span>(<span class="kw">async</span> <span class="kw">move</span> {
+                <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">reqwest_client</span>
+                    .<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">url</span>)
+                    .<span class="ident">send</span>()
+                    .<span class="kw">await</span>
+                    .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">res</span><span class="op">|</span> <span class="ident">res</span>.<span class="ident">error_for_status</span>())
+                    .<span class="ident">context</span>(<span class="string">&quot;Fetching suggestion attachments (connection)&quot;</span>)
+                    .<span class="ident">map_err</span>(<span class="ident">SetupError</span>::<span class="ident">Network</span>)<span class="question-mark">?</span>;
+                <span class="kw">let</span> <span class="ident">rv</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">AdmSuggestion</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">res</span>
+                    .<span class="ident">json</span>()
+                    .<span class="kw">await</span>
+                    .<span class="ident">context</span>(<span class="string">&quot;Parsing suggestions&quot;</span>)
+                    .<span class="ident">map_err</span>(<span class="ident">SetupError</span>::<span class="ident">Format</span>)<span class="question-mark">?</span>;
+                <span class="prelude-ty">Result</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">AdmSuggestion</span><span class="op">&gt;</span>, <span class="ident">SetupError</span><span class="op">&gt;</span>::<span class="prelude-val">Ok</span>(<span class="ident">rv</span>)
+            });
+        }
 
         <span class="comment">// Convert the collection of adM suggestion attachments into a lookup</span>
         <span class="comment">// table of keyword -&gt; merino suggestion.</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">suggestions</span> <span class="op">=</span> <span class="ident">Trie</span>::<span class="ident">new</span>();
-        <span class="kw">for</span> <span class="ident">attachment</span> <span class="kw">in</span> <span class="ident">suggestion_attachments</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">suggestions</span> <span class="op">=</span> <span class="ident">HashMap</span>::<span class="ident">new</span>();
+        <span class="kw">while</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">attachment</span>) <span class="op">=</span> <span class="ident">suggestion_attachments</span>.<span class="ident">next</span>().<span class="kw">await</span> {
             <span class="kw">for</span> <span class="ident">adm_suggestion</span> <span class="kw">in</span> <span class="ident">attachment</span><span class="question-mark">?</span> {
                 <span class="kw">if</span> <span class="ident">adm_suggestion</span>.<span class="ident">keywords</span>.<span class="ident">is_empty</span>() {
                     <span class="kw">continue</span>;
@@ -482,7 +548,7 @@
                     .<span class="ident">expect</span>(<span class="string">&quot;No keywords?&quot;</span>)
                     .<span class="ident">clone</span>();
 
-                <span class="kw">let</span> <span class="ident">merino_suggestion</span> <span class="op">=</span> <span class="ident">Rc</span>::<span class="ident">new</span>(<span class="ident">Suggestion</span> {
+                <span class="kw">let</span> <span class="ident">merino_suggestion</span> <span class="op">=</span> <span class="ident">Arc</span>::<span class="ident">new</span>(<span class="ident">Suggestion</span> {
                     <span class="ident">id</span>: <span class="ident">adm_suggestion</span>.<span class="ident">id</span>,
                     <span class="ident">title</span>: <span class="ident">adm_suggestion</span>.<span class="ident">title</span>.<span class="ident">clone</span>(),
                     <span class="ident">url</span>: <span class="ident">adm_suggestion</span>.<span class="ident">url</span>.<span class="ident">clone</span>(),
@@ -517,12 +583,25 @@
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Suggester</span> <span class="kw">for</span> <span class="ident">RemoteSettingsSuggester</span> {
-    <span class="kw">fn</span> <span class="ident">suggest</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">query</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Suggestion</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">suggestions</span>.<span class="ident">get</span>(<span class="ident">query</span>) {
-            <span class="prelude-val">Some</span>(<span class="ident">suggestion</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">suggestion</span>.<span class="ident">as_ref</span>().<span class="ident">clone</span>()],
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">vec</span><span class="macro">!</span>[],
-        }
+<span class="attribute">#[<span class="ident">async_trait</span>]</span>
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">SuggestionProvider</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">RemoteSettingsSuggester</span> {
+    <span class="kw">fn</span> <span class="ident">name</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">std</span>::<span class="ident">borrow</span>::<span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">str</span><span class="op">&gt;</span> {
+        <span class="ident">Cow</span>::<span class="ident">from</span>(<span class="string">&quot;AdmRemoteSettings&quot;</span>)
+    }
+
+    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">setup</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">settings</span>: <span class="kw-2">&amp;</span><span class="ident">Settings</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">SetupError</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">sync</span>(<span class="ident">settings</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="prelude-val">Ok</span>(())
+    }
+
+    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">suggest</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">query</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Suggestion</span><span class="op">&gt;</span>, <span class="ident">SuggestError</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">suggestions</span> <span class="op">=</span> {
+            <span class="kw">match</span> <span class="self">self</span>.<span class="ident">suggestions</span>.<span class="ident">get</span>(<span class="ident">query</span>) {
+                <span class="prelude-val">Some</span>(<span class="ident">suggestion</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">suggestion</span>.<span class="ident">as_ref</span>().<span class="ident">clone</span>()],
+                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">vec</span><span class="macro">!</span>[],
+            }
+        };
+        <span class="prelude-val">Ok</span>(<span class="ident">suggestions</span>)
     }
 }
 
@@ -535,23 +614,33 @@
 
 <span class="kw">impl</span> <span class="ident">RemoteSettingsServerInfo</span> {
     <span class="doccomment">/// Fetch a copy of the server info from the default Remote Settings server with the provided client.</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">fetch</span>(<span class="ident">client</span>: <span class="kw-2">&amp;</span><span class="ident">reqwest</span>::<span class="ident">Client</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
+    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">fetch</span>(<span class="ident">client</span>: <span class="kw-2">&amp;</span><span class="ident">reqwest</span>::<span class="ident">Client</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">SetupError</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">client</span>
             .<span class="ident">get</span>(<span class="ident">remote_settings_client</span>::<span class="ident">DEFAULT_SERVER_URL</span>)
             .<span class="ident">send</span>()
-            .<span class="kw">await</span><span class="question-mark">?</span>
-            .<span class="ident">error_for_status</span>()<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">server_info</span>: <span class="self">Self</span> <span class="op">=</span> <span class="ident">res</span>.<span class="ident">json</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+            .<span class="kw">await</span>
+            .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">res</span><span class="op">|</span> <span class="ident">res</span>.<span class="ident">error_for_status</span>())
+            .<span class="ident">context</span>(<span class="string">&quot;Fetching RemoteSettings server info&quot;</span>)
+            .<span class="ident">map_err</span>(<span class="ident">SetupError</span>::<span class="ident">Network</span>)<span class="question-mark">?</span>;
+        <span class="kw">let</span> <span class="ident">server_info</span>: <span class="self">Self</span> <span class="op">=</span> <span class="ident">res</span>
+            .<span class="ident">json</span>()
+            .<span class="kw">await</span>
+            .<span class="ident">context</span>(<span class="string">&quot;Parsing RemoteSettings server info&quot;</span>)
+            .<span class="ident">map_err</span>(<span class="ident">SetupError</span>::<span class="ident">Format</span>)<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(<span class="ident">server_info</span>)
     }
 
     <span class="doccomment">/// Get the attachment base URL. Returns an error if the server does not support attachments.</span>
-    <span class="kw">fn</span> <span class="ident">attachment_base_url</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">attachment_base_url</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">SetupError</span><span class="op">&gt;</span> {
         <span class="prelude-val">Ok</span>(<span class="kw-2">&amp;</span><span class="self">self</span>
             .<span class="ident">capabilities</span>
             .<span class="ident">attachments</span>
             .<span class="ident">as_ref</span>()
-            .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="macro">anyhow</span><span class="macro">!</span>(<span class="string">&quot;Server does not support attachments&quot;</span>))<span class="question-mark">?</span>
+            .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> {
+                <span class="ident">SetupError</span>::<span class="ident">InvalidConfiguration</span>(<span class="macro">anyhow</span><span class="macro">!</span>(
+                    <span class="string">&quot;Remote settings does not support required extension: attachments&quot;</span>
+                ))
+            })<span class="question-mark">?</span>
             .<span class="ident">base_url</span>)
     }
 }
@@ -621,14 +710,14 @@
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
 <span class="kw">mod</span> <span class="ident">tests</span> {
     <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
-    <span class="kw">use</span> <span class="ident">merino_suggest</span>::{<span class="ident">Suggester</span>, <span class="ident">Suggestion</span>};
+    <span class="kw">use</span> <span class="ident">merino_suggest</span>::{<span class="ident">Suggestion</span>, <span class="ident">SuggestionProvider</span>};
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">it_works</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">suggestions</span> <span class="op">=</span> <span class="ident">Trie</span>::<span class="ident">new</span>();
+    <span class="attribute">#[<span class="ident">actix_rt</span>::<span class="ident">test</span>]</span>
+    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">it_works</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">anyhow</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">suggestions</span> <span class="op">=</span> <span class="ident">HashMap</span>::<span class="ident">new</span>();
         <span class="ident">suggestions</span>.<span class="ident">insert</span>(
             <span class="string">&quot;sheep&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">Rc</span>::<span class="ident">new</span>(<span class="ident">Suggestion</span> {
+            <span class="ident">Arc</span>::<span class="ident">new</span>(<span class="ident">Suggestion</span> {
                 <span class="ident">title</span>: <span class="string">&quot;Wikipedia - Sheep&quot;</span>.<span class="ident">to_string</span>(),
                 <span class="ident">url</span>: <span class="ident">Uri</span>::<span class="ident">from_static</span>(<span class="string">&quot;https://en.wikipedia.org/wiki/Sheep&quot;</span>),
                 <span class="ident">id</span>: <span class="number">1</span>,
@@ -645,11 +734,14 @@
         <span class="macro">assert_eq</span><span class="macro">!</span>(
             <span class="ident">rs_suggester</span>
                 .<span class="ident">suggest</span>(<span class="string">&quot;sheep&quot;</span>)
+                .<span class="kw">await</span><span class="question-mark">?</span>
                 .<span class="ident">iter</span>()
                 .<span class="ident">map</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="kw-2">&amp;</span><span class="ident">s</span>.<span class="ident">title</span>)
                 .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>(),
             <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;Wikipedia - Sheep&quot;</span>]
         );
+
+        <span class="prelude-val">Ok</span>(())
     }
 }
 </pre></div>
