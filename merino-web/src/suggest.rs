@@ -10,12 +10,14 @@ use merino_settings::Settings;
 use serde::{Deserialize, Serialize};
 use tokio::sync::OnceCell;
 
-use merino_suggest::{Suggester, Suggestion, WikiFruit};
+use merino_suggest::{Suggestion, SuggestionProvider, WikiFruit};
+use tracing::instrument;
+use tracing_futures::WithSubscriber;
 
 use crate::errors::HandlerError;
 
 /// A set of suggesters stored in Actix's app_data.
-type SuggesterSet = OnceCell<Vec<Box<dyn Suggester>>>;
+type SuggesterSet<'a> = OnceCell<Vec<Box<dyn SuggestionProvider<'a>>>>;
 
 /// Configure a route to use the Suggest service.
 pub fn configure(config: &mut ServiceConfig) {
@@ -25,29 +27,48 @@ pub fn configure(config: &mut ServiceConfig) {
 }
 
 /// Set up configured suggestion providers.
-async fn setup_suggesters(settings: &Settings) -> Result<Vec<Box<dyn Suggester>>> {
+#[instrument("suggester-setup", skip(settings))]
+async fn setup_suggesters<'a>(settings: &Settings) -> Result<Vec<Box<dyn SuggestionProvider<'a>>>> {
     tracing::info!(
         r#type = "web.configuring-suggesters",
-        "setting up suggestion providers"
+        "Setting up suggestion providers"
     );
-    let mut adm_rs_provider = merino_adm::remote_settings::RemoteSettingsSuggester::default();
-    adm_rs_provider
-        .sync(settings)
-        .await
-        .context("Syncing ADM suggestion data from Remote Settings")?;
-    Ok(vec![Box::new(WikiFruit), Box::new(adm_rs_provider)])
+
+    /// The most providers we expect to have at once.
+    const MAX_PROVIDERS: usize = 2;
+    let mut providers: Vec<Box<dyn SuggestionProvider>> = Vec::with_capacity(MAX_PROVIDERS);
+
+    if settings.providers.wiki_fruit.enabled {
+        providers.push(Box::new(WikiFruit));
+    }
+
+    if settings.providers.adm_rs.enabled {
+        providers.push(Box::new(
+            merino_adm::remote_settings::RemoteSettingsSuggester::default(),
+        ));
+    }
+
+    for provider in &mut providers {
+        provider
+            .setup(settings)
+            .await
+            .context(format!("Setting up provider {}", provider.name()))?;
+    }
+
+    Ok(providers)
 }
 
 /// Suggest content in response to the queried text.
 #[get("")]
 #[tracing::instrument(skip(query, suggesters, settings))]
-async fn suggest(
+async fn suggest<'a>(
     query: Query<SuggestQuery>,
-    suggesters: Data<SuggesterSet>,
+    suggesters: Data<SuggesterSet<'a>>,
     settings: Data<Settings>,
 ) -> Result<HttpResponse, HandlerError> {
     let suggesters = suggesters
         .get_or_try_init(|| setup_suggesters(settings.as_ref()))
+        .with_current_subscriber()
         .await
         .map_err(|error| {
             tracing::error!(
@@ -57,10 +78,18 @@ async fn suggest(
             );
             HandlerError::Internal
         })?;
-    let suggestions: Vec<Suggestion> = suggesters
-        .iter()
-        .flat_map(|sug| sug.suggest(&query.q))
-        .collect();
+
+    let mut suggestions: Vec<Suggestion> = Vec::new();
+    for provider in suggesters {
+        match provider.suggest(&query.q).await {
+            Ok(provider_suggestions) => {
+                suggestions.extend_from_slice(&provider_suggestions);
+            }
+            Err(error) => {
+                tracing::error!(%error, "Error providing suggestions");
+            }
+        }
+    }
     tracing::debug!(
         r#type = "web.suggest.provided-count",
         suggestion_count = suggestions.len(),

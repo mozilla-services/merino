@@ -10,7 +10,11 @@ use serde_json::json;
 #[actix_rt::test]
 async fn suggest_wikifruit_works() -> Result<()> {
     merino_test(
-        |_| (),
+        |settings| {
+            // Wiki fruit is only enabled when debug is true.
+            settings.debug = true;
+            settings.providers.wiki_fruit.enabled = true;
+        },
         |TestingTools {
              test_client,
              remote_settings_mock,

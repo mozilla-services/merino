@@ -2,9 +2,18 @@
 
 //! Suggestion backends for [Merino](../merino/index.html).
 
+mod wikifruit;
+
+use std::borrow::Cow;
+
+use async_trait::async_trait;
 use http::Uri;
+use merino_settings::Settings;
 use serde::Serialize;
 use serde_with::{serde_as, DisplayFromStr};
+use thiserror::Error;
+
+pub use crate::wikifruit::WikiFruit;
 
 /// A suggestion to provide to a user.
 #[serde_as]
@@ -45,53 +54,35 @@ pub struct Suggestion {
 }
 
 /// A backend that can provide suggestions for queries.
-pub trait Suggester {
+#[async_trait]
+pub trait SuggestionProvider<'a> {
+    /// An operator-visible name for this suggestion provider.
+    fn name(&self) -> Cow<'a, str>;
+
+    /// May spawn recurring tasks.
+    async fn setup(&mut self, settings: &Settings) -> Result<(), SetupError>;
+
     /// Provide suggested results for `query`.
-    fn suggest(&self, query: &str) -> Vec<Suggestion>;
+    async fn suggest(&self, query: &str) -> Result<Vec<Suggestion>, SuggestError>;
 }
 
-/// A toy suggester to test the system.
-pub struct WikiFruit;
+/// Errors that may occur while setting up the provider.
+#[derive(Debug, Error)]
+#[allow(missing_docs, clippy::missing_docs_in_private_items)]
+pub enum SetupError {
+    #[error("This suggestions provider cannot be used with the current Merino configuration")]
+    InvalidConfiguration(#[source] anyhow::Error),
 
-impl Suggester for WikiFruit {
-    fn suggest(&self, query: &str) -> Vec<Suggestion> {
-        let suggestion = match query {
-            "apple" => Some(Suggestion {
-                id: 1,
-                full_keyword: "apple".to_string(),
-                title: "Wikipedia - Apple".to_string(),
-                url: Uri::from_static("https://en.wikipedia.org/wiki/Apple"),
-                impression_url: Uri::from_static("https://127.0.0.1/"),
-                click_url: Uri::from_static("https://127.0.0.1/"),
-                advertiser: "Merino::WikiFruit".to_string(),
-                is_sponsored: false,
-                icon: Uri::from_static("https://en.wikipedia.org/favicon.ico"),
-            }),
-            "banana" => Some(Suggestion {
-                id: 1,
-                full_keyword: "banana".to_string(),
-                title: "Wikipedia - Banana".to_string(),
-                url: Uri::from_static("https://en.wikipedia.org/wiki/Banana"),
-                impression_url: Uri::from_static("https://127.0.0.1/"),
-                click_url: Uri::from_static("https://127.0.0.1/"),
-                advertiser: "Merino::WikiFruit".to_string(),
-                is_sponsored: false,
-                icon: Uri::from_static("https://en.wikipedia.org/favicon.ico"),
-            }),
-            "cherry" => Some(Suggestion {
-                id: 1,
-                full_keyword: "cherry".to_string(),
-                title: "Wikipedia - Cherry".to_string(),
-                url: Uri::from_static("https://en.wikipedia.org/wiki/Cherry"),
-                impression_url: Uri::from_static("https://127.0.0.1/"),
-                click_url: Uri::from_static("https://127.0.0.1/"),
-                advertiser: "Merino::WikiFruit".to_string(),
-                is_sponsored: false,
-                icon: Uri::from_static("https://en.wikipedia.org/favicon.ico"),
-            }),
-            _ => None,
-        };
+    #[error("There was a network error while setting up this suggestions provider")]
+    Network(#[source] anyhow::Error),
 
-        suggestion.into_iter().collect()
-    }
+    #[error("There was a local I/O error while setting up this suggestion provider")]
+    Io(#[source] anyhow::Error),
+
+    #[error("Required data was not in the expected format")]
+    Format(#[source] anyhow::Error),
 }
+
+/// Errors that may occur while querying for suggestions.
+#[derive(Debug, Error)]
+pub enum SuggestError {}

@@ -1,5 +1,8 @@
 //! # Merino Settings
 //!
+//! The top level settings struct is [Settings]. If you are looking for
+//! documentation about the settings that can be set, start there.
+//!
 //! Configuration is specified in several ways, with later methods overriding earlier ones.
 //!
 //! 1. A base configuration checked into the repository, in `config/base.yaml`.
@@ -12,8 +15,8 @@
 //! 3. A local configuration file not checked into the repository, at
 //!    `config/local.yaml`. This file is in `.gitignore` and is safe to use for
 //!    local configuration and secrets if desired.
-//! 4. Environment variables that begin with `MERINO_` and have a separator for
-//!    `__`. For example, `Settings::http::workers` can be controlled from the
+//! 4. Environment variables that begin with `MERINO_` and use `__` as a level
+//!    separator. For example, `Settings::http::workers` can be controlled from the
 //!    environment variable `MERINO_HTTP__WORKERS`.
 //!
 //! Tests should use `Settings::load_for_test` which only reads from
@@ -52,8 +55,9 @@ pub struct Settings {
     /// Settings for the HTTP server.
     pub http: HttpSettings,
 
-    /// Settings for adM integration.
-    pub adm: AdmSettings,
+    /// Configuration for providers. Each provider has a `enabled` field that
+    /// will control if it is active at all on the server.
+    pub providers: SuggestionProviderSettings,
 
     /// Logging settings.
     pub logging: LoggingSettings,
@@ -75,16 +79,22 @@ pub struct HttpSettings {
     pub workers: Option<usize>,
 }
 
-/// Settings for the adM integration.
 #[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct AdmSettings {
-    /// Configuration for connection to Remote Settings to provide suggestions.
-    pub remote_settings: AdmRemoteSettingsConfig,
+/// Settings for individual providers. Each provider should have an `enabled` field.
+pub struct SuggestionProviderSettings {
+    /// Settings for the Ad Marketplace Remote Settings-based provider.
+    pub adm_rs: AdmRsSettings,
+
+    /// Settings for the development provider.
+    pub wiki_fruit: WikiFruitSettings,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct AdmRemoteSettingsConfig {
-    /// The path, relative or absolute, to where to store remote settings data.
+pub struct AdmRsSettings {
+    /// Whether this provider should be active.
+    pub enabled: bool,
+
+    /// The path, relative or absolute, to where to store Remote Settings data.
     pub storage_path: PathBuf,
 
     /// The server to sync from. If no value is provided, a default is provided
@@ -93,6 +103,12 @@ pub struct AdmRemoteSettingsConfig {
 
     /// The collection to sync form.
     pub collection: String,
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct WikiFruitSettings {
+    /// Whether this provider should be active.
+    pub enabled: bool,
 }
 
 impl Settings {

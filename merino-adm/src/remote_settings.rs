@@ -1,17 +1,17 @@
 //! AdM integration that uses the remote-settings provided data.
 
-use anyhow::{anyhow, Result};
-use futures::stream::{self, StreamExt};
+use anyhow::{anyhow, Context};
+use async_trait::async_trait;
+use futures::StreamExt;
 use http::Uri;
 use lazy_static::lazy_static;
 use merino_settings::Settings;
-use merino_suggest::{Suggester, Suggestion};
-use radix_trie::{Trie, TrieCommon};
+use merino_suggest::{SetupError, SuggestError, Suggestion, SuggestionProvider};
 use remote_settings_client::client::FileStorage;
 use serde::Deserialize;
 use serde_json::Value;
 use serde_with::{serde_as, DisplayFromStr};
-use std::{collections::HashMap, convert::TryFrom, rc::Rc};
+use std::{borrow::Cow, collections::HashMap, convert::TryFrom, sync::Arc};
 use tokio::sync::OnceCell;
 
 lazy_static! {
@@ -19,10 +19,10 @@ lazy_static! {
 }
 
 /// Make suggestions based on data in Remote Settings
-#[derive(Debug, Default)]
+#[derive(Default, Debug)]
 pub struct RemoteSettingsSuggester {
     /// A map from keywords to suggestions that can be provided.
-    suggestions: Trie<String, Rc<Suggestion>>,
+    suggestions: HashMap<String, Arc<Suggestion>>,
 }
 
 /// A lazy version of the server settings for the default Remote Settings server.
@@ -34,30 +34,39 @@ impl RemoteSettingsSuggester {
     ///
     /// This must be called at least once before any suggestions will be provided
     #[tracing::instrument(skip(self, settings))]
-    pub async fn sync(&mut self, settings: &Settings) -> Result<()> {
+    pub async fn sync(&mut self, settings: &Settings) -> Result<(), SetupError> {
         tracing::info!(
             r#type = "adm.remote-settings.sync-start",
             "Syncing quicksuggest records from Remote Settings"
         );
+        let provider_settings = &settings.providers.adm_rs;
         let reqwest_client = reqwest::Client::new();
 
         // Set up and sync a Remote Settings client for the quicksuggest collection.
-        std::fs::create_dir_all(&settings.adm.remote_settings.storage_path)?;
+        std::fs::create_dir_all(&provider_settings.storage_path)
+            .context("Creating RemoteSettings file cache")
+            .map_err(SetupError::Io)?;
         let mut rs_client = {
             let mut rs_client_builder = remote_settings_client::Client::builder()
-                .collection_name(&settings.adm.remote_settings.collection)
+                .collection_name(&provider_settings.collection)
                 .storage(Box::new(FileStorage {
-                    folder: settings.adm.remote_settings.storage_path.clone(),
+                    folder: provider_settings.storage_path.clone(),
                     ..Default::default()
                 }));
-            if let Some(server) = &settings.adm.remote_settings.server {
+            if let Some(server) = &provider_settings.server {
                 rs_client_builder = rs_client_builder.server_url(server);
             }
-            rs_client_builder.build().map_err(|s| anyhow!("{}", s))?
+            rs_client_builder
+                .build()
+                .context("Creating RemoteSettings client")
+                .map_err(SetupError::InvalidConfiguration)?
         };
 
         // `.sync()` blocks while doing IO
-        rs_client.sync(None)?;
+        rs_client
+            .sync(None)
+            .context("Syncing suggestions from remote settings")
+            .map_err(SetupError::Network)?;
 
         // Get the base URL to download attachments from.
         let attachment_base_url = &REMOTE_SETTINGS_SERVER_INFO
@@ -68,14 +77,18 @@ impl RemoteSettingsSuggester {
         // Get records from Remote Settings, and convert them into a schema instead of using JSON `Value`s.
         let records: Vec<SuggestRecord> = rs_client
             // `.get()` blocks while doing IO
-            .get()?
+            .get()
+            .context("Fetching records from remote settings")
+            .map_err(SetupError::Network)?
             .into_iter()
             .filter(|r| !r.deleted())
             .map(|r| {
                 let value = Value::Object(r.as_object().clone());
                 <SuggestRecord as Deserialize>::deserialize(value)
             })
-            .collect::<Result<_, <Value as serde::Deserializer>::Error>>()?;
+            .collect::<Result<_, <Value as serde::Deserializer>::Error>>()
+            .context("Parsing suggestions records")
+            .map_err(SetupError::Format)?;
 
         // Sort records by type
         let mut records_by_type: HashMap<&str, Vec<&SuggestRecord>> =
@@ -107,25 +120,32 @@ impl RemoteSettingsSuggester {
             .flat_map(|r| r.attachment.as_ref())
             .collect();
 
-        // Download all the attachments, concurrently.
-        let suggestion_attachments = stream::iter(suggestion_attachment_metas)
-            .map(|attachment_meta| {
-                let reqwest_client = &reqwest_client;
-                let url = format!("{}{}", attachment_base_url, attachment_meta.location);
-                async move {
-                    let resp = reqwest_client.get(&url).send().await?.error_for_status()?;
-                    let rv: Vec<AdmSuggestion> = resp.json().await?;
-                    Result::<Vec<AdmSuggestion>>::Ok(rv)
-                }
-            })
-            .buffer_unordered(5)
-            .collect::<Vec<_>>()
-            .await;
+        // Download all the attachments concurrently
+        let mut suggestion_attachments = futures::stream::FuturesUnordered::new();
+        for attachment_meta in suggestion_attachment_metas {
+            let reqwest_client = &reqwest_client;
+            let url = format!("{}{}", attachment_base_url, attachment_meta.location);
+            suggestion_attachments.push(async move {
+                let res = reqwest_client
+                    .get(&url)
+                    .send()
+                    .await
+                    .and_then(|res| res.error_for_status())
+                    .context("Fetching suggestion attachments (connection)")
+                    .map_err(SetupError::Network)?;
+                let rv: Vec<AdmSuggestion> = res
+                    .json()
+                    .await
+                    .context("Parsing suggestions")
+                    .map_err(SetupError::Format)?;
+                Result::<Vec<AdmSuggestion>, SetupError>::Ok(rv)
+            });
+        }
 
         // Convert the collection of adM suggestion attachments into a lookup
         // table of keyword -> merino suggestion.
-        let mut suggestions = Trie::new();
-        for attachment in suggestion_attachments {
+        let mut suggestions = HashMap::new();
+        while let Some(attachment) = suggestion_attachments.next().await {
             for adm_suggestion in attachment? {
                 if adm_suggestion.keywords.is_empty() {
                     continue;
@@ -153,7 +173,7 @@ impl RemoteSettingsSuggester {
                     .expect("No keywords?")
                     .clone();
 
-                let merino_suggestion = Rc::new(Suggestion {
+                let merino_suggestion = Arc::new(Suggestion {
                     id: adm_suggestion.id,
                     title: adm_suggestion.title.clone(),
                     url: adm_suggestion.url.clone(),
@@ -188,12 +208,25 @@ impl RemoteSettingsSuggester {
     }
 }
 
-impl Suggester for RemoteSettingsSuggester {
-    fn suggest(&self, query: &str) -> Vec<Suggestion> {
-        match self.suggestions.get(query) {
-            Some(suggestion) => vec![suggestion.as_ref().clone()],
-            _ => vec![],
-        }
+#[async_trait]
+impl<'a> SuggestionProvider<'a> for RemoteSettingsSuggester {
+    fn name(&self) -> std::borrow::Cow<'a, str> {
+        Cow::from("AdmRemoteSettings")
+    }
+
+    async fn setup(&mut self, settings: &Settings) -> Result<(), SetupError> {
+        self.sync(settings).await?;
+        Ok(())
+    }
+
+    async fn suggest(&self, query: &str) -> Result<Vec<Suggestion>, SuggestError> {
+        let suggestions = {
+            match self.suggestions.get(query) {
+                Some(suggestion) => vec![suggestion.as_ref().clone()],
+                _ => vec![],
+            }
+        };
+        Ok(suggestions)
     }
 }
 
@@ -206,23 +239,33 @@ struct RemoteSettingsServerInfo {
 
 impl RemoteSettingsServerInfo {
     /// Fetch a copy of the server info from the default Remote Settings server with the provided client.
-    async fn fetch(client: &reqwest::Client) -> Result<Self> {
+    async fn fetch(client: &reqwest::Client) -> Result<Self, SetupError> {
         let res = client
             .get(remote_settings_client::DEFAULT_SERVER_URL)
             .send()
-            .await?
-            .error_for_status()?;
-        let server_info: Self = res.json().await?;
+            .await
+            .and_then(|res| res.error_for_status())
+            .context("Fetching RemoteSettings server info")
+            .map_err(SetupError::Network)?;
+        let server_info: Self = res
+            .json()
+            .await
+            .context("Parsing RemoteSettings server info")
+            .map_err(SetupError::Format)?;
         Ok(server_info)
     }
 
     /// Get the attachment base URL. Returns an error if the server does not support attachments.
-    fn attachment_base_url(&self) -> Result<&str> {
+    fn attachment_base_url(&self) -> Result<&str, SetupError> {
         Ok(&self
             .capabilities
             .attachments
             .as_ref()
-            .ok_or_else(|| anyhow!("Server does not support attachments"))?
+            .ok_or_else(|| {
+                SetupError::InvalidConfiguration(anyhow!(
+                    "Remote settings does not support required extension: attachments"
+                ))
+            })?
             .base_url)
     }
 }
@@ -292,14 +335,14 @@ struct AdmSuggestion {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use merino_suggest::{Suggester, Suggestion};
+    use merino_suggest::{Suggestion, SuggestionProvider};
 
-    #[test]
-    fn it_works() {
-        let mut suggestions = Trie::new();
+    #[actix_rt::test]
+    async fn it_works() -> anyhow::Result<()> {
+        let mut suggestions = HashMap::new();
         suggestions.insert(
             "sheep".to_string(),
-            Rc::new(Suggestion {
+            Arc::new(Suggestion {
                 title: "Wikipedia - Sheep".to_string(),
                 url: Uri::from_static("https://en.wikipedia.org/wiki/Sheep"),
                 id: 1,
@@ -316,10 +359,13 @@ mod tests {
         assert_eq!(
             rs_suggester
                 .suggest("sheep")
+                .await?
                 .iter()
                 .map(|s| &s.title)
                 .collect::<Vec<_>>(),
             vec!["Wikipedia - Sheep"]
         );
+
+        Ok(())
     }
 }
