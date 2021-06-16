@@ -1,6 +1,6 @@
 //! Provides a provider-combinator that provides suggestions from multiple sub-providers.
 
-use crate::{SuggestError, Suggestion, SuggestionProvider};
+use crate::{CacheStatus, SuggestError, SuggestionProvider, SuggestionRequest, SuggestionResponse};
 use async_trait::async_trait;
 use futures::future::join_all;
 
@@ -48,14 +48,32 @@ impl<'a> SuggestionProvider<'a> for Multi<'a> {
         .collect::<Result<(), _>>()
     }
 
-    async fn suggest(&self, query: &str) -> Result<Vec<Suggestion>, SuggestError> {
+    async fn suggest(
+        &self,
+        request: SuggestionRequest<'a>,
+    ) -> Result<SuggestionResponse, SuggestError> {
         // collect a Vec<Result<Vec<T>, E>>, and then transpose it into a Result<Vec<Vec<T>>, E>.
-        let v: Result<Vec<Vec<_>>, _> = join_all(self.providers.iter().map(|p| p.suggest(query)))
-            .await
-            .into_iter()
-            .collect();
+        let v: Result<Vec<SuggestionResponse>, _> =
+            join_all(self.providers.iter().map(|p| p.suggest(request.clone())))
+                .await
+                .into_iter()
+                .collect();
         // now flatten it
-        let suggestions = v?.into_iter().flatten().collect();
-        Ok(suggestions)
+        v.map(|mut responses| {
+            let mut rv = responses
+                .pop()
+                .unwrap_or_else(|| SuggestionResponse::new(vec![]));
+
+            for response in responses {
+                rv.suggestions.extend_from_slice(&response.suggestions);
+                rv.cache_status = match (rv.cache_status, response.cache_status) {
+                    (a, b) if a == b => a,
+                    (a, CacheStatus::NoCache) => a,
+                    _ => CacheStatus::Mixed,
+                }
+            }
+
+            rv
+        })
     }
 }

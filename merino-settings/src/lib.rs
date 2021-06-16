@@ -29,6 +29,7 @@
 //! `config/local.toml`.
 
 mod logging;
+mod redis;
 
 pub use logging::{LogFormat, LoggingSettings};
 
@@ -36,13 +37,12 @@ use anyhow::{Context, Result};
 use config::{Config, Environment, File};
 use http::Uri;
 use serde::{Deserialize, Serialize};
-use serde_with::{serde_as, DisplayFromStr};
-use std::{net::SocketAddr, path::PathBuf};
+use serde_with::{serde_as, DisplayFromStr, DurationSeconds};
+use std::{net::SocketAddr, path::PathBuf, time::Duration};
 
 /// Top level settings object for Merino.
 #[serde_as]
 #[derive(Clone, Debug, Serialize, Deserialize)]
-#[doc(inline)]
 pub struct Settings {
     /// The environment Merino is running in. Should only be set with the
     /// `MERINO_ENV` environment variable.
@@ -66,6 +66,10 @@ pub struct Settings {
     /// Preferable a public wiki page. Optional.
     #[serde_as(as = "Option<DisplayFromStr>")]
     pub public_documentation: Option<Uri>,
+
+    /// Settings for the Redis-based suggestion cache. This can be used by any
+    /// provider by setting the provider's cache type to "redis".
+    pub redis_cache: RedisCacheSettings,
 }
 
 /// Settings for the HTTP server.
@@ -90,6 +94,13 @@ pub struct SuggestionProviderSettings {
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum CacheType {
+    None,
+    Redis,
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct AdmRsSettings {
     /// Whether this provider should be active.
     pub enabled: bool,
@@ -103,12 +114,30 @@ pub struct AdmRsSettings {
 
     /// The collection to sync form.
     pub collection: String,
+
+    /// Which cache, if any, to use with this provider.
+    pub cache: CacheType,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct WikiFruitSettings {
     /// Whether this provider should be active.
     pub enabled: bool,
+
+    /// Which cache, if any, to use with this provider.
+    pub cache: CacheType,
+}
+
+#[serde_as]
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct RedisCacheSettings {
+    /// The URL to connect to Redis at. Example: `redis://127.0.0.1/db`
+    #[serde_as(as = "Option<crate::redis::AsConnectionInfo>")]
+    pub url: Option<::redis::ConnectionInfo>,
+
+    #[serde_as(as = "DurationSeconds")]
+    #[serde(rename = "default_ttl_sec")]
+    pub default_ttl: Duration,
 }
 
 impl Settings {
@@ -145,9 +174,7 @@ impl Settings {
     }
 
     /// Load settings from configuration files for tests.
-    ///
-    /// `changer` is
-    pub fn load_for_tests<F: FnOnce(&mut Self)>(changer: F) -> Self {
+    pub fn load_for_tests() -> Self {
         let mut s = Config::new();
 
         // Start off with the base config.
@@ -163,8 +190,6 @@ impl Settings {
         s.merge(File::with_name("../config/local_test").required(false))
             .expect("Could not load local settings for tests");
 
-        let mut config = s.try_into().expect("Could not convert settings");
-        changer(&mut config);
-        config
+        s.try_into().expect("Could not convert settings")
     }
 }

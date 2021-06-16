@@ -1,6 +1,6 @@
-use std::{ops::AddAssign, str::FromStr};
-
+use anyhow::{bail, Context};
 use serde::{de, ser::SerializeSeq, Deserialize, Serialize};
+use std::{ops::AddAssign, str::FromStr};
 use tracing_subscriber::{filter::Directive, EnvFilter};
 
 /// Logging settings.
@@ -114,8 +114,11 @@ impl<'de> Deserialize<'de> for DirectiveWrapper {
                 let mut rv = DirectiveWrapper(vec![]);
 
                 while let Some(item) = seq.next_element::<String>()? {
-                    let parsed: DirectiveWrapper = item.parse().map_err(|_err| {
-                        de::Error::invalid_value(de::Unexpected::Str(&item), &"valid directive")
+                    let parsed: DirectiveWrapper = item.parse().map_err(|err: anyhow::Error| {
+                        de::Error::invalid_value(
+                            de::Unexpected::Str(&item),
+                            &err.to_string().as_str(),
+                        )
                     })?;
                     rv += parsed;
                 }
@@ -139,14 +142,21 @@ impl<'de> Deserialize<'de> for DirectiveWrapper {
 }
 
 impl FromStr for DirectiveWrapper {
-    type Err = tracing_subscriber::filter::ParseError;
+    type Err = anyhow::Error;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let parts: Vec<String> = s.split(',').map(|s| s.to_string()).collect();
+
         // Test that each part can be parsed as a logging filter directive.
         if let Some(err) = parts.iter().find_map(|p| p.parse::<Directive>().err()) {
-            return Err(err);
+            return Err(err).context("valid syntax");
         }
+
+        // directives with hyphens in them are foot-guns for us
+        if parts.iter().any(|p| p.contains('-')) {
+            bail!("log targets must not include hyphens");
+        }
+
         // Wrap the string and return it.
         Ok(Self(parts))
     }

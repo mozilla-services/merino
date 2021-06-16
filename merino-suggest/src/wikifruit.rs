@@ -10,7 +10,9 @@ use async_trait::async_trait;
 use http::Uri;
 use merino_settings::Settings;
 
-use crate::{SetupError, SuggestError, Suggestion, SuggestionProvider};
+use crate::{
+    SetupError, SuggestError, Suggestion, SuggestionProvider, SuggestionRequest, SuggestionResponse,
+};
 
 /// A toy suggester to test the system.
 pub struct WikiFruit;
@@ -31,8 +33,11 @@ impl<'a> SuggestionProvider<'a> for WikiFruit {
         }
     }
 
-    async fn suggest(&self, query: &str) -> Result<Vec<Suggestion>, SuggestError> {
-        let suggestion = match query {
+    async fn suggest(
+        &self,
+        request: SuggestionRequest<'a>,
+    ) -> Result<SuggestionResponse, SuggestError> {
+        let suggestion = match request.query.as_ref() {
             "apple" => Some(Suggestion {
                 id: 1,
                 full_keyword: "apple".to_string(),
@@ -69,6 +74,6 @@ impl<'a> SuggestionProvider<'a> for WikiFruit {
             _ => None,
         };
 
-        Ok(suggestion.into_iter().collect())
+        Ok(SuggestionResponse::new(suggestion.into_iter().collect()))
     }
 }

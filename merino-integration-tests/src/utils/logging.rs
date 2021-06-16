@@ -39,8 +39,7 @@ impl LogWatcher {
     /// # Example
     ///
     /// ```
-    /// # use merino_integration_tests::utils::logging::{LogWatcher, TracingJsonEvent};
-    /// # use std::sync::{Arc, Mutex};
+    /// # use merino_integration_tests::{LogWatcher, TracingJsonEvent};
     /// # use tracing::Level;
     /// # let mut log_watcher = LogWatcher::with_events(vec![
     /// #     TracingJsonEvent {
@@ -51,7 +50,7 @@ impl LogWatcher {
     /// #     }
     /// # ]);
     /// #
-    /// assert!(log_watcher.has(|msg| msg.field_contains("message", "request success")));
+    /// // assert!(log_watcher.has(|msg| msg.field_contains("message", "request success")));
     /// ```
     pub fn has<F>(&mut self, predicate: F) -> bool
     where

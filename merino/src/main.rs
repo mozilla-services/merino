@@ -18,6 +18,7 @@ mod docs;
 use anyhow::{Context, Result};
 use merino_settings::{LogFormat, Settings};
 use std::net::TcpListener;
+use tracing::Level;
 use tracing_actix_web_mozlog::{JsonStorageLayer, MozLogFormatLayer};
 use tracing_log::LogTracer;
 use tracing_subscriber::{layer::SubscriberExt, EnvFilter};
@@ -48,19 +49,24 @@ fn init_logging(settings: &Settings) -> Result<()> {
         LogFormat::Pretty => {
             let subscriber = tracing_subscriber::FmtSubscriber::builder()
                 .pretty()
+                .with_max_level(Level::TRACE)
                 .finish()
                 .with(env_filter);
             tracing::subscriber::set_global_default(subscriber)?;
         }
         LogFormat::Compact => {
-            let subscriber = tracing_subscriber::FmtSubscriber::default().with(env_filter);
+            let subscriber = tracing_subscriber::FmtSubscriber::builder()
+                .with_level(true)
+                .with_max_level(Level::TRACE)
+                .finish()
+                .with(env_filter);
             tracing::subscriber::set_global_default(subscriber)?;
         }
         LogFormat::MozLog => {
             let subscriber = tracing_subscriber::registry()
-                .with(env_filter)
                 .with(JsonStorageLayer)
-                .with(MozLogFormatLayer::new("merino", std::io::stdout));
+                .with(MozLogFormatLayer::new("merino", std::io::stdout))
+                .with(env_filter);
             tracing::subscriber::set_global_default(subscriber)?;
         }
     };

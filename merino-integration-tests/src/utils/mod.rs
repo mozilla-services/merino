@@ -1,3 +1,5 @@
 //! Utilities to aid in testing.
 
-pub mod logging;
+pub(crate) mod logging;
+mod redis;
+pub(crate) mod test_tools;

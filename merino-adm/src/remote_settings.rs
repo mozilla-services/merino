@@ -6,7 +6,9 @@ use futures::StreamExt;
 use http::Uri;
 use lazy_static::lazy_static;
 use merino_settings::Settings;
-use merino_suggest::{SetupError, SuggestError, Suggestion, SuggestionProvider};
+use merino_suggest::{
+    SetupError, SuggestError, Suggestion, SuggestionProvider, SuggestionRequest, SuggestionResponse,
+};
 use remote_settings_client::client::FileStorage;
 use serde::Deserialize;
 use serde_json::Value;
@@ -219,14 +221,17 @@ impl<'a> SuggestionProvider<'a> for RemoteSettingsSuggester {
         Ok(())
     }
 
-    async fn suggest(&self, query: &str) -> Result<Vec<Suggestion>, SuggestError> {
+    async fn suggest(
+        &self,
+        request: SuggestionRequest<'a>,
+    ) -> Result<SuggestionResponse, SuggestError> {
         let suggestions = {
-            match self.suggestions.get(query) {
+            match self.suggestions.get(request.query.as_ref()) {
                 Some(suggestion) => vec![suggestion.as_ref().clone()],
                 _ => vec![],
             }
         };
-        Ok(suggestions)
+        Ok(SuggestionResponse::new(suggestions))
     }
 }
 
@@ -356,10 +361,15 @@ mod tests {
         );
         let rs_suggester = RemoteSettingsSuggester { suggestions };
 
+        let request = SuggestionRequest {
+            query: "sheep".into(),
+        };
+
         assert_eq!(
             rs_suggester
-                .suggest("sheep")
+                .suggest(request)
                 .await?
+                .suggestions
                 .iter()
                 .map(|s| &s.title)
                 .collect::<Vec<_>>(),
