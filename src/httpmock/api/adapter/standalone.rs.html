@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/usr/local/cargo/registry/src/github.com-1ecc6299db9ec823/httpmock-0.5.8/src/api/adapter/standalone.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>standalone.rs - source</title><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../../storage.js"></script><script src="../../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png">
-<link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../../httpmock/index.html'><div class='logo-container rust-logo'><img src='../../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+<link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../../httpmock/index.html'><div class='logo-container rust-logo'><img src='../../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../../../settings.html"><img src="../../../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
@@ -247,17 +247,17 @@
 <span id="244">244</span>
 <span id="245">245</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">borrow</span>::<span class="ident">Borrow</span>;
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">net</span>::<span class="ident">SocketAddr</span>;
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">sync</span>::<span class="ident">Arc</span>;
+<span class="kw">use</span> <span class="ident">std::borrow::Borrow</span>;
+<span class="kw">use</span> <span class="ident">std::net::SocketAddr</span>;
+<span class="kw">use</span> <span class="ident">std::sync::Arc</span>;
 
-<span class="kw">use</span> <span class="ident">async_trait</span>::<span class="ident">async_trait</span>;
-<span class="kw">use</span> <span class="ident">isahc</span>::<span class="ident">Request</span>;
+<span class="kw">use</span> <span class="ident">async_trait::async_trait</span>;
+<span class="kw">use</span> <span class="ident">isahc::Request</span>;
 
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">api</span>::<span class="ident">adapter</span>::{
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::api::adapter</span>::{
     <span class="ident">build_http_client</span>, <span class="ident">execute_request</span>, <span class="ident">http_ping</span>, <span class="ident">InternalHttpClient</span>, <span class="ident">MockServerAdapter</span>,
 };
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">data</span>::{
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::data</span>::{
     <span class="ident">ActiveMock</span>, <span class="ident">ClosestMatch</span>, <span class="ident">MockDefinition</span>, <span class="ident">MockIdentification</span>, <span class="ident">RequestRequirements</span>,
 };
 
@@ -304,14 +304,14 @@
         <span class="self">self</span>.<span class="ident">validate_mock</span>(<span class="ident">mock</span>).<span class="ident">expect</span>(<span class="string">&quot;Cannot create mock&quot;</span>);
 
         <span class="comment">// Serialize to JSON</span>
-        <span class="kw">let</span> <span class="ident">json</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">serde_json</span>::<span class="ident">to_string</span>(<span class="ident">mock</span>) {
-            <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;cannot serialize mock object to JSON: {}&quot;</span>, <span class="ident">err</span>)),
+        <span class="kw">let</span> <span class="ident">json</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">serde_json::to_string</span>(<span class="ident">mock</span>) {
+            <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format!</span>(<span class="string">&quot;cannot serialize mock object to JSON: {}&quot;</span>, <span class="ident">err</span>)),
             <span class="prelude-val">Ok</span>(<span class="ident">json</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">json</span>,
         };
 
         <span class="comment">// Send the request to the mock server</span>
-        <span class="kw">let</span> <span class="ident">request_url</span> <span class="op">=</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;http://{}/__httpmock__/mocks&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">address</span>());
-        <span class="kw">let</span> <span class="ident">request</span> <span class="op">=</span> <span class="ident">Request</span>::<span class="ident">builder</span>()
+        <span class="kw">let</span> <span class="ident">request_url</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;http://{}/__httpmock__/mocks&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">address</span>());
+        <span class="kw">let</span> <span class="ident">request</span> <span class="op">=</span> <span class="ident">Request::builder</span>()
             .<span class="ident">method</span>(<span class="string">&quot;POST&quot;</span>)
             .<span class="ident">uri</span>(<span class="ident">request_url</span>)
             .<span class="ident">header</span>(<span class="string">&quot;Content-Type&quot;</span>, <span class="string">&quot;application/json&quot;</span>)
@@ -319,22 +319,22 @@
             .<span class="ident">unwrap</span>();
 
         <span class="kw">let</span> (<span class="ident">status</span>, <span class="ident">body</span>) <span class="op">=</span> <span class="kw">match</span> <span class="ident">execute_request</span>(<span class="ident">request</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">http_client</span>).<span class="kw">await</span> {
-            <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;cannot send request to mock server: {}&quot;</span>, <span class="ident">err</span>)),
+            <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format!</span>(<span class="string">&quot;cannot send request to mock server: {}&quot;</span>, <span class="ident">err</span>)),
             <span class="prelude-val">Ok</span>(<span class="ident">sb</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">sb</span>,
         };
 
         <span class="comment">// Evaluate the response status</span>
         <span class="kw">if</span> <span class="ident">status</span> <span class="op">!</span><span class="op">=</span> <span class="number">201</span> {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format</span><span class="macro">!</span>(
+            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format!</span>(
                 <span class="string">&quot;Could not create mock. Mock server response: status = {}, message = {}&quot;</span>,
                 <span class="ident">status</span>, <span class="ident">body</span>
             ));
         }
 
         <span class="comment">// Create response object</span>
-        <span class="kw">let</span> <span class="ident">response</span>: <span class="ident">serde_json</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">MockIdentification</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">serde_json</span>::<span class="ident">from_str</span>(<span class="kw-2">&amp;</span><span class="ident">body</span>);
+        <span class="kw">let</span> <span class="ident">response</span>: <span class="ident">serde_json::Result</span><span class="op">&lt;</span><span class="ident">MockIdentification</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">serde_json::from_str</span>(<span class="kw-2">&amp;</span><span class="ident">body</span>);
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span> <span class="ident">response</span> {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Cannot deserialize mock server response: {}&quot;</span>, <span class="ident">err</span>));
+            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format!</span>(<span class="string">&quot;Cannot deserialize mock server response: {}&quot;</span>, <span class="ident">err</span>));
         }
 
         <span class="prelude-val">Ok</span>(<span class="ident">response</span>.<span class="ident">unwrap</span>())
@@ -342,30 +342,30 @@
 
     <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">fetch_mock</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">mock_id</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ActiveMock</span>, <span class="ident">String</span><span class="op">&gt;</span> {
         <span class="comment">// Send the request to the mock server</span>
-        <span class="kw">let</span> <span class="ident">request_url</span> <span class="op">=</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;http://{}/__httpmock__/mocks/{}&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">address</span>(), <span class="ident">mock_id</span>);
-        <span class="kw">let</span> <span class="ident">request</span> <span class="op">=</span> <span class="ident">Request</span>::<span class="ident">builder</span>()
+        <span class="kw">let</span> <span class="ident">request_url</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;http://{}/__httpmock__/mocks/{}&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">address</span>(), <span class="ident">mock_id</span>);
+        <span class="kw">let</span> <span class="ident">request</span> <span class="op">=</span> <span class="ident">Request::builder</span>()
             .<span class="ident">method</span>(<span class="string">&quot;GET&quot;</span>)
             .<span class="ident">uri</span>(<span class="ident">request_url</span>)
             .<span class="ident">body</span>(<span class="string">&quot;&quot;</span>.<span class="ident">to_string</span>())
             .<span class="ident">unwrap</span>();
 
         <span class="kw">let</span> (<span class="ident">status</span>, <span class="ident">body</span>) <span class="op">=</span> <span class="kw">match</span> <span class="ident">execute_request</span>(<span class="ident">request</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">http_client</span>).<span class="kw">await</span> {
-            <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Cannot send request to mock server: {}&quot;</span>, <span class="ident">err</span>)),
+            <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format!</span>(<span class="string">&quot;Cannot send request to mock server: {}&quot;</span>, <span class="ident">err</span>)),
             <span class="prelude-val">Ok</span>(<span class="ident">r</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">r</span>,
         };
 
         <span class="comment">// Evaluate response status code</span>
         <span class="kw">if</span> <span class="ident">status</span> <span class="op">!</span><span class="op">=</span> <span class="number">200</span> {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format</span><span class="macro">!</span>(
+            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format!</span>(
                 <span class="string">&quot;Could not create mock. Mock server response: status = {}, message = {}&quot;</span>,
                 <span class="ident">status</span>, <span class="ident">body</span>
             ));
         }
 
         <span class="comment">// Create response object</span>
-        <span class="kw">let</span> <span class="ident">response</span>: <span class="ident">serde_json</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ActiveMock</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">serde_json</span>::<span class="ident">from_str</span>(<span class="kw-2">&amp;</span><span class="ident">body</span>);
+        <span class="kw">let</span> <span class="ident">response</span>: <span class="ident">serde_json::Result</span><span class="op">&lt;</span><span class="ident">ActiveMock</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">serde_json::from_str</span>(<span class="kw-2">&amp;</span><span class="ident">body</span>);
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span> <span class="ident">response</span> {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Cannot deserialize mock server response: {}&quot;</span>, <span class="ident">err</span>));
+            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format!</span>(<span class="string">&quot;Cannot deserialize mock server response: {}&quot;</span>, <span class="ident">err</span>));
         }
 
         <span class="prelude-val">Ok</span>(<span class="ident">response</span>.<span class="ident">unwrap</span>())
@@ -373,21 +373,21 @@
 
     <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">delete_mock</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">mock_id</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">String</span><span class="op">&gt;</span> {
         <span class="comment">// Send the request to the mock server</span>
-        <span class="kw">let</span> <span class="ident">request_url</span> <span class="op">=</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;http://{}/__httpmock__/mocks/{}&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">address</span>(), <span class="ident">mock_id</span>);
-        <span class="kw">let</span> <span class="ident">request</span> <span class="op">=</span> <span class="ident">Request</span>::<span class="ident">builder</span>()
+        <span class="kw">let</span> <span class="ident">request_url</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;http://{}/__httpmock__/mocks/{}&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">address</span>(), <span class="ident">mock_id</span>);
+        <span class="kw">let</span> <span class="ident">request</span> <span class="op">=</span> <span class="ident">Request::builder</span>()
             .<span class="ident">method</span>(<span class="string">&quot;DELETE&quot;</span>)
             .<span class="ident">uri</span>(<span class="ident">request_url</span>)
             .<span class="ident">body</span>(<span class="string">&quot;&quot;</span>.<span class="ident">to_string</span>())
             .<span class="ident">unwrap</span>();
 
         <span class="kw">let</span> (<span class="ident">status</span>, <span class="ident">body</span>) <span class="op">=</span> <span class="kw">match</span> <span class="ident">execute_request</span>(<span class="ident">request</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">http_client</span>).<span class="kw">await</span> {
-            <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Cannot send request to mock server: {}&quot;</span>, <span class="ident">err</span>)),
+            <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format!</span>(<span class="string">&quot;Cannot send request to mock server: {}&quot;</span>, <span class="ident">err</span>)),
             <span class="prelude-val">Ok</span>(<span class="ident">sb</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">sb</span>,
         };
 
         <span class="comment">// Evaluate response status code</span>
         <span class="kw">if</span> <span class="ident">status</span> <span class="op">!</span><span class="op">=</span> <span class="number">202</span> {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format</span><span class="macro">!</span>(
+            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format!</span>(
                 <span class="string">&quot;Could not delete mocks from server (status = {}, message = {})&quot;</span>,
                 <span class="ident">status</span>, <span class="ident">body</span>
             ));
@@ -398,21 +398,21 @@
 
     <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">delete_all_mocks</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">String</span><span class="op">&gt;</span> {
         <span class="comment">// Send the request to the mock server</span>
-        <span class="kw">let</span> <span class="ident">request_url</span> <span class="op">=</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;http://{}/__httpmock__/mocks&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">address</span>());
-        <span class="kw">let</span> <span class="ident">request</span> <span class="op">=</span> <span class="ident">Request</span>::<span class="ident">builder</span>()
+        <span class="kw">let</span> <span class="ident">request_url</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;http://{}/__httpmock__/mocks&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">address</span>());
+        <span class="kw">let</span> <span class="ident">request</span> <span class="op">=</span> <span class="ident">Request::builder</span>()
             .<span class="ident">method</span>(<span class="string">&quot;DELETE&quot;</span>)
             .<span class="ident">uri</span>(<span class="ident">request_url</span>)
             .<span class="ident">body</span>(<span class="string">&quot;&quot;</span>.<span class="ident">to_string</span>())
             .<span class="ident">unwrap</span>();
 
         <span class="kw">let</span> (<span class="ident">status</span>, <span class="ident">body</span>) <span class="op">=</span> <span class="kw">match</span> <span class="ident">execute_request</span>(<span class="ident">request</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">http_client</span>).<span class="kw">await</span> {
-            <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Cannot send request to mock server: {}&quot;</span>, <span class="ident">err</span>)),
+            <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format!</span>(<span class="string">&quot;Cannot send request to mock server: {}&quot;</span>, <span class="ident">err</span>)),
             <span class="prelude-val">Ok</span>(<span class="ident">sb</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">sb</span>,
         };
 
         <span class="comment">// Evaluate response status code</span>
         <span class="kw">if</span> <span class="ident">status</span> <span class="op">!</span><span class="op">=</span> <span class="number">202</span> {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format</span><span class="macro">!</span>(
+            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format!</span>(
                 <span class="string">&quot;Could not delete mocks from server (status = {}, message = {})&quot;</span>,
                 <span class="ident">status</span>, <span class="ident">body</span>
             ));
@@ -423,14 +423,14 @@
 
     <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">verify</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">mock_rr</span>: <span class="kw-2">&amp;</span><span class="ident">RequestRequirements</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ClosestMatch</span><span class="op">&gt;</span>, <span class="ident">String</span><span class="op">&gt;</span> {
         <span class="comment">// Serialize to JSON</span>
-        <span class="kw">let</span> <span class="ident">json</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">serde_json</span>::<span class="ident">to_string</span>(<span class="ident">mock_rr</span>) {
-            <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Cannot serialize mock object to JSON: {}&quot;</span>, <span class="ident">err</span>)),
+        <span class="kw">let</span> <span class="ident">json</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">serde_json::to_string</span>(<span class="ident">mock_rr</span>) {
+            <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format!</span>(<span class="string">&quot;Cannot serialize mock object to JSON: {}&quot;</span>, <span class="ident">err</span>)),
             <span class="prelude-val">Ok</span>(<span class="ident">json</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">json</span>,
         };
 
         <span class="comment">// Send the request to the mock server</span>
-        <span class="kw">let</span> <span class="ident">request_url</span> <span class="op">=</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;http://{}/__httpmock__/verify&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">address</span>());
-        <span class="kw">let</span> <span class="ident">request</span> <span class="op">=</span> <span class="ident">Request</span>::<span class="ident">builder</span>()
+        <span class="kw">let</span> <span class="ident">request_url</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;http://{}/__httpmock__/verify&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">address</span>());
+        <span class="kw">let</span> <span class="ident">request</span> <span class="op">=</span> <span class="ident">Request::builder</span>()
             .<span class="ident">method</span>(<span class="string">&quot;POST&quot;</span>)
             .<span class="ident">uri</span>(<span class="ident">request_url</span>)
             .<span class="ident">header</span>(<span class="string">&quot;Content-Type&quot;</span>, <span class="string">&quot;application/json&quot;</span>)
@@ -438,7 +438,7 @@
             .<span class="ident">unwrap</span>();
 
         <span class="kw">let</span> (<span class="ident">status</span>, <span class="ident">body</span>) <span class="op">=</span> <span class="kw">match</span> <span class="ident">execute_request</span>(<span class="ident">request</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">http_client</span>).<span class="kw">await</span> {
-            <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Cannot send request to mock server: {}&quot;</span>, <span class="ident">err</span>)),
+            <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format!</span>(<span class="string">&quot;Cannot send request to mock server: {}&quot;</span>, <span class="ident">err</span>)),
             <span class="prelude-val">Ok</span>(<span class="ident">sb</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">sb</span>,
         };
 
@@ -448,16 +448,16 @@
         }
 
         <span class="kw">if</span> <span class="ident">status</span> <span class="op">!</span><span class="op">=</span> <span class="number">200</span> {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format</span><span class="macro">!</span>(
+            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format!</span>(
                 <span class="string">&quot;Could not execute verification (status = {}, message = {})&quot;</span>,
                 <span class="ident">status</span>, <span class="ident">body</span>
             ));
         }
 
         <span class="comment">// Create response object</span>
-        <span class="kw">let</span> <span class="ident">response</span>: <span class="ident">serde_json</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ClosestMatch</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">serde_json</span>::<span class="ident">from_str</span>(<span class="kw-2">&amp;</span><span class="ident">body</span>);
+        <span class="kw">let</span> <span class="ident">response</span>: <span class="ident">serde_json::Result</span><span class="op">&lt;</span><span class="ident">ClosestMatch</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">serde_json::from_str</span>(<span class="kw-2">&amp;</span><span class="ident">body</span>);
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span> <span class="ident">response</span> {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;cannot deserialize mock server response: {}&quot;</span>, <span class="ident">err</span>));
+            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format!</span>(<span class="string">&quot;cannot deserialize mock server response: {}&quot;</span>, <span class="ident">err</span>));
         }
 
         <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="ident">response</span>.<span class="ident">unwrap</span>()))
@@ -465,21 +465,21 @@
 
     <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">delete_history</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">String</span><span class="op">&gt;</span> {
         <span class="comment">// Send the request to the mock server</span>
-        <span class="kw">let</span> <span class="ident">request_url</span> <span class="op">=</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;http://{}/__httpmock__/history&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">address</span>());
-        <span class="kw">let</span> <span class="ident">request</span> <span class="op">=</span> <span class="ident">Request</span>::<span class="ident">builder</span>()
+        <span class="kw">let</span> <span class="ident">request_url</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;http://{}/__httpmock__/history&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">address</span>());
+        <span class="kw">let</span> <span class="ident">request</span> <span class="op">=</span> <span class="ident">Request::builder</span>()
             .<span class="ident">method</span>(<span class="string">&quot;DELETE&quot;</span>)
             .<span class="ident">uri</span>(<span class="ident">request_url</span>)
             .<span class="ident">body</span>(<span class="string">&quot;&quot;</span>.<span class="ident">to_string</span>())
             .<span class="ident">unwrap</span>();
 
         <span class="kw">let</span> (<span class="ident">status</span>, <span class="ident">body</span>) <span class="op">=</span> <span class="kw">match</span> <span class="ident">execute_request</span>(<span class="ident">request</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">http_client</span>).<span class="kw">await</span> {
-            <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Cannot send request to mock server: {}&quot;</span>, <span class="ident">err</span>)),
+            <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format!</span>(<span class="string">&quot;Cannot send request to mock server: {}&quot;</span>, <span class="ident">err</span>)),
             <span class="prelude-val">Ok</span>(<span class="ident">sb</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">sb</span>,
         };
 
         <span class="comment">// Evaluate response status code</span>
         <span class="kw">if</span> <span class="ident">status</span> <span class="op">!</span><span class="op">=</span> <span class="number">202</span> {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format</span><span class="macro">!</span>(
+            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format!</span>(
                 <span class="string">&quot;Could not delete history from server (status = {}, message = {})&quot;</span>,
                 <span class="ident">status</span>, <span class="ident">body</span>
             ));
@@ -493,5 +493,5 @@
     }
 }
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="httpmock" data-search-js="../../../../search-index.js"></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="httpmock" data-search-index-js="../../../../search-index.js" data-search-js="../../../../search.js"></div>
     <script src="../../../../main.js"></script><script src="../../../../source-script.js"></script><script src="../../../../source-files.js"></script></body></html>

@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `merino-settings/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../favicon-16x16.png">
-<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../merino_settings/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../merino_settings/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
@@ -208,10 +208,10 @@
 
 <span class="kw">use</span> <span class="ident">anyhow</span>::{<span class="ident">Context</span>, <span class="prelude-ty">Result</span>};
 <span class="kw">use</span> <span class="ident">config</span>::{<span class="ident">Config</span>, <span class="ident">Environment</span>, <span class="ident">File</span>};
-<span class="kw">use</span> <span class="ident">http</span>::<span class="ident">Uri</span>;
+<span class="kw">use</span> <span class="ident">http::Uri</span>;
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 <span class="kw">use</span> <span class="ident">serde_with</span>::{<span class="ident">serde_as</span>, <span class="ident">DisplayFromStr</span>};
-<span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">net</span>::<span class="ident">SocketAddr</span>, <span class="ident">path</span>::<span class="ident">PathBuf</span>};
+<span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">net::SocketAddr</span>, <span class="ident">path::PathBuf</span>};
 
 <span class="doccomment">/// Top level settings object for Merino.</span>
 <span class="attribute">#[<span class="ident">serde_as</span>]</span>
@@ -292,49 +292,49 @@
     <span class="doccomment">/// If any of the configured values are invalid, or if any of the required</span>
     <span class="doccomment">/// configuration files are missing.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">load</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident">Config</span>::<span class="ident">new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident">Config::new</span>();
 
         <span class="comment">// Start off with the base config.</span>
-        <span class="ident">s</span>.<span class="ident">merge</span>(<span class="ident">File</span>::<span class="ident">with_name</span>(<span class="string">&quot;./config/base&quot;</span>))
+        <span class="ident">s</span>.<span class="ident">merge</span>(<span class="ident">File::with_name</span>(<span class="string">&quot;./config/base&quot;</span>))
             .<span class="ident">context</span>(<span class="string">&quot;loading base config&quot;</span>)<span class="question-mark">?</span>;
 
         <span class="comment">// Merge in an environment specific config.</span>
-        <span class="kw">let</span> <span class="ident">merino_env</span> <span class="op">=</span> <span class="ident">std</span>::<span class="ident">env</span>::<span class="ident">var</span>(<span class="string">&quot;MERINO_ENV&quot;</span>).<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="string">&quot;development&quot;</span>.<span class="ident">to_string</span>());
+        <span class="kw">let</span> <span class="ident">merino_env</span> <span class="op">=</span> <span class="ident">std::env::var</span>(<span class="string">&quot;MERINO_ENV&quot;</span>).<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="string">&quot;development&quot;</span>.<span class="ident">to_string</span>());
         <span class="ident">s</span>.<span class="ident">set</span>(<span class="string">&quot;env&quot;</span>, <span class="ident">merino_env</span>.<span class="ident">as_str</span>())
             .<span class="ident">context</span>(<span class="string">&quot;loading merino environment name&quot;</span>)<span class="question-mark">?</span>;
-        <span class="ident">s</span>.<span class="ident">merge</span>(<span class="ident">File</span>::<span class="ident">with_name</span>(<span class="kw-2">&amp;</span><span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;config/{}&quot;</span>, <span class="ident">s</span>.<span class="ident">get</span>::<span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>(<span class="string">&quot;env&quot;</span>)<span class="question-mark">?</span>)).<span class="ident">required</span>(<span class="bool-val">false</span>))
+        <span class="ident">s</span>.<span class="ident">merge</span>(<span class="ident">File::with_name</span>(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;config/{}&quot;</span>, <span class="ident">s</span>.<span class="ident">get</span>::<span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>(<span class="string">&quot;env&quot;</span>)<span class="question-mark">?</span>)).<span class="ident">required</span>(<span class="bool-val">false</span>))
             .<span class="ident">context</span>(<span class="string">&quot;loading environment config&quot;</span>)<span class="question-mark">?</span>;
 
         <span class="comment">// Add a local configuration file that is `.gitignore`ed.</span>
-        <span class="ident">s</span>.<span class="ident">merge</span>(<span class="ident">File</span>::<span class="ident">with_name</span>(<span class="string">&quot;config/local&quot;</span>).<span class="ident">required</span>(<span class="bool-val">false</span>))
+        <span class="ident">s</span>.<span class="ident">merge</span>(<span class="ident">File::with_name</span>(<span class="string">&quot;config/local&quot;</span>).<span class="ident">required</span>(<span class="bool-val">false</span>))
             .<span class="ident">context</span>(<span class="string">&quot;loading local config overrides&quot;</span>)<span class="question-mark">?</span>;
 
         <span class="comment">// Add environment variables that start with &quot;MERINO_&quot; and have &quot;__&quot; to</span>
         <span class="comment">// separate levels. For example, `MERINO_HTTP__LISTEN` maps to</span>
         <span class="comment">// `Settings::http::listen`.</span>
-        <span class="ident">s</span>.<span class="ident">merge</span>(<span class="ident">Environment</span>::<span class="ident">default</span>().<span class="ident">prefix</span>(<span class="string">&quot;MERINO&quot;</span>).<span class="ident">separator</span>(<span class="string">&quot;__&quot;</span>))
+        <span class="ident">s</span>.<span class="ident">merge</span>(<span class="ident">Environment::default</span>().<span class="ident">prefix</span>(<span class="string">&quot;MERINO&quot;</span>).<span class="ident">separator</span>(<span class="string">&quot;__&quot;</span>))
             .<span class="ident">context</span>(<span class="string">&quot;merging config&quot;</span>)<span class="question-mark">?</span>;
 
-        <span class="ident">serde_path_to_error</span>::<span class="ident">deserialize</span>(<span class="ident">s</span>).<span class="ident">context</span>(<span class="string">&quot;Deserializing settings&quot;</span>)
+        <span class="ident">serde_path_to_error::deserialize</span>(<span class="ident">s</span>).<span class="ident">context</span>(<span class="string">&quot;Deserializing settings&quot;</span>)
     }
 
     <span class="doccomment">/// Load settings from configuration files for tests.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// `changer` is</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">load_for_tests</span><span class="op">&lt;</span><span class="ident">F</span>: <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span>)<span class="op">&gt;</span>(<span class="ident">changer</span>: <span class="ident">F</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident">Config</span>::<span class="ident">new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident">Config::new</span>();
 
         <span class="comment">// Start off with the base config.</span>
-        <span class="ident">s</span>.<span class="ident">merge</span>(<span class="ident">File</span>::<span class="ident">with_name</span>(<span class="string">&quot;../config/base&quot;</span>))
+        <span class="ident">s</span>.<span class="ident">merge</span>(<span class="ident">File::with_name</span>(<span class="string">&quot;../config/base&quot;</span>))
             .<span class="ident">expect</span>(<span class="string">&quot;Could not load base settings&quot;</span>);
 
         <span class="comment">// Merge in test specific config.</span>
         <span class="ident">s</span>.<span class="ident">set</span>(<span class="string">&quot;env&quot;</span>, <span class="string">&quot;test&quot;</span>).<span class="ident">expect</span>(<span class="string">&quot;Could not set env for tests&quot;</span>);
-        <span class="ident">s</span>.<span class="ident">merge</span>(<span class="ident">File</span>::<span class="ident">with_name</span>(<span class="string">&quot;../config/test&quot;</span>))
+        <span class="ident">s</span>.<span class="ident">merge</span>(<span class="ident">File::with_name</span>(<span class="string">&quot;../config/test&quot;</span>))
             .<span class="ident">expect</span>(<span class="string">&quot;Could not load test settings&quot;</span>);
 
         <span class="comment">// Add a local configuration file that is `.gitignore`ed.</span>
-        <span class="ident">s</span>.<span class="ident">merge</span>(<span class="ident">File</span>::<span class="ident">with_name</span>(<span class="string">&quot;../config/local_test&quot;</span>).<span class="ident">required</span>(<span class="bool-val">false</span>))
+        <span class="ident">s</span>.<span class="ident">merge</span>(<span class="ident">File::with_name</span>(<span class="string">&quot;../config/local_test&quot;</span>).<span class="ident">required</span>(<span class="bool-val">false</span>))
             .<span class="ident">expect</span>(<span class="string">&quot;Could not load local settings for tests&quot;</span>);
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">config</span> <span class="op">=</span> <span class="ident">s</span>.<span class="ident">try_into</span>().<span class="ident">expect</span>(<span class="string">&quot;Could not convert settings&quot;</span>);
@@ -343,5 +343,5 @@
     }
 }
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="merino_settings" data-search-js="../../search-index.js"></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="merino_settings" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
     <script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script></body></html>

@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/usr/local/cargo/registry/src/github.com-1ecc6299db9ec823/async-io-1.4.1/src/reactor.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>reactor.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../favicon-16x16.png">
-<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../async_io/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../async_io/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
@@ -520,24 +520,24 @@
 <span id="517">517</span>
 <span id="518">518</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeMap</span>;
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">io</span>;
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">mem</span>;
+<span class="kw">use</span> <span class="ident">std::collections::BTreeMap</span>;
+<span class="kw">use</span> <span class="ident">std::io</span>;
+<span class="kw">use</span> <span class="ident">std::mem</span>;
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">unix</span>)]</span>
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">os</span>::<span class="ident">unix</span>::<span class="ident">io</span>::<span class="ident">RawFd</span>;
+<span class="kw">use</span> <span class="ident">std::os::unix::io::RawFd</span>;
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">windows</span>)]</span>
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">os</span>::<span class="ident">windows</span>::<span class="ident">io</span>::<span class="ident">RawSocket</span>;
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">panic</span>;
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">sync</span>::<span class="ident">atomic</span>::{<span class="ident">AtomicUsize</span>, <span class="ident">Ordering</span>};
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">sync</span>::{<span class="ident">Arc</span>, <span class="ident">Mutex</span>, <span class="ident">MutexGuard</span>};
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">task</span>::{<span class="ident">Context</span>, <span class="ident">Poll</span>, <span class="ident">Waker</span>};
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">time</span>::{<span class="ident">Duration</span>, <span class="ident">Instant</span>};
+<span class="kw">use</span> <span class="ident">std::os::windows::io::RawSocket</span>;
+<span class="kw">use</span> <span class="ident">std::panic</span>;
+<span class="kw">use</span> <span class="ident">std::sync::atomic</span>::{<span class="ident">AtomicUsize</span>, <span class="ident">Ordering</span>};
+<span class="kw">use</span> <span class="ident">std::sync</span>::{<span class="ident">Arc</span>, <span class="ident">Mutex</span>, <span class="ident">MutexGuard</span>};
+<span class="kw">use</span> <span class="ident">std::task</span>::{<span class="ident">Context</span>, <span class="ident">Poll</span>, <span class="ident">Waker</span>};
+<span class="kw">use</span> <span class="ident">std::time</span>::{<span class="ident">Duration</span>, <span class="ident">Instant</span>};
 
-<span class="kw">use</span> <span class="ident">concurrent_queue</span>::<span class="ident">ConcurrentQueue</span>;
-<span class="kw">use</span> <span class="ident">futures_lite</span>::<span class="ident">future</span>;
-<span class="kw">use</span> <span class="ident">once_cell</span>::<span class="ident">sync</span>::<span class="ident">Lazy</span>;
+<span class="kw">use</span> <span class="ident">concurrent_queue::ConcurrentQueue</span>;
+<span class="kw">use</span> <span class="ident">futures_lite::future</span>;
+<span class="kw">use</span> <span class="ident">once_cell::sync::Lazy</span>;
 <span class="kw">use</span> <span class="ident">polling</span>::{<span class="ident">Event</span>, <span class="ident">Poller</span>};
-<span class="kw">use</span> <span class="ident">slab</span>::<span class="ident">Slab</span>;
+<span class="kw">use</span> <span class="ident">slab::Slab</span>;
 
 <span class="kw">const</span> <span class="ident">READ</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">0</span>;
 <span class="kw">const</span> <span class="ident">WRITE</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">1</span>;
@@ -584,15 +584,15 @@
 <span class="kw">impl</span> <span class="ident">Reactor</span> {
     <span class="doccomment">/// Returns a reference to the reactor.</span>
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">get</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">Reactor</span> {
-        <span class="kw">static</span> <span class="ident">REACTOR</span>: <span class="ident">Lazy</span><span class="op">&lt;</span><span class="ident">Reactor</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Lazy</span>::<span class="ident">new</span>(<span class="op">|</span><span class="op">|</span> {
-            <span class="kw">crate</span>::<span class="ident">driver</span>::<span class="ident">init</span>();
+        <span class="kw">static</span> <span class="ident">REACTOR</span>: <span class="ident">Lazy</span><span class="op">&lt;</span><span class="ident">Reactor</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Lazy::new</span>(<span class="op">|</span><span class="op">|</span> {
+            <span class="kw">crate</span><span class="ident">::driver::init</span>();
             <span class="ident">Reactor</span> {
-                <span class="ident">poller</span>: <span class="ident">Poller</span>::<span class="ident">new</span>().<span class="ident">expect</span>(<span class="string">&quot;cannot initialize I/O event notification&quot;</span>),
-                <span class="ident">ticker</span>: <span class="ident">AtomicUsize</span>::<span class="ident">new</span>(<span class="number">0</span>),
-                <span class="ident">sources</span>: <span class="ident">Mutex</span>::<span class="ident">new</span>(<span class="ident">Slab</span>::<span class="ident">new</span>()),
-                <span class="ident">events</span>: <span class="ident">Mutex</span>::<span class="ident">new</span>(<span class="ident">Vec</span>::<span class="ident">new</span>()),
-                <span class="ident">timers</span>: <span class="ident">Mutex</span>::<span class="ident">new</span>(<span class="ident">BTreeMap</span>::<span class="ident">new</span>()),
-                <span class="ident">timer_ops</span>: <span class="ident">ConcurrentQueue</span>::<span class="ident">bounded</span>(<span class="number">1000</span>),
+                <span class="ident">poller</span>: <span class="ident">Poller::new</span>().<span class="ident">expect</span>(<span class="string">&quot;cannot initialize I/O event notification&quot;</span>),
+                <span class="ident">ticker</span>: <span class="ident">AtomicUsize::new</span>(<span class="number">0</span>),
+                <span class="ident">sources</span>: <span class="ident">Mutex::new</span>(<span class="ident">Slab::new</span>()),
+                <span class="ident">events</span>: <span class="ident">Mutex::new</span>(<span class="ident">Vec::new</span>()),
+                <span class="ident">timers</span>: <span class="ident">Mutex::new</span>(<span class="ident">BTreeMap::new</span>()),
+                <span class="ident">timer_ops</span>: <span class="ident">ConcurrentQueue::bounded</span>(<span class="number">1000</span>),
             }
         });
         <span class="kw-2">&amp;</span><span class="ident">REACTOR</span>
@@ -600,7 +600,7 @@
 
     <span class="doccomment">/// Returns the current ticker.</span>
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">ticker</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
-        <span class="self">self</span>.<span class="ident">ticker</span>.<span class="ident">load</span>(<span class="ident">Ordering</span>::<span class="ident">SeqCst</span>)
+        <span class="self">self</span>.<span class="ident">ticker</span>.<span class="ident">load</span>(<span class="ident">Ordering::SeqCst</span>)
     }
 
     <span class="doccomment">/// Registers an I/O source in the reactor.</span>
@@ -608,22 +608,22 @@
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">unix</span>)]</span> <span class="ident">raw</span>: <span class="ident">RawFd</span>,
         <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">windows</span>)]</span> <span class="ident">raw</span>: <span class="ident">RawSocket</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">Source</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">Source</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="comment">// Create an I/O source for this file descriptor.</span>
         <span class="kw">let</span> <span class="ident">source</span> <span class="op">=</span> {
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">sources</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">sources</span>.<span class="ident">lock</span>().<span class="ident">unwrap</span>();
             <span class="kw">let</span> <span class="ident">key</span> <span class="op">=</span> <span class="ident">sources</span>.<span class="ident">vacant_entry</span>().<span class="ident">key</span>();
-            <span class="kw">let</span> <span class="ident">source</span> <span class="op">=</span> <span class="ident">Arc</span>::<span class="ident">new</span>(<span class="ident">Source</span> {
+            <span class="kw">let</span> <span class="ident">source</span> <span class="op">=</span> <span class="ident">Arc::new</span>(<span class="ident">Source</span> {
                 <span class="ident">raw</span>,
                 <span class="ident">key</span>,
-                <span class="ident">state</span>: <span class="ident">Default</span>::<span class="ident">default</span>(),
+                <span class="ident">state</span>: <span class="ident">Default::default</span>(),
             });
             <span class="ident">sources</span>.<span class="ident">insert</span>(<span class="ident">source</span>.<span class="ident">clone</span>());
             <span class="ident">source</span>
         };
 
         <span class="comment">// Register the file descriptor.</span>
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">poller</span>.<span class="ident">add</span>(<span class="ident">raw</span>, <span class="ident">Event</span>::<span class="ident">none</span>(<span class="ident">source</span>.<span class="ident">key</span>)) {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">poller</span>.<span class="ident">add</span>(<span class="ident">raw</span>, <span class="ident">Event::none</span>(<span class="ident">source</span>.<span class="ident">key</span>)) {
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">sources</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">sources</span>.<span class="ident">lock</span>().<span class="ident">unwrap</span>();
             <span class="ident">sources</span>.<span class="ident">remove</span>(<span class="ident">source</span>.<span class="ident">key</span>);
             <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">err</span>);
@@ -633,7 +633,7 @@
     }
 
     <span class="doccomment">/// Deregisters an I/O source from the reactor.</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">remove_io</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">source</span>: <span class="kw-2">&amp;</span><span class="ident">Source</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">remove_io</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">source</span>: <span class="kw-2">&amp;</span><span class="ident">Source</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">sources</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">sources</span>.<span class="ident">lock</span>().<span class="ident">unwrap</span>();
         <span class="ident">sources</span>.<span class="ident">remove</span>(<span class="ident">source</span>.<span class="ident">key</span>);
         <span class="self">self</span>.<span class="ident">poller</span>.<span class="ident">delete</span>(<span class="ident">source</span>.<span class="ident">raw</span>)
@@ -644,13 +644,13 @@
     <span class="doccomment">/// Returns the inserted timer&#39;s ID.</span>
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">insert_timer</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">when</span>: <span class="ident">Instant</span>, <span class="ident">waker</span>: <span class="kw-2">&amp;</span><span class="ident">Waker</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
         <span class="comment">// Generate a new timer ID.</span>
-        <span class="kw">static</span> <span class="ident">ID_GENERATOR</span>: <span class="ident">AtomicUsize</span> <span class="op">=</span> <span class="ident">AtomicUsize</span>::<span class="ident">new</span>(<span class="number">1</span>);
-        <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="ident">ID_GENERATOR</span>.<span class="ident">fetch_add</span>(<span class="number">1</span>, <span class="ident">Ordering</span>::<span class="ident">Relaxed</span>);
+        <span class="kw">static</span> <span class="ident">ID_GENERATOR</span>: <span class="ident">AtomicUsize</span> <span class="op">=</span> <span class="ident">AtomicUsize::new</span>(<span class="number">1</span>);
+        <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="ident">ID_GENERATOR</span>.<span class="ident">fetch_add</span>(<span class="number">1</span>, <span class="ident">Ordering::Relaxed</span>);
 
         <span class="comment">// Push an insert operation.</span>
         <span class="kw">while</span> <span class="self">self</span>
             .<span class="ident">timer_ops</span>
-            .<span class="ident">push</span>(<span class="ident">TimerOp</span>::<span class="ident">Insert</span>(<span class="ident">when</span>, <span class="ident">id</span>, <span class="ident">waker</span>.<span class="ident">clone</span>()))
+            .<span class="ident">push</span>(<span class="ident">TimerOp::Insert</span>(<span class="ident">when</span>, <span class="ident">id</span>, <span class="ident">waker</span>.<span class="ident">clone</span>()))
             .<span class="ident">is_err</span>()
         {
             <span class="comment">// If the queue is full, drain it and try again.</span>
@@ -667,7 +667,7 @@
     <span class="doccomment">/// Deregisters a timer from the reactor.</span>
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">remove_timer</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">when</span>: <span class="ident">Instant</span>, <span class="ident">id</span>: <span class="ident">usize</span>) {
         <span class="comment">// Push a remove operation.</span>
-        <span class="kw">while</span> <span class="self">self</span>.<span class="ident">timer_ops</span>.<span class="ident">push</span>(<span class="ident">TimerOp</span>::<span class="ident">Remove</span>(<span class="ident">when</span>, <span class="ident">id</span>)).<span class="ident">is_err</span>() {
+        <span class="kw">while</span> <span class="self">self</span>.<span class="ident">timer_ops</span>.<span class="ident">push</span>(<span class="ident">TimerOp::Remove</span>(<span class="ident">when</span>, <span class="ident">id</span>)).<span class="ident">is_err</span>() {
             <span class="comment">// If the queue is full, drain it and try again.</span>
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">timers</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">timers</span>.<span class="ident">lock</span>().<span class="ident">unwrap</span>();
             <span class="self">self</span>.<span class="ident">process_timer_ops</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">timers</span>);
@@ -701,11 +701,11 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">timers</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">timers</span>.<span class="ident">lock</span>().<span class="ident">unwrap</span>();
         <span class="self">self</span>.<span class="ident">process_timer_ops</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">timers</span>);
 
-        <span class="kw">let</span> <span class="ident">now</span> <span class="op">=</span> <span class="ident">Instant</span>::<span class="ident">now</span>();
+        <span class="kw">let</span> <span class="ident">now</span> <span class="op">=</span> <span class="ident">Instant::now</span>();
 
         <span class="comment">// Split timers into ready and pending timers.</span>
         <span class="kw">let</span> <span class="ident">pending</span> <span class="op">=</span> <span class="ident">timers</span>.<span class="ident">split_off</span>(<span class="kw-2">&amp;</span>(<span class="ident">now</span>, <span class="number">0</span>));
-        <span class="kw">let</span> <span class="ident">ready</span> <span class="op">=</span> <span class="ident">mem</span>::<span class="ident">replace</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="ident">timers</span>, <span class="ident">pending</span>);
+        <span class="kw">let</span> <span class="ident">ready</span> <span class="op">=</span> <span class="ident">mem::replace</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="ident">timers</span>, <span class="ident">pending</span>);
 
         <span class="comment">// Calculate the duration until the next event.</span>
         <span class="kw">let</span> <span class="ident">dur</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">ready</span>.<span class="ident">is_empty</span>() {
@@ -716,14 +716,14 @@
                 .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">when</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="ident">when</span>.<span class="ident">saturating_duration_since</span>(<span class="ident">now</span>))
         } <span class="kw">else</span> {
             <span class="comment">// Timers are about to fire right now.</span>
-            <span class="prelude-val">Some</span>(<span class="ident">Duration</span>::<span class="ident">from_secs</span>(<span class="number">0</span>))
+            <span class="prelude-val">Some</span>(<span class="ident">Duration::from_secs</span>(<span class="number">0</span>))
         };
 
         <span class="comment">// Drop the lock before waking.</span>
         <span class="ident">drop</span>(<span class="ident">timers</span>);
 
         <span class="comment">// Add wakers to the list.</span>
-        <span class="ident">log</span>::<span class="macro">trace</span><span class="macro">!</span>(<span class="string">&quot;process_timers: {} ready wakers&quot;</span>, <span class="ident">ready</span>.<span class="ident">len</span>());
+        <span class="macro">log::trace!</span>(<span class="string">&quot;process_timers: {} ready wakers&quot;</span>, <span class="ident">ready</span>.<span class="ident">len</span>());
         <span class="kw">for</span> (<span class="kw">_</span>, <span class="ident">waker</span>) <span class="kw">in</span> <span class="ident">ready</span> {
             <span class="ident">wakers</span>.<span class="ident">push</span>(<span class="ident">waker</span>);
         }
@@ -737,10 +737,10 @@
         <span class="comment">// forever.</span>
         <span class="kw">for</span> <span class="kw">_</span> <span class="kw">in</span> <span class="number">0</span>..<span class="self">self</span>.<span class="ident">timer_ops</span>.<span class="ident">capacity</span>().<span class="ident">unwrap</span>() {
             <span class="kw">match</span> <span class="self">self</span>.<span class="ident">timer_ops</span>.<span class="ident">pop</span>() {
-                <span class="prelude-val">Ok</span>(<span class="ident">TimerOp</span>::<span class="ident">Insert</span>(<span class="ident">when</span>, <span class="ident">id</span>, <span class="ident">waker</span>)) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="prelude-val">Ok</span>(<span class="ident">TimerOp::Insert</span>(<span class="ident">when</span>, <span class="ident">id</span>, <span class="ident">waker</span>)) <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="ident">timers</span>.<span class="ident">insert</span>((<span class="ident">when</span>, <span class="ident">id</span>), <span class="ident">waker</span>);
                 }
-                <span class="prelude-val">Ok</span>(<span class="ident">TimerOp</span>::<span class="ident">Remove</span>(<span class="ident">when</span>, <span class="ident">id</span>)) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="prelude-val">Ok</span>(<span class="ident">TimerOp::Remove</span>(<span class="ident">when</span>, <span class="ident">id</span>)) <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="ident">timers</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span>(<span class="ident">when</span>, <span class="ident">id</span>));
                 }
                 <span class="prelude-val">Err</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">break</span>,
@@ -757,8 +757,8 @@
 
 <span class="kw">impl</span> <span class="ident">ReactorLock</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span> {
     <span class="doccomment">/// Processes new events, blocking until the first event or the timeout.</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">react</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">timeout</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">wakers</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">react</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">timeout</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">wakers</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
 
         <span class="comment">// Process ready timers.</span>
         <span class="kw">let</span> <span class="ident">next_timer</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">reactor</span>.<span class="ident">process_timers</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">wakers</span>);
@@ -774,7 +774,7 @@
         <span class="kw">let</span> <span class="ident">tick</span> <span class="op">=</span> <span class="self">self</span>
             .<span class="ident">reactor</span>
             .<span class="ident">ticker</span>
-            .<span class="ident">fetch_add</span>(<span class="number">1</span>, <span class="ident">Ordering</span>::<span class="ident">SeqCst</span>)
+            .<span class="ident">fetch_add</span>(<span class="number">1</span>, <span class="ident">Ordering::SeqCst</span>)
             .<span class="ident">wrapping_add</span>(<span class="number">1</span>);
 
         <span class="self">self</span>.<span class="ident">events</span>.<span class="ident">clear</span>();
@@ -783,7 +783,7 @@
         <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">reactor</span>.<span class="ident">poller</span>.<span class="ident">wait</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">events</span>, <span class="ident">timeout</span>) {
             <span class="comment">// No I/O events occurred.</span>
             <span class="prelude-val">Ok</span>(<span class="number">0</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="kw">if</span> <span class="ident">timeout</span> <span class="op">!</span><span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Duration</span>::<span class="ident">from_secs</span>(<span class="number">0</span>)) {
+                <span class="kw">if</span> <span class="ident">timeout</span> <span class="op">!</span><span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Duration::from_secs</span>(<span class="number">0</span>)) {
                     <span class="comment">// The non-zero timeout was hit so fire ready timers.</span>
                     <span class="self">self</span>.<span class="ident">reactor</span>.<span class="ident">process_timers</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">wakers</span>);
                 }
@@ -828,17 +828,17 @@
             }
 
             <span class="comment">// The syscall was interrupted.</span>
-            <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="kw">if</span> <span class="ident">err</span>.<span class="ident">kind</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">io</span>::<span class="ident">ErrorKind</span>::<span class="ident">Interrupted</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(()),
+            <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="kw">if</span> <span class="ident">err</span>.<span class="ident">kind</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">io::ErrorKind::Interrupted</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(()),
 
             <span class="comment">// An actual error occureed.</span>
             <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">err</span>),
         };
 
         <span class="comment">// Wake up ready tasks.</span>
-        <span class="ident">log</span>::<span class="macro">trace</span><span class="macro">!</span>(<span class="string">&quot;react: {} ready wakers&quot;</span>, <span class="ident">wakers</span>.<span class="ident">len</span>());
+        <span class="macro">log::trace!</span>(<span class="string">&quot;react: {} ready wakers&quot;</span>, <span class="ident">wakers</span>.<span class="ident">len</span>());
         <span class="kw">for</span> <span class="ident">waker</span> <span class="kw">in</span> <span class="ident">wakers</span> {
             <span class="comment">// Don&#39;t let a panicking waker blow everything up.</span>
-            <span class="ident">panic</span>::<span class="ident">catch_unwind</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">waker</span>.<span class="ident">wake</span>()).<span class="ident">ok</span>();
+            <span class="ident">panic::catch_unwind</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">waker</span>.<span class="ident">wake</span>()).<span class="ident">ok</span>();
         }
 
         <span class="ident">res</span>
@@ -908,19 +908,19 @@
 
 <span class="kw">impl</span> <span class="ident">Source</span> {
     <span class="doccomment">/// Polls the I/O source for readability.</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">poll_readable</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="ident">io</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">poll_readable</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">poll_ready</span>(<span class="ident">READ</span>, <span class="ident">cx</span>)
     }
 
     <span class="doccomment">/// Polls the I/O source for writability.</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">poll_writable</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="ident">io</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">poll_writable</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">poll_ready</span>(<span class="ident">WRITE</span>, <span class="ident">cx</span>)
     }
 
     <span class="doccomment">/// Registers a waker from `poll_readable()` or `poll_writable()`.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// If a different waker is already registered, it gets replaced and woken.</span>
-    <span class="kw">fn</span> <span class="ident">poll_ready</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">dir</span>: <span class="ident">usize</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="ident">io</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">poll_ready</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">dir</span>: <span class="ident">usize</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">state</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">lock</span>().<span class="ident">unwrap</span>();
 
         <span class="comment">// Check if the reactor has delivered an event.</span>
@@ -929,7 +929,7 @@
             <span class="comment">// that means a newer reactor tick has delivered an event.</span>
             <span class="kw">if</span> <span class="ident">state</span>[<span class="ident">dir</span>].<span class="ident">tick</span> <span class="op">!</span><span class="op">=</span> <span class="ident">a</span> <span class="op">&amp;&amp;</span> <span class="ident">state</span>[<span class="ident">dir</span>].<span class="ident">tick</span> <span class="op">!</span><span class="op">=</span> <span class="ident">b</span> {
                 <span class="ident">state</span>[<span class="ident">dir</span>].<span class="ident">ticks</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-                <span class="kw">return</span> <span class="ident">Poll</span>::<span class="ident">Ready</span>(<span class="prelude-val">Ok</span>(()));
+                <span class="kw">return</span> <span class="ident">Poll::Ready</span>(<span class="prelude-val">Ok</span>(()));
             }
         }
 
@@ -939,17 +939,17 @@
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">w</span>) <span class="op">=</span> <span class="ident">state</span>[<span class="ident">dir</span>].<span class="ident">waker</span>.<span class="ident">take</span>() {
             <span class="kw">if</span> <span class="ident">w</span>.<span class="ident">will_wake</span>(<span class="ident">cx</span>.<span class="ident">waker</span>()) {
                 <span class="ident">state</span>[<span class="ident">dir</span>].<span class="ident">waker</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">w</span>);
-                <span class="kw">return</span> <span class="ident">Poll</span>::<span class="ident">Pending</span>;
+                <span class="kw">return</span> <span class="ident">Poll::Pending</span>;
             }
             <span class="comment">// Wake the previous waker because it&#39;s going to get replaced.</span>
-            <span class="ident">panic</span>::<span class="ident">catch_unwind</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">w</span>.<span class="ident">wake</span>()).<span class="ident">ok</span>();
+            <span class="ident">panic::catch_unwind</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">w</span>.<span class="ident">wake</span>()).<span class="ident">ok</span>();
         }
         <span class="ident">state</span>[<span class="ident">dir</span>].<span class="ident">waker</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">cx</span>.<span class="ident">waker</span>().<span class="ident">clone</span>());
-        <span class="ident">state</span>[<span class="ident">dir</span>].<span class="ident">ticks</span> <span class="op">=</span> <span class="prelude-val">Some</span>((<span class="ident">Reactor</span>::<span class="ident">get</span>().<span class="ident">ticker</span>(), <span class="ident">state</span>[<span class="ident">dir</span>].<span class="ident">tick</span>));
+        <span class="ident">state</span>[<span class="ident">dir</span>].<span class="ident">ticks</span> <span class="op">=</span> <span class="prelude-val">Some</span>((<span class="ident">Reactor::get</span>().<span class="ident">ticker</span>(), <span class="ident">state</span>[<span class="ident">dir</span>].<span class="ident">tick</span>));
 
         <span class="comment">// Update interest in this I/O handle.</span>
         <span class="kw">if</span> <span class="ident">was_empty</span> {
-            <span class="ident">Reactor</span>::<span class="ident">get</span>().<span class="ident">poller</span>.<span class="ident">modify</span>(
+            <span class="ident">Reactor::get</span>().<span class="ident">poller</span>.<span class="ident">modify</span>(
                 <span class="self">self</span>.<span class="ident">raw</span>,
                 <span class="ident">Event</span> {
                     <span class="ident">key</span>: <span class="self">self</span>.<span class="ident">key</span>,
@@ -959,30 +959,30 @@
             )<span class="question-mark">?</span>;
         }
 
-        <span class="ident">Poll</span>::<span class="ident">Pending</span>
+        <span class="ident">Poll::Pending</span>
     }
 
     <span class="doccomment">/// Waits until the I/O source is readable.</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">readable</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">readable</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">ready</span>(<span class="ident">READ</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="ident">log</span>::<span class="macro">trace</span><span class="macro">!</span>(<span class="string">&quot;readable: fd={}&quot;</span>, <span class="self">self</span>.<span class="ident">raw</span>);
+        <span class="macro">log::trace!</span>(<span class="string">&quot;readable: fd={}&quot;</span>, <span class="self">self</span>.<span class="ident">raw</span>);
         <span class="prelude-val">Ok</span>(())
     }
 
     <span class="doccomment">/// Waits until the I/O source is writable.</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">writable</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">writable</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">ready</span>(<span class="ident">WRITE</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="ident">log</span>::<span class="macro">trace</span><span class="macro">!</span>(<span class="string">&quot;writable: fd={}&quot;</span>, <span class="self">self</span>.<span class="ident">raw</span>);
+        <span class="macro">log::trace!</span>(<span class="string">&quot;writable: fd={}&quot;</span>, <span class="self">self</span>.<span class="ident">raw</span>);
         <span class="prelude-val">Ok</span>(())
     }
 
     <span class="doccomment">/// Waits until the I/O source is readable or writable.</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">ready</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">dir</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">ready</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">dir</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ticks</span> <span class="op">=</span> <span class="prelude-val">None</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">index</span> <span class="op">=</span> <span class="prelude-val">None</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">_guard</span> <span class="op">=</span> <span class="prelude-val">None</span>;
 
-        <span class="ident">future</span>::<span class="ident">poll_fn</span>(<span class="op">|</span><span class="ident">cx</span><span class="op">|</span> {
+        <span class="ident">future::poll_fn</span>(<span class="op">|</span><span class="ident">cx</span><span class="op">|</span> {
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">state</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">lock</span>().<span class="ident">unwrap</span>();
 
             <span class="comment">// Check if the reactor has delivered an event.</span>
@@ -990,7 +990,7 @@
                 <span class="comment">// If `state[dir].tick` has changed to a value other than the old reactor tick,</span>
                 <span class="comment">// that means a newer reactor tick has delivered an event.</span>
                 <span class="kw">if</span> <span class="ident">state</span>[<span class="ident">dir</span>].<span class="ident">tick</span> <span class="op">!</span><span class="op">=</span> <span class="ident">a</span> <span class="op">&amp;&amp;</span> <span class="ident">state</span>[<span class="ident">dir</span>].<span class="ident">tick</span> <span class="op">!</span><span class="op">=</span> <span class="ident">b</span> {
-                    <span class="kw">return</span> <span class="ident">Poll</span>::<span class="ident">Ready</span>(<span class="prelude-val">Ok</span>(()));
+                    <span class="kw">return</span> <span class="ident">Poll::Ready</span>(<span class="prelude-val">Ok</span>(()));
                 }
             }
 
@@ -1006,7 +1006,7 @@
                         <span class="ident">state</span>[<span class="ident">dir</span>].<span class="ident">wakers</span>.<span class="ident">remove</span>(<span class="ident">i</span>);
                     }));
                     <span class="ident">index</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">i</span>);
-                    <span class="ident">ticks</span> <span class="op">=</span> <span class="prelude-val">Some</span>((<span class="ident">Reactor</span>::<span class="ident">get</span>().<span class="ident">ticker</span>(), <span class="ident">state</span>[<span class="ident">dir</span>].<span class="ident">tick</span>));
+                    <span class="ident">ticks</span> <span class="op">=</span> <span class="prelude-val">Some</span>((<span class="ident">Reactor::get</span>().<span class="ident">ticker</span>(), <span class="ident">state</span>[<span class="ident">dir</span>].<span class="ident">tick</span>));
                     <span class="ident">i</span>
                 }
             };
@@ -1014,7 +1014,7 @@
 
             <span class="comment">// Update interest in this I/O handle.</span>
             <span class="kw">if</span> <span class="ident">was_empty</span> {
-                <span class="ident">Reactor</span>::<span class="ident">get</span>().<span class="ident">poller</span>.<span class="ident">modify</span>(
+                <span class="ident">Reactor::get</span>().<span class="ident">poller</span>.<span class="ident">modify</span>(
                     <span class="self">self</span>.<span class="ident">raw</span>,
                     <span class="ident">Event</span> {
                         <span class="ident">key</span>: <span class="self">self</span>.<span class="ident">key</span>,
@@ -1024,7 +1024,7 @@
                 )<span class="question-mark">?</span>;
             }
 
-            <span class="ident">Poll</span>::<span class="ident">Pending</span>
+            <span class="ident">Poll::Pending</span>
         })
         .<span class="kw">await</span>
     }
@@ -1039,5 +1039,5 @@
     }
 }
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="async_io" data-search-js="../../search-index.js"></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="async_io" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
     <script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script></body></html>

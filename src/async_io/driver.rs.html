@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/usr/local/cargo/registry/src/github.com-1ecc6299db9ec823/async-io-1.4.1/src/driver.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>driver.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../favicon-16x16.png">
-<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../async_io/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../async_io/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
@@ -232,33 +232,33 @@
 <span id="229">229</span>
 <span id="230">230</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">cell</span>::<span class="ident">Cell</span>;
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">future</span>::<span class="ident">Future</span>;
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">sync</span>::<span class="ident">atomic</span>::{<span class="ident">AtomicBool</span>, <span class="ident">AtomicUsize</span>, <span class="ident">Ordering</span>};
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">sync</span>::<span class="ident">Arc</span>;
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">task</span>::{<span class="ident">Context</span>, <span class="ident">Poll</span>};
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">thread</span>;
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">time</span>::{<span class="ident">Duration</span>, <span class="ident">Instant</span>};
+<span class="kw">use</span> <span class="ident">std::cell::Cell</span>;
+<span class="kw">use</span> <span class="ident">std::future::Future</span>;
+<span class="kw">use</span> <span class="ident">std::sync::atomic</span>::{<span class="ident">AtomicBool</span>, <span class="ident">AtomicUsize</span>, <span class="ident">Ordering</span>};
+<span class="kw">use</span> <span class="ident">std::sync::Arc</span>;
+<span class="kw">use</span> <span class="ident">std::task</span>::{<span class="ident">Context</span>, <span class="ident">Poll</span>};
+<span class="kw">use</span> <span class="ident">std::thread</span>;
+<span class="kw">use</span> <span class="ident">std::time</span>::{<span class="ident">Duration</span>, <span class="ident">Instant</span>};
 
-<span class="kw">use</span> <span class="ident">futures_lite</span>::<span class="ident">pin</span>;
-<span class="kw">use</span> <span class="ident">once_cell</span>::<span class="ident">sync</span>::<span class="ident">Lazy</span>;
-<span class="kw">use</span> <span class="ident">waker_fn</span>::<span class="ident">waker_fn</span>;
+<span class="kw">use</span> <span class="ident">futures_lite::pin</span>;
+<span class="kw">use</span> <span class="ident">once_cell::sync::Lazy</span>;
+<span class="kw">use</span> <span class="ident">waker_fn::waker_fn</span>;
 
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">reactor</span>::<span class="ident">Reactor</span>;
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::reactor::Reactor</span>;
 
 <span class="doccomment">/// Number of currently active `block_on()` invocations.</span>
-<span class="kw">static</span> <span class="ident">BLOCK_ON_COUNT</span>: <span class="ident">AtomicUsize</span> <span class="op">=</span> <span class="ident">AtomicUsize</span>::<span class="ident">new</span>(<span class="number">0</span>);
+<span class="kw">static</span> <span class="ident">BLOCK_ON_COUNT</span>: <span class="ident">AtomicUsize</span> <span class="op">=</span> <span class="ident">AtomicUsize::new</span>(<span class="number">0</span>);
 
 <span class="doccomment">/// Unparker for the &quot;async-io&quot; thread.</span>
-<span class="kw">static</span> <span class="ident">UNPARKER</span>: <span class="ident">Lazy</span><span class="op">&lt;</span><span class="ident">parking</span>::<span class="ident">Unparker</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Lazy</span>::<span class="ident">new</span>(<span class="op">|</span><span class="op">|</span> {
-    <span class="kw">let</span> (<span class="ident">parker</span>, <span class="ident">unparker</span>) <span class="op">=</span> <span class="ident">parking</span>::<span class="ident">pair</span>();
+<span class="kw">static</span> <span class="ident">UNPARKER</span>: <span class="ident">Lazy</span><span class="op">&lt;</span><span class="ident">parking::Unparker</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Lazy::new</span>(<span class="op">|</span><span class="op">|</span> {
+    <span class="kw">let</span> (<span class="ident">parker</span>, <span class="ident">unparker</span>) <span class="op">=</span> <span class="ident">parking::pair</span>();
 
     <span class="comment">// Spawn a helper thread driving the reactor.</span>
     <span class="comment">//</span>
     <span class="comment">// Note that this thread is not exactly necessary, it&#39;s only here to help push things</span>
     <span class="comment">// forward if there are no `Parker`s around or if `Parker`s are just idling and never</span>
     <span class="comment">// parking.</span>
-    <span class="ident">thread</span>::<span class="ident">Builder</span>::<span class="ident">new</span>()
+    <span class="ident">thread::Builder::new</span>()
         .<span class="ident">name</span>(<span class="string">&quot;async-io&quot;</span>.<span class="ident">to_string</span>())
         .<span class="ident">spawn</span>(<span class="kw">move</span> <span class="op">|</span><span class="op">|</span> <span class="ident">main_loop</span>(<span class="ident">parker</span>))
         .<span class="ident">expect</span>(<span class="string">&quot;cannot spawn async-io thread&quot;</span>);
@@ -268,50 +268,50 @@
 
 <span class="doccomment">/// Initializes the &quot;async-io&quot; thread.</span>
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">init</span>() {
-    <span class="ident">Lazy</span>::<span class="ident">force</span>(<span class="kw-2">&amp;</span><span class="ident">UNPARKER</span>);
+    <span class="ident">Lazy::force</span>(<span class="kw-2">&amp;</span><span class="ident">UNPARKER</span>);
 }
 
 <span class="doccomment">/// The main loop for the &quot;async-io&quot; thread.</span>
-<span class="kw">fn</span> <span class="ident">main_loop</span>(<span class="ident">parker</span>: <span class="ident">parking</span>::<span class="ident">Parker</span>) {
+<span class="kw">fn</span> <span class="ident">main_loop</span>(<span class="ident">parker</span>: <span class="ident">parking::Parker</span>) {
     <span class="comment">// The last observed reactor tick.</span>
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">last_tick</span> <span class="op">=</span> <span class="number">0</span>;
     <span class="comment">// Number of sleeps since this thread has called `react()`.</span>
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">sleeps</span> <span class="op">=</span> <span class="number">0u64</span>;
 
     <span class="kw">loop</span> {
-        <span class="kw">let</span> <span class="ident">tick</span> <span class="op">=</span> <span class="ident">Reactor</span>::<span class="ident">get</span>().<span class="ident">ticker</span>();
+        <span class="kw">let</span> <span class="ident">tick</span> <span class="op">=</span> <span class="ident">Reactor::get</span>().<span class="ident">ticker</span>();
 
         <span class="kw">if</span> <span class="ident">last_tick</span> <span class="op">=</span><span class="op">=</span> <span class="ident">tick</span> {
             <span class="kw">let</span> <span class="ident">reactor_lock</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">sleeps</span> <span class="op">&gt;</span><span class="op">=</span> <span class="number">10</span> {
                 <span class="comment">// If no new ticks have occurred for a while, stop sleeping and spinning in</span>
                 <span class="comment">// this loop and just block on the reactor lock.</span>
-                <span class="prelude-val">Some</span>(<span class="ident">Reactor</span>::<span class="ident">get</span>().<span class="ident">lock</span>())
+                <span class="prelude-val">Some</span>(<span class="ident">Reactor::get</span>().<span class="ident">lock</span>())
             } <span class="kw">else</span> {
-                <span class="ident">Reactor</span>::<span class="ident">get</span>().<span class="ident">try_lock</span>()
+                <span class="ident">Reactor::get</span>().<span class="ident">try_lock</span>()
             };
 
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">mut</span> <span class="ident">reactor_lock</span>) <span class="op">=</span> <span class="ident">reactor_lock</span> {
-                <span class="ident">log</span>::<span class="macro">trace</span><span class="macro">!</span>(<span class="string">&quot;main_loop: waiting on I/O&quot;</span>);
+                <span class="macro">log::trace!</span>(<span class="string">&quot;main_loop: waiting on I/O&quot;</span>);
                 <span class="ident">reactor_lock</span>.<span class="ident">react</span>(<span class="prelude-val">None</span>).<span class="ident">ok</span>();
-                <span class="ident">last_tick</span> <span class="op">=</span> <span class="ident">Reactor</span>::<span class="ident">get</span>().<span class="ident">ticker</span>();
+                <span class="ident">last_tick</span> <span class="op">=</span> <span class="ident">Reactor::get</span>().<span class="ident">ticker</span>();
                 <span class="ident">sleeps</span> <span class="op">=</span> <span class="number">0</span>;
             }
         } <span class="kw">else</span> {
             <span class="ident">last_tick</span> <span class="op">=</span> <span class="ident">tick</span>;
         }
 
-        <span class="kw">if</span> <span class="ident">BLOCK_ON_COUNT</span>.<span class="ident">load</span>(<span class="ident">Ordering</span>::<span class="ident">SeqCst</span>) <span class="op">&gt;</span> <span class="number">0</span> {
+        <span class="kw">if</span> <span class="ident">BLOCK_ON_COUNT</span>.<span class="ident">load</span>(<span class="ident">Ordering::SeqCst</span>) <span class="op">&gt;</span> <span class="number">0</span> {
             <span class="comment">// Exponential backoff from 50us to 10ms.</span>
             <span class="kw">let</span> <span class="ident">delay_us</span> <span class="op">=</span> [<span class="number">50</span>, <span class="number">75</span>, <span class="number">100</span>, <span class="number">250</span>, <span class="number">500</span>, <span class="number">750</span>, <span class="number">1000</span>, <span class="number">2500</span>, <span class="number">5000</span>]
                 .<span class="ident">get</span>(<span class="ident">sleeps</span> <span class="kw">as</span> <span class="ident">usize</span>)
                 .<span class="ident">unwrap_or</span>(<span class="kw-2">&amp;</span><span class="number">10_000</span>);
 
-            <span class="ident">log</span>::<span class="macro">trace</span><span class="macro">!</span>(<span class="string">&quot;main_loop: sleeping for {} us&quot;</span>, <span class="ident">delay_us</span>);
-            <span class="kw">if</span> <span class="ident">parker</span>.<span class="ident">park_timeout</span>(<span class="ident">Duration</span>::<span class="ident">from_micros</span>(<span class="kw-2">*</span><span class="ident">delay_us</span>)) {
-                <span class="ident">log</span>::<span class="macro">trace</span><span class="macro">!</span>(<span class="string">&quot;main_loop: notified&quot;</span>);
+            <span class="macro">log::trace!</span>(<span class="string">&quot;main_loop: sleeping for {} us&quot;</span>, <span class="ident">delay_us</span>);
+            <span class="kw">if</span> <span class="ident">parker</span>.<span class="ident">park_timeout</span>(<span class="ident">Duration::from_micros</span>(<span class="kw-2">*</span><span class="ident">delay_us</span>)) {
+                <span class="macro">log::trace!</span>(<span class="string">&quot;main_loop: notified&quot;</span>);
 
                 <span class="comment">// If notified before timeout, reset the last tick and the sleep counter.</span>
-                <span class="ident">last_tick</span> <span class="op">=</span> <span class="ident">Reactor</span>::<span class="ident">get</span>().<span class="ident">ticker</span>();
+                <span class="ident">last_tick</span> <span class="op">=</span> <span class="ident">Reactor::get</span>().<span class="ident">ticker</span>();
                 <span class="ident">sleeps</span> <span class="op">=</span> <span class="number">0</span>;
             } <span class="kw">else</span> {
                 <span class="ident">sleeps</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
@@ -335,25 +335,25 @@
 <span class="doccomment">/// });</span>
 <span class="doccomment">/// ```</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">block_on</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">future</span>: <span class="kw">impl</span> <span class="ident">Future</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> <span class="ident">T</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T</span> {
-    <span class="ident">log</span>::<span class="macro">trace</span><span class="macro">!</span>(<span class="string">&quot;block_on()&quot;</span>);
+    <span class="macro">log::trace!</span>(<span class="string">&quot;block_on()&quot;</span>);
 
     <span class="comment">// Increment `BLOCK_ON_COUNT` so that the &quot;async-io&quot; thread becomes less aggressive.</span>
-    <span class="ident">BLOCK_ON_COUNT</span>.<span class="ident">fetch_add</span>(<span class="number">1</span>, <span class="ident">Ordering</span>::<span class="ident">SeqCst</span>);
+    <span class="ident">BLOCK_ON_COUNT</span>.<span class="ident">fetch_add</span>(<span class="number">1</span>, <span class="ident">Ordering::SeqCst</span>);
 
     <span class="comment">// Make sure to decrement `BLOCK_ON_COUNT` at the end and wake the &quot;async-io&quot; thread.</span>
     <span class="kw">let</span> <span class="ident">_guard</span> <span class="op">=</span> <span class="ident">CallOnDrop</span>(<span class="op">|</span><span class="op">|</span> {
-        <span class="ident">BLOCK_ON_COUNT</span>.<span class="ident">fetch_sub</span>(<span class="number">1</span>, <span class="ident">Ordering</span>::<span class="ident">SeqCst</span>);
+        <span class="ident">BLOCK_ON_COUNT</span>.<span class="ident">fetch_sub</span>(<span class="number">1</span>, <span class="ident">Ordering::SeqCst</span>);
         <span class="ident">UNPARKER</span>.<span class="ident">unpark</span>();
     });
 
     <span class="comment">// Parker and unparker for notifying the current thread.</span>
-    <span class="kw">let</span> (<span class="ident">p</span>, <span class="ident">u</span>) <span class="op">=</span> <span class="ident">parking</span>::<span class="ident">pair</span>();
+    <span class="kw">let</span> (<span class="ident">p</span>, <span class="ident">u</span>) <span class="op">=</span> <span class="ident">parking::pair</span>();
     <span class="comment">// This boolean is set to `true` when the current thread is blocked on I/O.</span>
-    <span class="kw">let</span> <span class="ident">io_blocked</span> <span class="op">=</span> <span class="ident">Arc</span>::<span class="ident">new</span>(<span class="ident">AtomicBool</span>::<span class="ident">new</span>(<span class="bool-val">false</span>));
+    <span class="kw">let</span> <span class="ident">io_blocked</span> <span class="op">=</span> <span class="ident">Arc::new</span>(<span class="ident">AtomicBool::new</span>(<span class="bool-val">false</span>));
 
-    <span class="macro">thread_local</span><span class="macro">!</span> {
+    <span class="macro">thread_local!</span> {
         <span class="comment">// Indicates that the current thread is polling I/O, but not necessarily blocked on it.</span>
-        <span class="kw">static</span> <span class="ident">IO_POLLING</span>: <span class="ident">Cell</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Cell</span>::<span class="ident">new</span>(<span class="bool-val">false</span>);
+        <span class="kw">static</span> <span class="ident">IO_POLLING</span>: <span class="ident">Cell</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Cell::new</span>(<span class="bool-val">false</span>);
     }
 
     <span class="comment">// Prepare the waker.</span>
@@ -362,28 +362,28 @@
         <span class="kw">move</span> <span class="op">|</span><span class="op">|</span> {
             <span class="kw">if</span> <span class="ident">u</span>.<span class="ident">unpark</span>() {
                 <span class="comment">// Check if waking from another thread and if currently blocked on I/O.</span>
-                <span class="kw">if</span> <span class="op">!</span><span class="ident">IO_POLLING</span>.<span class="ident">with</span>(<span class="ident">Cell</span>::<span class="ident">get</span>) <span class="op">&amp;&amp;</span> <span class="ident">io_blocked</span>.<span class="ident">load</span>(<span class="ident">Ordering</span>::<span class="ident">SeqCst</span>) {
-                    <span class="ident">Reactor</span>::<span class="ident">get</span>().<span class="ident">notify</span>();
+                <span class="kw">if</span> <span class="op">!</span><span class="ident">IO_POLLING</span>.<span class="ident">with</span>(<span class="ident">Cell::get</span>) <span class="op">&amp;&amp;</span> <span class="ident">io_blocked</span>.<span class="ident">load</span>(<span class="ident">Ordering::SeqCst</span>) {
+                    <span class="ident">Reactor::get</span>().<span class="ident">notify</span>();
                 }
             }
         }
     });
-    <span class="kw">let</span> <span class="ident">cx</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Context</span>::<span class="ident">from_waker</span>(<span class="kw-2">&amp;</span><span class="ident">waker</span>);
-    <span class="macro">pin</span><span class="macro">!</span>(<span class="ident">future</span>);
+    <span class="kw">let</span> <span class="ident">cx</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Context::from_waker</span>(<span class="kw-2">&amp;</span><span class="ident">waker</span>);
+    <span class="macro">pin!</span>(<span class="ident">future</span>);
 
     <span class="kw">loop</span> {
         <span class="comment">// Poll the future.</span>
-        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Poll</span>::<span class="ident">Ready</span>(<span class="ident">t</span>) <span class="op">=</span> <span class="ident">future</span>.<span class="ident">as_mut</span>().<span class="ident">poll</span>(<span class="ident">cx</span>) {
-            <span class="ident">log</span>::<span class="macro">trace</span><span class="macro">!</span>(<span class="string">&quot;block_on: completed&quot;</span>);
+        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Poll::Ready</span>(<span class="ident">t</span>) <span class="op">=</span> <span class="ident">future</span>.<span class="ident">as_mut</span>().<span class="ident">poll</span>(<span class="ident">cx</span>) {
+            <span class="macro">log::trace!</span>(<span class="string">&quot;block_on: completed&quot;</span>);
             <span class="kw">return</span> <span class="ident">t</span>;
         }
 
         <span class="comment">// Check if a notification was received.</span>
-        <span class="kw">if</span> <span class="ident">p</span>.<span class="ident">park_timeout</span>(<span class="ident">Duration</span>::<span class="ident">from_secs</span>(<span class="number">0</span>)) {
-            <span class="ident">log</span>::<span class="macro">trace</span><span class="macro">!</span>(<span class="string">&quot;block_on: notified&quot;</span>);
+        <span class="kw">if</span> <span class="ident">p</span>.<span class="ident">park_timeout</span>(<span class="ident">Duration::from_secs</span>(<span class="number">0</span>)) {
+            <span class="macro">log::trace!</span>(<span class="string">&quot;block_on: notified&quot;</span>);
 
             <span class="comment">// Try grabbing a lock on the reactor to process I/O events.</span>
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">mut</span> <span class="ident">reactor_lock</span>) <span class="op">=</span> <span class="ident">Reactor</span>::<span class="ident">get</span>().<span class="ident">try_lock</span>() {
+            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">mut</span> <span class="ident">reactor_lock</span>) <span class="op">=</span> <span class="ident">Reactor::get</span>().<span class="ident">try_lock</span>() {
                 <span class="comment">// First let wakers know this parker is processing I/O events.</span>
                 <span class="ident">IO_POLLING</span>.<span class="ident">with</span>(<span class="op">|</span><span class="ident">io</span><span class="op">|</span> <span class="ident">io</span>.<span class="ident">set</span>(<span class="bool-val">true</span>));
                 <span class="kw">let</span> <span class="ident">_guard</span> <span class="op">=</span> <span class="ident">CallOnDrop</span>(<span class="op">|</span><span class="op">|</span> {
@@ -391,45 +391,45 @@
                 });
 
                 <span class="comment">// Process available I/O events.</span>
-                <span class="ident">reactor_lock</span>.<span class="ident">react</span>(<span class="prelude-val">Some</span>(<span class="ident">Duration</span>::<span class="ident">from_secs</span>(<span class="number">0</span>))).<span class="ident">ok</span>();
+                <span class="ident">reactor_lock</span>.<span class="ident">react</span>(<span class="prelude-val">Some</span>(<span class="ident">Duration::from_secs</span>(<span class="number">0</span>))).<span class="ident">ok</span>();
             }
             <span class="kw">continue</span>;
         }
 
         <span class="comment">// Try grabbing a lock on the reactor to wait on I/O.</span>
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">mut</span> <span class="ident">reactor_lock</span>) <span class="op">=</span> <span class="ident">Reactor</span>::<span class="ident">get</span>().<span class="ident">try_lock</span>() {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">mut</span> <span class="ident">reactor_lock</span>) <span class="op">=</span> <span class="ident">Reactor::get</span>().<span class="ident">try_lock</span>() {
             <span class="comment">// Record the instant at which the lock was grabbed.</span>
-            <span class="kw">let</span> <span class="ident">start</span> <span class="op">=</span> <span class="ident">Instant</span>::<span class="ident">now</span>();
+            <span class="kw">let</span> <span class="ident">start</span> <span class="op">=</span> <span class="ident">Instant::now</span>();
 
             <span class="kw">loop</span> {
                 <span class="comment">// First let wakers know this parker is blocked on I/O.</span>
                 <span class="ident">IO_POLLING</span>.<span class="ident">with</span>(<span class="op">|</span><span class="ident">io</span><span class="op">|</span> <span class="ident">io</span>.<span class="ident">set</span>(<span class="bool-val">true</span>));
-                <span class="ident">io_blocked</span>.<span class="ident">store</span>(<span class="bool-val">true</span>, <span class="ident">Ordering</span>::<span class="ident">SeqCst</span>);
+                <span class="ident">io_blocked</span>.<span class="ident">store</span>(<span class="bool-val">true</span>, <span class="ident">Ordering::SeqCst</span>);
                 <span class="kw">let</span> <span class="ident">_guard</span> <span class="op">=</span> <span class="ident">CallOnDrop</span>(<span class="op">|</span><span class="op">|</span> {
                     <span class="ident">IO_POLLING</span>.<span class="ident">with</span>(<span class="op">|</span><span class="ident">io</span><span class="op">|</span> <span class="ident">io</span>.<span class="ident">set</span>(<span class="bool-val">false</span>));
-                    <span class="ident">io_blocked</span>.<span class="ident">store</span>(<span class="bool-val">false</span>, <span class="ident">Ordering</span>::<span class="ident">SeqCst</span>);
+                    <span class="ident">io_blocked</span>.<span class="ident">store</span>(<span class="bool-val">false</span>, <span class="ident">Ordering::SeqCst</span>);
                 });
 
                 <span class="comment">// Check if a notification has been received before `io_blocked` was updated</span>
                 <span class="comment">// because in that case the reactor won&#39;t receive a wakeup.</span>
-                <span class="kw">if</span> <span class="ident">p</span>.<span class="ident">park_timeout</span>(<span class="ident">Duration</span>::<span class="ident">from_secs</span>(<span class="number">0</span>)) {
-                    <span class="ident">log</span>::<span class="macro">trace</span><span class="macro">!</span>(<span class="string">&quot;block_on: notified&quot;</span>);
+                <span class="kw">if</span> <span class="ident">p</span>.<span class="ident">park_timeout</span>(<span class="ident">Duration::from_secs</span>(<span class="number">0</span>)) {
+                    <span class="macro">log::trace!</span>(<span class="string">&quot;block_on: notified&quot;</span>);
                     <span class="kw">break</span>;
                 }
 
                 <span class="comment">// Wait for I/O events.</span>
-                <span class="ident">log</span>::<span class="macro">trace</span><span class="macro">!</span>(<span class="string">&quot;block_on: waiting on I/O&quot;</span>);
+                <span class="macro">log::trace!</span>(<span class="string">&quot;block_on: waiting on I/O&quot;</span>);
                 <span class="ident">reactor_lock</span>.<span class="ident">react</span>(<span class="prelude-val">None</span>).<span class="ident">ok</span>();
 
                 <span class="comment">// Check if a notification has been received.</span>
-                <span class="kw">if</span> <span class="ident">p</span>.<span class="ident">park_timeout</span>(<span class="ident">Duration</span>::<span class="ident">from_secs</span>(<span class="number">0</span>)) {
-                    <span class="ident">log</span>::<span class="macro">trace</span><span class="macro">!</span>(<span class="string">&quot;block_on: notified&quot;</span>);
+                <span class="kw">if</span> <span class="ident">p</span>.<span class="ident">park_timeout</span>(<span class="ident">Duration::from_secs</span>(<span class="number">0</span>)) {
+                    <span class="macro">log::trace!</span>(<span class="string">&quot;block_on: notified&quot;</span>);
                     <span class="kw">break</span>;
                 }
 
                 <span class="comment">// Check if this thread been handling I/O events for a long time.</span>
-                <span class="kw">if</span> <span class="ident">start</span>.<span class="ident">elapsed</span>() <span class="op">&gt;</span> <span class="ident">Duration</span>::<span class="ident">from_micros</span>(<span class="number">500</span>) {
-                    <span class="ident">log</span>::<span class="macro">trace</span><span class="macro">!</span>(<span class="string">&quot;block_on: stops hogging the reactor&quot;</span>);
+                <span class="kw">if</span> <span class="ident">start</span>.<span class="ident">elapsed</span>() <span class="op">&gt;</span> <span class="ident">Duration::from_micros</span>(<span class="number">500</span>) {
+                    <span class="macro">log::trace!</span>(<span class="string">&quot;block_on: stops hogging the reactor&quot;</span>);
 
                     <span class="comment">// This thread is clearly processing I/O events for some other threads</span>
                     <span class="comment">// because it didn&#39;t get a notification yet. It&#39;s best to stop hogging the</span>
@@ -448,7 +448,7 @@
             }
         } <span class="kw">else</span> {
             <span class="comment">// Wait for an actual notification.</span>
-            <span class="ident">log</span>::<span class="macro">trace</span><span class="macro">!</span>(<span class="string">&quot;block_on: sleep until notification&quot;</span>);
+            <span class="macro">log::trace!</span>(<span class="string">&quot;block_on: sleep until notification&quot;</span>);
             <span class="ident">p</span>.<span class="ident">park</span>();
         }
     }
@@ -463,5 +463,5 @@
     }
 }
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="async_io" data-search-js="../../search-index.js"></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="async_io" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
     <script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script></body></html>

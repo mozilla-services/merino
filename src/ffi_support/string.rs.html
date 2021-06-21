@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/usr/local/cargo/registry/src/github.com-1ecc6299db9ec823/ffi-support-0.4.2/src/string.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>string.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../favicon-16x16.png">
-<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../ffi_support/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../ffi_support/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
@@ -180,10 +180,10 @@
  * See the Licenses for the specific language governing permissions and
  * limitations under the Licenses. */</span>
 
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">FfiStr</span>;
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">ffi</span>::<span class="ident">CString</span>;
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">os</span>::<span class="ident">raw</span>::<span class="ident">c_char</span>;
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">ptr</span>;
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::FfiStr</span>;
+<span class="kw">use</span> <span class="ident">std::ffi::CString</span>;
+<span class="kw">use</span> <span class="ident">std::os::raw::c_char</span>;
+<span class="kw">use</span> <span class="ident">std::ptr</span>;
 
 <span class="doccomment">/// Convert a rust string into a NUL-terminated utf-8 string suitable for passing to C, or to things</span>
 <span class="doccomment">/// ABI-compatible with C.</span>
@@ -201,7 +201,7 @@
 <span class="doccomment">/// is possible in theory.</span>
 <span class="attribute">#[<span class="ident">inline</span>]</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">rust_string_to_c</span>(<span class="ident">rust_string</span>: <span class="kw">impl</span> <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">c_char</span> {
-    <span class="ident">CString</span>::<span class="ident">new</span>(<span class="ident">rust_string</span>.<span class="ident">into</span>())
+    <span class="ident">CString::new</span>(<span class="ident">rust_string</span>.<span class="ident">into</span>())
         .<span class="ident">expect</span>(<span class="string">&quot;Error: Rust string contained an interior null byte.&quot;</span>)
         .<span class="ident">into_raw</span>()
 }
@@ -212,7 +212,7 @@
     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">s</span>) <span class="op">=</span> <span class="ident">opt_rust_string</span> {
         <span class="ident">rust_string_to_c</span>(<span class="ident">s</span>)
     } <span class="kw">else</span> {
-        <span class="ident">ptr</span>::<span class="ident">null_mut</span>()
+        <span class="ident">ptr::null_mut</span>()
     }
 }
 
@@ -240,7 +240,7 @@
     <span class="comment">// we&#39;re not guaranteed to be in a place where we can complain about this beyond logging,</span>
     <span class="comment">// and there&#39;s an obvious way to handle it.</span>
     <span class="kw">if</span> <span class="op">!</span><span class="ident">cstring</span>.<span class="ident">is_null</span>() {
-        <span class="ident">drop</span>(<span class="ident">CString</span>::<span class="ident">from_raw</span>(<span class="ident">cstring</span>))
+        <span class="ident">drop</span>(<span class="ident">CString::from_raw</span>(<span class="ident">cstring</span>))
     }
 }
 
@@ -270,7 +270,7 @@
 <span class="attribute">#[<span class="ident">inline</span>]</span>
 <span class="attribute">#[<span class="ident">deprecated</span>(<span class="ident">since</span> <span class="op">=</span> <span class="string">&quot;0.3.0&quot;</span>, <span class="ident">note</span> <span class="op">=</span> <span class="string">&quot;Please use FfiStr::as_str instead&quot;</span>)]</span>
 <span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">rust_str_from_c</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="ident">c_string</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">c_char</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span> {
-    <span class="ident">FfiStr</span>::<span class="ident">from_raw</span>(<span class="ident">c_string</span>).<span class="ident">as_str</span>()
+    <span class="ident">FfiStr::from_raw</span>(<span class="ident">c_string</span>).<span class="ident">as_str</span>()
 }
 
 <span class="doccomment">/// Same as `rust_string_from_c`, but returns None if `c_string` is null instead of asserting.</span>
@@ -285,7 +285,7 @@
 <span class="attribute">#[<span class="ident">inline</span>]</span>
 <span class="attribute">#[<span class="ident">deprecated</span>(<span class="ident">since</span> <span class="op">=</span> <span class="string">&quot;0.3.0&quot;</span>, <span class="ident">note</span> <span class="op">=</span> <span class="string">&quot;Please use FfiStr::as_opt_str instead&quot;</span>)]</span>
 <span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">opt_rust_str_from_c</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="ident">c_string</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">c_char</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span><span class="op">&gt;</span> {
-    <span class="ident">FfiStr</span>::<span class="ident">from_raw</span>(<span class="ident">c_string</span>).<span class="ident">as_opt_str</span>()
+    <span class="ident">FfiStr::from_raw</span>(<span class="ident">c_string</span>).<span class="ident">as_opt_str</span>()
 }
 
 <span class="doccomment">/// Convert a null-terminated C into an owned rust string, replacing invalid UTF-8 with the</span>
@@ -309,7 +309,7 @@
 <span class="attribute">#[<span class="ident">inline</span>]</span>
 <span class="attribute">#[<span class="ident">deprecated</span>(<span class="ident">since</span> <span class="op">=</span> <span class="string">&quot;0.3.0&quot;</span>, <span class="ident">note</span> <span class="op">=</span> <span class="string">&quot;Please use FfiStr::into_string instead&quot;</span>)]</span>
 <span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">rust_string_from_c</span>(<span class="ident">c_string</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">c_char</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
-    <span class="ident">FfiStr</span>::<span class="ident">from_raw</span>(<span class="ident">c_string</span>).<span class="ident">into_string</span>()
+    <span class="ident">FfiStr::from_raw</span>(<span class="ident">c_string</span>).<span class="ident">into_string</span>()
 }
 
 <span class="doccomment">/// Same as `rust_string_from_c`, but returns None if `c_string` is null instead of asserting.</span>
@@ -324,8 +324,8 @@
 <span class="attribute">#[<span class="ident">inline</span>]</span>
 <span class="attribute">#[<span class="ident">deprecated</span>(<span class="ident">since</span> <span class="op">=</span> <span class="string">&quot;0.3.0&quot;</span>, <span class="ident">note</span> <span class="op">=</span> <span class="string">&quot;Please use FfiStr::into_opt_string instead&quot;</span>)]</span>
 <span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">opt_rust_string_from_c</span>(<span class="ident">c_string</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">c_char</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
-    <span class="ident">FfiStr</span>::<span class="ident">from_raw</span>(<span class="ident">c_string</span>).<span class="ident">into_opt_string</span>()
+    <span class="ident">FfiStr::from_raw</span>(<span class="ident">c_string</span>).<span class="ident">into_opt_string</span>()
 }
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="ffi_support" data-search-js="../../search-index.js"></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="ffi_support" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
     <script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script></body></html>

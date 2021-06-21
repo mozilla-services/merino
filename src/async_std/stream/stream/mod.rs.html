@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/usr/local/cargo/registry/src/github.com-1ecc6299db9ec823/async-std-1.9.0/src/stream/stream/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../../storage.js"></script><script src="../../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png">
-<link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../../async_std/index.html'><div class='logo-container'><img src='https://async.rs/images/logo--hero.svg' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+<link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../../async_std/index.html'><div class='logo-container'><img src='https://async.rs/images/logo--hero.svg' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../../../settings.html"><img src="../../../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">   1</span>
 <span id="2">   2</span>
 <span id="3">   3</span>
@@ -2497,72 +2497,72 @@
 <span class="kw">mod</span> <span class="ident">try_for_each</span>;
 <span class="kw">mod</span> <span class="ident">zip</span>;
 
-<span class="kw">use</span> <span class="ident">all</span>::<span class="ident">AllFuture</span>;
-<span class="kw">use</span> <span class="ident">any</span>::<span class="ident">AnyFuture</span>;
-<span class="kw">use</span> <span class="ident">cmp</span>::<span class="ident">CmpFuture</span>;
-<span class="kw">use</span> <span class="ident">cycle</span>::<span class="ident">Cycle</span>;
-<span class="kw">use</span> <span class="ident">enumerate</span>::<span class="ident">Enumerate</span>;
-<span class="kw">use</span> <span class="ident">eq</span>::<span class="ident">EqFuture</span>;
-<span class="kw">use</span> <span class="ident">filter_map</span>::<span class="ident">FilterMap</span>;
-<span class="kw">use</span> <span class="ident">find</span>::<span class="ident">FindFuture</span>;
-<span class="kw">use</span> <span class="ident">find_map</span>::<span class="ident">FindMapFuture</span>;
-<span class="kw">use</span> <span class="ident">fold</span>::<span class="ident">FoldFuture</span>;
-<span class="kw">use</span> <span class="ident">for_each</span>::<span class="ident">ForEachFuture</span>;
-<span class="kw">use</span> <span class="ident">ge</span>::<span class="ident">GeFuture</span>;
-<span class="kw">use</span> <span class="ident">gt</span>::<span class="ident">GtFuture</span>;
-<span class="kw">use</span> <span class="ident">last</span>::<span class="ident">LastFuture</span>;
-<span class="kw">use</span> <span class="ident">le</span>::<span class="ident">LeFuture</span>;
-<span class="kw">use</span> <span class="ident">lt</span>::<span class="ident">LtFuture</span>;
-<span class="kw">use</span> <span class="ident">max</span>::<span class="ident">MaxFuture</span>;
-<span class="kw">use</span> <span class="ident">max_by</span>::<span class="ident">MaxByFuture</span>;
-<span class="kw">use</span> <span class="ident">max_by_key</span>::<span class="ident">MaxByKeyFuture</span>;
-<span class="kw">use</span> <span class="ident">min</span>::<span class="ident">MinFuture</span>;
-<span class="kw">use</span> <span class="ident">min_by</span>::<span class="ident">MinByFuture</span>;
-<span class="kw">use</span> <span class="ident">min_by_key</span>::<span class="ident">MinByKeyFuture</span>;
-<span class="kw">use</span> <span class="ident">ne</span>::<span class="ident">NeFuture</span>;
-<span class="kw">use</span> <span class="ident">next</span>::<span class="ident">NextFuture</span>;
-<span class="kw">use</span> <span class="ident">nth</span>::<span class="ident">NthFuture</span>;
-<span class="kw">use</span> <span class="ident">partial_cmp</span>::<span class="ident">PartialCmpFuture</span>;
-<span class="kw">use</span> <span class="ident">position</span>::<span class="ident">PositionFuture</span>;
-<span class="kw">use</span> <span class="ident">try_fold</span>::<span class="ident">TryFoldFuture</span>;
-<span class="kw">use</span> <span class="ident">try_for_each</span>::<span class="ident">TryForEachFuture</span>;
+<span class="kw">use</span> <span class="ident">all::AllFuture</span>;
+<span class="kw">use</span> <span class="ident">any::AnyFuture</span>;
+<span class="kw">use</span> <span class="ident">cmp::CmpFuture</span>;
+<span class="kw">use</span> <span class="ident">cycle::Cycle</span>;
+<span class="kw">use</span> <span class="ident">enumerate::Enumerate</span>;
+<span class="kw">use</span> <span class="ident">eq::EqFuture</span>;
+<span class="kw">use</span> <span class="ident">filter_map::FilterMap</span>;
+<span class="kw">use</span> <span class="ident">find::FindFuture</span>;
+<span class="kw">use</span> <span class="ident">find_map::FindMapFuture</span>;
+<span class="kw">use</span> <span class="ident">fold::FoldFuture</span>;
+<span class="kw">use</span> <span class="ident">for_each::ForEachFuture</span>;
+<span class="kw">use</span> <span class="ident">ge::GeFuture</span>;
+<span class="kw">use</span> <span class="ident">gt::GtFuture</span>;
+<span class="kw">use</span> <span class="ident">last::LastFuture</span>;
+<span class="kw">use</span> <span class="ident">le::LeFuture</span>;
+<span class="kw">use</span> <span class="ident">lt::LtFuture</span>;
+<span class="kw">use</span> <span class="ident">max::MaxFuture</span>;
+<span class="kw">use</span> <span class="ident">max_by::MaxByFuture</span>;
+<span class="kw">use</span> <span class="ident">max_by_key::MaxByKeyFuture</span>;
+<span class="kw">use</span> <span class="ident">min::MinFuture</span>;
+<span class="kw">use</span> <span class="ident">min_by::MinByFuture</span>;
+<span class="kw">use</span> <span class="ident">min_by_key::MinByKeyFuture</span>;
+<span class="kw">use</span> <span class="ident">ne::NeFuture</span>;
+<span class="kw">use</span> <span class="ident">next::NextFuture</span>;
+<span class="kw">use</span> <span class="ident">nth::NthFuture</span>;
+<span class="kw">use</span> <span class="ident">partial_cmp::PartialCmpFuture</span>;
+<span class="kw">use</span> <span class="ident">position::PositionFuture</span>;
+<span class="kw">use</span> <span class="ident">try_fold::TryFoldFuture</span>;
+<span class="kw">use</span> <span class="ident">try_for_each::TryForEachFuture</span>;
 
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">chain</span>::<span class="ident">Chain</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">cloned</span>::<span class="ident">Cloned</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">copied</span>::<span class="ident">Copied</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">filter</span>::<span class="ident">Filter</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">fuse</span>::<span class="ident">Fuse</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">inspect</span>::<span class="ident">Inspect</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">map</span>::<span class="ident">Map</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">scan</span>::<span class="ident">Scan</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">skip</span>::<span class="ident">Skip</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">skip_while</span>::<span class="ident">SkipWhile</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">step_by</span>::<span class="ident">StepBy</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">take</span>::<span class="ident">Take</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">take_while</span>::<span class="ident">TakeWhile</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">zip</span>::<span class="ident">Zip</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">chain::Chain</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">cloned::Cloned</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">copied::Copied</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">filter::Filter</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">fuse::Fuse</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">inspect::Inspect</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">map::Map</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">scan::Scan</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">skip::Skip</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">skip_while::SkipWhile</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">step_by::StepBy</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">take::Take</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">take_while::TakeWhile</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">zip::Zip</span>;
 
-<span class="kw">use</span> <span class="ident">core</span>::<span class="ident">cmp</span>::<span class="ident">Ordering</span>;
+<span class="kw">use</span> <span class="ident">core::cmp::Ordering</span>;
 
-<span class="macro">cfg_unstable</span><span class="macro">!</span> {
-    <span class="kw">use</span> <span class="ident">core</span>::<span class="ident">future</span>::<span class="ident">Future</span>;
-    <span class="kw">use</span> <span class="ident">core</span>::<span class="ident">pin</span>::<span class="ident">Pin</span>;
-    <span class="kw">use</span> <span class="ident">core</span>::<span class="ident">time</span>::<span class="ident">Duration</span>;
+<span class="macro">cfg_unstable!</span> {
+    <span class="kw">use</span> <span class="ident">core::future::Future</span>;
+    <span class="kw">use</span> <span class="ident">core::pin::Pin</span>;
+    <span class="kw">use</span> <span class="ident">core::time::Duration</span>;
 
-    <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">stream</span>::<span class="ident">into_stream</span>::<span class="ident">IntoStream</span>;
-    <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">stream</span>::{<span class="ident">FromStream</span>, <span class="ident">Product</span>, <span class="ident">Sum</span>};
-    <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">stream</span>::<span class="ident">Extend</span>;
+    <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::stream::into_stream::IntoStream</span>;
+    <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::stream</span>::{<span class="ident">FromStream</span>, <span class="ident">Product</span>, <span class="ident">Sum</span>};
+    <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::stream::Extend</span>;
 
-    <span class="kw">use</span> <span class="ident">count</span>::<span class="ident">CountFuture</span>;
-    <span class="kw">use</span> <span class="ident">partition</span>::<span class="ident">PartitionFuture</span>;
-    <span class="kw">use</span> <span class="ident">unzip</span>::<span class="ident">UnzipFuture</span>;
+    <span class="kw">use</span> <span class="ident">count::CountFuture</span>;
+    <span class="kw">use</span> <span class="ident">partition::PartitionFuture</span>;
+    <span class="kw">use</span> <span class="ident">unzip::UnzipFuture</span>;
 
-    <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">merge</span>::<span class="ident">Merge</span>;
-    <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">flatten</span>::<span class="ident">Flatten</span>;
-    <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">flat_map</span>::<span class="ident">FlatMap</span>;
+    <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">merge::Merge</span>;
+    <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">flatten::Flatten</span>;
+    <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">flat_map::FlatMap</span>;
     <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">timeout</span>::{<span class="ident">TimeoutError</span>, <span class="ident">Timeout</span>};
-    <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">throttle</span>::<span class="ident">Throttle</span>;
-    <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">delay</span>::<span class="ident">Delay</span>;
+    <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">throttle::Throttle</span>;
+    <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">delay::Delay</span>;
 
     <span class="kw">mod</span> <span class="ident">count</span>;
     <span class="kw">mod</span> <span class="ident">merge</span>;
@@ -2575,10 +2575,10 @@
     <span class="kw">mod</span> <span class="ident">unzip</span>;
 }
 
-<span class="macro">extension_trait</span><span class="macro">!</span> {
-    <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">ops</span>::{<span class="ident">Deref</span>, <span class="ident">DerefMut</span>};
+<span class="macro">extension_trait!</span> {
+    <span class="kw">use</span> <span class="ident">std::ops</span>::{<span class="ident">Deref</span>, <span class="ident">DerefMut</span>};
 
-    <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">task</span>::{<span class="ident">Context</span>, <span class="ident">Poll</span>};
+    <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::task</span>::{<span class="ident">Context</span>, <span class="ident">Poll</span>};
 
     <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">r#&quot;
         An asynchronous stream of values.
@@ -2658,7 +2658,7 @@
             # }) }
             ```
         &quot;#</span>]</span>
-        <span class="kw">fn</span> <span class="ident">poll_next</span>(<span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span>::<span class="ident">Item</span><span class="op">&gt;</span><span class="op">&gt;</span>;
+        <span class="kw">fn</span> <span class="ident">poll_next</span>(<span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span><span class="ident">::Item</span><span class="op">&gt;</span><span class="op">&gt;</span>;
     }
 
     <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">r#&quot;
@@ -2666,7 +2666,7 @@
 
         [`Stream`]: ../stream/trait.Stream.html
     &quot;#</span>]</span>
-    <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">StreamExt</span>: <span class="ident">futures_core</span>::<span class="ident">stream</span>::<span class="ident">Stream</span> {
+    <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">StreamExt</span>: <span class="ident">futures_core::stream::Stream</span> {
         <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">r#&quot;
             Advances the stream and returns the next value.
 
@@ -2692,7 +2692,7 @@
             # }) }
             ```
         &quot;#</span>]</span>
-        <span class="kw">fn</span> <span class="ident">next</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">impl</span> <span class="ident">Future</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span>::<span class="ident">Item</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;_</span> [<span class="ident">NextFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="self">Self</span><span class="op">&gt;</span>]
+        <span class="kw">fn</span> <span class="ident">next</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">impl</span> <span class="ident">Future</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span><span class="ident">::Item</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;_</span> [<span class="ident">NextFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="self">Self</span><span class="op">&gt;</span>]
         <span class="kw">where</span>
             <span class="self">Self</span>: <span class="ident">Unpin</span>,
         {
@@ -2723,7 +2723,7 @@
         <span class="kw">where</span>
             <span class="self">Self</span>: <span class="ident">Sized</span>,
         {
-            <span class="ident">Take</span>::<span class="ident">new</span>(<span class="self">self</span>, <span class="ident">n</span>)
+            <span class="ident">Take::new</span>(<span class="self">self</span>, <span class="ident">n</span>)
         }
 
         <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">r#&quot;
@@ -2750,9 +2750,9 @@
         <span class="kw">fn</span> <span class="ident">take_while</span><span class="op">&lt;</span><span class="ident">P</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">predicate</span>: <span class="ident">P</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">TakeWhile</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">P</span><span class="op">&gt;</span>
         <span class="kw">where</span>
             <span class="self">Self</span>: <span class="ident">Sized</span>,
-            <span class="ident">P</span>: <span class="ident">FnMut</span>(<span class="kw-2">&amp;</span><span class="self">Self</span>::<span class="ident">Item</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span>,
+            <span class="ident">P</span>: <span class="ident">FnMut</span>(<span class="kw-2">&amp;</span><span class="self">Self</span><span class="ident">::Item</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span>,
         {
-            <span class="ident">TakeWhile</span>::<span class="ident">new</span>(<span class="self">self</span>, <span class="ident">predicate</span>)
+            <span class="ident">TakeWhile::new</span>(<span class="self">self</span>, <span class="ident">predicate</span>)
         }
 
         <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">r#&quot;
@@ -2793,7 +2793,7 @@
         <span class="kw">where</span>
             <span class="self">Self</span>: <span class="ident">Sized</span>,
         {
-            <span class="ident">Throttle</span>::<span class="ident">new</span>(<span class="self">self</span>, <span class="ident">d</span>)
+            <span class="ident">Throttle::new</span>(<span class="self">self</span>, <span class="ident">d</span>)
         }
 
         <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">r#&quot;
@@ -2829,7 +2829,7 @@
         <span class="kw">where</span>
             <span class="self">Self</span>: <span class="ident">Sized</span>,
         {
-            <span class="ident">StepBy</span>::<span class="ident">new</span>(<span class="self">self</span>, <span class="ident">step</span>)
+            <span class="ident">StepBy::new</span>(<span class="self">self</span>, <span class="ident">step</span>)
         }
 
         <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">r#&quot;
@@ -2862,9 +2862,9 @@
         <span class="kw">fn</span> <span class="ident">chain</span><span class="op">&lt;</span><span class="ident">U</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">other</span>: <span class="ident">U</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Chain</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">U</span><span class="op">&gt;</span>
         <span class="kw">where</span>
             <span class="self">Self</span>: <span class="ident">Sized</span>,
-            <span class="ident">U</span>: <span class="ident">Stream</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="self">Self</span>::<span class="ident">Item</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Sized</span>,
+            <span class="ident">U</span>: <span class="ident">Stream</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="self">Self</span><span class="ident">::Item</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Sized</span>,
         {
-            <span class="ident">Chain</span>::<span class="ident">new</span>(<span class="self">self</span>, <span class="ident">other</span>)
+            <span class="ident">Chain::new</span>(<span class="self">self</span>, <span class="ident">other</span>)
         }
 
             <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">r#&quot;
@@ -2898,7 +2898,7 @@
             <span class="self">Self</span>: <span class="ident">Sized</span> <span class="op">+</span> <span class="ident">Stream</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">T</span><span class="op">&gt;</span>,
             <span class="ident">T</span>: <span class="ident">Clone</span> <span class="op">+</span> <span class="lifetime">&#39;a</span>,
         {
-            <span class="ident">Cloned</span>::<span class="ident">new</span>(<span class="self">self</span>)
+            <span class="ident">Cloned::new</span>(<span class="self">self</span>)
         }
 
 
@@ -2931,7 +2931,7 @@
             <span class="self">Self</span>: <span class="ident">Sized</span> <span class="op">+</span> <span class="ident">Stream</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">T</span><span class="op">&gt;</span>,
             <span class="ident">T</span>: <span class="ident">Copy</span> <span class="op">+</span> <span class="lifetime">&#39;a</span>,
         {
-            <span class="ident">Copied</span>::<span class="ident">new</span>(<span class="self">self</span>)
+            <span class="ident">Copied::new</span>(<span class="self">self</span>)
         }
 
         <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">r#&quot;
@@ -2962,7 +2962,7 @@
         <span class="kw">where</span>
             <span class="self">Self</span>: <span class="ident">Clone</span> <span class="op">+</span> <span class="ident">Sized</span>,
         {
-            <span class="ident">Cycle</span>::<span class="ident">new</span>(<span class="self">self</span>)
+            <span class="ident">Cycle::new</span>(<span class="self">self</span>)
         }
 
         <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">r#&quot;
@@ -2995,7 +2995,7 @@
         <span class="kw">where</span>
             <span class="self">Self</span>: <span class="ident">Sized</span>,
         {
-            <span class="ident">Enumerate</span>::<span class="ident">new</span>(<span class="self">self</span>)
+            <span class="ident">Enumerate::new</span>(<span class="self">self</span>)
         }
 
         <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">r#&quot;
@@ -3032,11 +3032,11 @@
         &quot;#</span>]</span>
         <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;unstable&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;docs&quot;</span>))]</span>
         <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;docs&quot;</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">unstable</span>)))]</span>
-        <span class="kw">fn</span> <span class="ident">delay</span>(<span class="self">self</span>, <span class="ident">dur</span>: <span class="ident">std</span>::<span class="ident">time</span>::<span class="ident">Duration</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Delay</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>
+        <span class="kw">fn</span> <span class="ident">delay</span>(<span class="self">self</span>, <span class="ident">dur</span>: <span class="ident">std::time::Duration</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Delay</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>
         <span class="kw">where</span>
             <span class="self">Self</span>: <span class="ident">Sized</span>,
         {
-            <span class="ident">Delay</span>::<span class="ident">new</span>(<span class="self">self</span>, <span class="ident">dur</span>)
+            <span class="ident">Delay::new</span>(<span class="self">self</span>, <span class="ident">dur</span>)
         }
 
         <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">r#&quot;
@@ -3065,9 +3065,9 @@
         <span class="kw">fn</span> <span class="ident">map</span><span class="op">&lt;</span><span class="ident">B</span>, <span class="ident">F</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">f</span>: <span class="ident">F</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Map</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">F</span><span class="op">&gt;</span>
         <span class="kw">where</span>
             <span class="self">Self</span>: <span class="ident">Sized</span>,
-            <span class="ident">F</span>: <span class="ident">FnMut</span>(<span class="self">Self</span>::<span class="ident">Item</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">B</span>,
+            <span class="ident">F</span>: <span class="ident">FnMut</span>(<span class="self">Self</span><span class="ident">::Item</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">B</span>,
         {
-            <span class="ident">Map</span>::<span class="ident">new</span>(<span class="self">self</span>, <span class="ident">f</span>)
+            <span class="ident">Map::new</span>(<span class="self">self</span>, <span class="ident">f</span>)
         }
 
         <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">r#&quot;
@@ -3101,9 +3101,9 @@
         <span class="kw">fn</span> <span class="ident">inspect</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">f</span>: <span class="ident">F</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Inspect</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">F</span><span class="op">&gt;</span>
         <span class="kw">where</span>
             <span class="self">Self</span>: <span class="ident">Sized</span>,
-            <span class="ident">F</span>: <span class="ident">FnMut</span>(<span class="kw-2">&amp;</span><span class="self">Self</span>::<span class="ident">Item</span>),
+            <span class="ident">F</span>: <span class="ident">FnMut</span>(<span class="kw-2">&amp;</span><span class="self">Self</span><span class="ident">::Item</span>),
         {
-            <span class="ident">Inspect</span>::<span class="ident">new</span>(<span class="self">self</span>, <span class="ident">f</span>)
+            <span class="ident">Inspect::new</span>(<span class="self">self</span>, <span class="ident">f</span>)
         }
 
         <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">r#&quot;
@@ -3144,11 +3144,11 @@
         &quot;#</span>]</span>
         <span class="kw">fn</span> <span class="ident">last</span>(
             <span class="self">self</span>,
-        ) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">impl</span> <span class="ident">Future</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span>::<span class="ident">Item</span><span class="op">&gt;</span><span class="op">&gt;</span> [<span class="ident">LastFuture</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="self">Self</span>::<span class="ident">Item</span><span class="op">&gt;</span>]
+        ) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">impl</span> <span class="ident">Future</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span><span class="ident">::Item</span><span class="op">&gt;</span><span class="op">&gt;</span> [<span class="ident">LastFuture</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="self">Self</span><span class="ident">::Item</span><span class="op">&gt;</span>]
         <span class="kw">where</span>
             <span class="self">Self</span>: <span class="ident">Sized</span>,
         {
-            <span class="ident">LastFuture</span>::<span class="ident">new</span>(<span class="self">self</span>)
+            <span class="ident">LastFuture::new</span>(<span class="self">self</span>)
         }
 
         <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">r#&quot;
@@ -3178,7 +3178,7 @@
         <span class="kw">where</span>
             <span class="self">Self</span>: <span class="ident">Sized</span>,
         {
-            <span class="ident">Fuse</span>::<span class="ident">new</span>(<span class="self">self</span>)
+            <span class="ident">Fuse::new</span>(<span class="self">self</span>)
         }
 
         <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">r#&quot;
@@ -3207,9 +3207,9 @@
         <span class="kw">fn</span> <span class="ident">filter</span><span class="op">&lt;</span><span class="ident">P</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">predicate</span>: <span class="ident">P</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Filter</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">P</span><span class="op">&gt;</span>
         <span class="kw">where</span>
             <span class="self">Self</span>: <span class="ident">Sized</span>,
-            <span class="ident">P</span>: <span class="ident">FnMut</span>(<span class="kw-2">&amp;</span><span class="self">Self</span>::<span class="ident">Item</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span>,
+            <span class="ident">P</span>: <span class="ident">FnMut</span>(<span class="kw-2">&amp;</span><span class="self">Self</span><span class="ident">::Item</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span>,
         {
-            <span class="ident">Filter</span>::<span class="ident">new</span>(<span class="self">self</span>, <span class="ident">predicate</span>)
+            <span class="ident">Filter::new</span>(<span class="self">self</span>, <span class="ident">predicate</span>)
         }
 
         <span class="attribute">#[<span class="ident">doc</span><span class="op">=</span> <span class="string">r#&quot;
@@ -3248,9 +3248,9 @@
             <span class="kw">where</span>
                 <span class="self">Self</span>: <span class="ident">Sized</span>,
                 <span class="ident">U</span>: <span class="ident">IntoStream</span>,
-                <span class="ident">F</span>: <span class="ident">FnMut</span>(<span class="self">Self</span>::<span class="ident">Item</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">U</span>,
+                <span class="ident">F</span>: <span class="ident">FnMut</span>(<span class="self">Self</span><span class="ident">::Item</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">U</span>,
         {
-            <span class="ident">FlatMap</span>::<span class="ident">new</span>(<span class="self">self</span>, <span class="ident">f</span>)
+            <span class="ident">FlatMap::new</span>(<span class="self">self</span>, <span class="ident">f</span>)
         }
 
         <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">r#&quot;
@@ -3281,9 +3281,9 @@
         <span class="kw">fn</span> <span class="ident">flatten</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Flatten</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>
         <span class="kw">where</span>
             <span class="self">Self</span>: <span class="ident">Sized</span>,
-            <span class="self">Self</span>::<span class="ident">Item</span>: <span class="ident">IntoStream</span>,
+            <span class="self">Self</span><span class="ident">::Item</span>: <span class="ident">IntoStream</span>,
         {
-            <span class="ident">Flatten</span>::<span class="ident">new</span>(<span class="self">self</span>)
+            <span class="ident">Flatten::new</span>(<span class="self">self</span>)
         }
 
         <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">r#&quot;
@@ -3322,9 +3322,9 @@
         <span class="kw">fn</span> <span class="ident">filter_map</span><span class="op">&lt;</span><span class="ident">B</span>, <span class="ident">F</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">f</span>: <span class="ident">F</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">FilterMap</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">F</span><span class="op">&gt;</span>
         <span class="kw">where</span>
             <span class="self">Self</span>: <span class="ident">Sized</span>,
-            <span class="ident">F</span>: <span class="ident">FnMut</span>(<span class="self">Self</span>::<span class="ident">Item</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span>,
+            <span class="ident">F</span>: <span class="ident">FnMut</span>(<span class="self">Self</span><span class="ident">::Item</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span>,
         {
-            <span class="ident">FilterMap</span>::<span class="ident">new</span>(<span class="self">self</span>, <span class="ident">f</span>)
+            <span class="ident">FilterMap::new</span>(<span class="self">self</span>, <span class="ident">f</span>)
         }
 
         <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">r#&quot;
@@ -3354,13 +3354,13 @@
         <span class="kw">fn</span> <span class="ident">min_by_key</span><span class="op">&lt;</span><span class="ident">B</span>, <span class="ident">F</span><span class="op">&gt;</span>(
             <span class="self">self</span>,
             <span class="ident">key_by</span>: <span class="ident">F</span>,
-        ) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">impl</span> <span class="ident">Future</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span>::<span class="ident">Item</span><span class="op">&gt;</span><span class="op">&gt;</span> [<span class="ident">MinByKeyFuture</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="self">Self</span>::<span class="ident">Item</span>, <span class="ident">F</span><span class="op">&gt;</span>]
+        ) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">impl</span> <span class="ident">Future</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span><span class="ident">::Item</span><span class="op">&gt;</span><span class="op">&gt;</span> [<span class="ident">MinByKeyFuture</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="self">Self</span><span class="ident">::Item</span>, <span class="ident">F</span><span class="op">&gt;</span>]
         <span class="kw">where</span>
             <span class="self">Self</span>: <span class="ident">Sized</span>,
             <span class="ident">B</span>: <span class="ident">Ord</span>,
-            <span class="ident">F</span>: <span class="ident">FnMut</span>(<span class="kw-2">&amp;</span><span class="self">Self</span>::<span class="ident">Item</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">B</span>,
+            <span class="ident">F</span>: <span class="ident">FnMut</span>(<span class="kw-2">&amp;</span><span class="self">Self</span><span class="ident">::Item</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">B</span>,
         {
-            <span class="ident">MinByKeyFuture</span>::<span class="ident">new</span>(<span class="self">self</span>, <span class="ident">key_by</span>)
+            <span class="ident">MinByKeyFuture::new</span>(<span class="self">self</span>, <span class="ident">key_by</span>)
         }
 
         <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">r#&quot;
@@ -3390,13 +3390,13 @@
         <span class="kw">fn</span> <span class="ident">max_by_key</span><span class="op">&lt;</span><span class="ident">B</span>, <span class="ident">F</span><span class="op">&gt;</span>(
             <span class="self">self</span>,
             <span class="ident">key_by</span>: <span class="ident">F</span>,
-        ) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">impl</span> <span class="ident">Future</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span>::<span class="ident">Item</span><span class="op">&gt;</span><span class="op">&gt;</span> [<span class="ident">MaxByKeyFuture</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="self">Self</span>::<span class="ident">Item</span>, <span class="ident">F</span><span class="op">&gt;</span>]
+        ) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">impl</span> <span class="ident">Future</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span><span class="ident">::Item</span><span class="op">&gt;</span><span class="op">&gt;</span> [<span class="ident">MaxByKeyFuture</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="self">Self</span><span class="ident">::Item</span>, <span class="ident">F</span><span class="op">&gt;</span>]
         <span class="kw">where</span>
             <span class="self">Self</span>: <span class="ident">Sized</span>,
             <span class="ident">B</span>: <span class="ident">Ord</span>,
-            <span class="ident">F</span>: <span class="ident">FnMut</span>(<span class="kw-2">&amp;</span><span class="self">Self</span>::<span class="ident">Item</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">B</span>,
+            <span class="ident">F</span>: <span class="ident">FnMut</span>(<span class="kw-2">&amp;</span><span class="self">Self</span><span class="ident">::Item</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">B</span>,
         {
-            <span class="ident">MaxByKeyFuture</span>::<span class="ident">new</span>(<span class="self">self</span>, <span class="ident">key_by</span>)
+            <span class="ident">MaxByKeyFuture::new</span>(<span class="self">self</span>, <span class="ident">key_by</span>)
         }
 
         <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">r#&quot;
@@ -3429,12 +3429,12 @@
         <span class="kw">fn</span> <span class="ident">min_by</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>(
             <span class="self">self</span>,
             <span class="ident">compare</span>: <span class="ident">F</span>,
-        ) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">impl</span> <span class="ident">Future</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span>::<span class="ident">Item</span><span class="op">&gt;</span><span class="op">&gt;</span> [<span class="ident">MinByFuture</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">F</span>, <span class="self">Self</span>::<span class="ident">Item</span><span class="op">&gt;</span>]
+        ) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">impl</span> <span class="ident">Future</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span><span class="ident">::Item</span><span class="op">&gt;</span><span class="op">&gt;</span> [<span class="ident">MinByFuture</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">F</span>, <span class="self">Self</span><span class="ident">::Item</span><span class="op">&gt;</span>]
         <span class="kw">where</span>
             <span class="self">Self</span>: <span class="ident">Sized</span>,
-            <span class="ident">F</span>: <span class="ident">FnMut</span>(<span class="kw-2">&amp;</span><span class="self">Self</span>::<span class="ident">Item</span>, <span class="kw-2">&amp;</span><span class="self">Self</span>::<span class="ident">Item</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Ordering</span>,
+            <span class="ident">F</span>: <span class="ident">FnMut</span>(<span class="kw-2">&amp;</span><span class="self">Self</span><span class="ident">::Item</span>, <span class="kw-2">&amp;</span><span class="self">Self</span><span class="ident">::Item</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Ordering</span>,
         {
-            <span class="ident">MinByFuture</span>::<span class="ident">new</span>(<span class="self">self</span>, <span class="ident">compare</span>)
+            <span class="ident">MinByFuture::new</span>(<span class="self">self</span>, <span class="ident">compare</span>)
         }
 
         <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">r#&quot;
@@ -3462,12 +3462,12 @@
         &quot;#</span>]</span>
         <span class="kw">fn</span> <span class="ident">max</span>(
             <span class="self">self</span>,
-        ) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">impl</span> <span class="ident">Future</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span>::<span class="ident">Item</span><span class="op">&gt;</span><span class="op">&gt;</span> [<span class="ident">MaxFuture</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="self">Self</span>::<span class="ident">Item</span><span class="op">&gt;</span>]
+        ) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">impl</span> <span class="ident">Future</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span><span class="ident">::Item</span><span class="op">&gt;</span><span class="op">&gt;</span> [<span class="ident">MaxFuture</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="self">Self</span><span class="ident">::Item</span><span class="op">&gt;</span>]
         <span class="kw">where</span>
             <span class="self">Self</span>: <span class="ident">Sized</span>,
-            <span class="self">Self</span>::<span class="ident">Item</span>: <span class="ident">Ord</span>,
+            <span class="self">Self</span><span class="ident">::Item</span>: <span class="ident">Ord</span>,
         {
-            <span class="ident">MaxFuture</span>::<span class="ident">new</span>(<span class="self">self</span>)
+            <span class="ident">MaxFuture::new</span>(<span class="self">self</span>)
         }
 
                 <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">r#&quot;
@@ -3495,12 +3495,12 @@
         &quot;#</span>]</span>
         <span class="kw">fn</span> <span class="ident">min</span>(
             <span class="self">self</span>,
-        ) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">impl</span> <span class="ident">Future</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span>::<span class="ident">Item</span><span class="op">&gt;</span><span class="op">&gt;</span> [<span class="ident">MinFuture</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="self">Self</span>::<span class="ident">Item</span><span class="op">&gt;</span>]
+        ) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">impl</span> <span class="ident">Future</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span><span class="ident">::Item</span><span class="op">&gt;</span><span class="op">&gt;</span> [<span class="ident">MinFuture</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="self">Self</span><span class="ident">::Item</span><span class="op">&gt;</span>]
         <span class="kw">where</span>
             <span class="self">Self</span>: <span class="ident">Sized</span>,
-            <span class="self">Self</span>::<span class="ident">Item</span>: <span class="ident">Ord</span>,
+            <span class="self">Self</span><span class="ident">::Item</span>: <span class="ident">Ord</span>,
         {
-            <span class="ident">MinFuture</span>::<span class="ident">new</span>(<span class="self">self</span>)
+            <span class="ident">MinFuture::new</span>(<span class="self">self</span>)
         }
 
          <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">r#&quot;
@@ -3533,12 +3533,12 @@
         <span class="kw">fn</span> <span class="ident">max_by</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>(
             <span class="self">self</span>,
             <span class="ident">compare</span>: <span class="ident">F</span>,
-        ) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">impl</span> <span class="ident">Future</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span>::<span class="ident">Item</span><span class="op">&gt;</span><span class="op">&gt;</span> [<span class="ident">MaxByFuture</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">F</span>, <span class="self">Self</span>::<span class="ident">Item</span><span class="op">&gt;</span>]
+        ) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">impl</span> <span class="ident">Future</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span><span class="ident">::Item</span><span class="op">&gt;</span><span class="op">&gt;</span> [<span class="ident">MaxByFuture</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">F</span>, <span class="self">Self</span><span class="ident">::Item</span><span class="op">&gt;</span>]
         <span class="kw">where</span>
             <span class="self">Self</span>: <span class="ident">Sized</span>,
-            <span class="ident">F</span>: <span class="ident">FnMut</span>(<span class="kw-2">&amp;</span><span class="self">Self</span>::<span class="ident">Item</span>, <span class="kw-2">&amp;</span><span class="self">Self</span>::<span class="ident">Item</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Ordering</span>,
+            <span class="ident">F</span>: <span class="ident">FnMut</span>(<span class="kw-2">&amp;</span><span class="self">Self</span><span class="ident">::Item</span>, <span class="kw-2">&amp;</span><span class="self">Self</span><span class="ident">::Item</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Ordering</span>,
         {
-            <span class="ident">MaxByFuture</span>::<span class="ident">new</span>(<span class="self">self</span>, <span class="ident">compare</span>)
+            <span class="ident">MaxByFuture::new</span>(<span class="self">self</span>, <span class="ident">compare</span>)
         }
 
         <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">r#&quot;
@@ -3597,11 +3597,11 @@
         <span class="kw">fn</span> <span class="ident">nth</span>(
             <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
             <span class="ident">n</span>: <span class="ident">usize</span>,
-        ) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">impl</span> <span class="ident">Future</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span>::<span class="ident">Item</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;_</span> [<span class="ident">NthFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="self">Self</span><span class="op">&gt;</span>]
+        ) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">impl</span> <span class="ident">Future</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span><span class="ident">::Item</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;_</span> [<span class="ident">NthFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="self">Self</span><span class="op">&gt;</span>]
         <span class="kw">where</span>
             <span class="self">Self</span>: <span class="ident">Unpin</span> <span class="op">+</span> <span class="ident">Sized</span>,
         {
-            <span class="ident">NthFuture</span>::<span class="ident">new</span>(<span class="self">self</span>, <span class="ident">n</span>)
+            <span class="ident">NthFuture::new</span>(<span class="self">self</span>, <span class="ident">n</span>)
         }
 
         <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">r#&quot;
@@ -3653,12 +3653,12 @@
         <span class="kw">fn</span> <span class="ident">all</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>(
             <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
             <span class="ident">f</span>: <span class="ident">F</span>,
-        ) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">impl</span> <span class="ident">Future</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> <span class="ident">bool</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;_</span> [<span class="ident">AllFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="self">Self</span>, <span class="ident">F</span>, <span class="self">Self</span>::<span class="ident">Item</span><span class="op">&gt;</span>]
+        ) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">impl</span> <span class="ident">Future</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> <span class="ident">bool</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;_</span> [<span class="ident">AllFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="self">Self</span>, <span class="ident">F</span>, <span class="self">Self</span><span class="ident">::Item</span><span class="op">&gt;</span>]
         <span class="kw">where</span>
             <span class="self">Self</span>: <span class="ident">Unpin</span> <span class="op">+</span> <span class="ident">Sized</span>,
-            <span class="ident">F</span>: <span class="ident">FnMut</span>(<span class="self">Self</span>::<span class="ident">Item</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span>,
+            <span class="ident">F</span>: <span class="ident">FnMut</span>(<span class="self">Self</span><span class="ident">::Item</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span>,
         {
-            <span class="ident">AllFuture</span>::<span class="ident">new</span>(<span class="self">self</span>, <span class="ident">f</span>)
+            <span class="ident">AllFuture::new</span>(<span class="self">self</span>, <span class="ident">f</span>)
         }
 
         <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">r#&quot;
@@ -3702,12 +3702,12 @@
         <span class="kw">fn</span> <span class="ident">find</span><span class="op">&lt;</span><span class="ident">P</span><span class="op">&gt;</span>(
             <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
             <span class="ident">p</span>: <span class="ident">P</span>,
-        ) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">impl</span> <span class="ident">Future</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span>::<span class="ident">Item</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;_</span> [<span class="ident">FindFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="self">Self</span>, <span class="ident">P</span><span class="op">&gt;</span>]
+        ) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">impl</span> <span class="ident">Future</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span><span class="ident">::Item</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;_</span> [<span class="ident">FindFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="self">Self</span>, <span class="ident">P</span><span class="op">&gt;</span>]
         <span class="kw">where</span>
             <span class="self">Self</span>: <span class="ident">Unpin</span> <span class="op">+</span> <span class="ident">Sized</span>,
-            <span class="ident">P</span>: <span class="ident">FnMut</span>(<span class="kw-2">&amp;</span><span class="self">Self</span>::<span class="ident">Item</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span>,
+            <span class="ident">P</span>: <span class="ident">FnMut</span>(<span class="kw-2">&amp;</span><span class="self">Self</span><span class="ident">::Item</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span>,
         {
-            <span class="ident">FindFuture</span>::<span class="ident">new</span>(<span class="self">self</span>, <span class="ident">p</span>)
+            <span class="ident">FindFuture::new</span>(<span class="self">self</span>, <span class="ident">p</span>)
         }
 
         <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">r#&quot;
@@ -3733,9 +3733,9 @@
         ) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">impl</span> <span class="ident">Future</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;_</span> [<span class="ident">FindMapFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="self">Self</span>, <span class="ident">F</span><span class="op">&gt;</span>]
         <span class="kw">where</span>
             <span class="self">Self</span>: <span class="ident">Unpin</span> <span class="op">+</span> <span class="ident">Sized</span>,
-            <span class="ident">F</span>: <span class="ident">FnMut</span>(<span class="self">Self</span>::<span class="ident">Item</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span>,
+            <span class="ident">F</span>: <span class="ident">FnMut</span>(<span class="self">Self</span><span class="ident">::Item</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span>,
         {
-            <span class="ident">FindMapFuture</span>::<span class="ident">new</span>(<span class="self">self</span>, <span class="ident">f</span>)
+            <span class="ident">FindMapFuture::new</span>(<span class="self">self</span>, <span class="ident">f</span>)
         }
 
         <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">r#&quot;
@@ -3767,9 +3767,9 @@
         ) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">impl</span> <span class="ident">Future</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> <span class="ident">B</span><span class="op">&gt;</span> [<span class="ident">FoldFuture</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">F</span>, <span class="ident">B</span><span class="op">&gt;</span>]
         <span class="kw">where</span>
             <span class="self">Self</span>: <span class="ident">Sized</span>,
-            <span class="ident">F</span>: <span class="ident">FnMut</span>(<span class="ident">B</span>, <span class="self">Self</span>::<span class="ident">Item</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">B</span>,
+            <span class="ident">F</span>: <span class="ident">FnMut</span>(<span class="ident">B</span>, <span class="self">Self</span><span class="ident">::Item</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">B</span>,
         {
-            <span class="ident">FoldFuture</span>::<span class="ident">new</span>(<span class="self">self</span>, <span class="ident">init</span>, <span class="ident">f</span>)
+            <span class="ident">FoldFuture::new</span>(<span class="self">self</span>, <span class="ident">init</span>, <span class="ident">f</span>)
         }
 
         <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">r#&quot;
@@ -3804,10 +3804,10 @@
         ) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">impl</span> <span class="ident">Future</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> (<span class="ident">B</span>, <span class="ident">B</span>)<span class="op">&gt;</span> [<span class="ident">PartitionFuture</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">F</span>, <span class="ident">B</span><span class="op">&gt;</span>]
         <span class="kw">where</span>
             <span class="self">Self</span>: <span class="ident">Sized</span>,
-            <span class="ident">F</span>: <span class="ident">FnMut</span>(<span class="kw-2">&amp;</span><span class="self">Self</span>::<span class="ident">Item</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span>,
-            <span class="ident">B</span>: <span class="ident">Default</span> <span class="op">+</span> <span class="ident">Extend</span><span class="op">&lt;</span><span class="self">Self</span>::<span class="ident">Item</span><span class="op">&gt;</span>,
+            <span class="ident">F</span>: <span class="ident">FnMut</span>(<span class="kw-2">&amp;</span><span class="self">Self</span><span class="ident">::Item</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span>,
+            <span class="ident">B</span>: <span class="ident">Default</span> <span class="op">+</span> <span class="ident">Extend</span><span class="op">&lt;</span><span class="self">Self</span><span class="ident">::Item</span><span class="op">&gt;</span>,
         {
-            <span class="ident">PartitionFuture</span>::<span class="ident">new</span>(<span class="self">self</span>, <span class="ident">f</span>)
+            <span class="ident">PartitionFuture::new</span>(<span class="self">self</span>, <span class="ident">f</span>)
         }
 
         <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">r#&quot;
@@ -3840,9 +3840,9 @@
         ) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">impl</span> <span class="ident">Future</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> ()<span class="op">&gt;</span> [<span class="ident">ForEachFuture</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">F</span><span class="op">&gt;</span>]
         <span class="kw">where</span>
             <span class="self">Self</span>: <span class="ident">Sized</span>,
-            <span class="ident">F</span>: <span class="ident">FnMut</span>(<span class="self">Self</span>::<span class="ident">Item</span>),
+            <span class="ident">F</span>: <span class="ident">FnMut</span>(<span class="self">Self</span><span class="ident">::Item</span>),
         {
-            <span class="ident">ForEachFuture</span>::<span class="ident">new</span>(<span class="self">self</span>, <span class="ident">f</span>)
+            <span class="ident">ForEachFuture::new</span>(<span class="self">self</span>, <span class="ident">f</span>)
         }
 
         <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">r#&quot;
@@ -3893,12 +3893,12 @@
         <span class="kw">fn</span> <span class="ident">any</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>(
             <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
             <span class="ident">f</span>: <span class="ident">F</span>,
-        ) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">impl</span> <span class="ident">Future</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> <span class="ident">bool</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;_</span> [<span class="ident">AnyFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="self">Self</span>, <span class="ident">F</span>, <span class="self">Self</span>::<span class="ident">Item</span><span class="op">&gt;</span>]
+        ) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">impl</span> <span class="ident">Future</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> <span class="ident">bool</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;_</span> [<span class="ident">AnyFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="self">Self</span>, <span class="ident">F</span>, <span class="self">Self</span><span class="ident">::Item</span><span class="op">&gt;</span>]
         <span class="kw">where</span>
             <span class="self">Self</span>: <span class="ident">Unpin</span> <span class="op">+</span> <span class="ident">Sized</span>,
-            <span class="ident">F</span>: <span class="ident">FnMut</span>(<span class="self">Self</span>::<span class="ident">Item</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span>,
+            <span class="ident">F</span>: <span class="ident">FnMut</span>(<span class="self">Self</span><span class="ident">::Item</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span>,
         {
-            <span class="ident">AnyFuture</span>::<span class="ident">new</span>(<span class="self">self</span>, <span class="ident">f</span>)
+            <span class="ident">AnyFuture::new</span>(<span class="self">self</span>, <span class="ident">f</span>)
         }
 
         <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">r#&quot;
@@ -3989,9 +3989,9 @@
         <span class="kw">fn</span> <span class="ident">scan</span><span class="op">&lt;</span><span class="ident">St</span>, <span class="ident">B</span>, <span class="ident">F</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">initial_state</span>: <span class="ident">St</span>, <span class="ident">f</span>: <span class="ident">F</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Scan</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">St</span>, <span class="ident">F</span><span class="op">&gt;</span>
         <span class="kw">where</span>
             <span class="self">Self</span>: <span class="ident">Sized</span>,
-            <span class="ident">F</span>: <span class="ident">FnMut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">St</span>, <span class="self">Self</span>::<span class="ident">Item</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span>,
+            <span class="ident">F</span>: <span class="ident">FnMut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">St</span>, <span class="self">Self</span><span class="ident">::Item</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span>,
         {
-            <span class="ident">Scan</span>::<span class="ident">new</span>(<span class="self">self</span>, <span class="ident">initial_state</span>, <span class="ident">f</span>)
+            <span class="ident">Scan::new</span>(<span class="self">self</span>, <span class="ident">initial_state</span>, <span class="ident">f</span>)
         }
 
         <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">r#&quot;
@@ -4024,9 +4024,9 @@
         <span class="kw">fn</span> <span class="ident">skip_while</span><span class="op">&lt;</span><span class="ident">P</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">predicate</span>: <span class="ident">P</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">SkipWhile</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">P</span><span class="op">&gt;</span>
         <span class="kw">where</span>
             <span class="self">Self</span>: <span class="ident">Sized</span>,
-            <span class="ident">P</span>: <span class="ident">FnMut</span>(<span class="kw-2">&amp;</span><span class="self">Self</span>::<span class="ident">Item</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span>,
+            <span class="ident">P</span>: <span class="ident">FnMut</span>(<span class="kw-2">&amp;</span><span class="self">Self</span><span class="ident">::Item</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span>,
         {
-            <span class="ident">SkipWhile</span>::<span class="ident">new</span>(<span class="self">self</span>, <span class="ident">predicate</span>)
+            <span class="ident">SkipWhile::new</span>(<span class="self">self</span>, <span class="ident">predicate</span>)
         }
 
         <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">r#&quot;
@@ -4053,7 +4053,7 @@
         <span class="kw">where</span>
             <span class="self">Self</span>: <span class="ident">Sized</span>,
         {
-            <span class="ident">Skip</span>::<span class="ident">new</span>(<span class="self">self</span>, <span class="ident">n</span>)
+            <span class="ident">Skip::new</span>(<span class="self">self</span>, <span class="ident">n</span>)
         }
 
         <span class="attribute">#[<span class="ident">doc</span><span class="op">=</span><span class="string">r#&quot;
@@ -4094,7 +4094,7 @@
         <span class="kw">where</span>
             <span class="self">Self</span>: <span class="ident">Stream</span> <span class="op">+</span> <span class="ident">Sized</span>,
         {
-            <span class="ident">Timeout</span>::<span class="ident">new</span>(<span class="self">self</span>, <span class="ident">dur</span>)
+            <span class="ident">Timeout::new</span>(<span class="self">self</span>, <span class="ident">dur</span>)
         }
 
         <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">r#&quot;
@@ -4132,9 +4132,9 @@
         ) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">impl</span> <span class="ident">Future</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">E</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;_</span> [<span class="ident">TryFoldFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="self">Self</span>, <span class="ident">F</span>, <span class="ident">T</span><span class="op">&gt;</span>]
         <span class="kw">where</span>
             <span class="self">Self</span>: <span class="ident">Unpin</span> <span class="op">+</span> <span class="ident">Sized</span>,
-            <span class="ident">F</span>: <span class="ident">FnMut</span>(<span class="ident">B</span>, <span class="self">Self</span>::<span class="ident">Item</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">E</span><span class="op">&gt;</span>,
+            <span class="ident">F</span>: <span class="ident">FnMut</span>(<span class="ident">B</span>, <span class="self">Self</span><span class="ident">::Item</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">E</span><span class="op">&gt;</span>,
         {
-            <span class="ident">TryFoldFuture</span>::<span class="ident">new</span>(<span class="self">self</span>, <span class="ident">init</span>, <span class="ident">f</span>)
+            <span class="ident">TryFoldFuture::new</span>(<span class="self">self</span>, <span class="ident">init</span>, <span class="ident">f</span>)
         }
 
         <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">r#&quot;
@@ -4177,9 +4177,9 @@
         ) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">impl</span> <span class="ident">Future</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> <span class="ident">E</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;a</span> [<span class="ident">TryForEachFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="self">Self</span>, <span class="ident">F</span><span class="op">&gt;</span>]
         <span class="kw">where</span>
             <span class="self">Self</span>: <span class="ident">Unpin</span> <span class="op">+</span> <span class="ident">Sized</span>,
-            <span class="ident">F</span>: <span class="ident">FnMut</span>(<span class="self">Self</span>::<span class="ident">Item</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">E</span><span class="op">&gt;</span>,
+            <span class="ident">F</span>: <span class="ident">FnMut</span>(<span class="self">Self</span><span class="ident">::Item</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">E</span><span class="op">&gt;</span>,
         {
-            <span class="ident">TryForEachFuture</span>::<span class="ident">new</span>(<span class="self">self</span>, <span class="ident">f</span>)
+            <span class="ident">TryForEachFuture::new</span>(<span class="self">self</span>, <span class="ident">f</span>)
         }
 
         <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">r#&quot;
@@ -4224,7 +4224,7 @@
             <span class="self">Self</span>: <span class="ident">Sized</span>,
             <span class="ident">U</span>: <span class="ident">Stream</span>,
         {
-            <span class="ident">Zip</span>::<span class="ident">new</span>(<span class="self">self</span>, <span class="ident">other</span>)
+            <span class="ident">Zip::new</span>(<span class="self">self</span>, <span class="ident">other</span>)
         }
 
         <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">r#&quot;
@@ -4262,7 +4262,7 @@
         <span class="ident">FromB</span>: <span class="ident">Default</span> <span class="op">+</span> <span class="ident">Extend</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span>,
         <span class="self">Self</span>: <span class="ident">Stream</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> (<span class="ident">A</span>, <span class="ident">B</span>)<span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Sized</span>,
         {
-            <span class="ident">UnzipFuture</span>::<span class="ident">new</span>(<span class="self">self</span>)
+            <span class="ident">UnzipFuture::new</span>(<span class="self">self</span>)
         }
 
         <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">r#&quot;
@@ -4323,10 +4323,10 @@
         ) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">impl</span> <span class="ident">Future</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> <span class="ident">B</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;a</span> [<span class="ident">Pin</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Future</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> <span class="ident">B</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;a</span> <span class="op">+</span> <span class="ident">Send</span><span class="op">&gt;</span><span class="op">&gt;</span>]
         <span class="kw">where</span>
             <span class="self">Self</span>: <span class="ident">Sized</span> <span class="op">+</span> <span class="lifetime">&#39;a</span> <span class="op">+</span> <span class="ident">Send</span>,
-            <span class="ident">B</span>: <span class="ident">FromStream</span><span class="op">&lt;</span><span class="self">Self</span>::<span class="ident">Item</span><span class="op">&gt;</span>,
-            <span class="self">Self</span>::<span class="ident">Item</span>: <span class="ident">Send</span>,
+            <span class="ident">B</span>: <span class="ident">FromStream</span><span class="op">&lt;</span><span class="self">Self</span><span class="ident">::Item</span><span class="op">&gt;</span>,
+            <span class="self">Self</span><span class="ident">::Item</span>: <span class="ident">Send</span>,
         {
-            <span class="ident">FromStream</span>::<span class="ident">from_stream</span>(<span class="self">self</span>)
+            <span class="ident">FromStream::from_stream</span>(<span class="self">self</span>)
         }
 
         <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">r#&quot;
@@ -4359,9 +4359,9 @@
         <span class="kw">fn</span> <span class="ident">merge</span><span class="op">&lt;</span><span class="ident">U</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">other</span>: <span class="ident">U</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Merge</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">U</span><span class="op">&gt;</span>
         <span class="kw">where</span>
             <span class="self">Self</span>: <span class="ident">Sized</span>,
-            <span class="ident">U</span>: <span class="ident">Stream</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="self">Self</span>::<span class="ident">Item</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Sized</span>,
+            <span class="ident">U</span>: <span class="ident">Stream</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="self">Self</span><span class="ident">::Item</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Sized</span>,
         {
-            <span class="ident">Merge</span>::<span class="ident">new</span>(<span class="self">self</span>, <span class="ident">other</span>)
+            <span class="ident">Merge::new</span>(<span class="self">self</span>, <span class="ident">other</span>)
         }
 
         <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">r#&quot;
@@ -4398,9 +4398,9 @@
         <span class="kw">where</span>
             <span class="self">Self</span>: <span class="ident">Sized</span> <span class="op">+</span> <span class="ident">Stream</span>,
             <span class="ident">S</span>: <span class="ident">Stream</span>,
-            <span class="op">&lt;</span><span class="self">Self</span> <span class="kw">as</span> <span class="ident">Stream</span><span class="op">&gt;</span>::<span class="ident">Item</span>: <span class="ident">PartialOrd</span><span class="op">&lt;</span><span class="ident">S</span>::<span class="ident">Item</span><span class="op">&gt;</span>,
+            <span class="op">&lt;</span><span class="self">Self</span> <span class="kw">as</span> <span class="ident">Stream</span><span class="op">&gt;</span><span class="ident">::Item</span>: <span class="ident">PartialOrd</span><span class="op">&lt;</span><span class="ident">S::Item</span><span class="op">&gt;</span>,
         {
-            <span class="ident">PartialCmpFuture</span>::<span class="ident">new</span>(<span class="self">self</span>, <span class="ident">other</span>)
+            <span class="ident">PartialCmpFuture::new</span>(<span class="self">self</span>, <span class="ident">other</span>)
         }
 
         <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">r#&quot;
@@ -4437,9 +4437,9 @@
         ) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">impl</span> <span class="ident">Future</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;_</span> [<span class="ident">PositionFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="self">Self</span>, <span class="ident">P</span><span class="op">&gt;</span>]
         <span class="kw">where</span>
             <span class="self">Self</span>: <span class="ident">Unpin</span> <span class="op">+</span> <span class="ident">Sized</span>,
-            <span class="ident">P</span>: <span class="ident">FnMut</span>(<span class="self">Self</span>::<span class="ident">Item</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span>,
+            <span class="ident">P</span>: <span class="ident">FnMut</span>(<span class="self">Self</span><span class="ident">::Item</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span>,
         {
-            <span class="ident">PositionFuture</span>::<span class="ident">new</span>(<span class="self">self</span>, <span class="ident">predicate</span>)
+            <span class="ident">PositionFuture::new</span>(<span class="self">self</span>, <span class="ident">predicate</span>)
         }
 
         <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">r#&quot;
@@ -4476,9 +4476,9 @@
         <span class="kw">where</span>
             <span class="self">Self</span>: <span class="ident">Sized</span> <span class="op">+</span> <span class="ident">Stream</span>,
             <span class="ident">S</span>: <span class="ident">Stream</span>,
-            <span class="op">&lt;</span><span class="self">Self</span> <span class="kw">as</span> <span class="ident">Stream</span><span class="op">&gt;</span>::<span class="ident">Item</span>: <span class="ident">Ord</span>
+            <span class="op">&lt;</span><span class="self">Self</span> <span class="kw">as</span> <span class="ident">Stream</span><span class="op">&gt;</span><span class="ident">::Item</span>: <span class="ident">Ord</span>
         {
-            <span class="ident">CmpFuture</span>::<span class="ident">new</span>(<span class="self">self</span>, <span class="ident">other</span>)
+            <span class="ident">CmpFuture::new</span>(<span class="self">self</span>, <span class="ident">other</span>)
         }
 
         <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">r#&quot;
@@ -4507,7 +4507,7 @@
         <span class="kw">where</span>
             <span class="self">Self</span>: <span class="ident">Sized</span>,
         {
-            <span class="ident">CountFuture</span>::<span class="ident">new</span>(<span class="self">self</span>)
+            <span class="ident">CountFuture::new</span>(<span class="self">self</span>)
         }
 
         <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">r#&quot;
@@ -4542,9 +4542,9 @@
         <span class="kw">where</span>
             <span class="self">Self</span>: <span class="ident">Sized</span>,
             <span class="ident">S</span>: <span class="ident">Sized</span> <span class="op">+</span> <span class="ident">Stream</span>,
-            <span class="op">&lt;</span><span class="self">Self</span> <span class="kw">as</span> <span class="ident">Stream</span><span class="op">&gt;</span>::<span class="ident">Item</span>: <span class="ident">PartialEq</span><span class="op">&lt;</span><span class="ident">S</span>::<span class="ident">Item</span><span class="op">&gt;</span>,
+            <span class="op">&lt;</span><span class="self">Self</span> <span class="kw">as</span> <span class="ident">Stream</span><span class="op">&gt;</span><span class="ident">::Item</span>: <span class="ident">PartialEq</span><span class="op">&lt;</span><span class="ident">S::Item</span><span class="op">&gt;</span>,
         {
-            <span class="ident">NeFuture</span>::<span class="ident">new</span>(<span class="self">self</span>, <span class="ident">other</span>)
+            <span class="ident">NeFuture::new</span>(<span class="self">self</span>, <span class="ident">other</span>)
         }
 
         <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">r#&quot;
@@ -4579,9 +4579,9 @@
         <span class="kw">where</span>
             <span class="self">Self</span>: <span class="ident">Sized</span> <span class="op">+</span> <span class="ident">Stream</span>,
             <span class="ident">S</span>: <span class="ident">Stream</span>,
-            <span class="op">&lt;</span><span class="self">Self</span> <span class="kw">as</span> <span class="ident">Stream</span><span class="op">&gt;</span>::<span class="ident">Item</span>: <span class="ident">PartialOrd</span><span class="op">&lt;</span><span class="ident">S</span>::<span class="ident">Item</span><span class="op">&gt;</span>,
+            <span class="op">&lt;</span><span class="self">Self</span> <span class="kw">as</span> <span class="ident">Stream</span><span class="op">&gt;</span><span class="ident">::Item</span>: <span class="ident">PartialOrd</span><span class="op">&lt;</span><span class="ident">S::Item</span><span class="op">&gt;</span>,
         {
-            <span class="ident">GeFuture</span>::<span class="ident">new</span>(<span class="self">self</span>, <span class="ident">other</span>)
+            <span class="ident">GeFuture::new</span>(<span class="self">self</span>, <span class="ident">other</span>)
         }
 
         <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">r#&quot;
@@ -4616,9 +4616,9 @@
         <span class="kw">where</span>
             <span class="self">Self</span>: <span class="ident">Sized</span> <span class="op">+</span> <span class="ident">Stream</span>,
             <span class="ident">S</span>: <span class="ident">Sized</span> <span class="op">+</span> <span class="ident">Stream</span>,
-            <span class="op">&lt;</span><span class="self">Self</span> <span class="kw">as</span> <span class="ident">Stream</span><span class="op">&gt;</span>::<span class="ident">Item</span>: <span class="ident">PartialEq</span><span class="op">&lt;</span><span class="ident">S</span>::<span class="ident">Item</span><span class="op">&gt;</span>,
+            <span class="op">&lt;</span><span class="self">Self</span> <span class="kw">as</span> <span class="ident">Stream</span><span class="op">&gt;</span><span class="ident">::Item</span>: <span class="ident">PartialEq</span><span class="op">&lt;</span><span class="ident">S::Item</span><span class="op">&gt;</span>,
         {
-            <span class="ident">EqFuture</span>::<span class="ident">new</span>(<span class="self">self</span>, <span class="ident">other</span>)
+            <span class="ident">EqFuture::new</span>(<span class="self">self</span>, <span class="ident">other</span>)
         }
 
         <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">r#&quot;
@@ -4653,9 +4653,9 @@
         <span class="kw">where</span>
             <span class="self">Self</span>: <span class="ident">Sized</span> <span class="op">+</span> <span class="ident">Stream</span>,
             <span class="ident">S</span>: <span class="ident">Stream</span>,
-            <span class="op">&lt;</span><span class="self">Self</span> <span class="kw">as</span> <span class="ident">Stream</span><span class="op">&gt;</span>::<span class="ident">Item</span>: <span class="ident">PartialOrd</span><span class="op">&lt;</span><span class="ident">S</span>::<span class="ident">Item</span><span class="op">&gt;</span>,
+            <span class="op">&lt;</span><span class="self">Self</span> <span class="kw">as</span> <span class="ident">Stream</span><span class="op">&gt;</span><span class="ident">::Item</span>: <span class="ident">PartialOrd</span><span class="op">&lt;</span><span class="ident">S::Item</span><span class="op">&gt;</span>,
         {
-            <span class="ident">GtFuture</span>::<span class="ident">new</span>(<span class="self">self</span>, <span class="ident">other</span>)
+            <span class="ident">GtFuture::new</span>(<span class="self">self</span>, <span class="ident">other</span>)
         }
 
         <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">r#&quot;
@@ -4690,9 +4690,9 @@
         <span class="kw">where</span>
             <span class="self">Self</span>: <span class="ident">Sized</span> <span class="op">+</span> <span class="ident">Stream</span>,
             <span class="ident">S</span>: <span class="ident">Stream</span>,
-            <span class="op">&lt;</span><span class="self">Self</span> <span class="kw">as</span> <span class="ident">Stream</span><span class="op">&gt;</span>::<span class="ident">Item</span>: <span class="ident">PartialOrd</span><span class="op">&lt;</span><span class="ident">S</span>::<span class="ident">Item</span><span class="op">&gt;</span>,
+            <span class="op">&lt;</span><span class="self">Self</span> <span class="kw">as</span> <span class="ident">Stream</span><span class="op">&gt;</span><span class="ident">::Item</span>: <span class="ident">PartialOrd</span><span class="op">&lt;</span><span class="ident">S::Item</span><span class="op">&gt;</span>,
         {
-            <span class="ident">LeFuture</span>::<span class="ident">new</span>(<span class="self">self</span>, <span class="ident">other</span>)
+            <span class="ident">LeFuture::new</span>(<span class="self">self</span>, <span class="ident">other</span>)
         }
 
         <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">r#&quot;
@@ -4727,9 +4727,9 @@
         <span class="kw">where</span>
             <span class="self">Self</span>: <span class="ident">Sized</span> <span class="op">+</span> <span class="ident">Stream</span>,
             <span class="ident">S</span>: <span class="ident">Stream</span>,
-            <span class="op">&lt;</span><span class="self">Self</span> <span class="kw">as</span> <span class="ident">Stream</span><span class="op">&gt;</span>::<span class="ident">Item</span>: <span class="ident">PartialOrd</span><span class="op">&lt;</span><span class="ident">S</span>::<span class="ident">Item</span><span class="op">&gt;</span>,
+            <span class="op">&lt;</span><span class="self">Self</span> <span class="kw">as</span> <span class="ident">Stream</span><span class="op">&gt;</span><span class="ident">::Item</span>: <span class="ident">PartialOrd</span><span class="op">&lt;</span><span class="ident">S::Item</span><span class="op">&gt;</span>,
         {
-            <span class="ident">LtFuture</span>::<span class="ident">new</span>(<span class="self">self</span>, <span class="ident">other</span>)
+            <span class="ident">LtFuture::new</span>(<span class="self">self</span>, <span class="ident">other</span>)
         }
 
         <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">r#&quot;
@@ -4770,9 +4770,9 @@
         ) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">impl</span> <span class="ident">Future</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> <span class="ident">S</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;a</span> [<span class="ident">Pin</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Future</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> <span class="ident">S</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>]
         <span class="kw">where</span>
             <span class="self">Self</span>: <span class="ident">Sized</span> <span class="op">+</span> <span class="ident">Stream</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="ident">S</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;a</span>,
-            <span class="ident">S</span>: <span class="ident">Sum</span><span class="op">&lt;</span><span class="self">Self</span>::<span class="ident">Item</span><span class="op">&gt;</span>,
+            <span class="ident">S</span>: <span class="ident">Sum</span><span class="op">&lt;</span><span class="self">Self</span><span class="ident">::Item</span><span class="op">&gt;</span>,
         {
-            <span class="ident">Sum</span>::<span class="ident">sum</span>(<span class="self">self</span>)
+            <span class="ident">Sum::sum</span>(<span class="self">self</span>)
         }
 
         <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">r#&quot;
@@ -4818,46 +4818,46 @@
             <span class="self">Self</span>: <span class="ident">Sized</span> <span class="op">+</span> <span class="ident">Stream</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="ident">P</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;a</span>,
             <span class="ident">P</span>: <span class="ident">Product</span>,
         {
-            <span class="ident">Product</span>::<span class="ident">product</span>(<span class="self">self</span>)
+            <span class="ident">Product::product</span>(<span class="self">self</span>)
         }
     }
 
     <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">S</span>: <span class="ident">Stream</span> <span class="op">+</span> <span class="ident">Unpin</span> <span class="op">+</span> <span class="question-mark">?</span><span class="ident">Sized</span><span class="op">&gt;</span> <span class="ident">Stream</span> <span class="kw">for</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span> {
-        <span class="kw">type</span> <span class="ident">Item</span> <span class="op">=</span> <span class="ident">S</span>::<span class="ident">Item</span>;
+        <span class="kw">type</span> <span class="ident">Item</span> <span class="op">=</span> <span class="ident">S::Item</span>;
 
-        <span class="kw">fn</span> <span class="ident">poll_next</span>(<span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span>::<span class="ident">Item</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-            <span class="macro">unreachable</span><span class="macro">!</span>(<span class="string">&quot;this impl only appears in the rendered docs&quot;</span>)
+        <span class="kw">fn</span> <span class="ident">poll_next</span>(<span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span><span class="ident">::Item</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+            <span class="macro">unreachable!</span>(<span class="string">&quot;this impl only appears in the rendered docs&quot;</span>)
         }
     }
 
     <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">S</span>: <span class="ident">Stream</span> <span class="op">+</span> <span class="ident">Unpin</span> <span class="op">+</span> <span class="question-mark">?</span><span class="ident">Sized</span><span class="op">&gt;</span> <span class="ident">Stream</span> <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">S</span> {
-        <span class="kw">type</span> <span class="ident">Item</span> <span class="op">=</span> <span class="ident">S</span>::<span class="ident">Item</span>;
+        <span class="kw">type</span> <span class="ident">Item</span> <span class="op">=</span> <span class="ident">S::Item</span>;
 
-        <span class="kw">fn</span> <span class="ident">poll_next</span>(<span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span>::<span class="ident">Item</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-            <span class="macro">unreachable</span><span class="macro">!</span>(<span class="string">&quot;this impl only appears in the rendered docs&quot;</span>)
+        <span class="kw">fn</span> <span class="ident">poll_next</span>(<span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span><span class="ident">::Item</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+            <span class="macro">unreachable!</span>(<span class="string">&quot;this impl only appears in the rendered docs&quot;</span>)
         }
     }
 
     <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">P</span><span class="op">&gt;</span> <span class="ident">Stream</span> <span class="kw">for</span> <span class="ident">Pin</span><span class="op">&lt;</span><span class="ident">P</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="ident">P</span>: <span class="ident">DerefMut</span> <span class="op">+</span> <span class="ident">Unpin</span>,
-        <span class="op">&lt;</span><span class="ident">P</span> <span class="kw">as</span> <span class="ident">Deref</span><span class="op">&gt;</span>::<span class="ident">Target</span>: <span class="ident">Stream</span>,
+        <span class="op">&lt;</span><span class="ident">P</span> <span class="kw">as</span> <span class="ident">Deref</span><span class="op">&gt;</span><span class="ident">::Target</span>: <span class="ident">Stream</span>,
     {
-        <span class="kw">type</span> <span class="ident">Item</span> <span class="op">=</span> <span class="op">&lt;</span><span class="op">&lt;</span><span class="ident">P</span> <span class="kw">as</span> <span class="ident">Deref</span><span class="op">&gt;</span>::<span class="ident">Target</span> <span class="kw">as</span> <span class="ident">Stream</span><span class="op">&gt;</span>::<span class="ident">Item</span>;
+        <span class="kw">type</span> <span class="ident">Item</span> <span class="op">=</span> <span class="op">&lt;</span><span class="op">&lt;</span><span class="ident">P</span> <span class="kw">as</span> <span class="ident">Deref</span><span class="op">&gt;</span><span class="ident">::Target</span> <span class="kw">as</span> <span class="ident">Stream</span><span class="op">&gt;</span><span class="ident">::Item</span>;
 
-        <span class="kw">fn</span> <span class="ident">poll_next</span>(<span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span>::<span class="ident">Item</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-            <span class="macro">unreachable</span><span class="macro">!</span>(<span class="string">&quot;this impl only appears in the rendered docs&quot;</span>)
+        <span class="kw">fn</span> <span class="ident">poll_next</span>(<span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span><span class="ident">::Item</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+            <span class="macro">unreachable!</span>(<span class="string">&quot;this impl only appears in the rendered docs&quot;</span>)
         }
     }
 
-    <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">S</span>: <span class="ident">Stream</span><span class="op">&gt;</span> <span class="ident">Stream</span> <span class="kw">for</span> <span class="ident">std</span>::<span class="ident">panic</span>::<span class="ident">AssertUnwindSafe</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span> {
-        <span class="kw">type</span> <span class="ident">Item</span> <span class="op">=</span> <span class="ident">S</span>::<span class="ident">Item</span>;
+    <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">S</span>: <span class="ident">Stream</span><span class="op">&gt;</span> <span class="ident">Stream</span> <span class="kw">for</span> <span class="ident">std::panic::AssertUnwindSafe</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span> {
+        <span class="kw">type</span> <span class="ident">Item</span> <span class="op">=</span> <span class="ident">S::Item</span>;
 
-        <span class="kw">fn</span> <span class="ident">poll_next</span>(<span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span>::<span class="ident">Item</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-            <span class="macro">unreachable</span><span class="macro">!</span>(<span class="string">&quot;this impl only appears in the rendered docs&quot;</span>)
+        <span class="kw">fn</span> <span class="ident">poll_next</span>(<span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span><span class="ident">::Item</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+            <span class="macro">unreachable!</span>(<span class="string">&quot;this impl only appears in the rendered docs&quot;</span>)
         }
     }
 }
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="async_std" data-search-js="../../../../search-index.js"></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="async_std" data-search-index-js="../../../../search-index.js" data-search-js="../../../../search.js"></div>
     <script src="../../../../main.js"></script><script src="../../../../source-script.js"></script><script src="../../../../source-files.js"></script></body></html>

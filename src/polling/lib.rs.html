@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/usr/local/cargo/registry/src/github.com-1ecc6299db9ec823/polling-2.0.3/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../favicon-16x16.png">
-<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../polling/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../polling/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
@@ -537,29 +537,29 @@
 <span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>), <span class="ident">no_std</span>)]</span>
 <span class="attribute">#![<span class="ident">warn</span>(<span class="ident">missing_docs</span>, <span class="ident">missing_debug_implementations</span>, <span class="ident">rust_2018_idioms</span>)]</span>
 
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>;
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">io</span>;
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">sync</span>::<span class="ident">atomic</span>::{<span class="ident">AtomicBool</span>, <span class="ident">Ordering</span>};
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">sync</span>::<span class="ident">Mutex</span>;
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">time</span>::<span class="ident">Duration</span>;
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">usize</span>;
+<span class="kw">use</span> <span class="ident">std::fmt</span>;
+<span class="kw">use</span> <span class="ident">std::io</span>;
+<span class="kw">use</span> <span class="ident">std::sync::atomic</span>::{<span class="ident">AtomicBool</span>, <span class="ident">Ordering</span>};
+<span class="kw">use</span> <span class="ident">std::sync::Mutex</span>;
+<span class="kw">use</span> <span class="ident">std::time::Duration</span>;
+<span class="kw">use</span> <span class="ident">std::usize</span>;
 
-<span class="kw">use</span> <span class="ident">cfg_if</span>::<span class="ident">cfg_if</span>;
+<span class="kw">use</span> <span class="ident">cfg_if::cfg_if</span>;
 
 <span class="doccomment">/// Calls a libc function and results in `io::Result`.</span>
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">unix</span>)]</span>
-<span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">syscall</span> {
+<span class="macro">macro_rules!</span> <span class="ident">syscall</span> {
     (<span class="macro-nonterminal">$</span><span class="kw">fn</span>:<span class="macro-nonterminal">ident</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">args</span>:<span class="ident">tt</span>) <span class="op">=</span><span class="op">&gt;</span> {{
         <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="ident">libc</span>::<span class="macro-nonterminal">$</span><span class="kw">fn</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">args</span> };
         <span class="kw">if</span> <span class="ident">res</span> <span class="op">=</span><span class="op">=</span> <span class="op">-</span><span class="number">1</span> {
-            <span class="prelude-val">Err</span>(<span class="ident">std</span>::<span class="ident">io</span>::<span class="ident">Error</span>::<span class="ident">last_os_error</span>())
+            <span class="prelude-val">Err</span>(<span class="ident">std::io::Error::last_os_error</span>())
         } <span class="kw">else</span> {
             <span class="prelude-val">Ok</span>(<span class="ident">res</span>)
         }
     }};
 }
 
-<span class="macro">cfg_if</span><span class="macro">!</span> {
+<span class="macro">cfg_if!</span> {
     <span class="kw">if</span> <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;linux&quot;</span>, <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;android&quot;</span>))]</span> {
         <span class="kw">mod</span> <span class="ident">epoll</span>;
         <span class="kw">use</span> <span class="ident">epoll</span> <span class="kw">as</span> <span class="ident">sys</span>;
@@ -583,12 +583,12 @@
         <span class="kw">mod</span> <span class="ident">wepoll</span>;
         <span class="kw">use</span> <span class="ident">wepoll</span> <span class="kw">as</span> <span class="ident">sys</span>;
     } <span class="kw">else</span> {
-        <span class="macro">compile_error</span><span class="macro">!</span>(<span class="string">&quot;polling does not support this target OS&quot;</span>);
+        <span class="macro">compile_error!</span>(<span class="string">&quot;polling does not support this target OS&quot;</span>);
     }
 }
 
 <span class="doccomment">/// Key associated with notifications.</span>
-<span class="kw">const</span> <span class="ident">NOTIFY_KEY</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="ident">std</span>::<span class="ident">usize</span>::<span class="ident">MAX</span>;
+<span class="kw">const</span> <span class="ident">NOTIFY_KEY</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="ident">std::usize::MAX</span>;
 
 <span class="doccomment">/// Indicates that a file descriptor or socket can read or write without blocking.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
@@ -649,8 +649,8 @@
 
 <span class="doccomment">/// Waits for I/O events.</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Poller</span> {
-    <span class="ident">poller</span>: <span class="ident">sys</span>::<span class="ident">Poller</span>,
-    <span class="ident">events</span>: <span class="ident">Mutex</span><span class="op">&lt;</span><span class="ident">sys</span>::<span class="ident">Events</span><span class="op">&gt;</span>,
+    <span class="ident">poller</span>: <span class="ident">sys::Poller</span>,
+    <span class="ident">events</span>: <span class="ident">Mutex</span><span class="op">&lt;</span><span class="ident">sys::Events</span><span class="op">&gt;</span>,
     <span class="ident">notified</span>: <span class="ident">AtomicBool</span>,
 }
 
@@ -665,11 +665,11 @@
     <span class="doccomment">/// let poller = Poller::new()?;</span>
     <span class="doccomment">/// # std::io::Result::Ok(())</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Poller</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">Poller</span><span class="op">&gt;</span> {
         <span class="prelude-val">Ok</span>(<span class="ident">Poller</span> {
-            <span class="ident">poller</span>: <span class="ident">sys</span>::<span class="ident">Poller</span>::<span class="ident">new</span>()<span class="question-mark">?</span>,
-            <span class="ident">events</span>: <span class="ident">Mutex</span>::<span class="ident">new</span>(<span class="ident">sys</span>::<span class="ident">Events</span>::<span class="ident">new</span>()),
-            <span class="ident">notified</span>: <span class="ident">AtomicBool</span>::<span class="ident">new</span>(<span class="bool-val">false</span>),
+            <span class="ident">poller</span>: <span class="ident">sys::Poller::new</span>()<span class="question-mark">?</span>,
+            <span class="ident">events</span>: <span class="ident">Mutex::new</span>(<span class="ident">sys::Events::new</span>()),
+            <span class="ident">notified</span>: <span class="ident">AtomicBool::new</span>(<span class="bool-val">false</span>),
         })
     }
 
@@ -716,10 +716,10 @@
     <span class="doccomment">/// poller.add(&amp;source, Event::all(key))?;</span>
     <span class="doccomment">/// # std::io::Result::Ok(())</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">add</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">source</span>: <span class="kw">impl</span> <span class="ident">Source</span>, <span class="ident">interest</span>: <span class="ident">Event</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">add</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">source</span>: <span class="kw">impl</span> <span class="ident">Source</span>, <span class="ident">interest</span>: <span class="ident">Event</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="ident">interest</span>.<span class="ident">key</span> <span class="op">=</span><span class="op">=</span> <span class="ident">NOTIFY_KEY</span> {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">io</span>::<span class="ident">Error</span>::<span class="ident">new</span>(
-                <span class="ident">io</span>::<span class="ident">ErrorKind</span>::<span class="ident">InvalidInput</span>,
+            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">io::Error::new</span>(
+                <span class="ident">io::ErrorKind::InvalidInput</span>,
                 <span class="string">&quot;the key is not allowed to be `usize::MAX`&quot;</span>,
             ));
         }
@@ -794,10 +794,10 @@
     <span class="doccomment">/// poller.modify(&amp;source, Event::none(key))?;</span>
     <span class="doccomment">/// # std::io::Result::Ok(())</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">modify</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">source</span>: <span class="kw">impl</span> <span class="ident">Source</span>, <span class="ident">interest</span>: <span class="ident">Event</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">modify</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">source</span>: <span class="kw">impl</span> <span class="ident">Source</span>, <span class="ident">interest</span>: <span class="ident">Event</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="ident">interest</span>.<span class="ident">key</span> <span class="op">=</span><span class="op">=</span> <span class="ident">NOTIFY_KEY</span> {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">io</span>::<span class="ident">Error</span>::<span class="ident">new</span>(
-                <span class="ident">io</span>::<span class="ident">ErrorKind</span>::<span class="ident">InvalidInput</span>,
+            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">io::Error::new</span>(
+                <span class="ident">io::ErrorKind::InvalidInput</span>,
                 <span class="string">&quot;the key is not allowed to be `usize::MAX`&quot;</span>,
             ));
         }
@@ -824,7 +824,7 @@
     <span class="doccomment">/// poller.delete(&amp;socket)?;</span>
     <span class="doccomment">/// # std::io::Result::Ok(())</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">delete</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">source</span>: <span class="kw">impl</span> <span class="ident">Source</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">delete</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">source</span>: <span class="kw">impl</span> <span class="ident">Source</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">poller</span>.<span class="ident">delete</span>(<span class="ident">source</span>.<span class="ident">raw</span>())
     }
 
@@ -864,22 +864,22 @@
     <span class="doccomment">/// let n = poller.wait(&amp;mut events, Some(Duration::from_secs(1)))?;</span>
     <span class="doccomment">/// # std::io::Result::Ok(())</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">wait</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">events</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Event</span><span class="op">&gt;</span>, <span class="ident">timeout</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
-        <span class="ident">log</span>::<span class="macro">trace</span><span class="macro">!</span>(<span class="string">&quot;Poller::wait(_, {:?})&quot;</span>, <span class="ident">timeout</span>);
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">wait</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">events</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Event</span><span class="op">&gt;</span>, <span class="ident">timeout</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
+        <span class="macro">log::trace!</span>(<span class="string">&quot;Poller::wait(_, {:?})&quot;</span>, <span class="ident">timeout</span>);
 
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="kw-2">mut</span> <span class="ident">lock</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">events</span>.<span class="ident">try_lock</span>() {
             <span class="comment">// Wait for I/O events.</span>
             <span class="self">self</span>.<span class="ident">poller</span>.<span class="ident">wait</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">lock</span>, <span class="ident">timeout</span>)<span class="question-mark">?</span>;
 
             <span class="comment">// Clear the notification, if any.</span>
-            <span class="self">self</span>.<span class="ident">notified</span>.<span class="ident">swap</span>(<span class="bool-val">false</span>, <span class="ident">Ordering</span>::<span class="ident">SeqCst</span>);
+            <span class="self">self</span>.<span class="ident">notified</span>.<span class="ident">swap</span>(<span class="bool-val">false</span>, <span class="ident">Ordering::SeqCst</span>);
 
             <span class="comment">// Collect events.</span>
             <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">events</span>.<span class="ident">len</span>();
-            <span class="ident">events</span>.<span class="ident">extend</span>(<span class="ident">lock</span>.<span class="ident">iter</span>().<span class="ident">filter</span>(<span class="op">|</span><span class="ident">ev</span><span class="op">|</span> <span class="ident">ev</span>.<span class="ident">key</span> <span class="op">!</span><span class="op">=</span> <span class="ident">usize</span>::<span class="ident">MAX</span>));
+            <span class="ident">events</span>.<span class="ident">extend</span>(<span class="ident">lock</span>.<span class="ident">iter</span>().<span class="ident">filter</span>(<span class="op">|</span><span class="ident">ev</span><span class="op">|</span> <span class="ident">ev</span>.<span class="ident">key</span> <span class="op">!</span><span class="op">=</span> <span class="ident">usize::MAX</span>));
             <span class="prelude-val">Ok</span>(<span class="ident">events</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="ident">len</span>)
         } <span class="kw">else</span> {
-            <span class="ident">log</span>::<span class="macro">trace</span><span class="macro">!</span>(<span class="string">&quot;wait: skipping because another thread is already waiting on I/O&quot;</span>);
+            <span class="macro">log::trace!</span>(<span class="string">&quot;wait: skipping because another thread is already waiting on I/O&quot;</span>);
             <span class="prelude-val">Ok</span>(<span class="number">0</span>)
         }
     }
@@ -906,11 +906,11 @@
     <span class="doccomment">/// assert!(events.is_empty());</span>
     <span class="doccomment">/// # std::io::Result::Ok(())</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">notify</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="ident">log</span>::<span class="macro">trace</span><span class="macro">!</span>(<span class="string">&quot;Poller::notify()&quot;</span>);
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">notify</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+        <span class="macro">log::trace!</span>(<span class="string">&quot;Poller::notify()&quot;</span>);
         <span class="kw">if</span> <span class="self">self</span>
             .<span class="ident">notified</span>
-            .<span class="ident">compare_exchange</span>(<span class="bool-val">false</span>, <span class="bool-val">true</span>, <span class="ident">Ordering</span>::<span class="ident">SeqCst</span>, <span class="ident">Ordering</span>::<span class="ident">SeqCst</span>)
+            .<span class="ident">compare_exchange</span>(<span class="bool-val">false</span>, <span class="bool-val">true</span>, <span class="ident">Ordering::SeqCst</span>, <span class="ident">Ordering::SeqCst</span>)
             .<span class="ident">is_ok</span>()
         {
             <span class="self">self</span>.<span class="ident">poller</span>.<span class="ident">notify</span>()<span class="question-mark">?</span>;
@@ -919,15 +919,15 @@
     }
 }
 
-<span class="kw">impl</span> <span class="ident">fmt</span>::<span class="ident">Debug</span> <span class="kw">for</span> <span class="ident">Poller</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt</span>::<span class="ident">Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
+<span class="kw">impl</span> <span class="ident">fmt::Debug</span> <span class="kw">for</span> <span class="ident">Poller</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
         <span class="self">self</span>.<span class="ident">poller</span>.<span class="ident">fmt</span>(<span class="ident">f</span>)
     }
 }
 
-<span class="macro">cfg_if</span><span class="macro">!</span> {
+<span class="macro">cfg_if!</span> {
     <span class="kw">if</span> <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">unix</span>)]</span> {
-        <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">os</span>::<span class="ident">unix</span>::<span class="ident">io</span>::{<span class="ident">AsRawFd</span>, <span class="ident">RawFd</span>};
+        <span class="kw">use</span> <span class="ident">std::os::unix::io</span>::{<span class="ident">AsRawFd</span>, <span class="ident">RawFd</span>};
 
         <span class="doccomment">/// A [`RawFd`] or a reference to a type implementing [`AsRawFd`].</span>
         <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Source</span> {
@@ -947,7 +947,7 @@
             }
         }
     } <span class="kw">else</span> <span class="kw">if</span> <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">windows</span>)]</span> {
-        <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">os</span>::<span class="ident">windows</span>::<span class="ident">io</span>::{<span class="ident">AsRawSocket</span>, <span class="ident">RawSocket</span>};
+        <span class="kw">use</span> <span class="ident">std::os::windows::io</span>::{<span class="ident">AsRawSocket</span>, <span class="ident">RawSocket</span>};
 
         <span class="doccomment">/// A [`RawSocket`] or a reference to a type implementing [`AsRawSocket`].</span>
         <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Source</span> {
@@ -969,5 +969,5 @@
     }
 }
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="polling" data-search-js="../../search-index.js"></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="polling" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
     <script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script></body></html>

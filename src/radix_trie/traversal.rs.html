@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/usr/local/cargo/registry/src/github.com-1ecc6299db9ec823/radix_trie-0.2.1/src/traversal.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>traversal.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../favicon-16x16.png">
-<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../radix_trie/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../radix_trie/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
@@ -394,14 +394,14 @@
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! This module contains the core algorithms.</span>
 
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">keys</span>::{<span class="ident">match_keys</span>, <span class="ident">KeyMatch</span>};
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">TrieKey</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">TrieNode</span>;
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">borrow</span>::<span class="ident">Borrow</span>;
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::keys</span>::{<span class="ident">match_keys</span>, <span class="ident">KeyMatch</span>};
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::TrieKey</span>;
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::TrieNode</span>;
+<span class="kw">use</span> <span class="ident">std::borrow::Borrow</span>;
 
-<span class="kw">use</span> <span class="ident">nibble_vec</span>::<span class="ident">Nibblet</span>;
+<span class="kw">use</span> <span class="ident">nibble_vec::Nibblet</span>;
 
-<span class="kw">use</span> <span class="self">self</span>::<span class="ident">DescendantResult</span>::<span class="kw-2">*</span>;
+<span class="kw">use</span> <span class="self">self</span><span class="ident">::DescendantResult</span>::<span class="kw-2">*</span>;
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span><span class="op">&gt;</span> <span class="ident">TrieNode</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span><span class="op">&gt;</span>
 <span class="kw">where</span>
@@ -441,12 +441,12 @@
     }
 }
 
-<span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">get_func</span> {
+<span class="macro">macro_rules!</span> <span class="ident">get_func</span> {
     (
         <span class="ident">name</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>:<span class="ident">ident</span>,
         <span class="ident">trie_type</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">trie_type</span>:<span class="ident">ty</span>,
         <span class="ident">mutability</span>: $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">mut_</span>:<span class="ident">tt</span>)<span class="op">*</span>
-    ) <span class="op">=</span><span class="op">&gt;</span> {<span class="macro">id</span><span class="macro">!</span>{
+    ) <span class="op">=</span><span class="op">&gt;</span> {<span class="macro">id!</span>{
         <span class="attribute">#[<span class="ident">inline</span>]</span>
         <span class="kw">fn</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">K</span>, <span class="ident">V</span><span class="op">&gt;</span>(<span class="ident">trie</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">trie_type</span>, <span class="ident">nv</span>: <span class="kw-2">&amp;</span><span class="ident">Nibblet</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">trie_type</span><span class="op">&gt;</span> {
             <span class="kw">if</span> <span class="ident">nv</span>.<span class="ident">len</span>() <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
@@ -461,10 +461,10 @@
                 <span class="kw">let</span> <span class="ident">current</span> <span class="op">=</span> <span class="ident">prev</span>;
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">mut_</span>)<span class="op">*</span> <span class="ident">child</span>) <span class="op">=</span> <span class="ident">current</span>.<span class="ident">children</span>[<span class="ident">bucket</span>] {
                     <span class="kw">match</span> <span class="ident">match_keys</span>(<span class="ident">depth</span>, <span class="ident">nv</span>, <span class="kw-2">&amp;</span><span class="ident">child</span>.<span class="ident">key</span>) {
-                        <span class="ident">KeyMatch</span>::<span class="ident">Full</span> <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="ident">KeyMatch::Full</span> <span class="op">=</span><span class="op">&gt;</span> {
                             <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">child</span>);
                         }
-                        <span class="ident">KeyMatch</span>::<span class="ident">SecondPrefix</span> <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="ident">KeyMatch::SecondPrefix</span> <span class="op">=</span><span class="op">&gt;</span> {
                             <span class="ident">depth</span> <span class="op">+</span><span class="op">=</span> <span class="ident">child</span>.<span class="ident">key</span>.<span class="ident">len</span>();
                             <span class="ident">prev</span> <span class="op">=</span> <span class="ident">child</span>;
                         }
@@ -480,8 +480,8 @@
     }}
 }
 
-<span class="macro">get_func</span><span class="macro">!</span>(<span class="ident">name</span>: <span class="ident">iterative_get</span>, <span class="ident">trie_type</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">TrieNode</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span><span class="op">&gt;</span>, <span class="ident">mutability</span>: );
-<span class="macro">get_func</span><span class="macro">!</span>(<span class="ident">name</span>: <span class="ident">iterative_get_mut</span>, <span class="ident">trie_type</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="ident">TrieNode</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span><span class="op">&gt;</span>, <span class="ident">mutability</span>: <span class="kw-2">mut</span>);
+<span class="macro">get_func!</span>(<span class="ident">name</span>: <span class="ident">iterative_get</span>, <span class="ident">trie_type</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">TrieNode</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span><span class="op">&gt;</span>, <span class="ident">mutability</span>: );
+<span class="macro">get_func!</span>(<span class="ident">name</span>: <span class="ident">iterative_get_mut</span>, <span class="ident">trie_type</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="ident">TrieNode</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span><span class="op">&gt;</span>, <span class="ident">mutability</span>: <span class="kw-2">mut</span>);
 
 <span class="attribute">#[<span class="ident">inline</span>]</span>
 <span class="kw">fn</span> <span class="ident">iterative_insert</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span><span class="op">&gt;</span>(<span class="ident">trie</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">TrieNode</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span><span class="op">&gt;</span>, <span class="ident">key</span>: <span class="ident">K</span>, <span class="ident">value</span>: <span class="ident">V</span>, <span class="kw-2">mut</span> <span class="ident">nv</span>: <span class="ident">Nibblet</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">V</span><span class="op">&gt;</span>
@@ -500,10 +500,10 @@
         <span class="kw">let</span> <span class="ident">current</span> <span class="op">=</span> <span class="ident">prev</span>;
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">child</span>) <span class="op">=</span> <span class="ident">current</span>.<span class="ident">children</span>[<span class="ident">bucket</span>] {
             <span class="kw">match</span> <span class="ident">match_keys</span>(<span class="ident">depth</span>, <span class="kw-2">&amp;</span><span class="ident">nv</span>, <span class="kw-2">&amp;</span><span class="ident">child</span>.<span class="ident">key</span>) {
-                <span class="ident">KeyMatch</span>::<span class="ident">Full</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">KeyMatch::Full</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">return</span> <span class="ident">child</span>.<span class="ident">replace_value</span>(<span class="ident">key</span>, <span class="ident">value</span>);
                 }
-                <span class="ident">KeyMatch</span>::<span class="ident">Partial</span>(<span class="ident">idx</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">KeyMatch::Partial</span>(<span class="ident">idx</span>) <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="comment">// Split the existing child.</span>
                     <span class="ident">child</span>.<span class="ident">split</span>(<span class="ident">idx</span>);
 
@@ -513,17 +513,17 @@
 
                     <span class="ident">child</span>.<span class="ident">add_child</span>(
                         <span class="ident">new_key_bucket</span>,
-                        <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">TrieNode</span>::<span class="ident">with_key_value</span>(<span class="ident">new_key</span>, <span class="ident">key</span>, <span class="ident">value</span>)),
+                        <span class="ident">Box::new</span>(<span class="ident">TrieNode::with_key_value</span>(<span class="ident">new_key</span>, <span class="ident">key</span>, <span class="ident">value</span>)),
                     );
 
                     <span class="kw">return</span> <span class="prelude-val">None</span>;
                 }
-                <span class="ident">KeyMatch</span>::<span class="ident">FirstPrefix</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">KeyMatch::FirstPrefix</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="ident">child</span>.<span class="ident">split</span>(<span class="ident">nv</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="ident">depth</span>);
                     <span class="ident">child</span>.<span class="ident">add_key_value</span>(<span class="ident">key</span>, <span class="ident">value</span>);
                     <span class="kw">return</span> <span class="prelude-val">None</span>;
                 }
-                <span class="ident">KeyMatch</span>::<span class="ident">SecondPrefix</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">KeyMatch::SecondPrefix</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="ident">depth</span> <span class="op">+</span><span class="op">=</span> <span class="ident">child</span>.<span class="ident">key</span>.<span class="ident">len</span>();
                     <span class="ident">prev</span> <span class="op">=</span> <span class="ident">child</span>;
                 }
@@ -532,7 +532,7 @@
             <span class="kw">let</span> <span class="ident">node_key</span> <span class="op">=</span> <span class="ident">nv</span>.<span class="ident">split</span>(<span class="ident">depth</span>);
             <span class="ident">current</span>.<span class="ident">add_child</span>(
                 <span class="ident">bucket</span>,
-                <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">TrieNode</span>::<span class="ident">with_key_value</span>(<span class="ident">node_key</span>, <span class="ident">key</span>, <span class="ident">value</span>)),
+                <span class="ident">Box::new</span>(<span class="ident">TrieNode::with_key_value</span>(<span class="ident">node_key</span>, <span class="ident">key</span>, <span class="ident">value</span>)),
             );
             <span class="kw">return</span> <span class="prelude-val">None</span>;
         }
@@ -560,7 +560,7 @@
     <span class="kw">match</span> <span class="ident">child</span> {
         <span class="prelude-val">Some</span>(<span class="kw-2">mut</span> <span class="ident">child</span>) <span class="op">=</span><span class="op">&gt;</span> {
             <span class="kw">match</span> <span class="ident">match_keys</span>(<span class="number">0</span>, <span class="kw-2">&amp;</span><span class="ident">nv</span>, <span class="kw-2">&amp;</span><span class="ident">child</span>.<span class="ident">key</span>) {
-                <span class="ident">KeyMatch</span>::<span class="ident">Full</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">KeyMatch::Full</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">child</span>.<span class="ident">take_value</span>(<span class="ident">key</span>);
                     <span class="kw">if</span> <span class="ident">child</span>.<span class="ident">child_count</span> <span class="op">!</span><span class="op">=</span> <span class="number">0</span> {
                         <span class="comment">// If removing this node&#39;s value has made it a value-less node with a</span>
@@ -574,11 +574,11 @@
                     }
                     <span class="ident">result</span>
                 }
-                <span class="ident">KeyMatch</span>::<span class="ident">SecondPrefix</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">KeyMatch::SecondPrefix</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">let</span> <span class="ident">depth</span> <span class="op">=</span> <span class="ident">child</span>.<span class="ident">key</span>.<span class="ident">len</span>();
                     <span class="ident">rec_remove</span>(<span class="ident">trie</span>, <span class="ident">child</span>, <span class="ident">bucket</span>, <span class="ident">key</span>, <span class="ident">depth</span>, <span class="kw-2">&amp;</span><span class="ident">nv</span>)
                 }
-                <span class="ident">KeyMatch</span>::<span class="ident">FirstPrefix</span> <span class="op">|</span> <span class="ident">KeyMatch</span>::<span class="ident">Partial</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">KeyMatch::FirstPrefix</span> <span class="op">|</span> <span class="ident">KeyMatch::Partial</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="ident">trie</span>.<span class="ident">add_child</span>(<span class="ident">bucket</span>, <span class="ident">child</span>);
                     <span class="prelude-val">None</span>
                 }
@@ -624,7 +624,7 @@
         <span class="prelude-val">Some</span>(<span class="kw-2">mut</span> <span class="ident">child</span>) <span class="op">=</span><span class="op">&gt;</span> {
             <span class="kw">let</span> <span class="ident">middle</span> <span class="op">=</span> <span class="ident">parent</span>.<span class="ident">children</span>[<span class="ident">prev_bucket</span>].<span class="ident">as_mut</span>().<span class="ident">unwrap</span>();
             <span class="kw">match</span> <span class="ident">match_keys</span>(<span class="ident">depth</span>, <span class="ident">nv</span>, <span class="kw-2">&amp;</span><span class="ident">child</span>.<span class="ident">key</span>) {
-                <span class="ident">KeyMatch</span>::<span class="ident">Full</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">KeyMatch::Full</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">child</span>.<span class="ident">take_value</span>(<span class="ident">key</span>);
 
                     <span class="comment">// If this node has children, keep it.</span>
@@ -646,11 +646,11 @@
 
                     <span class="ident">result</span>
                 }
-                <span class="ident">KeyMatch</span>::<span class="ident">SecondPrefix</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">KeyMatch::SecondPrefix</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">let</span> <span class="ident">new_depth</span> <span class="op">=</span> <span class="ident">depth</span> <span class="op">+</span> <span class="ident">child</span>.<span class="ident">key</span>.<span class="ident">len</span>();
                     <span class="ident">rec_remove</span>(<span class="ident">middle</span>, <span class="ident">child</span>, <span class="ident">bucket</span>, <span class="ident">key</span>, <span class="ident">new_depth</span>, <span class="ident">nv</span>)
                 }
-                <span class="ident">KeyMatch</span>::<span class="ident">FirstPrefix</span> <span class="op">|</span> <span class="ident">KeyMatch</span>::<span class="ident">Partial</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">KeyMatch::FirstPrefix</span> <span class="op">|</span> <span class="ident">KeyMatch::Partial</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="ident">middle</span>.<span class="ident">add_child</span>(<span class="ident">bucket</span>, <span class="ident">child</span>);
                     <span class="prelude-val">None</span>
                 }
@@ -682,16 +682,16 @@
         <span class="kw">let</span> <span class="ident">current</span> <span class="op">=</span> <span class="ident">prev</span>;
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">child</span>) <span class="op">=</span> <span class="ident">current</span>.<span class="ident">children</span>[<span class="ident">bucket</span>] {
             <span class="kw">match</span> <span class="ident">match_keys</span>(<span class="ident">depth</span>, <span class="ident">nv</span>, <span class="kw-2">&amp;</span><span class="ident">child</span>.<span class="ident">key</span>) {
-                <span class="ident">KeyMatch</span>::<span class="ident">Full</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">KeyMatch::Full</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">return</span> <span class="ident">child</span>
                         .<span class="ident">as_value_node</span>()
                         .<span class="ident">map</span>(<span class="op">|</span><span class="ident">node</span><span class="op">|</span> (<span class="ident">node</span>, <span class="ident">depth</span> <span class="op">+</span> <span class="ident">node</span>.<span class="ident">key</span>.<span class="ident">len</span>()))
                         .<span class="ident">or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">ancestor</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">anc</span><span class="op">|</span> (<span class="ident">anc</span>, <span class="ident">depth</span>)));
                 }
-                <span class="ident">KeyMatch</span>::<span class="ident">FirstPrefix</span> <span class="op">|</span> <span class="ident">KeyMatch</span>::<span class="ident">Partial</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">KeyMatch::FirstPrefix</span> <span class="op">|</span> <span class="ident">KeyMatch::Partial</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">return</span> <span class="ident">ancestor</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">anc</span><span class="op">|</span> (<span class="ident">anc</span>, <span class="ident">depth</span>));
                 }
-                <span class="ident">KeyMatch</span>::<span class="ident">SecondPrefix</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">KeyMatch::SecondPrefix</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="ident">depth</span> <span class="op">+</span><span class="op">=</span> <span class="ident">child</span>.<span class="ident">key</span>.<span class="ident">len</span>();
                     <span class="ident">ancestor</span> <span class="op">=</span> <span class="ident">child</span>.<span class="ident">as_value_node</span>().<span class="ident">or</span>(<span class="ident">ancestor</span>);
                     <span class="ident">prev</span> <span class="op">=</span> <span class="ident">child</span>;
@@ -722,13 +722,13 @@
         <span class="kw">let</span> <span class="ident">current</span> <span class="op">=</span> <span class="ident">prev</span>;
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">child</span>) <span class="op">=</span> <span class="ident">current</span>.<span class="ident">children</span>[<span class="ident">bucket</span>] {
             <span class="kw">match</span> <span class="ident">match_keys</span>(<span class="ident">depth</span>, <span class="ident">nv</span>, <span class="kw-2">&amp;</span><span class="ident">child</span>.<span class="ident">key</span>) {
-                <span class="ident">KeyMatch</span>::<span class="ident">Full</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">KeyMatch::Full</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">return</span> (<span class="ident">child</span>, <span class="ident">depth</span> <span class="op">+</span> <span class="ident">child</span>.<span class="ident">key</span>.<span class="ident">len</span>());
                 }
-                <span class="ident">KeyMatch</span>::<span class="ident">FirstPrefix</span> <span class="op">|</span> <span class="ident">KeyMatch</span>::<span class="ident">Partial</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">KeyMatch::FirstPrefix</span> <span class="op">|</span> <span class="ident">KeyMatch::Partial</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">return</span> (<span class="ident">ancestor</span>, <span class="ident">depth</span>);
                 }
-                <span class="ident">KeyMatch</span>::<span class="ident">SecondPrefix</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">KeyMatch::SecondPrefix</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="ident">depth</span> <span class="op">+</span><span class="op">=</span> <span class="ident">child</span>.<span class="ident">key</span>.<span class="ident">len</span>();
                     <span class="ident">ancestor</span> <span class="op">=</span> <span class="ident">child</span>;
                     <span class="ident">prev</span> <span class="op">=</span> <span class="ident">child</span>;
@@ -763,13 +763,13 @@
         <span class="kw">let</span> <span class="ident">current</span> <span class="op">=</span> <span class="ident">prev</span>;
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">child</span>) <span class="op">=</span> <span class="ident">current</span>.<span class="ident">children</span>[<span class="ident">bucket</span>] {
             <span class="kw">match</span> <span class="ident">match_keys</span>(<span class="ident">depth</span>, <span class="ident">nv</span>, <span class="kw-2">&amp;</span><span class="ident">child</span>.<span class="ident">key</span>) {
-                <span class="ident">KeyMatch</span>::<span class="ident">Full</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">KeyMatch::Full</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">NoModification</span>(<span class="ident">child</span>));
                 }
-                <span class="ident">KeyMatch</span>::<span class="ident">FirstPrefix</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">KeyMatch::FirstPrefix</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">ExtendKey</span>(<span class="ident">child</span>, <span class="ident">depth</span>, <span class="kw-2">&amp;</span><span class="ident">child</span>.<span class="ident">key</span>));
                 }
-                <span class="ident">KeyMatch</span>::<span class="ident">SecondPrefix</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">KeyMatch::SecondPrefix</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="ident">depth</span> <span class="op">+</span><span class="op">=</span> <span class="ident">child</span>.<span class="ident">key</span>.<span class="ident">len</span>();
                     <span class="ident">prev</span> <span class="op">=</span> <span class="ident">child</span>;
                 }
@@ -783,5 +783,5 @@
     }
 }
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="radix_trie" data-search-js="../../search-index.js"></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="radix_trie" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
     <script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script></body></html>

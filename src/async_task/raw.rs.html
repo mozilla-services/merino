@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/usr/local/cargo/registry/src/github.com-1ecc6299db9ec823/async-task-4.0.3/src/raw.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>raw.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../favicon-16x16.png">
-<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../async_task/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../async_task/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
@@ -687,19 +687,19 @@
 <span id="684">684</span>
 <span id="685">685</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">use</span> <span class="ident">alloc</span>::<span class="ident">alloc</span>::<span class="ident">Layout</span>;
-<span class="kw">use</span> <span class="ident">core</span>::<span class="ident">cell</span>::<span class="ident">UnsafeCell</span>;
-<span class="kw">use</span> <span class="ident">core</span>::<span class="ident">future</span>::<span class="ident">Future</span>;
-<span class="kw">use</span> <span class="ident">core</span>::<span class="ident">mem</span>::{<span class="self">self</span>, <span class="ident">ManuallyDrop</span>};
-<span class="kw">use</span> <span class="ident">core</span>::<span class="ident">pin</span>::<span class="ident">Pin</span>;
-<span class="kw">use</span> <span class="ident">core</span>::<span class="ident">ptr</span>::<span class="ident">NonNull</span>;
-<span class="kw">use</span> <span class="ident">core</span>::<span class="ident">sync</span>::<span class="ident">atomic</span>::{<span class="ident">AtomicUsize</span>, <span class="ident">Ordering</span>};
-<span class="kw">use</span> <span class="ident">core</span>::<span class="ident">task</span>::{<span class="ident">Context</span>, <span class="ident">Poll</span>, <span class="ident">RawWaker</span>, <span class="ident">RawWakerVTable</span>, <span class="ident">Waker</span>};
+<span class="kw">use</span> <span class="ident">alloc::alloc::Layout</span>;
+<span class="kw">use</span> <span class="ident">core::cell::UnsafeCell</span>;
+<span class="kw">use</span> <span class="ident">core::future::Future</span>;
+<span class="kw">use</span> <span class="ident">core::mem</span>::{<span class="self">self</span>, <span class="ident">ManuallyDrop</span>};
+<span class="kw">use</span> <span class="ident">core::pin::Pin</span>;
+<span class="kw">use</span> <span class="ident">core::ptr::NonNull</span>;
+<span class="kw">use</span> <span class="ident">core::sync::atomic</span>::{<span class="ident">AtomicUsize</span>, <span class="ident">Ordering</span>};
+<span class="kw">use</span> <span class="ident">core::task</span>::{<span class="ident">Context</span>, <span class="ident">Poll</span>, <span class="ident">RawWaker</span>, <span class="ident">RawWakerVTable</span>, <span class="ident">Waker</span>};
 
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">header</span>::<span class="ident">Header</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">state</span>::<span class="kw-2">*</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">utils</span>::{<span class="ident">abort</span>, <span class="ident">abort_on_panic</span>, <span class="ident">extend</span>};
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">Runnable</span>;
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::header::Header</span>;
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::state</span>::<span class="kw-2">*</span>;
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::utils</span>::{<span class="ident">abort</span>, <span class="ident">abort_on_panic</span>, <span class="ident">extend</span>};
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::Runnable</span>;
 
 <span class="doccomment">/// The vtable for a task.</span>
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct</span> <span class="ident">TaskVTable</span> {
@@ -774,11 +774,11 @@
     <span class="ident">F</span>: <span class="ident">Future</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> <span class="ident">T</span><span class="op">&gt;</span>,
     <span class="ident">S</span>: <span class="ident">Fn</span>(<span class="ident">Runnable</span>),
 {
-    <span class="kw">const</span> <span class="ident">RAW_WAKER_VTABLE</span>: <span class="ident">RawWakerVTable</span> <span class="op">=</span> <span class="ident">RawWakerVTable</span>::<span class="ident">new</span>(
-        <span class="self">Self</span>::<span class="ident">clone_waker</span>,
-        <span class="self">Self</span>::<span class="ident">wake</span>,
-        <span class="self">Self</span>::<span class="ident">wake_by_ref</span>,
-        <span class="self">Self</span>::<span class="ident">drop_waker</span>,
+    <span class="kw">const</span> <span class="ident">RAW_WAKER_VTABLE</span>: <span class="ident">RawWakerVTable</span> <span class="op">=</span> <span class="ident">RawWakerVTable::new</span>(
+        <span class="self">Self</span><span class="ident">::clone_waker</span>,
+        <span class="self">Self</span><span class="ident">::wake</span>,
+        <span class="self">Self</span><span class="ident">::wake_by_ref</span>,
+        <span class="self">Self</span><span class="ident">::drop_waker</span>,
     );
 
     <span class="doccomment">/// Allocates a task with the given `future` and `schedule` function.</span>
@@ -786,29 +786,29 @@
     <span class="doccomment">/// It is assumed that initially only the `Runnable` and the `Task` exist.</span>
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">allocate</span>(<span class="ident">future</span>: <span class="ident">F</span>, <span class="ident">schedule</span>: <span class="ident">S</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">NonNull</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="comment">// Compute the layout of the task for allocation. Abort if the computation fails.</span>
-        <span class="kw">let</span> <span class="ident">task_layout</span> <span class="op">=</span> <span class="ident">abort_on_panic</span>(<span class="op">|</span><span class="op">|</span> <span class="self">Self</span>::<span class="ident">task_layout</span>());
+        <span class="kw">let</span> <span class="ident">task_layout</span> <span class="op">=</span> <span class="ident">abort_on_panic</span>(<span class="op">|</span><span class="op">|</span> <span class="self">Self</span><span class="ident">::task_layout</span>());
 
         <span class="kw">unsafe</span> {
             <span class="comment">// Allocate enough space for the entire task.</span>
-            <span class="kw">let</span> <span class="ident">ptr</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">NonNull</span>::<span class="ident">new</span>(<span class="ident">alloc</span>::<span class="ident">alloc</span>::<span class="ident">alloc</span>(<span class="ident">task_layout</span>.<span class="ident">layout</span>) <span class="kw">as</span> <span class="kw-2">*</span><span class="kw-2">mut</span> ()) {
+            <span class="kw">let</span> <span class="ident">ptr</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">NonNull::new</span>(<span class="ident">alloc::alloc::alloc</span>(<span class="ident">task_layout</span>.<span class="ident">layout</span>) <span class="kw">as</span> <span class="kw-2">*</span><span class="kw-2">mut</span> ()) {
                 <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">abort</span>(),
                 <span class="prelude-val">Some</span>(<span class="ident">p</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">p</span>,
             };
 
-            <span class="kw">let</span> <span class="ident">raw</span> <span class="op">=</span> <span class="self">Self</span>::<span class="ident">from_ptr</span>(<span class="ident">ptr</span>.<span class="ident">as_ptr</span>());
+            <span class="kw">let</span> <span class="ident">raw</span> <span class="op">=</span> <span class="self">Self</span><span class="ident">::from_ptr</span>(<span class="ident">ptr</span>.<span class="ident">as_ptr</span>());
 
             <span class="comment">// Write the header as the first field of the task.</span>
             (<span class="ident">raw</span>.<span class="ident">header</span> <span class="kw">as</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">Header</span>).<span class="ident">write</span>(<span class="ident">Header</span> {
-                <span class="ident">state</span>: <span class="ident">AtomicUsize</span>::<span class="ident">new</span>(<span class="ident">SCHEDULED</span> <span class="op">|</span> <span class="ident">TASK</span> <span class="op">|</span> <span class="ident">REFERENCE</span>),
-                <span class="ident">awaiter</span>: <span class="ident">UnsafeCell</span>::<span class="ident">new</span>(<span class="prelude-val">None</span>),
+                <span class="ident">state</span>: <span class="ident">AtomicUsize::new</span>(<span class="ident">SCHEDULED</span> <span class="op">|</span> <span class="ident">TASK</span> <span class="op">|</span> <span class="ident">REFERENCE</span>),
+                <span class="ident">awaiter</span>: <span class="ident">UnsafeCell::new</span>(<span class="prelude-val">None</span>),
                 <span class="ident">vtable</span>: <span class="kw-2">&amp;</span><span class="ident">TaskVTable</span> {
-                    <span class="ident">schedule</span>: <span class="self">Self</span>::<span class="ident">schedule</span>,
-                    <span class="ident">drop_future</span>: <span class="self">Self</span>::<span class="ident">drop_future</span>,
-                    <span class="ident">get_output</span>: <span class="self">Self</span>::<span class="ident">get_output</span>,
-                    <span class="ident">drop_ref</span>: <span class="self">Self</span>::<span class="ident">drop_ref</span>,
-                    <span class="ident">destroy</span>: <span class="self">Self</span>::<span class="ident">destroy</span>,
-                    <span class="ident">run</span>: <span class="self">Self</span>::<span class="ident">run</span>,
-                    <span class="ident">clone_waker</span>: <span class="self">Self</span>::<span class="ident">clone_waker</span>,
+                    <span class="ident">schedule</span>: <span class="self">Self</span><span class="ident">::schedule</span>,
+                    <span class="ident">drop_future</span>: <span class="self">Self</span><span class="ident">::drop_future</span>,
+                    <span class="ident">get_output</span>: <span class="self">Self</span><span class="ident">::get_output</span>,
+                    <span class="ident">drop_ref</span>: <span class="self">Self</span><span class="ident">::drop_ref</span>,
+                    <span class="ident">destroy</span>: <span class="self">Self</span><span class="ident">::destroy</span>,
+                    <span class="ident">run</span>: <span class="self">Self</span><span class="ident">::run</span>,
+                    <span class="ident">clone_waker</span>: <span class="self">Self</span><span class="ident">::clone_waker</span>,
                 },
             });
 
@@ -825,7 +825,7 @@
     <span class="doccomment">/// Creates a `RawTask` from a raw task pointer.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">from_ptr</span>(<span class="ident">ptr</span>: <span class="kw-2">*</span><span class="kw">const</span> ()) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="kw">let</span> <span class="ident">task_layout</span> <span class="op">=</span> <span class="self">Self</span>::<span class="ident">task_layout</span>();
+        <span class="kw">let</span> <span class="ident">task_layout</span> <span class="op">=</span> <span class="self">Self</span><span class="ident">::task_layout</span>();
         <span class="kw">let</span> <span class="ident">p</span> <span class="op">=</span> <span class="ident">ptr</span> <span class="kw">as</span> <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">u8</span>;
 
         <span class="kw">unsafe</span> {
@@ -842,15 +842,15 @@
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">task_layout</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">TaskLayout</span> {
         <span class="comment">// Compute the layouts for `Header`, `S`, `F`, and `T`.</span>
-        <span class="kw">let</span> <span class="ident">layout_header</span> <span class="op">=</span> <span class="ident">Layout</span>::<span class="ident">new</span>::<span class="op">&lt;</span><span class="ident">Header</span><span class="op">&gt;</span>();
-        <span class="kw">let</span> <span class="ident">layout_s</span> <span class="op">=</span> <span class="ident">Layout</span>::<span class="ident">new</span>::<span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>();
-        <span class="kw">let</span> <span class="ident">layout_f</span> <span class="op">=</span> <span class="ident">Layout</span>::<span class="ident">new</span>::<span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>();
-        <span class="kw">let</span> <span class="ident">layout_r</span> <span class="op">=</span> <span class="ident">Layout</span>::<span class="ident">new</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>();
+        <span class="kw">let</span> <span class="ident">layout_header</span> <span class="op">=</span> <span class="ident">Layout::new</span>::<span class="op">&lt;</span><span class="ident">Header</span><span class="op">&gt;</span>();
+        <span class="kw">let</span> <span class="ident">layout_s</span> <span class="op">=</span> <span class="ident">Layout::new</span>::<span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>();
+        <span class="kw">let</span> <span class="ident">layout_f</span> <span class="op">=</span> <span class="ident">Layout::new</span>::<span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>();
+        <span class="kw">let</span> <span class="ident">layout_r</span> <span class="op">=</span> <span class="ident">Layout::new</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>();
 
         <span class="comment">// Compute the layout for `union { F, T }`.</span>
         <span class="kw">let</span> <span class="ident">size_union</span> <span class="op">=</span> <span class="ident">layout_f</span>.<span class="ident">size</span>().<span class="ident">max</span>(<span class="ident">layout_r</span>.<span class="ident">size</span>());
         <span class="kw">let</span> <span class="ident">align_union</span> <span class="op">=</span> <span class="ident">layout_f</span>.<span class="ident">align</span>().<span class="ident">max</span>(<span class="ident">layout_r</span>.<span class="ident">align</span>());
-        <span class="kw">let</span> <span class="ident">layout_union</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="ident">Layout</span>::<span class="ident">from_size_align_unchecked</span>(<span class="ident">size_union</span>, <span class="ident">align_union</span>) };
+        <span class="kw">let</span> <span class="ident">layout_union</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="ident">Layout::from_size_align_unchecked</span>(<span class="ident">size_union</span>, <span class="ident">align_union</span>) };
 
         <span class="comment">// Compute the layout for `Header` followed `S` and `union { F, T }`.</span>
         <span class="kw">let</span> <span class="ident">layout</span> <span class="op">=</span> <span class="ident">layout_header</span>;
@@ -871,21 +871,21 @@
     <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">wake</span>(<span class="ident">ptr</span>: <span class="kw-2">*</span><span class="kw">const</span> ()) {
         <span class="comment">// This is just an optimization. If the schedule function has captured variables, then</span>
         <span class="comment">// we&#39;ll do less reference counting if we wake the waker by reference and then drop it.</span>
-        <span class="kw">if</span> <span class="ident">mem</span>::<span class="ident">size_of</span>::<span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>() <span class="op">&gt;</span> <span class="number">0</span> {
-            <span class="self">Self</span>::<span class="ident">wake_by_ref</span>(<span class="ident">ptr</span>);
-            <span class="self">Self</span>::<span class="ident">drop_waker</span>(<span class="ident">ptr</span>);
+        <span class="kw">if</span> <span class="ident">mem::size_of</span>::<span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>() <span class="op">&gt;</span> <span class="number">0</span> {
+            <span class="self">Self</span><span class="ident">::wake_by_ref</span>(<span class="ident">ptr</span>);
+            <span class="self">Self</span><span class="ident">::drop_waker</span>(<span class="ident">ptr</span>);
             <span class="kw">return</span>;
         }
 
-        <span class="kw">let</span> <span class="ident">raw</span> <span class="op">=</span> <span class="self">Self</span>::<span class="ident">from_ptr</span>(<span class="ident">ptr</span>);
+        <span class="kw">let</span> <span class="ident">raw</span> <span class="op">=</span> <span class="self">Self</span><span class="ident">::from_ptr</span>(<span class="ident">ptr</span>);
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">state</span> <span class="op">=</span> (<span class="kw-2">*</span><span class="ident">raw</span>.<span class="ident">header</span>).<span class="ident">state</span>.<span class="ident">load</span>(<span class="ident">Ordering</span>::<span class="ident">Acquire</span>);
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">state</span> <span class="op">=</span> (<span class="kw-2">*</span><span class="ident">raw</span>.<span class="ident">header</span>).<span class="ident">state</span>.<span class="ident">load</span>(<span class="ident">Ordering::Acquire</span>);
 
         <span class="kw">loop</span> {
             <span class="comment">// If the task is completed or closed, it can&#39;t be woken up.</span>
             <span class="kw">if</span> <span class="ident">state</span> <span class="op">&amp;</span> (<span class="ident">COMPLETED</span> <span class="op">|</span> <span class="ident">CLOSED</span>) <span class="op">!</span><span class="op">=</span> <span class="number">0</span> {
                 <span class="comment">// Drop the waker.</span>
-                <span class="self">Self</span>::<span class="ident">drop_waker</span>(<span class="ident">ptr</span>);
+                <span class="self">Self</span><span class="ident">::drop_waker</span>(<span class="ident">ptr</span>);
                 <span class="kw">break</span>;
             }
 
@@ -896,12 +896,12 @@
                 <span class="kw">match</span> (<span class="kw-2">*</span><span class="ident">raw</span>.<span class="ident">header</span>).<span class="ident">state</span>.<span class="ident">compare_exchange_weak</span>(
                     <span class="ident">state</span>,
                     <span class="ident">state</span>,
-                    <span class="ident">Ordering</span>::<span class="ident">AcqRel</span>,
-                    <span class="ident">Ordering</span>::<span class="ident">Acquire</span>,
+                    <span class="ident">Ordering::AcqRel</span>,
+                    <span class="ident">Ordering::Acquire</span>,
                 ) {
                     <span class="prelude-val">Ok</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
                         <span class="comment">// Drop the waker.</span>
-                        <span class="self">Self</span>::<span class="ident">drop_waker</span>(<span class="ident">ptr</span>);
+                        <span class="self">Self</span><span class="ident">::drop_waker</span>(<span class="ident">ptr</span>);
                         <span class="kw">break</span>;
                     }
                     <span class="prelude-val">Err</span>(<span class="ident">s</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">state</span> <span class="op">=</span> <span class="ident">s</span>,
@@ -911,18 +911,18 @@
                 <span class="kw">match</span> (<span class="kw-2">*</span><span class="ident">raw</span>.<span class="ident">header</span>).<span class="ident">state</span>.<span class="ident">compare_exchange_weak</span>(
                     <span class="ident">state</span>,
                     <span class="ident">state</span> <span class="op">|</span> <span class="ident">SCHEDULED</span>,
-                    <span class="ident">Ordering</span>::<span class="ident">AcqRel</span>,
-                    <span class="ident">Ordering</span>::<span class="ident">Acquire</span>,
+                    <span class="ident">Ordering::AcqRel</span>,
+                    <span class="ident">Ordering::Acquire</span>,
                 ) {
                     <span class="prelude-val">Ok</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
                         <span class="comment">// If the task is not yet scheduled and isn&#39;t currently running, now is the</span>
                         <span class="comment">// time to schedule it.</span>
                         <span class="kw">if</span> <span class="ident">state</span> <span class="op">&amp;</span> <span class="ident">RUNNING</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
                             <span class="comment">// Schedule the task.</span>
-                            <span class="self">Self</span>::<span class="ident">schedule</span>(<span class="ident">ptr</span>);
+                            <span class="self">Self</span><span class="ident">::schedule</span>(<span class="ident">ptr</span>);
                         } <span class="kw">else</span> {
                             <span class="comment">// Drop the waker.</span>
-                            <span class="self">Self</span>::<span class="ident">drop_waker</span>(<span class="ident">ptr</span>);
+                            <span class="self">Self</span><span class="ident">::drop_waker</span>(<span class="ident">ptr</span>);
                         }
 
                         <span class="kw">break</span>;
@@ -935,9 +935,9 @@
 
     <span class="doccomment">/// Wakes a waker by reference.</span>
     <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">wake_by_ref</span>(<span class="ident">ptr</span>: <span class="kw-2">*</span><span class="kw">const</span> ()) {
-        <span class="kw">let</span> <span class="ident">raw</span> <span class="op">=</span> <span class="self">Self</span>::<span class="ident">from_ptr</span>(<span class="ident">ptr</span>);
+        <span class="kw">let</span> <span class="ident">raw</span> <span class="op">=</span> <span class="self">Self</span><span class="ident">::from_ptr</span>(<span class="ident">ptr</span>);
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">state</span> <span class="op">=</span> (<span class="kw-2">*</span><span class="ident">raw</span>.<span class="ident">header</span>).<span class="ident">state</span>.<span class="ident">load</span>(<span class="ident">Ordering</span>::<span class="ident">Acquire</span>);
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">state</span> <span class="op">=</span> (<span class="kw-2">*</span><span class="ident">raw</span>.<span class="ident">header</span>).<span class="ident">state</span>.<span class="ident">load</span>(<span class="ident">Ordering::Acquire</span>);
 
         <span class="kw">loop</span> {
             <span class="comment">// If the task is completed or closed, it can&#39;t be woken up.</span>
@@ -952,8 +952,8 @@
                 <span class="kw">match</span> (<span class="kw-2">*</span><span class="ident">raw</span>.<span class="ident">header</span>).<span class="ident">state</span>.<span class="ident">compare_exchange_weak</span>(
                     <span class="ident">state</span>,
                     <span class="ident">state</span>,
-                    <span class="ident">Ordering</span>::<span class="ident">AcqRel</span>,
-                    <span class="ident">Ordering</span>::<span class="ident">Acquire</span>,
+                    <span class="ident">Ordering::AcqRel</span>,
+                    <span class="ident">Ordering::Acquire</span>,
                 ) {
                     <span class="prelude-val">Ok</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">break</span>,
                     <span class="prelude-val">Err</span>(<span class="ident">s</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">state</span> <span class="op">=</span> <span class="ident">s</span>,
@@ -970,14 +970,14 @@
                 <span class="kw">match</span> (<span class="kw-2">*</span><span class="ident">raw</span>.<span class="ident">header</span>).<span class="ident">state</span>.<span class="ident">compare_exchange_weak</span>(
                     <span class="ident">state</span>,
                     <span class="ident">new</span>,
-                    <span class="ident">Ordering</span>::<span class="ident">AcqRel</span>,
-                    <span class="ident">Ordering</span>::<span class="ident">Acquire</span>,
+                    <span class="ident">Ordering::AcqRel</span>,
+                    <span class="ident">Ordering::Acquire</span>,
                 ) {
                     <span class="prelude-val">Ok</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
                         <span class="comment">// If the task is not running, now is the time to schedule.</span>
                         <span class="kw">if</span> <span class="ident">state</span> <span class="op">&amp;</span> <span class="ident">RUNNING</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
                             <span class="comment">// If the reference count overflowed, abort.</span>
-                            <span class="kw">if</span> <span class="ident">state</span> <span class="op">&gt;</span> <span class="ident">isize</span>::<span class="ident">max_value</span>() <span class="kw">as</span> <span class="ident">usize</span> {
+                            <span class="kw">if</span> <span class="ident">state</span> <span class="op">&gt;</span> <span class="ident">isize::max_value</span>() <span class="kw">as</span> <span class="ident">usize</span> {
                                 <span class="ident">abort</span>();
                             }
 
@@ -985,7 +985,7 @@
                             <span class="comment">// because the schedule function cannot be destroyed while the waker is</span>
                             <span class="comment">// still alive.</span>
                             <span class="kw">let</span> <span class="ident">task</span> <span class="op">=</span> <span class="ident">Runnable</span> {
-                                <span class="ident">ptr</span>: <span class="ident">NonNull</span>::<span class="ident">new_unchecked</span>(<span class="ident">ptr</span> <span class="kw">as</span> <span class="kw-2">*</span><span class="kw-2">mut</span> ()),
+                                <span class="ident">ptr</span>: <span class="ident">NonNull::new_unchecked</span>(<span class="ident">ptr</span> <span class="kw">as</span> <span class="kw-2">*</span><span class="kw-2">mut</span> ()),
                             };
                             (<span class="kw-2">*</span><span class="ident">raw</span>.<span class="ident">schedule</span>)(<span class="ident">task</span>);
                         }
@@ -1000,18 +1000,18 @@
 
     <span class="doccomment">/// Clones a waker.</span>
     <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">clone_waker</span>(<span class="ident">ptr</span>: <span class="kw-2">*</span><span class="kw">const</span> ()) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">RawWaker</span> {
-        <span class="kw">let</span> <span class="ident">raw</span> <span class="op">=</span> <span class="self">Self</span>::<span class="ident">from_ptr</span>(<span class="ident">ptr</span>);
+        <span class="kw">let</span> <span class="ident">raw</span> <span class="op">=</span> <span class="self">Self</span><span class="ident">::from_ptr</span>(<span class="ident">ptr</span>);
 
         <span class="comment">// Increment the reference count. With any kind of reference-counted data structure,</span>
         <span class="comment">// relaxed ordering is appropriate when incrementing the counter.</span>
-        <span class="kw">let</span> <span class="ident">state</span> <span class="op">=</span> (<span class="kw-2">*</span><span class="ident">raw</span>.<span class="ident">header</span>).<span class="ident">state</span>.<span class="ident">fetch_add</span>(<span class="ident">REFERENCE</span>, <span class="ident">Ordering</span>::<span class="ident">Relaxed</span>);
+        <span class="kw">let</span> <span class="ident">state</span> <span class="op">=</span> (<span class="kw-2">*</span><span class="ident">raw</span>.<span class="ident">header</span>).<span class="ident">state</span>.<span class="ident">fetch_add</span>(<span class="ident">REFERENCE</span>, <span class="ident">Ordering::Relaxed</span>);
 
         <span class="comment">// If the reference count overflowed, abort.</span>
-        <span class="kw">if</span> <span class="ident">state</span> <span class="op">&gt;</span> <span class="ident">isize</span>::<span class="ident">max_value</span>() <span class="kw">as</span> <span class="ident">usize</span> {
+        <span class="kw">if</span> <span class="ident">state</span> <span class="op">&gt;</span> <span class="ident">isize::max_value</span>() <span class="kw">as</span> <span class="ident">usize</span> {
             <span class="ident">abort</span>();
         }
 
-        <span class="ident">RawWaker</span>::<span class="ident">new</span>(<span class="ident">ptr</span>, <span class="kw-2">&amp;</span><span class="self">Self</span>::<span class="ident">RAW_WAKER_VTABLE</span>)
+        <span class="ident">RawWaker::new</span>(<span class="ident">ptr</span>, <span class="kw-2">&amp;</span><span class="self">Self</span><span class="ident">::RAW_WAKER_VTABLE</span>)
     }
 
     <span class="doccomment">/// Drops a waker.</span>
@@ -1021,10 +1021,10 @@
     <span class="doccomment">/// scheduled one more time so that its future gets dropped by the executor.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">drop_waker</span>(<span class="ident">ptr</span>: <span class="kw-2">*</span><span class="kw">const</span> ()) {
-        <span class="kw">let</span> <span class="ident">raw</span> <span class="op">=</span> <span class="self">Self</span>::<span class="ident">from_ptr</span>(<span class="ident">ptr</span>);
+        <span class="kw">let</span> <span class="ident">raw</span> <span class="op">=</span> <span class="self">Self</span><span class="ident">::from_ptr</span>(<span class="ident">ptr</span>);
 
         <span class="comment">// Decrement the reference count.</span>
-        <span class="kw">let</span> <span class="ident">new</span> <span class="op">=</span> (<span class="kw-2">*</span><span class="ident">raw</span>.<span class="ident">header</span>).<span class="ident">state</span>.<span class="ident">fetch_sub</span>(<span class="ident">REFERENCE</span>, <span class="ident">Ordering</span>::<span class="ident">AcqRel</span>) <span class="op">-</span> <span class="ident">REFERENCE</span>;
+        <span class="kw">let</span> <span class="ident">new</span> <span class="op">=</span> (<span class="kw-2">*</span><span class="ident">raw</span>.<span class="ident">header</span>).<span class="ident">state</span>.<span class="ident">fetch_sub</span>(<span class="ident">REFERENCE</span>, <span class="ident">Ordering::AcqRel</span>) <span class="op">-</span> <span class="ident">REFERENCE</span>;
 
         <span class="comment">// If this was the last reference to the task and the `Task` has been dropped too,</span>
         <span class="comment">// then we need to decide how to destroy the task.</span>
@@ -1034,11 +1034,11 @@
                 <span class="comment">// that its future gets dropped by the executor.</span>
                 (<span class="kw-2">*</span><span class="ident">raw</span>.<span class="ident">header</span>)
                     .<span class="ident">state</span>
-                    .<span class="ident">store</span>(<span class="ident">SCHEDULED</span> <span class="op">|</span> <span class="ident">CLOSED</span> <span class="op">|</span> <span class="ident">REFERENCE</span>, <span class="ident">Ordering</span>::<span class="ident">Release</span>);
-                <span class="self">Self</span>::<span class="ident">schedule</span>(<span class="ident">ptr</span>);
+                    .<span class="ident">store</span>(<span class="ident">SCHEDULED</span> <span class="op">|</span> <span class="ident">CLOSED</span> <span class="op">|</span> <span class="ident">REFERENCE</span>, <span class="ident">Ordering::Release</span>);
+                <span class="self">Self</span><span class="ident">::schedule</span>(<span class="ident">ptr</span>);
             } <span class="kw">else</span> {
                 <span class="comment">// Otherwise, destroy the task right away.</span>
-                <span class="self">Self</span>::<span class="ident">destroy</span>(<span class="ident">ptr</span>);
+                <span class="self">Self</span><span class="ident">::destroy</span>(<span class="ident">ptr</span>);
             }
         }
     }
@@ -1049,15 +1049,15 @@
     <span class="doccomment">/// associated `Task` handle has been dropped too, then the task gets destroyed.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">drop_ref</span>(<span class="ident">ptr</span>: <span class="kw-2">*</span><span class="kw">const</span> ()) {
-        <span class="kw">let</span> <span class="ident">raw</span> <span class="op">=</span> <span class="self">Self</span>::<span class="ident">from_ptr</span>(<span class="ident">ptr</span>);
+        <span class="kw">let</span> <span class="ident">raw</span> <span class="op">=</span> <span class="self">Self</span><span class="ident">::from_ptr</span>(<span class="ident">ptr</span>);
 
         <span class="comment">// Decrement the reference count.</span>
-        <span class="kw">let</span> <span class="ident">new</span> <span class="op">=</span> (<span class="kw-2">*</span><span class="ident">raw</span>.<span class="ident">header</span>).<span class="ident">state</span>.<span class="ident">fetch_sub</span>(<span class="ident">REFERENCE</span>, <span class="ident">Ordering</span>::<span class="ident">AcqRel</span>) <span class="op">-</span> <span class="ident">REFERENCE</span>;
+        <span class="kw">let</span> <span class="ident">new</span> <span class="op">=</span> (<span class="kw-2">*</span><span class="ident">raw</span>.<span class="ident">header</span>).<span class="ident">state</span>.<span class="ident">fetch_sub</span>(<span class="ident">REFERENCE</span>, <span class="ident">Ordering::AcqRel</span>) <span class="op">-</span> <span class="ident">REFERENCE</span>;
 
         <span class="comment">// If this was the last reference to the task and the `Task` has been dropped too,</span>
         <span class="comment">// then destroy the task.</span>
         <span class="kw">if</span> <span class="ident">new</span> <span class="op">&amp;</span> <span class="op">!</span>(<span class="ident">REFERENCE</span> <span class="op">-</span> <span class="number">1</span>) <span class="op">=</span><span class="op">=</span> <span class="number">0</span> <span class="op">&amp;&amp;</span> <span class="ident">new</span> <span class="op">&amp;</span> <span class="ident">TASK</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
-            <span class="self">Self</span>::<span class="ident">destroy</span>(<span class="ident">ptr</span>);
+            <span class="self">Self</span><span class="ident">::destroy</span>(<span class="ident">ptr</span>);
         }
     }
 
@@ -1066,17 +1066,17 @@
     <span class="doccomment">/// This function doesn&#39;t modify the state of the task. It only passes the task reference to</span>
     <span class="doccomment">/// its schedule function.</span>
     <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">schedule</span>(<span class="ident">ptr</span>: <span class="kw-2">*</span><span class="kw">const</span> ()) {
-        <span class="kw">let</span> <span class="ident">raw</span> <span class="op">=</span> <span class="self">Self</span>::<span class="ident">from_ptr</span>(<span class="ident">ptr</span>);
+        <span class="kw">let</span> <span class="ident">raw</span> <span class="op">=</span> <span class="self">Self</span><span class="ident">::from_ptr</span>(<span class="ident">ptr</span>);
 
         <span class="comment">// If the schedule function has captured variables, create a temporary waker that prevents</span>
         <span class="comment">// the task from getting deallocated while the function is being invoked.</span>
         <span class="kw">let</span> <span class="ident">_waker</span>;
-        <span class="kw">if</span> <span class="ident">mem</span>::<span class="ident">size_of</span>::<span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>() <span class="op">&gt;</span> <span class="number">0</span> {
-            <span class="ident">_waker</span> <span class="op">=</span> <span class="ident">Waker</span>::<span class="ident">from_raw</span>(<span class="self">Self</span>::<span class="ident">clone_waker</span>(<span class="ident">ptr</span>));
+        <span class="kw">if</span> <span class="ident">mem::size_of</span>::<span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>() <span class="op">&gt;</span> <span class="number">0</span> {
+            <span class="ident">_waker</span> <span class="op">=</span> <span class="ident">Waker::from_raw</span>(<span class="self">Self</span><span class="ident">::clone_waker</span>(<span class="ident">ptr</span>));
         }
 
         <span class="kw">let</span> <span class="ident">task</span> <span class="op">=</span> <span class="ident">Runnable</span> {
-            <span class="ident">ptr</span>: <span class="ident">NonNull</span>::<span class="ident">new_unchecked</span>(<span class="ident">ptr</span> <span class="kw">as</span> <span class="kw-2">*</span><span class="kw-2">mut</span> ()),
+            <span class="ident">ptr</span>: <span class="ident">NonNull::new_unchecked</span>(<span class="ident">ptr</span> <span class="kw">as</span> <span class="kw-2">*</span><span class="kw-2">mut</span> ()),
         };
         (<span class="kw-2">*</span><span class="ident">raw</span>.<span class="ident">schedule</span>)(<span class="ident">task</span>);
     }
@@ -1084,7 +1084,7 @@
     <span class="doccomment">/// Drops the future inside a task.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">drop_future</span>(<span class="ident">ptr</span>: <span class="kw-2">*</span><span class="kw">const</span> ()) {
-        <span class="kw">let</span> <span class="ident">raw</span> <span class="op">=</span> <span class="self">Self</span>::<span class="ident">from_ptr</span>(<span class="ident">ptr</span>);
+        <span class="kw">let</span> <span class="ident">raw</span> <span class="op">=</span> <span class="self">Self</span><span class="ident">::from_ptr</span>(<span class="ident">ptr</span>);
 
         <span class="comment">// We need a safeguard against panics because the destructor can panic.</span>
         <span class="ident">abort_on_panic</span>(<span class="op">|</span><span class="op">|</span> {
@@ -1094,7 +1094,7 @@
 
     <span class="doccomment">/// Returns a pointer to the output inside a task.</span>
     <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">get_output</span>(<span class="ident">ptr</span>: <span class="kw-2">*</span><span class="kw">const</span> ()) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">*</span><span class="kw">const</span> () {
-        <span class="kw">let</span> <span class="ident">raw</span> <span class="op">=</span> <span class="self">Self</span>::<span class="ident">from_ptr</span>(<span class="ident">ptr</span>);
+        <span class="kw">let</span> <span class="ident">raw</span> <span class="op">=</span> <span class="self">Self</span><span class="ident">::from_ptr</span>(<span class="ident">ptr</span>);
         <span class="ident">raw</span>.<span class="ident">output</span> <span class="kw">as</span> <span class="kw-2">*</span><span class="kw">const</span> ()
     }
 
@@ -1104,8 +1104,8 @@
     <span class="doccomment">/// The task must be closed before this function is called.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">destroy</span>(<span class="ident">ptr</span>: <span class="kw-2">*</span><span class="kw">const</span> ()) {
-        <span class="kw">let</span> <span class="ident">raw</span> <span class="op">=</span> <span class="self">Self</span>::<span class="ident">from_ptr</span>(<span class="ident">ptr</span>);
-        <span class="kw">let</span> <span class="ident">task_layout</span> <span class="op">=</span> <span class="self">Self</span>::<span class="ident">task_layout</span>();
+        <span class="kw">let</span> <span class="ident">raw</span> <span class="op">=</span> <span class="self">Self</span><span class="ident">::from_ptr</span>(<span class="ident">ptr</span>);
+        <span class="kw">let</span> <span class="ident">task_layout</span> <span class="op">=</span> <span class="self">Self</span><span class="ident">::task_layout</span>();
 
         <span class="comment">// We need a safeguard against panics because destructors can panic.</span>
         <span class="ident">abort_on_panic</span>(<span class="op">|</span><span class="op">|</span> {
@@ -1114,7 +1114,7 @@
         });
 
         <span class="comment">// Finally, deallocate the memory reserved by the task.</span>
-        <span class="ident">alloc</span>::<span class="ident">alloc</span>::<span class="ident">dealloc</span>(<span class="ident">ptr</span> <span class="kw">as</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">u8</span>, <span class="ident">task_layout</span>.<span class="ident">layout</span>);
+        <span class="ident">alloc::alloc::dealloc</span>(<span class="ident">ptr</span> <span class="kw">as</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">u8</span>, <span class="ident">task_layout</span>.<span class="ident">layout</span>);
     }
 
     <span class="doccomment">/// Runs a task.</span>
@@ -1122,23 +1122,23 @@
     <span class="doccomment">/// If polling its future panics, the task will be closed and the panic will be propagated into</span>
     <span class="doccomment">/// the caller.</span>
     <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">run</span>(<span class="ident">ptr</span>: <span class="kw-2">*</span><span class="kw">const</span> ()) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-        <span class="kw">let</span> <span class="ident">raw</span> <span class="op">=</span> <span class="self">Self</span>::<span class="ident">from_ptr</span>(<span class="ident">ptr</span>);
+        <span class="kw">let</span> <span class="ident">raw</span> <span class="op">=</span> <span class="self">Self</span><span class="ident">::from_ptr</span>(<span class="ident">ptr</span>);
 
         <span class="comment">// Create a context from the raw task pointer and the vtable inside the its header.</span>
-        <span class="kw">let</span> <span class="ident">waker</span> <span class="op">=</span> <span class="ident">ManuallyDrop</span>::<span class="ident">new</span>(<span class="ident">Waker</span>::<span class="ident">from_raw</span>(<span class="ident">RawWaker</span>::<span class="ident">new</span>(<span class="ident">ptr</span>, <span class="kw-2">&amp;</span><span class="self">Self</span>::<span class="ident">RAW_WAKER_VTABLE</span>)));
-        <span class="kw">let</span> <span class="ident">cx</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Context</span>::<span class="ident">from_waker</span>(<span class="kw-2">&amp;</span><span class="ident">waker</span>);
+        <span class="kw">let</span> <span class="ident">waker</span> <span class="op">=</span> <span class="ident">ManuallyDrop::new</span>(<span class="ident">Waker::from_raw</span>(<span class="ident">RawWaker::new</span>(<span class="ident">ptr</span>, <span class="kw-2">&amp;</span><span class="self">Self</span><span class="ident">::RAW_WAKER_VTABLE</span>)));
+        <span class="kw">let</span> <span class="ident">cx</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Context::from_waker</span>(<span class="kw-2">&amp;</span><span class="ident">waker</span>);
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">state</span> <span class="op">=</span> (<span class="kw-2">*</span><span class="ident">raw</span>.<span class="ident">header</span>).<span class="ident">state</span>.<span class="ident">load</span>(<span class="ident">Ordering</span>::<span class="ident">Acquire</span>);
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">state</span> <span class="op">=</span> (<span class="kw-2">*</span><span class="ident">raw</span>.<span class="ident">header</span>).<span class="ident">state</span>.<span class="ident">load</span>(<span class="ident">Ordering::Acquire</span>);
 
         <span class="comment">// Update the task&#39;s state before polling its future.</span>
         <span class="kw">loop</span> {
             <span class="comment">// If the task has already been closed, drop the task reference and return.</span>
             <span class="kw">if</span> <span class="ident">state</span> <span class="op">&amp;</span> <span class="ident">CLOSED</span> <span class="op">!</span><span class="op">=</span> <span class="number">0</span> {
                 <span class="comment">// Drop the future.</span>
-                <span class="self">Self</span>::<span class="ident">drop_future</span>(<span class="ident">ptr</span>);
+                <span class="self">Self</span><span class="ident">::drop_future</span>(<span class="ident">ptr</span>);
 
                 <span class="comment">// Mark the task as unscheduled.</span>
-                <span class="kw">let</span> <span class="ident">state</span> <span class="op">=</span> (<span class="kw-2">*</span><span class="ident">raw</span>.<span class="ident">header</span>).<span class="ident">state</span>.<span class="ident">fetch_and</span>(<span class="op">!</span><span class="ident">SCHEDULED</span>, <span class="ident">Ordering</span>::<span class="ident">AcqRel</span>);
+                <span class="kw">let</span> <span class="ident">state</span> <span class="op">=</span> (<span class="kw-2">*</span><span class="ident">raw</span>.<span class="ident">header</span>).<span class="ident">state</span>.<span class="ident">fetch_and</span>(<span class="op">!</span><span class="ident">SCHEDULED</span>, <span class="ident">Ordering::AcqRel</span>);
 
                 <span class="comment">// Take the awaiter out.</span>
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">awaiter</span> <span class="op">=</span> <span class="prelude-val">None</span>;
@@ -1147,7 +1147,7 @@
                 }
 
                 <span class="comment">// Drop the task reference.</span>
-                <span class="self">Self</span>::<span class="ident">drop_ref</span>(<span class="ident">ptr</span>);
+                <span class="self">Self</span><span class="ident">::drop_ref</span>(<span class="ident">ptr</span>);
 
                 <span class="comment">// Notify the awaiter that the future has been dropped.</span>
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">w</span>) <span class="op">=</span> <span class="ident">awaiter</span> {
@@ -1160,8 +1160,8 @@
             <span class="kw">match</span> (<span class="kw-2">*</span><span class="ident">raw</span>.<span class="ident">header</span>).<span class="ident">state</span>.<span class="ident">compare_exchange_weak</span>(
                 <span class="ident">state</span>,
                 (<span class="ident">state</span> <span class="op">&amp;</span> <span class="op">!</span><span class="ident">SCHEDULED</span>) <span class="op">|</span> <span class="ident">RUNNING</span>,
-                <span class="ident">Ordering</span>::<span class="ident">AcqRel</span>,
-                <span class="ident">Ordering</span>::<span class="ident">Acquire</span>,
+                <span class="ident">Ordering::AcqRel</span>,
+                <span class="ident">Ordering::Acquire</span>,
             ) {
                 <span class="prelude-val">Ok</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="comment">// Update the state because we&#39;re continuing with polling the future.</span>
@@ -1175,13 +1175,13 @@
         <span class="comment">// Poll the inner future, but surround it with a guard that closes the task in case polling</span>
         <span class="comment">// panics.</span>
         <span class="kw">let</span> <span class="ident">guard</span> <span class="op">=</span> <span class="ident">Guard</span>(<span class="ident">raw</span>);
-        <span class="kw">let</span> <span class="ident">poll</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">F</span> <span class="kw">as</span> <span class="ident">Future</span><span class="op">&gt;</span>::<span class="ident">poll</span>(<span class="ident">Pin</span>::<span class="ident">new_unchecked</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="ident">raw</span>.<span class="ident">future</span>), <span class="ident">cx</span>);
-        <span class="ident">mem</span>::<span class="ident">forget</span>(<span class="ident">guard</span>);
+        <span class="kw">let</span> <span class="ident">poll</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">F</span> <span class="kw">as</span> <span class="ident">Future</span><span class="op">&gt;</span><span class="ident">::poll</span>(<span class="ident">Pin::new_unchecked</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="ident">raw</span>.<span class="ident">future</span>), <span class="ident">cx</span>);
+        <span class="ident">mem::forget</span>(<span class="ident">guard</span>);
 
         <span class="kw">match</span> <span class="ident">poll</span> {
-            <span class="ident">Poll</span>::<span class="ident">Ready</span>(<span class="ident">out</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">Poll::Ready</span>(<span class="ident">out</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="comment">// Replace the future with its output.</span>
-                <span class="self">Self</span>::<span class="ident">drop_future</span>(<span class="ident">ptr</span>);
+                <span class="self">Self</span><span class="ident">::drop_future</span>(<span class="ident">ptr</span>);
                 <span class="ident">raw</span>.<span class="ident">output</span>.<span class="ident">write</span>(<span class="ident">out</span>);
 
                 <span class="comment">// The task is now completed.</span>
@@ -1197,8 +1197,8 @@
                     <span class="kw">match</span> (<span class="kw-2">*</span><span class="ident">raw</span>.<span class="ident">header</span>).<span class="ident">state</span>.<span class="ident">compare_exchange_weak</span>(
                         <span class="ident">state</span>,
                         <span class="ident">new</span>,
-                        <span class="ident">Ordering</span>::<span class="ident">AcqRel</span>,
-                        <span class="ident">Ordering</span>::<span class="ident">Acquire</span>,
+                        <span class="ident">Ordering::AcqRel</span>,
+                        <span class="ident">Ordering::Acquire</span>,
                     ) {
                         <span class="prelude-val">Ok</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
                             <span class="comment">// If the `Task` is dropped or if the task was closed while running,</span>
@@ -1215,7 +1215,7 @@
                             }
 
                             <span class="comment">// Drop the task reference.</span>
-                            <span class="self">Self</span>::<span class="ident">drop_ref</span>(<span class="ident">ptr</span>);
+                            <span class="self">Self</span><span class="ident">::drop_ref</span>(<span class="ident">ptr</span>);
 
                             <span class="comment">// Notify the awaiter that the future has been dropped.</span>
                             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">w</span>) <span class="op">=</span> <span class="ident">awaiter</span> {
@@ -1227,7 +1227,7 @@
                     }
                 }
             }
-            <span class="ident">Poll</span>::<span class="ident">Pending</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">Poll::Pending</span> <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">future_dropped</span> <span class="op">=</span> <span class="bool-val">false</span>;
 
                 <span class="comment">// The task is still not completed.</span>
@@ -1243,7 +1243,7 @@
                     <span class="kw">if</span> <span class="ident">state</span> <span class="op">&amp;</span> <span class="ident">CLOSED</span> <span class="op">!</span><span class="op">=</span> <span class="number">0</span> <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">future_dropped</span> {
                         <span class="comment">// The thread that closed the task didn&#39;t drop the future because it was</span>
                         <span class="comment">// running so now it&#39;s our responsibility to do so.</span>
-                        <span class="self">Self</span>::<span class="ident">drop_future</span>(<span class="ident">ptr</span>);
+                        <span class="self">Self</span><span class="ident">::drop_future</span>(<span class="ident">ptr</span>);
                         <span class="ident">future_dropped</span> <span class="op">=</span> <span class="bool-val">true</span>;
                     }
 
@@ -1251,8 +1251,8 @@
                     <span class="kw">match</span> (<span class="kw-2">*</span><span class="ident">raw</span>.<span class="ident">header</span>).<span class="ident">state</span>.<span class="ident">compare_exchange_weak</span>(
                         <span class="ident">state</span>,
                         <span class="ident">new</span>,
-                        <span class="ident">Ordering</span>::<span class="ident">AcqRel</span>,
-                        <span class="ident">Ordering</span>::<span class="ident">Acquire</span>,
+                        <span class="ident">Ordering::AcqRel</span>,
+                        <span class="ident">Ordering::Acquire</span>,
                     ) {
                         <span class="prelude-val">Ok</span>(<span class="ident">state</span>) <span class="op">=</span><span class="op">&gt;</span> {
                             <span class="comment">// If the task was closed while running, we need to notify the awaiter.</span>
@@ -1266,7 +1266,7 @@
                                 }
 
                                 <span class="comment">// Drop the task reference.</span>
-                                <span class="self">Self</span>::<span class="ident">drop_ref</span>(<span class="ident">ptr</span>);
+                                <span class="self">Self</span><span class="ident">::drop_ref</span>(<span class="ident">ptr</span>);
 
                                 <span class="comment">// Notify the awaiter that the future has been dropped.</span>
                                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">w</span>) <span class="op">=</span> <span class="ident">awaiter</span> {
@@ -1275,11 +1275,11 @@
                             } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">state</span> <span class="op">&amp;</span> <span class="ident">SCHEDULED</span> <span class="op">!</span><span class="op">=</span> <span class="number">0</span> {
                                 <span class="comment">// The thread that woke the task up didn&#39;t reschedule it because</span>
                                 <span class="comment">// it was running so now it&#39;s our responsibility to do so.</span>
-                                <span class="self">Self</span>::<span class="ident">schedule</span>(<span class="ident">ptr</span>);
+                                <span class="self">Self</span><span class="ident">::schedule</span>(<span class="ident">ptr</span>);
                                 <span class="kw">return</span> <span class="bool-val">true</span>;
                             } <span class="kw">else</span> {
                                 <span class="comment">// Drop the task reference.</span>
-                                <span class="self">Self</span>::<span class="ident">drop_ref</span>(<span class="ident">ptr</span>);
+                                <span class="self">Self</span><span class="ident">::drop_ref</span>(<span class="ident">ptr</span>);
                             }
                             <span class="kw">break</span>;
                         }
@@ -1307,7 +1307,7 @@
                 <span class="kw">let</span> <span class="ident">ptr</span> <span class="op">=</span> <span class="ident">raw</span>.<span class="ident">header</span> <span class="kw">as</span> <span class="kw-2">*</span><span class="kw">const</span> ();
 
                 <span class="kw">unsafe</span> {
-                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">state</span> <span class="op">=</span> (<span class="kw-2">*</span><span class="ident">raw</span>.<span class="ident">header</span>).<span class="ident">state</span>.<span class="ident">load</span>(<span class="ident">Ordering</span>::<span class="ident">Acquire</span>);
+                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">state</span> <span class="op">=</span> (<span class="kw-2">*</span><span class="ident">raw</span>.<span class="ident">header</span>).<span class="ident">state</span>.<span class="ident">load</span>(<span class="ident">Ordering::Acquire</span>);
 
                     <span class="kw">loop</span> {
                         <span class="comment">// If the task was closed while running, then unschedule it, drop its</span>
@@ -1315,12 +1315,12 @@
                         <span class="kw">if</span> <span class="ident">state</span> <span class="op">&amp;</span> <span class="ident">CLOSED</span> <span class="op">!</span><span class="op">=</span> <span class="number">0</span> {
                             <span class="comment">// The thread that closed the task didn&#39;t drop the future because it</span>
                             <span class="comment">// was running so now it&#39;s our responsibility to do so.</span>
-                            <span class="ident">RawTask</span>::<span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">T</span>, <span class="ident">S</span><span class="op">&gt;</span>::<span class="ident">drop_future</span>(<span class="ident">ptr</span>);
+                            <span class="ident">RawTask</span>::<span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">T</span>, <span class="ident">S</span><span class="op">&gt;</span><span class="ident">::drop_future</span>(<span class="ident">ptr</span>);
 
                             <span class="comment">// Mark the task as not running and not scheduled.</span>
                             (<span class="kw-2">*</span><span class="ident">raw</span>.<span class="ident">header</span>)
                                 .<span class="ident">state</span>
-                                .<span class="ident">fetch_and</span>(<span class="op">!</span><span class="ident">RUNNING</span> <span class="op">&amp;</span> <span class="op">!</span><span class="ident">SCHEDULED</span>, <span class="ident">Ordering</span>::<span class="ident">AcqRel</span>);
+                                .<span class="ident">fetch_and</span>(<span class="op">!</span><span class="ident">RUNNING</span> <span class="op">&amp;</span> <span class="op">!</span><span class="ident">SCHEDULED</span>, <span class="ident">Ordering::AcqRel</span>);
 
                             <span class="comment">// Take the awaiter out.</span>
                             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">awaiter</span> <span class="op">=</span> <span class="prelude-val">None</span>;
@@ -1329,7 +1329,7 @@
                             }
 
                             <span class="comment">// Drop the task reference.</span>
-                            <span class="ident">RawTask</span>::<span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">T</span>, <span class="ident">S</span><span class="op">&gt;</span>::<span class="ident">drop_ref</span>(<span class="ident">ptr</span>);
+                            <span class="ident">RawTask</span>::<span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">T</span>, <span class="ident">S</span><span class="op">&gt;</span><span class="ident">::drop_ref</span>(<span class="ident">ptr</span>);
 
                             <span class="comment">// Notify the awaiter that the future has been dropped.</span>
                             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">w</span>) <span class="op">=</span> <span class="ident">awaiter</span> {
@@ -1342,12 +1342,12 @@
                         <span class="kw">match</span> (<span class="kw-2">*</span><span class="ident">raw</span>.<span class="ident">header</span>).<span class="ident">state</span>.<span class="ident">compare_exchange_weak</span>(
                             <span class="ident">state</span>,
                             (<span class="ident">state</span> <span class="op">&amp;</span> <span class="op">!</span><span class="ident">RUNNING</span> <span class="op">&amp;</span> <span class="op">!</span><span class="ident">SCHEDULED</span>) <span class="op">|</span> <span class="ident">CLOSED</span>,
-                            <span class="ident">Ordering</span>::<span class="ident">AcqRel</span>,
-                            <span class="ident">Ordering</span>::<span class="ident">Acquire</span>,
+                            <span class="ident">Ordering::AcqRel</span>,
+                            <span class="ident">Ordering::Acquire</span>,
                         ) {
                             <span class="prelude-val">Ok</span>(<span class="ident">state</span>) <span class="op">=</span><span class="op">&gt;</span> {
                                 <span class="comment">// Drop the future because the task is now closed.</span>
-                                <span class="ident">RawTask</span>::<span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">T</span>, <span class="ident">S</span><span class="op">&gt;</span>::<span class="ident">drop_future</span>(<span class="ident">ptr</span>);
+                                <span class="ident">RawTask</span>::<span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">T</span>, <span class="ident">S</span><span class="op">&gt;</span><span class="ident">::drop_future</span>(<span class="ident">ptr</span>);
 
                                 <span class="comment">// Take the awaiter out.</span>
                                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">awaiter</span> <span class="op">=</span> <span class="prelude-val">None</span>;
@@ -1356,7 +1356,7 @@
                                 }
 
                                 <span class="comment">// Drop the task reference.</span>
-                                <span class="ident">RawTask</span>::<span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">T</span>, <span class="ident">S</span><span class="op">&gt;</span>::<span class="ident">drop_ref</span>(<span class="ident">ptr</span>);
+                                <span class="ident">RawTask</span>::<span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">T</span>, <span class="ident">S</span><span class="op">&gt;</span><span class="ident">::drop_ref</span>(<span class="ident">ptr</span>);
 
                                 <span class="comment">// Notify the awaiter that the future has been dropped.</span>
                                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">w</span>) <span class="op">=</span> <span class="ident">awaiter</span> {
@@ -1373,5 +1373,5 @@
     }
 }
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="async_task" data-search-js="../../search-index.js"></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="async_task" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
     <script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script></body></html>

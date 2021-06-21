@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/usr/local/cargo/registry/src/github.com-1ecc6299db9ec823/tokio-test-0.4.1/src/io.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>io.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../favicon-16x16.png">
-<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../tokio_test/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../tokio_test/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
@@ -516,18 +516,18 @@
 <span class="doccomment">//! [`AsyncRead`]: tokio::io::AsyncRead</span>
 <span class="doccomment">//! [`AsyncWrite`]: tokio::io::AsyncWrite</span>
 
-<span class="kw">use</span> <span class="ident">tokio</span>::<span class="ident">io</span>::{<span class="ident">AsyncRead</span>, <span class="ident">AsyncWrite</span>, <span class="ident">ReadBuf</span>};
-<span class="kw">use</span> <span class="ident">tokio</span>::<span class="ident">sync</span>::<span class="ident">mpsc</span>;
-<span class="kw">use</span> <span class="ident">tokio</span>::<span class="ident">time</span>::{<span class="self">self</span>, <span class="ident">Duration</span>, <span class="ident">Instant</span>, <span class="ident">Sleep</span>};
-<span class="kw">use</span> <span class="ident">tokio_stream</span>::<span class="ident">wrappers</span>::<span class="ident">UnboundedReceiverStream</span>;
+<span class="kw">use</span> <span class="ident">tokio::io</span>::{<span class="ident">AsyncRead</span>, <span class="ident">AsyncWrite</span>, <span class="ident">ReadBuf</span>};
+<span class="kw">use</span> <span class="ident">tokio::sync::mpsc</span>;
+<span class="kw">use</span> <span class="ident">tokio::time</span>::{<span class="self">self</span>, <span class="ident">Duration</span>, <span class="ident">Instant</span>, <span class="ident">Sleep</span>};
+<span class="kw">use</span> <span class="ident">tokio_stream::wrappers::UnboundedReceiverStream</span>;
 
 <span class="kw">use</span> <span class="ident">futures_core</span>::{<span class="ident">ready</span>, <span class="ident">Stream</span>};
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">VecDeque</span>;
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>;
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">future</span>::<span class="ident">Future</span>;
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">pin</span>::<span class="ident">Pin</span>;
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">sync</span>::<span class="ident">Arc</span>;
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">task</span>::{<span class="self">self</span>, <span class="ident">Poll</span>, <span class="ident">Waker</span>};
+<span class="kw">use</span> <span class="ident">std::collections::VecDeque</span>;
+<span class="kw">use</span> <span class="ident">std::fmt</span>;
+<span class="kw">use</span> <span class="ident">std::future::Future</span>;
+<span class="kw">use</span> <span class="ident">std::pin::Pin</span>;
+<span class="kw">use</span> <span class="ident">std::sync::Arc</span>;
+<span class="kw">use</span> <span class="ident">std::task</span>::{<span class="self">self</span>, <span class="ident">Poll</span>, <span class="ident">Waker</span>};
 <span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">cmp</span>, <span class="ident">io</span>};
 
 <span class="doccomment">/// An I/O object that follows a predefined script.</span>
@@ -542,7 +542,7 @@
 <span class="doccomment">/// A handle to send additional actions to the related `Mock`.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Handle</span> {
-    <span class="ident">tx</span>: <span class="ident">mpsc</span>::<span class="ident">UnboundedSender</span><span class="op">&lt;</span><span class="ident">Action</span><span class="op">&gt;</span>,
+    <span class="ident">tx</span>: <span class="ident">mpsc::UnboundedSender</span><span class="op">&lt;</span><span class="ident">Action</span><span class="op">&gt;</span>,
 }
 
 <span class="doccomment">/// Builds `Mock` instances.</span>
@@ -559,8 +559,8 @@
     <span class="ident">Wait</span>(<span class="ident">Duration</span>),
     <span class="comment">// Wrapped in Arc so that Builder can be cloned and Send.</span>
     <span class="comment">// Mock is not cloned as does not need to check Rc for ref counts.</span>
-    <span class="ident">ReadError</span>(<span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">io</span>::<span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span>),
-    <span class="ident">WriteError</span>(<span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">io</span>::<span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span>),
+    <span class="ident">ReadError</span>(<span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">io::Error</span><span class="op">&gt;</span><span class="op">&gt;</span>),
+    <span class="ident">WriteError</span>(<span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">io::Error</span><span class="op">&gt;</span><span class="op">&gt;</span>),
 }
 
 <span class="kw">struct</span> <span class="ident">Inner</span> {
@@ -574,7 +574,7 @@
 <span class="kw">impl</span> <span class="ident">Builder</span> {
     <span class="doccomment">/// Return a new, empty `Builder.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="self">Self</span>::<span class="ident">default</span>()
+        <span class="self">Self</span><span class="ident">::default</span>()
     }
 
     <span class="doccomment">/// Sequence a `read` operation.</span>
@@ -582,7 +582,7 @@
     <span class="doccomment">/// The next operation in the mock&#39;s script will be to expect a `read` call</span>
     <span class="doccomment">/// and return `buf`.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">read</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">buf</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">actions</span>.<span class="ident">push_back</span>(<span class="ident">Action</span>::<span class="ident">Read</span>(<span class="ident">buf</span>.<span class="ident">into</span>()));
+        <span class="self">self</span>.<span class="ident">actions</span>.<span class="ident">push_back</span>(<span class="ident">Action::Read</span>(<span class="ident">buf</span>.<span class="ident">into</span>()));
         <span class="self">self</span>
     }
 
@@ -590,9 +590,9 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// The next operation in the mock&#39;s script will be to expect a `read` call</span>
     <span class="doccomment">/// and return `error`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">read_error</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">error</span>: <span class="ident">io</span>::<span class="ident">Error</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">read_error</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">error</span>: <span class="ident">io::Error</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span> {
         <span class="kw">let</span> <span class="ident">error</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">error</span>.<span class="ident">into</span>());
-        <span class="self">self</span>.<span class="ident">actions</span>.<span class="ident">push_back</span>(<span class="ident">Action</span>::<span class="ident">ReadError</span>(<span class="ident">error</span>));
+        <span class="self">self</span>.<span class="ident">actions</span>.<span class="ident">push_back</span>(<span class="ident">Action::ReadError</span>(<span class="ident">error</span>));
         <span class="self">self</span>
     }
 
@@ -601,7 +601,7 @@
     <span class="doccomment">/// The next operation in the mock&#39;s script will be to expect a `write`</span>
     <span class="doccomment">/// call.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">write</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">buf</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">actions</span>.<span class="ident">push_back</span>(<span class="ident">Action</span>::<span class="ident">Write</span>(<span class="ident">buf</span>.<span class="ident">into</span>()));
+        <span class="self">self</span>.<span class="ident">actions</span>.<span class="ident">push_back</span>(<span class="ident">Action::Write</span>(<span class="ident">buf</span>.<span class="ident">into</span>()));
         <span class="self">self</span>
     }
 
@@ -609,9 +609,9 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// The next operation in the mock&#39;s script will be to expect a `write`</span>
     <span class="doccomment">/// call that provides `error`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">write_error</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">error</span>: <span class="ident">io</span>::<span class="ident">Error</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">write_error</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">error</span>: <span class="ident">io::Error</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span> {
         <span class="kw">let</span> <span class="ident">error</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">error</span>.<span class="ident">into</span>());
-        <span class="self">self</span>.<span class="ident">actions</span>.<span class="ident">push_back</span>(<span class="ident">Action</span>::<span class="ident">WriteError</span>(<span class="ident">error</span>));
+        <span class="self">self</span>.<span class="ident">actions</span>.<span class="ident">push_back</span>(<span class="ident">Action::WriteError</span>(<span class="ident">error</span>));
         <span class="self">self</span>
     }
 
@@ -620,8 +620,8 @@
     <span class="doccomment">/// The next operation in the mock&#39;s script will be to wait without doing so</span>
     <span class="doccomment">/// for `duration` amount of time.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">wait</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">duration</span>: <span class="ident">Duration</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span> {
-        <span class="kw">let</span> <span class="ident">duration</span> <span class="op">=</span> <span class="ident">cmp</span>::<span class="ident">max</span>(<span class="ident">duration</span>, <span class="ident">Duration</span>::<span class="ident">from_millis</span>(<span class="number">1</span>));
-        <span class="self">self</span>.<span class="ident">actions</span>.<span class="ident">push_back</span>(<span class="ident">Action</span>::<span class="ident">Wait</span>(<span class="ident">duration</span>));
+        <span class="kw">let</span> <span class="ident">duration</span> <span class="op">=</span> <span class="ident">cmp::max</span>(<span class="ident">duration</span>, <span class="ident">Duration::from_millis</span>(<span class="number">1</span>));
+        <span class="self">self</span>.<span class="ident">actions</span>.<span class="ident">push_back</span>(<span class="ident">Action::Wait</span>(<span class="ident">duration</span>));
         <span class="self">self</span>
     }
 
@@ -633,7 +633,7 @@
 
     <span class="doccomment">/// Build a `Mock` value paired with a handle</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">build_with_handle</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">Mock</span>, <span class="ident">Handle</span>) {
-        <span class="kw">let</span> (<span class="ident">inner</span>, <span class="ident">handle</span>) <span class="op">=</span> <span class="ident">Inner</span>::<span class="ident">new</span>(<span class="self">self</span>.<span class="ident">actions</span>.<span class="ident">clone</span>());
+        <span class="kw">let</span> (<span class="ident">inner</span>, <span class="ident">handle</span>) <span class="op">=</span> <span class="ident">Inner::new</span>(<span class="self">self</span>.<span class="ident">actions</span>.<span class="ident">clone</span>());
 
         <span class="kw">let</span> <span class="ident">mock</span> <span class="op">=</span> <span class="ident">Mock</span> { <span class="ident">inner</span> };
 
@@ -647,7 +647,7 @@
     <span class="doccomment">/// The next operation in the mock&#39;s script will be to expect a `read` call</span>
     <span class="doccomment">/// and return `buf`.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">read</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">buf</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">tx</span>.<span class="ident">send</span>(<span class="ident">Action</span>::<span class="ident">Read</span>(<span class="ident">buf</span>.<span class="ident">into</span>())).<span class="ident">unwrap</span>();
+        <span class="self">self</span>.<span class="ident">tx</span>.<span class="ident">send</span>(<span class="ident">Action::Read</span>(<span class="ident">buf</span>.<span class="ident">into</span>())).<span class="ident">unwrap</span>();
         <span class="self">self</span>
     }
 
@@ -655,9 +655,9 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// The next operation in the mock&#39;s script will be to expect a `read` call</span>
     <span class="doccomment">/// and return `error`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">read_error</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">error</span>: <span class="ident">io</span>::<span class="ident">Error</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">read_error</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">error</span>: <span class="ident">io::Error</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span> {
         <span class="kw">let</span> <span class="ident">error</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">error</span>.<span class="ident">into</span>());
-        <span class="self">self</span>.<span class="ident">tx</span>.<span class="ident">send</span>(<span class="ident">Action</span>::<span class="ident">ReadError</span>(<span class="ident">error</span>)).<span class="ident">unwrap</span>();
+        <span class="self">self</span>.<span class="ident">tx</span>.<span class="ident">send</span>(<span class="ident">Action::ReadError</span>(<span class="ident">error</span>)).<span class="ident">unwrap</span>();
         <span class="self">self</span>
     }
 
@@ -666,7 +666,7 @@
     <span class="doccomment">/// The next operation in the mock&#39;s script will be to expect a `write`</span>
     <span class="doccomment">/// call.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">write</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">buf</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">tx</span>.<span class="ident">send</span>(<span class="ident">Action</span>::<span class="ident">Write</span>(<span class="ident">buf</span>.<span class="ident">into</span>())).<span class="ident">unwrap</span>();
+        <span class="self">self</span>.<span class="ident">tx</span>.<span class="ident">send</span>(<span class="ident">Action::Write</span>(<span class="ident">buf</span>.<span class="ident">into</span>())).<span class="ident">unwrap</span>();
         <span class="self">self</span>
     }
 
@@ -674,18 +674,18 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// The next operation in the mock&#39;s script will be to expect a `write`</span>
     <span class="doccomment">/// call error.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">write_error</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">error</span>: <span class="ident">io</span>::<span class="ident">Error</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">write_error</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">error</span>: <span class="ident">io::Error</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span> {
         <span class="kw">let</span> <span class="ident">error</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">error</span>.<span class="ident">into</span>());
-        <span class="self">self</span>.<span class="ident">tx</span>.<span class="ident">send</span>(<span class="ident">Action</span>::<span class="ident">WriteError</span>(<span class="ident">error</span>)).<span class="ident">unwrap</span>();
+        <span class="self">self</span>.<span class="ident">tx</span>.<span class="ident">send</span>(<span class="ident">Action::WriteError</span>(<span class="ident">error</span>)).<span class="ident">unwrap</span>();
         <span class="self">self</span>
     }
 }
 
 <span class="kw">impl</span> <span class="ident">Inner</span> {
     <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">actions</span>: <span class="ident">VecDeque</span><span class="op">&lt;</span><span class="ident">Action</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">Inner</span>, <span class="ident">Handle</span>) {
-        <span class="kw">let</span> (<span class="ident">tx</span>, <span class="ident">rx</span>) <span class="op">=</span> <span class="ident">mpsc</span>::<span class="ident">unbounded_channel</span>();
+        <span class="kw">let</span> (<span class="ident">tx</span>, <span class="ident">rx</span>) <span class="op">=</span> <span class="ident">mpsc::unbounded_channel</span>();
 
-        <span class="kw">let</span> <span class="ident">rx</span> <span class="op">=</span> <span class="ident">UnboundedReceiverStream</span>::<span class="ident">new</span>(<span class="ident">rx</span>);
+        <span class="kw">let</span> <span class="ident">rx</span> <span class="op">=</span> <span class="ident">UnboundedReceiverStream::new</span>(<span class="ident">rx</span>);
 
         <span class="kw">let</span> <span class="ident">inner</span> <span class="op">=</span> <span class="ident">Inner</span> {
             <span class="ident">actions</span>,
@@ -700,15 +700,15 @@
         (<span class="ident">inner</span>, <span class="ident">handle</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">poll_action</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">task</span>::<span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Action</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="ident">Pin</span>::<span class="ident">new</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">rx</span>).<span class="ident">poll_next</span>(<span class="ident">cx</span>)
+    <span class="kw">fn</span> <span class="ident">poll_action</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">task::Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Action</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+        <span class="ident">Pin::new</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">rx</span>).<span class="ident">poll_next</span>(<span class="ident">cx</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">read</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">dst</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ReadBuf</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">read</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">dst</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ReadBuf</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">action</span>() {
-            <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Action</span>::<span class="ident">Read</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">data</span>)) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Action::Read</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">data</span>)) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="comment">// Figure out how much to copy</span>
-                <span class="kw">let</span> <span class="ident">n</span> <span class="op">=</span> <span class="ident">cmp</span>::<span class="ident">min</span>(<span class="ident">dst</span>.<span class="ident">remaining</span>(), <span class="ident">data</span>.<span class="ident">len</span>());
+                <span class="kw">let</span> <span class="ident">n</span> <span class="op">=</span> <span class="ident">cmp::min</span>(<span class="ident">dst</span>.<span class="ident">remaining</span>(), <span class="ident">data</span>.<span class="ident">len</span>());
 
                 <span class="comment">// Copy the data into the `dst` slice</span>
                 <span class="ident">dst</span>.<span class="ident">put_slice</span>(<span class="kw-2">&amp;</span><span class="ident">data</span>[..<span class="ident">n</span>]);
@@ -718,43 +718,43 @@
 
                 <span class="prelude-val">Ok</span>(())
             }
-            <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Action</span>::<span class="ident">ReadError</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">err</span>)) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Action::ReadError</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">err</span>)) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="comment">// As the</span>
                 <span class="kw">let</span> <span class="ident">err</span> <span class="op">=</span> <span class="ident">err</span>.<span class="ident">take</span>().<span class="ident">expect</span>(<span class="string">&quot;Should have been removed from actions.&quot;</span>);
-                <span class="kw">let</span> <span class="ident">err</span> <span class="op">=</span> <span class="ident">Arc</span>::<span class="ident">try_unwrap</span>(<span class="ident">err</span>).<span class="ident">expect</span>(<span class="string">&quot;There are no other references.&quot;</span>);
+                <span class="kw">let</span> <span class="ident">err</span> <span class="op">=</span> <span class="ident">Arc::try_unwrap</span>(<span class="ident">err</span>).<span class="ident">expect</span>(<span class="string">&quot;There are no other references.&quot;</span>);
                 <span class="prelude-val">Err</span>(<span class="ident">err</span>)
             }
             <span class="prelude-val">Some</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="comment">// Either waiting or expecting a write</span>
-                <span class="prelude-val">Err</span>(<span class="ident">io</span>::<span class="ident">ErrorKind</span>::<span class="ident">WouldBlock</span>.<span class="ident">into</span>())
+                <span class="prelude-val">Err</span>(<span class="ident">io::ErrorKind::WouldBlock</span>.<span class="ident">into</span>())
             }
             <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(()),
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">write</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="kw-2">mut</span> <span class="ident">src</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">write</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="kw-2">mut</span> <span class="ident">src</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ret</span> <span class="op">=</span> <span class="number">0</span>;
 
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">actions</span>.<span class="ident">is_empty</span>() {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">io</span>::<span class="ident">ErrorKind</span>::<span class="ident">BrokenPipe</span>.<span class="ident">into</span>());
+            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">io::ErrorKind::BrokenPipe</span>.<span class="ident">into</span>());
         }
 
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Action</span>::<span class="ident">Wait</span>(..)) <span class="op">=</span> <span class="self">self</span>.<span class="ident">action</span>() {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">io</span>::<span class="ident">ErrorKind</span>::<span class="ident">WouldBlock</span>.<span class="ident">into</span>());
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Action::Wait</span>(..)) <span class="op">=</span> <span class="self">self</span>.<span class="ident">action</span>() {
+            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">io::ErrorKind::WouldBlock</span>.<span class="ident">into</span>());
         }
 
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Action</span>::<span class="ident">WriteError</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">err</span>)) <span class="op">=</span> <span class="self">self</span>.<span class="ident">action</span>() {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Action::WriteError</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">err</span>)) <span class="op">=</span> <span class="self">self</span>.<span class="ident">action</span>() {
             <span class="kw">let</span> <span class="ident">err</span> <span class="op">=</span> <span class="ident">err</span>.<span class="ident">take</span>().<span class="ident">expect</span>(<span class="string">&quot;Should have been removed from actions.&quot;</span>);
-            <span class="kw">let</span> <span class="ident">err</span> <span class="op">=</span> <span class="ident">Arc</span>::<span class="ident">try_unwrap</span>(<span class="ident">err</span>).<span class="ident">expect</span>(<span class="string">&quot;There are no other references.&quot;</span>);
+            <span class="kw">let</span> <span class="ident">err</span> <span class="op">=</span> <span class="ident">Arc::try_unwrap</span>(<span class="ident">err</span>).<span class="ident">expect</span>(<span class="string">&quot;There are no other references.&quot;</span>);
             <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">err</span>);
         }
 
         <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span>..<span class="self">self</span>.<span class="ident">actions</span>.<span class="ident">len</span>() {
             <span class="kw">match</span> <span class="self">self</span>.<span class="ident">actions</span>[<span class="ident">i</span>] {
-                <span class="ident">Action</span>::<span class="ident">Write</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">expect</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="kw">let</span> <span class="ident">n</span> <span class="op">=</span> <span class="ident">cmp</span>::<span class="ident">min</span>(<span class="ident">src</span>.<span class="ident">len</span>(), <span class="ident">expect</span>.<span class="ident">len</span>());
+                <span class="ident">Action::Write</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">expect</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="kw">let</span> <span class="ident">n</span> <span class="op">=</span> <span class="ident">cmp::min</span>(<span class="ident">src</span>.<span class="ident">len</span>(), <span class="ident">expect</span>.<span class="ident">len</span>());
 
-                    <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="kw-2">&amp;</span><span class="ident">src</span>[..<span class="ident">n</span>], <span class="kw-2">&amp;</span><span class="ident">expect</span>[..<span class="ident">n</span>]);
+                    <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span><span class="ident">src</span>[..<span class="ident">n</span>], <span class="kw-2">&amp;</span><span class="ident">expect</span>[..<span class="ident">n</span>]);
 
                     <span class="comment">// Drop data that was matched</span>
                     <span class="ident">expect</span>.<span class="ident">drain</span>(..<span class="ident">n</span>);
@@ -766,7 +766,7 @@
                         <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">ret</span>);
                     }
                 }
-                <span class="ident">Action</span>::<span class="ident">Wait</span>(..) <span class="op">|</span> <span class="ident">Action</span>::<span class="ident">WriteError</span>(..) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">Action::Wait</span>(..) <span class="op">|</span> <span class="ident">Action::WriteError</span>(..) <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">break</span>;
                 }
                 <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {}
@@ -780,7 +780,7 @@
 
     <span class="kw">fn</span> <span class="ident">remaining_wait</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">action</span>() {
-            <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Action</span>::<span class="ident">Wait</span>(<span class="ident">dur</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">dur</span>),
+            <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Action::Wait</span>(<span class="ident">dur</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">dur</span>),
             <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
         }
     }
@@ -792,29 +792,29 @@
             }
 
             <span class="kw">match</span> <span class="self">self</span>.<span class="ident">actions</span>[<span class="number">0</span>] {
-                <span class="ident">Action</span>::<span class="ident">Read</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">data</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">Action::Read</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">data</span>) <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">if</span> <span class="op">!</span><span class="ident">data</span>.<span class="ident">is_empty</span>() {
                         <span class="kw">break</span>;
                     }
                 }
-                <span class="ident">Action</span>::<span class="ident">Write</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">data</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">Action::Write</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">data</span>) <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">if</span> <span class="op">!</span><span class="ident">data</span>.<span class="ident">is_empty</span>() {
                         <span class="kw">break</span>;
                     }
                 }
-                <span class="ident">Action</span>::<span class="ident">Wait</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">dur</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">Action::Wait</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">dur</span>) <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">until</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">waiting</span> {
-                        <span class="kw">let</span> <span class="ident">now</span> <span class="op">=</span> <span class="ident">Instant</span>::<span class="ident">now</span>();
+                        <span class="kw">let</span> <span class="ident">now</span> <span class="op">=</span> <span class="ident">Instant::now</span>();
 
                         <span class="kw">if</span> <span class="ident">now</span> <span class="op">&lt;</span> <span class="ident">until</span> {
                             <span class="kw">break</span>;
                         }
                     } <span class="kw">else</span> {
-                        <span class="self">self</span>.<span class="ident">waiting</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Instant</span>::<span class="ident">now</span>() <span class="op">+</span> <span class="kw-2">*</span><span class="ident">dur</span>);
+                        <span class="self">self</span>.<span class="ident">waiting</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Instant::now</span>() <span class="op">+</span> <span class="kw-2">*</span><span class="ident">dur</span>);
                         <span class="kw">break</span>;
                     }
                 }
-                <span class="ident">Action</span>::<span class="ident">ReadError</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">error</span>) <span class="op">|</span> <span class="ident">Action</span>::<span class="ident">WriteError</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">error</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">Action::ReadError</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">error</span>) <span class="op">|</span> <span class="ident">Action::WriteError</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">error</span>) <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">if</span> <span class="ident">error</span>.<span class="ident">is_some</span>() {
                         <span class="kw">break</span>;
                     }
@@ -833,7 +833,7 @@
 <span class="kw">impl</span> <span class="ident">Mock</span> {
     <span class="kw">fn</span> <span class="ident">maybe_wakeup_reader</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">action</span>() {
-            <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Action</span>::<span class="ident">Read</span>(<span class="kw">_</span>)) <span class="op">|</span> <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Action</span>::<span class="ident">ReadError</span>(<span class="kw">_</span>)) <span class="op">|</span> <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Action::Read</span>(<span class="kw">_</span>)) <span class="op">|</span> <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Action::ReadError</span>(<span class="kw">_</span>)) <span class="op">|</span> <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">waker</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">read_wait</span>.<span class="ident">take</span>() {
                     <span class="ident">waker</span>.<span class="ident">wake</span>();
                 }
@@ -846,12 +846,12 @@
 <span class="kw">impl</span> <span class="ident">AsyncRead</span> <span class="kw">for</span> <span class="ident">Mock</span> {
     <span class="kw">fn</span> <span class="ident">poll_read</span>(
         <span class="kw-2">mut</span> <span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span><span class="op">&gt;</span>,
-        <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">task</span>::<span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
+        <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">task::Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
         <span class="ident">buf</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ReadBuf</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="ident">io</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span><span class="op">&gt;</span> {
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">loop</span> {
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">sleep</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">sleep</span> {
-                <span class="macro">ready</span><span class="macro">!</span>(<span class="ident">Pin</span>::<span class="ident">new</span>(<span class="ident">sleep</span>).<span class="ident">poll</span>(<span class="ident">cx</span>));
+                <span class="macro">ready!</span>(<span class="ident">Pin::new</span>(<span class="ident">sleep</span>).<span class="ident">poll</span>(<span class="ident">cx</span>));
             }
 
             <span class="comment">// If a sleep is set, it has already fired</span>
@@ -861,31 +861,31 @@
             <span class="kw">let</span> <span class="ident">filled</span> <span class="op">=</span> <span class="ident">buf</span>.<span class="ident">filled</span>().<span class="ident">len</span>();
 
             <span class="kw">match</span> <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">read</span>(<span class="ident">buf</span>) {
-                <span class="prelude-val">Err</span>(<span class="kw-2">ref</span> <span class="ident">e</span>) <span class="kw">if</span> <span class="ident">e</span>.<span class="ident">kind</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">io</span>::<span class="ident">ErrorKind</span>::<span class="ident">WouldBlock</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="prelude-val">Err</span>(<span class="kw-2">ref</span> <span class="ident">e</span>) <span class="kw">if</span> <span class="ident">e</span>.<span class="ident">kind</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">io::ErrorKind::WouldBlock</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">rem</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">remaining_wait</span>() {
-                        <span class="kw">let</span> <span class="ident">until</span> <span class="op">=</span> <span class="ident">Instant</span>::<span class="ident">now</span>() <span class="op">+</span> <span class="ident">rem</span>;
-                        <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">sleep</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Box</span>::<span class="ident">pin</span>(<span class="ident">time</span>::<span class="ident">sleep_until</span>(<span class="ident">until</span>)));
+                        <span class="kw">let</span> <span class="ident">until</span> <span class="op">=</span> <span class="ident">Instant::now</span>() <span class="op">+</span> <span class="ident">rem</span>;
+                        <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">sleep</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Box::pin</span>(<span class="ident">time::sleep_until</span>(<span class="ident">until</span>)));
                     } <span class="kw">else</span> {
                         <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">read_wait</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">cx</span>.<span class="ident">waker</span>().<span class="ident">clone</span>());
-                        <span class="kw">return</span> <span class="ident">Poll</span>::<span class="ident">Pending</span>;
+                        <span class="kw">return</span> <span class="ident">Poll::Pending</span>;
                     }
                 }
                 <span class="prelude-val">Ok</span>(()) <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">if</span> <span class="ident">buf</span>.<span class="ident">filled</span>().<span class="ident">len</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">filled</span> {
-                        <span class="kw">match</span> <span class="macro">ready</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">poll_action</span>(<span class="ident">cx</span>)) {
+                        <span class="kw">match</span> <span class="macro">ready!</span>(<span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">poll_action</span>(<span class="ident">cx</span>)) {
                             <span class="prelude-val">Some</span>(<span class="ident">action</span>) <span class="op">=</span><span class="op">&gt;</span> {
                                 <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">actions</span>.<span class="ident">push_back</span>(<span class="ident">action</span>);
                                 <span class="kw">continue</span>;
                             }
                             <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> {
-                                <span class="kw">return</span> <span class="ident">Poll</span>::<span class="ident">Ready</span>(<span class="prelude-val">Ok</span>(()));
+                                <span class="kw">return</span> <span class="ident">Poll::Ready</span>(<span class="prelude-val">Ok</span>(()));
                             }
                         }
                     } <span class="kw">else</span> {
-                        <span class="kw">return</span> <span class="ident">Poll</span>::<span class="ident">Ready</span>(<span class="prelude-val">Ok</span>(()));
+                        <span class="kw">return</span> <span class="ident">Poll::Ready</span>(<span class="prelude-val">Ok</span>(()));
                     }
                 }
-                <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="ident">Poll</span>::<span class="ident">Ready</span>(<span class="prelude-val">Err</span>(<span class="ident">e</span>)),
+                <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="ident">Poll::Ready</span>(<span class="prelude-val">Err</span>(<span class="ident">e</span>)),
             }
         }
     }
@@ -894,57 +894,57 @@
 <span class="kw">impl</span> <span class="ident">AsyncWrite</span> <span class="kw">for</span> <span class="ident">Mock</span> {
     <span class="kw">fn</span> <span class="ident">poll_write</span>(
         <span class="kw-2">mut</span> <span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span><span class="op">&gt;</span>,
-        <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">task</span>::<span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
+        <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">task::Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
         <span class="ident">buf</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="ident">io</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">loop</span> {
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">sleep</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">sleep</span> {
-                <span class="macro">ready</span><span class="macro">!</span>(<span class="ident">Pin</span>::<span class="ident">new</span>(<span class="ident">sleep</span>).<span class="ident">poll</span>(<span class="ident">cx</span>));
+                <span class="macro">ready!</span>(<span class="ident">Pin::new</span>(<span class="ident">sleep</span>).<span class="ident">poll</span>(<span class="ident">cx</span>));
             }
 
             <span class="comment">// If a sleep is set, it has already fired</span>
             <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">sleep</span> <span class="op">=</span> <span class="prelude-val">None</span>;
 
             <span class="kw">match</span> <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">write</span>(<span class="ident">buf</span>) {
-                <span class="prelude-val">Err</span>(<span class="kw-2">ref</span> <span class="ident">e</span>) <span class="kw">if</span> <span class="ident">e</span>.<span class="ident">kind</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">io</span>::<span class="ident">ErrorKind</span>::<span class="ident">WouldBlock</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="prelude-val">Err</span>(<span class="kw-2">ref</span> <span class="ident">e</span>) <span class="kw">if</span> <span class="ident">e</span>.<span class="ident">kind</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">io::ErrorKind::WouldBlock</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">rem</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">remaining_wait</span>() {
-                        <span class="kw">let</span> <span class="ident">until</span> <span class="op">=</span> <span class="ident">Instant</span>::<span class="ident">now</span>() <span class="op">+</span> <span class="ident">rem</span>;
-                        <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">sleep</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Box</span>::<span class="ident">pin</span>(<span class="ident">time</span>::<span class="ident">sleep_until</span>(<span class="ident">until</span>)));
+                        <span class="kw">let</span> <span class="ident">until</span> <span class="op">=</span> <span class="ident">Instant::now</span>() <span class="op">+</span> <span class="ident">rem</span>;
+                        <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">sleep</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Box::pin</span>(<span class="ident">time::sleep_until</span>(<span class="ident">until</span>)));
                     } <span class="kw">else</span> {
-                        <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;unexpected WouldBlock&quot;</span>);
+                        <span class="macro">panic!</span>(<span class="string">&quot;unexpected WouldBlock&quot;</span>);
                     }
                 }
                 <span class="prelude-val">Ok</span>(<span class="number">0</span>) <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="comment">// TODO: Is this correct?</span>
                     <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">actions</span>.<span class="ident">is_empty</span>() {
-                        <span class="kw">return</span> <span class="ident">Poll</span>::<span class="ident">Pending</span>;
+                        <span class="kw">return</span> <span class="ident">Poll::Pending</span>;
                     }
 
                     <span class="comment">// TODO: Extract</span>
-                    <span class="kw">match</span> <span class="macro">ready</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">poll_action</span>(<span class="ident">cx</span>)) {
+                    <span class="kw">match</span> <span class="macro">ready!</span>(<span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">poll_action</span>(<span class="ident">cx</span>)) {
                         <span class="prelude-val">Some</span>(<span class="ident">action</span>) <span class="op">=</span><span class="op">&gt;</span> {
                             <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">actions</span>.<span class="ident">push_back</span>(<span class="ident">action</span>);
                             <span class="kw">continue</span>;
                         }
                         <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> {
-                            <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;unexpected write&quot;</span>);
+                            <span class="macro">panic!</span>(<span class="string">&quot;unexpected write&quot;</span>);
                         }
                     }
                 }
                 <span class="ident">ret</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="self">self</span>.<span class="ident">maybe_wakeup_reader</span>();
-                    <span class="kw">return</span> <span class="ident">Poll</span>::<span class="ident">Ready</span>(<span class="ident">ret</span>);
+                    <span class="kw">return</span> <span class="ident">Poll::Ready</span>(<span class="ident">ret</span>);
                 }
             }
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">poll_flush</span>(<span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">_cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">task</span>::<span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="ident">io</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="ident">Poll</span>::<span class="ident">Ready</span>(<span class="prelude-val">Ok</span>(()))
+    <span class="kw">fn</span> <span class="ident">poll_flush</span>(<span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">_cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">task::Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span><span class="op">&gt;</span> {
+        <span class="ident">Poll::Ready</span>(<span class="prelude-val">Ok</span>(()))
     }
 
-    <span class="kw">fn</span> <span class="ident">poll_shutdown</span>(<span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">_cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">task</span>::<span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="ident">io</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="ident">Poll</span>::<span class="ident">Ready</span>(<span class="prelude-val">Ok</span>(()))
+    <span class="kw">fn</span> <span class="ident">poll_shutdown</span>(<span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">_cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">task::Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span><span class="op">&gt;</span> {
+        <span class="ident">Poll::Ready</span>(<span class="prelude-val">Ok</span>(()))
     }
 }
 
@@ -952,13 +952,13 @@
 <span class="kw">impl</span> <span class="ident">Drop</span> <span class="kw">for</span> <span class="ident">Mock</span> {
     <span class="kw">fn</span> <span class="ident">drop</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
         <span class="comment">// Avoid double panicking, since makes debugging much harder.</span>
-        <span class="kw">if</span> <span class="ident">std</span>::<span class="ident">thread</span>::<span class="ident">panicking</span>() {
+        <span class="kw">if</span> <span class="ident">std::thread::panicking</span>() {
             <span class="kw">return</span>;
         }
 
         <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">actions</span>.<span class="ident">iter</span>().<span class="ident">for_each</span>(<span class="op">|</span><span class="ident">a</span><span class="op">|</span> <span class="kw">match</span> <span class="ident">a</span> {
-            <span class="ident">Action</span>::<span class="ident">Read</span>(<span class="ident">data</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">data</span>.<span class="ident">is_empty</span>(), <span class="string">&quot;There is still data left to read.&quot;</span>),
-            <span class="ident">Action</span>::<span class="ident">Write</span>(<span class="ident">data</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">data</span>.<span class="ident">is_empty</span>(), <span class="string">&quot;There is still data left to write.&quot;</span>),
+            <span class="ident">Action::Read</span>(<span class="ident">data</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">assert!</span>(<span class="ident">data</span>.<span class="ident">is_empty</span>(), <span class="string">&quot;There is still data left to read.&quot;</span>),
+            <span class="ident">Action::Write</span>(<span class="ident">data</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">assert!</span>(<span class="ident">data</span>.<span class="ident">is_empty</span>(), <span class="string">&quot;There is still data left to write.&quot;</span>),
             <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> (),
         })
     }
@@ -985,11 +985,11 @@ fn is_task_ctx() -&gt; bool {
 }
 */</span>
 
-<span class="kw">impl</span> <span class="ident">fmt</span>::<span class="ident">Debug</span> <span class="kw">for</span> <span class="ident">Inner</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt</span>::<span class="ident">Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
-        <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;Inner {{...}}&quot;</span>)
+<span class="kw">impl</span> <span class="ident">fmt::Debug</span> <span class="kw">for</span> <span class="ident">Inner</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
+        <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;Inner {{...}}&quot;</span>)
     }
 }
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="tokio_test" data-search-js="../../search-index.js"></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="tokio_test" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
     <script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script></body></html>

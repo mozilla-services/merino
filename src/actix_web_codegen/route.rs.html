@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/usr/local/cargo/registry/src/github.com-1ecc6299db9ec823/actix-web-codegen-0.5.0-beta.2/src/route.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>route.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../favicon-16x16.png">
-<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../actix_web_codegen/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../actix_web_codegen/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
@@ -359,10 +359,10 @@
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">proc_macro</span>;
 
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashSet</span>;
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">convert</span>::<span class="ident">TryFrom</span>;
+<span class="kw">use</span> <span class="ident">std::collections::HashSet</span>;
+<span class="kw">use</span> <span class="ident">std::convert::TryFrom</span>;
 
-<span class="kw">use</span> <span class="ident">proc_macro</span>::<span class="ident">TokenStream</span>;
+<span class="kw">use</span> <span class="ident">proc_macro::TokenStream</span>;
 <span class="kw">use</span> <span class="ident">proc_macro2</span>::{<span class="ident">Span</span>, <span class="ident">TokenStream</span> <span class="kw">as</span> <span class="ident">TokenStream2</span>};
 <span class="kw">use</span> <span class="ident">quote</span>::{<span class="ident">format_ident</span>, <span class="ident">quote</span>, <span class="ident">ToTokens</span>, <span class="ident">TokenStreamExt</span>};
 <span class="kw">use</span> <span class="ident">syn</span>::{<span class="ident">parse_macro_input</span>, <span class="ident">AttributeArgs</span>, <span class="ident">Ident</span>, <span class="ident">NestedMeta</span>};
@@ -374,12 +374,12 @@
 
 <span class="kw">impl</span> <span class="ident">ToTokens</span> <span class="kw">for</span> <span class="ident">ResourceType</span> {
     <span class="kw">fn</span> <span class="ident">to_tokens</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">stream</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">TokenStream2</span>) {
-        <span class="kw">let</span> <span class="ident">ident</span> <span class="op">=</span> <span class="macro">format_ident</span><span class="macro">!</span>(<span class="string">&quot;to&quot;</span>);
+        <span class="kw">let</span> <span class="ident">ident</span> <span class="op">=</span> <span class="macro">format_ident!</span>(<span class="string">&quot;to&quot;</span>);
         <span class="ident">stream</span>.<span class="ident">append</span>(<span class="ident">ident</span>);
     }
 }
 
-<span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">method_type</span> {
+<span class="macro">macro_rules!</span> <span class="ident">method_type</span> {
     (
         $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">variant</span>:<span class="ident">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">upper</span>:<span class="ident">ident</span>,)<span class="op">+</span>
     ) <span class="op">=</span><span class="op">&gt;</span> {
@@ -393,21 +393,21 @@
         <span class="kw">impl</span> <span class="ident">MethodType</span> {
             <span class="kw">fn</span> <span class="ident">as_str</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span> {
                 <span class="kw">match</span> <span class="self">self</span> {
-                    $(<span class="self">Self</span>::<span class="macro-nonterminal">$</span><span class="macro-nonterminal">variant</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">stringify</span><span class="macro">!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">variant</span>),)<span class="op">+</span>
+                    $(<span class="self">Self</span>::<span class="macro-nonterminal">$</span><span class="macro-nonterminal">variant</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">stringify!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">variant</span>),)<span class="op">+</span>
                 }
             }
 
             <span class="kw">fn</span> <span class="ident">parse</span>(<span class="ident">method</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">String</span><span class="op">&gt;</span> {
                 <span class="kw">match</span> <span class="ident">method</span> {
-                    $(<span class="macro">stringify</span><span class="macro">!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">upper</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="self">Self</span>::<span class="macro-nonterminal">$</span><span class="macro-nonterminal">variant</span>),)<span class="op">+</span>
-                    <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Unexpected HTTP method: `{}`&quot;</span>, <span class="ident">method</span>)),
+                    $(<span class="macro">stringify!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">upper</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="self">Self</span>::<span class="macro-nonterminal">$</span><span class="macro-nonterminal">variant</span>),)<span class="op">+</span>
+                    <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="macro">format!</span>(<span class="string">&quot;Unexpected HTTP method: `{}`&quot;</span>, <span class="ident">method</span>)),
                 }
             }
         }
     };
 }
 
-<span class="macro">method_type</span><span class="macro">!</span> {
+<span class="macro">method_type!</span> {
     <span class="ident">Get</span>,       <span class="ident">GET</span>,
     <span class="ident">Post</span>,      <span class="ident">POST</span>,
     <span class="ident">Put</span>,       <span class="ident">PUT</span>,
@@ -421,35 +421,35 @@
 
 <span class="kw">impl</span> <span class="ident">ToTokens</span> <span class="kw">for</span> <span class="ident">MethodType</span> {
     <span class="kw">fn</span> <span class="ident">to_tokens</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">stream</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">TokenStream2</span>) {
-        <span class="kw">let</span> <span class="ident">ident</span> <span class="op">=</span> <span class="ident">Ident</span>::<span class="ident">new</span>(<span class="self">self</span>.<span class="ident">as_str</span>(), <span class="ident">Span</span>::<span class="ident">call_site</span>());
+        <span class="kw">let</span> <span class="ident">ident</span> <span class="op">=</span> <span class="ident">Ident::new</span>(<span class="self">self</span>.<span class="ident">as_str</span>(), <span class="ident">Span::call_site</span>());
         <span class="ident">stream</span>.<span class="ident">append</span>(<span class="ident">ident</span>);
     }
 }
 
-<span class="kw">impl</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">syn</span>::<span class="ident">LitStr</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">MethodType</span> {
-    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">syn</span>::<span class="ident">Error</span>;
+<span class="kw">impl</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">syn::LitStr</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">MethodType</span> {
+    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">syn::Error</span>;
 
-    <span class="kw">fn</span> <span class="ident">try_from</span>(<span class="ident">value</span>: <span class="kw-2">&amp;</span><span class="ident">syn</span>::<span class="ident">LitStr</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="self">Self</span>::<span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="self">Self</span>::<span class="ident">parse</span>(<span class="ident">value</span>.<span class="ident">value</span>().<span class="ident">as_str</span>())
-            .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">message</span><span class="op">|</span> <span class="ident">syn</span>::<span class="ident">Error</span>::<span class="ident">new_spanned</span>(<span class="ident">value</span>, <span class="ident">message</span>))
+    <span class="kw">fn</span> <span class="ident">try_from</span>(<span class="ident">value</span>: <span class="kw-2">&amp;</span><span class="ident">syn::LitStr</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="self">Self</span><span class="ident">::Error</span><span class="op">&gt;</span> {
+        <span class="self">Self</span><span class="ident">::parse</span>(<span class="ident">value</span>.<span class="ident">value</span>().<span class="ident">as_str</span>())
+            .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">message</span><span class="op">|</span> <span class="ident">syn::Error::new_spanned</span>(<span class="ident">value</span>, <span class="ident">message</span>))
     }
 }
 
 <span class="kw">struct</span> <span class="ident">Args</span> {
-    <span class="ident">path</span>: <span class="ident">syn</span>::<span class="ident">LitStr</span>,
-    <span class="ident">resource_name</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">syn</span>::<span class="ident">LitStr</span><span class="op">&gt;</span>,
+    <span class="ident">path</span>: <span class="ident">syn::LitStr</span>,
+    <span class="ident">resource_name</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">syn::LitStr</span><span class="op">&gt;</span>,
     <span class="ident">guards</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Ident</span><span class="op">&gt;</span>,
-    <span class="ident">wrappers</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">syn</span>::<span class="ident">Type</span><span class="op">&gt;</span>,
+    <span class="ident">wrappers</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">syn::Type</span><span class="op">&gt;</span>,
     <span class="ident">methods</span>: <span class="ident">HashSet</span><span class="op">&lt;</span><span class="ident">MethodType</span><span class="op">&gt;</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">Args</span> {
-    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">args</span>: <span class="ident">AttributeArgs</span>, <span class="ident">method</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">MethodType</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">syn</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">args</span>: <span class="ident">AttributeArgs</span>, <span class="ident">method</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">MethodType</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">syn::Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">path</span> <span class="op">=</span> <span class="prelude-val">None</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">resource_name</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">guards</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">wrappers</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">methods</span> <span class="op">=</span> <span class="ident">HashSet</span>::<span class="ident">new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">guards</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">wrappers</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">methods</span> <span class="op">=</span> <span class="ident">HashSet::new</span>();
 
         <span class="kw">let</span> <span class="ident">is_route_macro</span> <span class="op">=</span> <span class="ident">method</span>.<span class="ident">is_none</span>();
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">method</span>) <span class="op">=</span> <span class="ident">method</span> {
@@ -458,77 +458,77 @@
 
         <span class="kw">for</span> <span class="ident">arg</span> <span class="kw">in</span> <span class="ident">args</span> {
             <span class="kw">match</span> <span class="ident">arg</span> {
-                <span class="ident">NestedMeta</span>::<span class="ident">Lit</span>(<span class="ident">syn</span>::<span class="ident">Lit</span>::<span class="ident">Str</span>(<span class="ident">lit</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">path</span> {
+                <span class="ident">NestedMeta::Lit</span>(<span class="ident">syn::Lit::Str</span>(<span class="ident">lit</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">path</span> {
                     <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> {
                         <span class="ident">path</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">lit</span>);
                     }
                     <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {
-                        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">syn</span>::<span class="ident">Error</span>::<span class="ident">new_spanned</span>(
+                        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">syn::Error::new_spanned</span>(
                             <span class="ident">lit</span>,
                             <span class="string">&quot;Multiple paths specified! Should be only one!&quot;</span>,
                         ));
                     }
                 },
-                <span class="ident">NestedMeta</span>::<span class="ident">Meta</span>(<span class="ident">syn</span>::<span class="ident">Meta</span>::<span class="ident">NameValue</span>(<span class="ident">nv</span>)) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">NestedMeta::Meta</span>(<span class="ident">syn::Meta::NameValue</span>(<span class="ident">nv</span>)) <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">if</span> <span class="ident">nv</span>.<span class="ident">path</span>.<span class="ident">is_ident</span>(<span class="string">&quot;name&quot;</span>) {
-                        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">syn</span>::<span class="ident">Lit</span>::<span class="ident">Str</span>(<span class="ident">lit</span>) <span class="op">=</span> <span class="ident">nv</span>.<span class="ident">lit</span> {
+                        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">syn::Lit::Str</span>(<span class="ident">lit</span>) <span class="op">=</span> <span class="ident">nv</span>.<span class="ident">lit</span> {
                             <span class="ident">resource_name</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">lit</span>);
                         } <span class="kw">else</span> {
-                            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">syn</span>::<span class="ident">Error</span>::<span class="ident">new_spanned</span>(
+                            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">syn::Error::new_spanned</span>(
                                 <span class="ident">nv</span>.<span class="ident">lit</span>,
                                 <span class="string">&quot;Attribute name expects literal string!&quot;</span>,
                             ));
                         }
                     } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">nv</span>.<span class="ident">path</span>.<span class="ident">is_ident</span>(<span class="string">&quot;guard&quot;</span>) {
-                        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">syn</span>::<span class="ident">Lit</span>::<span class="ident">Str</span>(<span class="ident">lit</span>) <span class="op">=</span> <span class="ident">nv</span>.<span class="ident">lit</span> {
-                            <span class="ident">guards</span>.<span class="ident">push</span>(<span class="ident">Ident</span>::<span class="ident">new</span>(<span class="kw-2">&amp;</span><span class="ident">lit</span>.<span class="ident">value</span>(), <span class="ident">Span</span>::<span class="ident">call_site</span>()));
+                        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">syn::Lit::Str</span>(<span class="ident">lit</span>) <span class="op">=</span> <span class="ident">nv</span>.<span class="ident">lit</span> {
+                            <span class="ident">guards</span>.<span class="ident">push</span>(<span class="ident">Ident::new</span>(<span class="kw-2">&amp;</span><span class="ident">lit</span>.<span class="ident">value</span>(), <span class="ident">Span::call_site</span>()));
                         } <span class="kw">else</span> {
-                            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">syn</span>::<span class="ident">Error</span>::<span class="ident">new_spanned</span>(
+                            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">syn::Error::new_spanned</span>(
                                 <span class="ident">nv</span>.<span class="ident">lit</span>,
                                 <span class="string">&quot;Attribute guard expects literal string!&quot;</span>,
                             ));
                         }
                     } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">nv</span>.<span class="ident">path</span>.<span class="ident">is_ident</span>(<span class="string">&quot;wrap&quot;</span>) {
-                        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">syn</span>::<span class="ident">Lit</span>::<span class="ident">Str</span>(<span class="ident">lit</span>) <span class="op">=</span> <span class="ident">nv</span>.<span class="ident">lit</span> {
+                        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">syn::Lit::Str</span>(<span class="ident">lit</span>) <span class="op">=</span> <span class="ident">nv</span>.<span class="ident">lit</span> {
                             <span class="ident">wrappers</span>.<span class="ident">push</span>(<span class="ident">lit</span>.<span class="ident">parse</span>()<span class="question-mark">?</span>);
                         } <span class="kw">else</span> {
-                            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">syn</span>::<span class="ident">Error</span>::<span class="ident">new_spanned</span>(
+                            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">syn::Error::new_spanned</span>(
                                 <span class="ident">nv</span>.<span class="ident">lit</span>,
                                 <span class="string">&quot;Attribute wrap expects type&quot;</span>,
                             ));
                         }
                     } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">nv</span>.<span class="ident">path</span>.<span class="ident">is_ident</span>(<span class="string">&quot;method&quot;</span>) {
                         <span class="kw">if</span> <span class="op">!</span><span class="ident">is_route_macro</span> {
-                            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">syn</span>::<span class="ident">Error</span>::<span class="ident">new_spanned</span>(
+                            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">syn::Error::new_spanned</span>(
                                 <span class="kw-2">&amp;</span><span class="ident">nv</span>,
                                 <span class="string">&quot;HTTP method forbidden here. To handle multiple methods, use `route` instead&quot;</span>,
                             ));
-                        } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="ident">syn</span>::<span class="ident">Lit</span>::<span class="ident">Str</span>(<span class="kw-2">ref</span> <span class="ident">lit</span>) <span class="op">=</span> <span class="ident">nv</span>.<span class="ident">lit</span> {
-                            <span class="kw">let</span> <span class="ident">method</span> <span class="op">=</span> <span class="ident">MethodType</span>::<span class="ident">try_from</span>(<span class="ident">lit</span>)<span class="question-mark">?</span>;
+                        } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="ident">syn::Lit::Str</span>(<span class="kw-2">ref</span> <span class="ident">lit</span>) <span class="op">=</span> <span class="ident">nv</span>.<span class="ident">lit</span> {
+                            <span class="kw">let</span> <span class="ident">method</span> <span class="op">=</span> <span class="ident">MethodType::try_from</span>(<span class="ident">lit</span>)<span class="question-mark">?</span>;
                             <span class="kw">if</span> <span class="op">!</span><span class="ident">methods</span>.<span class="ident">insert</span>(<span class="ident">method</span>) {
-                                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">syn</span>::<span class="ident">Error</span>::<span class="ident">new_spanned</span>(
+                                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">syn::Error::new_spanned</span>(
                                     <span class="kw-2">&amp;</span><span class="ident">nv</span>.<span class="ident">lit</span>,
-                                    <span class="kw-2">&amp;</span><span class="macro">format</span><span class="macro">!</span>(
+                                    <span class="kw-2">&amp;</span><span class="macro">format!</span>(
                                         <span class="string">&quot;HTTP method defined more than once: `{}`&quot;</span>,
                                         <span class="ident">lit</span>.<span class="ident">value</span>()
                                     ),
                                 ));
                             }
                         } <span class="kw">else</span> {
-                            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">syn</span>::<span class="ident">Error</span>::<span class="ident">new_spanned</span>(
+                            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">syn::Error::new_spanned</span>(
                                 <span class="ident">nv</span>.<span class="ident">lit</span>,
                                 <span class="string">&quot;Attribute method expects literal string!&quot;</span>,
                             ));
                         }
                     } <span class="kw">else</span> {
-                        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">syn</span>::<span class="ident">Error</span>::<span class="ident">new_spanned</span>(
+                        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">syn::Error::new_spanned</span>(
                             <span class="ident">nv</span>.<span class="ident">path</span>,
                             <span class="string">&quot;Unknown attribute key is specified. Allowed: guard, method and wrap&quot;</span>,
                         ));
                     }
                 }
                 <span class="ident">arg</span> <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">syn</span>::<span class="ident">Error</span>::<span class="ident">new_spanned</span>(<span class="ident">arg</span>, <span class="string">&quot;Unknown attribute.&quot;</span>));
+                    <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">syn::Error::new_spanned</span>(<span class="ident">arg</span>, <span class="string">&quot;Unknown attribute.&quot;</span>));
                 }
             }
         }
@@ -543,27 +543,27 @@
 }
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Route</span> {
-    <span class="ident">name</span>: <span class="ident">syn</span>::<span class="ident">Ident</span>,
+    <span class="ident">name</span>: <span class="ident">syn::Ident</span>,
     <span class="ident">args</span>: <span class="ident">Args</span>,
-    <span class="ident">ast</span>: <span class="ident">syn</span>::<span class="ident">ItemFn</span>,
+    <span class="ident">ast</span>: <span class="ident">syn::ItemFn</span>,
     <span class="ident">resource_type</span>: <span class="ident">ResourceType</span>,
 
     <span class="doccomment">/// The doc comment attributes to copy to generated struct, if any.</span>
-    <span class="ident">doc_attributes</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">syn</span>::<span class="ident">Attribute</span><span class="op">&gt;</span>,
+    <span class="ident">doc_attributes</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">syn::Attribute</span><span class="op">&gt;</span>,
 }
 
-<span class="kw">fn</span> <span class="ident">guess_resource_type</span>(<span class="ident">typ</span>: <span class="kw-2">&amp;</span><span class="ident">syn</span>::<span class="ident">Type</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ResourceType</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">guess</span> <span class="op">=</span> <span class="ident">ResourceType</span>::<span class="ident">Sync</span>;
+<span class="kw">fn</span> <span class="ident">guess_resource_type</span>(<span class="ident">typ</span>: <span class="kw-2">&amp;</span><span class="ident">syn::Type</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ResourceType</span> {
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">guess</span> <span class="op">=</span> <span class="ident">ResourceType::Sync</span>;
 
-    <span class="kw">if</span> <span class="kw">let</span> <span class="ident">syn</span>::<span class="ident">Type</span>::<span class="ident">ImplTrait</span>(<span class="ident">typ</span>) <span class="op">=</span> <span class="ident">typ</span> {
+    <span class="kw">if</span> <span class="kw">let</span> <span class="ident">syn::Type::ImplTrait</span>(<span class="ident">typ</span>) <span class="op">=</span> <span class="ident">typ</span> {
         <span class="kw">for</span> <span class="ident">bound</span> <span class="kw">in</span> <span class="ident">typ</span>.<span class="ident">bounds</span>.<span class="ident">iter</span>() {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">syn</span>::<span class="ident">TypeParamBound</span>::<span class="ident">Trait</span>(<span class="ident">bound</span>) <span class="op">=</span> <span class="ident">bound</span> {
+            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">syn::TypeParamBound::Trait</span>(<span class="ident">bound</span>) <span class="op">=</span> <span class="ident">bound</span> {
                 <span class="kw">for</span> <span class="ident">bound</span> <span class="kw">in</span> <span class="ident">bound</span>.<span class="ident">path</span>.<span class="ident">segments</span>.<span class="ident">iter</span>() {
                     <span class="kw">if</span> <span class="ident">bound</span>.<span class="ident">ident</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;Future&quot;</span> {
-                        <span class="ident">guess</span> <span class="op">=</span> <span class="ident">ResourceType</span>::<span class="ident">Async</span>;
+                        <span class="ident">guess</span> <span class="op">=</span> <span class="ident">ResourceType::Async</span>;
                         <span class="kw">break</span>;
                     } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">bound</span>.<span class="ident">ident</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;Responder&quot;</span> {
-                        <span class="ident">guess</span> <span class="op">=</span> <span class="ident">ResourceType</span>::<span class="ident">Sync</span>;
+                        <span class="ident">guess</span> <span class="op">=</span> <span class="ident">ResourceType::Sync</span>;
                         <span class="kw">break</span>;
                     }
                 }
@@ -579,11 +579,11 @@
         <span class="ident">args</span>: <span class="ident">AttributeArgs</span>,
         <span class="ident">input</span>: <span class="ident">TokenStream</span>,
         <span class="ident">method</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">MethodType</span><span class="op">&gt;</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">syn</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">syn::Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="ident">args</span>.<span class="ident">is_empty</span>() {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">syn</span>::<span class="ident">Error</span>::<span class="ident">new</span>(
-                <span class="ident">Span</span>::<span class="ident">call_site</span>(),
-                <span class="macro">format</span><span class="macro">!</span>(
+            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">syn::Error::new</span>(
+                <span class="ident">Span::call_site</span>(),
+                <span class="macro">format!</span>(
                     <span class="string">r#&quot;invalid service definition, expected #[{}(&quot;&lt;some path&gt;&quot;)]&quot;#</span>,
                     <span class="ident">method</span>
                         .<span class="ident">map</span>(<span class="op">|</span><span class="ident">it</span><span class="op">|</span> <span class="ident">it</span>.<span class="ident">as_str</span>())
@@ -592,7 +592,7 @@
                 ),
             ));
         }
-        <span class="kw">let</span> <span class="ident">ast</span>: <span class="ident">syn</span>::<span class="ident">ItemFn</span> <span class="op">=</span> <span class="ident">syn</span>::<span class="ident">parse</span>(<span class="ident">input</span>)<span class="question-mark">?</span>;
+        <span class="kw">let</span> <span class="ident">ast</span>: <span class="ident">syn::ItemFn</span> <span class="op">=</span> <span class="ident">syn::parse</span>(<span class="ident">input</span>)<span class="question-mark">?</span>;
         <span class="kw">let</span> <span class="ident">name</span> <span class="op">=</span> <span class="ident">ast</span>.<span class="ident">sig</span>.<span class="ident">ident</span>.<span class="ident">clone</span>();
 
         <span class="comment">// Try and pull out the doc comments so that we can reapply them to the</span>
@@ -607,25 +607,25 @@
             .<span class="ident">cloned</span>()
             .<span class="ident">collect</span>();
 
-        <span class="kw">let</span> <span class="ident">args</span> <span class="op">=</span> <span class="ident">Args</span>::<span class="ident">new</span>(<span class="ident">args</span>, <span class="ident">method</span>)<span class="question-mark">?</span>;
+        <span class="kw">let</span> <span class="ident">args</span> <span class="op">=</span> <span class="ident">Args::new</span>(<span class="ident">args</span>, <span class="ident">method</span>)<span class="question-mark">?</span>;
         <span class="kw">if</span> <span class="ident">args</span>.<span class="ident">methods</span>.<span class="ident">is_empty</span>() {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">syn</span>::<span class="ident">Error</span>::<span class="ident">new</span>(
-                <span class="ident">Span</span>::<span class="ident">call_site</span>(),
+            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">syn::Error::new</span>(
+                <span class="ident">Span::call_site</span>(),
                 <span class="string">&quot;The #[route(..)] macro requires at least one `method` attribute&quot;</span>,
             ));
         }
 
         <span class="kw">let</span> <span class="ident">resource_type</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">ast</span>.<span class="ident">sig</span>.<span class="ident">asyncness</span>.<span class="ident">is_some</span>() {
-            <span class="ident">ResourceType</span>::<span class="ident">Async</span>
+            <span class="ident">ResourceType::Async</span>
         } <span class="kw">else</span> {
             <span class="kw">match</span> <span class="ident">ast</span>.<span class="ident">sig</span>.<span class="ident">output</span> {
-                <span class="ident">syn</span>::<span class="ident">ReturnType</span>::<span class="ident">Default</span> <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">syn</span>::<span class="ident">Error</span>::<span class="ident">new_spanned</span>(
+                <span class="ident">syn::ReturnType::Default</span> <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">syn::Error::new_spanned</span>(
                         <span class="ident">ast</span>,
                         <span class="string">&quot;Function has no return type. Cannot be used as handler&quot;</span>,
                     ));
                 }
-                <span class="ident">syn</span>::<span class="ident">ReturnType</span>::<span class="ident">Type</span>(<span class="kw">_</span>, <span class="kw-2">ref</span> <span class="ident">typ</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">guess_resource_type</span>(<span class="ident">typ</span>.<span class="ident">as_ref</span>()),
+                <span class="ident">syn::ReturnType::Type</span>(<span class="kw">_</span>, <span class="kw-2">ref</span> <span class="ident">typ</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">guess_resource_type</span>(<span class="ident">typ</span>.<span class="ident">as_ref</span>()),
             }
         };
 
@@ -664,35 +664,35 @@
             <span class="kw">let</span> <span class="ident">first</span> <span class="op">=</span> <span class="ident">others</span>.<span class="ident">next</span>().<span class="ident">unwrap</span>();
 
             <span class="kw">if</span> <span class="ident">methods</span>.<span class="ident">len</span>() <span class="op">&gt;</span> <span class="number">1</span> {
-                <span class="macro">quote</span><span class="macro">!</span> {
+                <span class="macro">quote!</span> {
                     .<span class="ident">guard</span>(
-                        <span class="ident">actix_web</span>::<span class="ident">guard</span>::<span class="ident">Any</span>(<span class="ident">actix_web</span>::<span class="ident">guard</span>::#<span class="ident">first</span>())
-                            #(.<span class="ident">or</span>(<span class="ident">actix_web</span>::<span class="ident">guard</span>::#<span class="ident">others</span>()))<span class="op">*</span>
+                        <span class="ident">actix_web::guard::Any</span>(<span class="ident">actix_web::guard</span>::#<span class="ident">first</span>())
+                            #(.<span class="ident">or</span>(<span class="ident">actix_web::guard</span>::#<span class="ident">others</span>()))<span class="op">*</span>
                     )
                 }
             } <span class="kw">else</span> {
-                <span class="macro">quote</span><span class="macro">!</span> {
-                    .<span class="ident">guard</span>(<span class="ident">actix_web</span>::<span class="ident">guard</span>::#<span class="ident">first</span>())
+                <span class="macro">quote!</span> {
+                    .<span class="ident">guard</span>(<span class="ident">actix_web::guard</span>::#<span class="ident">first</span>())
                 }
             }
         };
 
-        <span class="kw">let</span> <span class="ident">stream</span> <span class="op">=</span> <span class="macro">quote</span><span class="macro">!</span> {
+        <span class="kw">let</span> <span class="ident">stream</span> <span class="op">=</span> <span class="macro">quote!</span> {
             #(#<span class="ident">doc_attributes</span>)<span class="op">*</span>
             <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">non_camel_case_types</span>, <span class="ident">missing_docs</span>)]</span>
             <span class="kw">pub</span> <span class="kw">struct</span> #<span class="ident">name</span>;
 
-            <span class="kw">impl</span> <span class="ident">actix_web</span>::<span class="ident">dev</span>::<span class="ident">HttpServiceFactory</span> <span class="kw">for</span> #<span class="ident">name</span> {
-                <span class="kw">fn</span> <span class="ident">register</span>(<span class="self">self</span>, <span class="ident">__config</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">actix_web</span>::<span class="ident">dev</span>::<span class="ident">AppService</span>) {
+            <span class="kw">impl</span> <span class="ident">actix_web::dev::HttpServiceFactory</span> <span class="kw">for</span> #<span class="ident">name</span> {
+                <span class="kw">fn</span> <span class="ident">register</span>(<span class="self">self</span>, <span class="ident">__config</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">actix_web::dev::AppService</span>) {
                     #<span class="ident">ast</span>
-                    <span class="kw">let</span> <span class="ident">__resource</span> <span class="op">=</span> <span class="ident">actix_web</span>::<span class="ident">Resource</span>::<span class="ident">new</span>(#<span class="ident">path</span>)
+                    <span class="kw">let</span> <span class="ident">__resource</span> <span class="op">=</span> <span class="ident">actix_web::Resource::new</span>(#<span class="ident">path</span>)
                         .<span class="ident">name</span>(#<span class="ident">resource_name</span>)
                         #<span class="ident">method_guards</span>
-                        #(.<span class="ident">guard</span>(<span class="ident">actix_web</span>::<span class="ident">guard</span>::<span class="ident">fn_guard</span>(#<span class="ident">guards</span>)))<span class="op">*</span>
+                        #(.<span class="ident">guard</span>(<span class="ident">actix_web::guard::fn_guard</span>(#<span class="ident">guards</span>)))<span class="op">*</span>
                         #(.<span class="ident">wrap</span>(#<span class="ident">wrappers</span>))<span class="op">*</span>
                         .#<span class="ident">resource_type</span>(#<span class="ident">name</span>);
 
-                    <span class="ident">actix_web</span>::<span class="ident">dev</span>::<span class="ident">HttpServiceFactory</span>::<span class="ident">register</span>(<span class="ident">__resource</span>, <span class="ident">__config</span>)
+                    <span class="ident">actix_web::dev::HttpServiceFactory::register</span>(<span class="ident">__resource</span>, <span class="ident">__config</span>)
                 }
             }
         };
@@ -706,12 +706,12 @@
     <span class="ident">args</span>: <span class="ident">TokenStream</span>,
     <span class="ident">input</span>: <span class="ident">TokenStream</span>,
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">TokenStream</span> {
-    <span class="kw">let</span> <span class="ident">args</span> <span class="op">=</span> <span class="macro">parse_macro_input</span><span class="macro">!</span>(<span class="ident">args</span> <span class="kw">as</span> <span class="ident">syn</span>::<span class="ident">AttributeArgs</span>);
-    <span class="kw">match</span> <span class="ident">Route</span>::<span class="ident">new</span>(<span class="ident">args</span>, <span class="ident">input</span>, <span class="ident">method</span>) {
+    <span class="kw">let</span> <span class="ident">args</span> <span class="op">=</span> <span class="macro">parse_macro_input!</span>(<span class="ident">args</span> <span class="kw">as</span> <span class="ident">syn::AttributeArgs</span>);
+    <span class="kw">match</span> <span class="ident">Route::new</span>(<span class="ident">args</span>, <span class="ident">input</span>, <span class="ident">method</span>) {
         <span class="prelude-val">Ok</span>(<span class="ident">route</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">route</span>.<span class="ident">into_token_stream</span>().<span class="ident">into</span>(),
         <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">err</span>.<span class="ident">to_compile_error</span>().<span class="ident">into</span>(),
     }
 }
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="actix_web_codegen" data-search-js="../../search-index.js"></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="actix_web_codegen" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
     <script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script></body></html>

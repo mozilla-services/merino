@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/usr/local/cargo/registry/src/github.com-1ecc6299db9ec823/serde-hjson-0.9.1/src/ser.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>ser.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../favicon-16x16.png">
-<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../serde_hjson/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../serde_hjson/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">   1</span>
 <span id="2">   2</span>
 <span id="3">   3</span>
@@ -1062,16 +1062,16 @@
 <span class="doccomment">//!</span>
 <span class="doccomment">//! This module provides for Hjson serialization with the type `Serializer`.</span>
 
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">io</span>;
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">num</span>::<span class="ident">FpCategory</span>;
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>::{ <span class="ident">Display</span>, <span class="ident">LowerExp</span> };
+<span class="kw">use</span> <span class="ident">std::io</span>;
+<span class="kw">use</span> <span class="ident">std::num::FpCategory</span>;
+<span class="kw">use</span> <span class="ident">std::fmt</span>::{ <span class="ident">Display</span>, <span class="ident">LowerExp</span> };
 
-<span class="kw">use</span> <span class="ident">serde</span>::<span class="ident">ser</span>;
-<span class="kw">use</span> <span class="kw">super</span>::<span class="ident">error</span>::{<span class="ident">Error</span>, <span class="ident">ErrorCode</span>, <span class="prelude-ty">Result</span>};
+<span class="kw">use</span> <span class="ident">serde::ser</span>;
+<span class="kw">use</span> <span class="kw">super</span><span class="ident">::error</span>::{<span class="ident">Error</span>, <span class="ident">ErrorCode</span>, <span class="prelude-ty">Result</span>};
 
-<span class="kw">use</span> <span class="kw">super</span>::<span class="ident">util</span>::<span class="ident">ParseNumber</span>;
+<span class="kw">use</span> <span class="kw">super</span><span class="ident">::util::ParseNumber</span>;
 
-<span class="kw">use</span> <span class="ident">regex</span>::<span class="ident">Regex</span>;
+<span class="kw">use</span> <span class="ident">regex::Regex</span>;
 
 <span class="doccomment">/// A structure for serializing Rust values into Hjson.</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Serializer</span><span class="op">&lt;</span><span class="ident">W</span>, <span class="ident">F</span><span class="op">&gt;</span> {
@@ -1080,16 +1080,16 @@
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">W</span><span class="op">&gt;</span> <span class="ident">Serializer</span><span class="op">&lt;</span><span class="ident">W</span>, <span class="ident">HjsonFormatter</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>
-    <span class="kw">where</span> <span class="ident">W</span>: <span class="ident">io</span>::<span class="ident">Write</span> {
+    <span class="kw">where</span> <span class="ident">W</span>: <span class="ident">io::Write</span> {
     <span class="doccomment">/// Creates a new Hjson serializer.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">writer</span>: <span class="ident">W</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="ident">Serializer</span>::<span class="ident">with_formatter</span>(<span class="ident">writer</span>, <span class="ident">HjsonFormatter</span>::<span class="ident">new</span>())
+        <span class="ident">Serializer::with_formatter</span>(<span class="ident">writer</span>, <span class="ident">HjsonFormatter::new</span>())
     }
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">W</span>, <span class="ident">F</span><span class="op">&gt;</span> <span class="ident">Serializer</span><span class="op">&lt;</span><span class="ident">W</span>, <span class="ident">F</span><span class="op">&gt;</span>
-    <span class="kw">where</span> <span class="ident">W</span>: <span class="ident">io</span>::<span class="ident">Write</span>,
+    <span class="kw">where</span> <span class="ident">W</span>: <span class="ident">io::Write</span>,
           <span class="ident">F</span>: <span class="ident">Formatter</span> {
     <span class="doccomment">/// Creates a new Hjson visitor whose output will be written to the writer</span>
     <span class="doccomment">/// specified.</span>
@@ -1116,8 +1116,8 @@
     <span class="ident">Rest</span>,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">W</span>, <span class="ident">F</span><span class="op">&gt;</span> <span class="ident">ser</span>::<span class="ident">Serializer</span> <span class="kw">for</span> <span class="ident">Serializer</span><span class="op">&lt;</span><span class="ident">W</span>, <span class="ident">F</span><span class="op">&gt;</span>
-    <span class="kw">where</span> <span class="ident">W</span>: <span class="ident">io</span>::<span class="ident">Write</span>,
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">W</span>, <span class="ident">F</span><span class="op">&gt;</span> <span class="ident">ser::Serializer</span> <span class="kw">for</span> <span class="ident">Serializer</span><span class="op">&lt;</span><span class="ident">W</span>, <span class="ident">F</span><span class="op">&gt;</span>
+    <span class="kw">where</span> <span class="ident">W</span>: <span class="ident">io::Write</span>,
           <span class="ident">F</span>: <span class="ident">Formatter</span> {
     <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">Error</span>;
 
@@ -1131,110 +1131,110 @@
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">serialize_bool</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="ident">bool</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="macro">try</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">formatter</span>.<span class="ident">start_value</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">writer</span>));
+        <span class="macro">try!</span>(<span class="self">self</span>.<span class="ident">formatter</span>.<span class="ident">start_value</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">writer</span>));
         <span class="kw">if</span> <span class="ident">value</span> {
-            <span class="self">self</span>.<span class="ident">writer</span>.<span class="ident">write_all</span>(<span class="string">b&quot;true&quot;</span>).<span class="ident">map_err</span>(<span class="ident">From</span>::<span class="ident">from</span>)
+            <span class="self">self</span>.<span class="ident">writer</span>.<span class="ident">write_all</span>(<span class="string">b&quot;true&quot;</span>).<span class="ident">map_err</span>(<span class="ident">From::from</span>)
         } <span class="kw">else</span> {
-            <span class="self">self</span>.<span class="ident">writer</span>.<span class="ident">write_all</span>(<span class="string">b&quot;false&quot;</span>).<span class="ident">map_err</span>(<span class="ident">From</span>::<span class="ident">from</span>)
+            <span class="self">self</span>.<span class="ident">writer</span>.<span class="ident">write_all</span>(<span class="string">b&quot;false&quot;</span>).<span class="ident">map_err</span>(<span class="ident">From::from</span>)
         }
     }
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">serialize_isize</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="ident">isize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="macro">try</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">formatter</span>.<span class="ident">start_value</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">writer</span>));
-        <span class="macro">write</span><span class="macro">!</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">writer</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">value</span>).<span class="ident">map_err</span>(<span class="ident">From</span>::<span class="ident">from</span>)
+        <span class="macro">try!</span>(<span class="self">self</span>.<span class="ident">formatter</span>.<span class="ident">start_value</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">writer</span>));
+        <span class="macro">write!</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">writer</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">value</span>).<span class="ident">map_err</span>(<span class="ident">From::from</span>)
     }
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">serialize_i8</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="ident">i8</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="macro">try</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">formatter</span>.<span class="ident">start_value</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">writer</span>));
-        <span class="macro">write</span><span class="macro">!</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">writer</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">value</span>).<span class="ident">map_err</span>(<span class="ident">From</span>::<span class="ident">from</span>)
+        <span class="macro">try!</span>(<span class="self">self</span>.<span class="ident">formatter</span>.<span class="ident">start_value</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">writer</span>));
+        <span class="macro">write!</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">writer</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">value</span>).<span class="ident">map_err</span>(<span class="ident">From::from</span>)
     }
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">serialize_i16</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="ident">i16</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="macro">try</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">formatter</span>.<span class="ident">start_value</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">writer</span>));
-        <span class="macro">write</span><span class="macro">!</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">writer</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">value</span>).<span class="ident">map_err</span>(<span class="ident">From</span>::<span class="ident">from</span>)
+        <span class="macro">try!</span>(<span class="self">self</span>.<span class="ident">formatter</span>.<span class="ident">start_value</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">writer</span>));
+        <span class="macro">write!</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">writer</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">value</span>).<span class="ident">map_err</span>(<span class="ident">From::from</span>)
     }
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">serialize_i32</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="ident">i32</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="macro">try</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">formatter</span>.<span class="ident">start_value</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">writer</span>));
-        <span class="macro">write</span><span class="macro">!</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">writer</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">value</span>).<span class="ident">map_err</span>(<span class="ident">From</span>::<span class="ident">from</span>)
+        <span class="macro">try!</span>(<span class="self">self</span>.<span class="ident">formatter</span>.<span class="ident">start_value</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">writer</span>));
+        <span class="macro">write!</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">writer</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">value</span>).<span class="ident">map_err</span>(<span class="ident">From::from</span>)
     }
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">serialize_i64</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="ident">i64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="macro">try</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">formatter</span>.<span class="ident">start_value</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">writer</span>));
-        <span class="macro">write</span><span class="macro">!</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">writer</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">value</span>).<span class="ident">map_err</span>(<span class="ident">From</span>::<span class="ident">from</span>)
+        <span class="macro">try!</span>(<span class="self">self</span>.<span class="ident">formatter</span>.<span class="ident">start_value</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">writer</span>));
+        <span class="macro">write!</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">writer</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">value</span>).<span class="ident">map_err</span>(<span class="ident">From::from</span>)
     }
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">serialize_usize</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="macro">try</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">formatter</span>.<span class="ident">start_value</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">writer</span>));
-        <span class="macro">write</span><span class="macro">!</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">writer</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">value</span>).<span class="ident">map_err</span>(<span class="ident">From</span>::<span class="ident">from</span>)
+        <span class="macro">try!</span>(<span class="self">self</span>.<span class="ident">formatter</span>.<span class="ident">start_value</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">writer</span>));
+        <span class="macro">write!</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">writer</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">value</span>).<span class="ident">map_err</span>(<span class="ident">From::from</span>)
     }
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">serialize_u8</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="ident">u8</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="macro">try</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">formatter</span>.<span class="ident">start_value</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">writer</span>));
-        <span class="macro">write</span><span class="macro">!</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">writer</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">value</span>).<span class="ident">map_err</span>(<span class="ident">From</span>::<span class="ident">from</span>)
+        <span class="macro">try!</span>(<span class="self">self</span>.<span class="ident">formatter</span>.<span class="ident">start_value</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">writer</span>));
+        <span class="macro">write!</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">writer</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">value</span>).<span class="ident">map_err</span>(<span class="ident">From::from</span>)
     }
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">serialize_u16</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="ident">u16</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="macro">try</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">formatter</span>.<span class="ident">start_value</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">writer</span>));
-        <span class="macro">write</span><span class="macro">!</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">writer</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">value</span>).<span class="ident">map_err</span>(<span class="ident">From</span>::<span class="ident">from</span>)
+        <span class="macro">try!</span>(<span class="self">self</span>.<span class="ident">formatter</span>.<span class="ident">start_value</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">writer</span>));
+        <span class="macro">write!</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">writer</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">value</span>).<span class="ident">map_err</span>(<span class="ident">From::from</span>)
     }
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">serialize_u32</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="ident">u32</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="macro">try</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">formatter</span>.<span class="ident">start_value</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">writer</span>));
-        <span class="macro">write</span><span class="macro">!</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">writer</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">value</span>).<span class="ident">map_err</span>(<span class="ident">From</span>::<span class="ident">from</span>)
+        <span class="macro">try!</span>(<span class="self">self</span>.<span class="ident">formatter</span>.<span class="ident">start_value</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">writer</span>));
+        <span class="macro">write!</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">writer</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">value</span>).<span class="ident">map_err</span>(<span class="ident">From::from</span>)
     }
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">serialize_u64</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="ident">u64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="macro">try</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">formatter</span>.<span class="ident">start_value</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">writer</span>));
-        <span class="macro">write</span><span class="macro">!</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">writer</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">value</span>).<span class="ident">map_err</span>(<span class="ident">From</span>::<span class="ident">from</span>)
+        <span class="macro">try!</span>(<span class="self">self</span>.<span class="ident">formatter</span>.<span class="ident">start_value</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">writer</span>));
+        <span class="macro">write!</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">writer</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">value</span>).<span class="ident">map_err</span>(<span class="ident">From::from</span>)
     }
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">serialize_f32</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="ident">f32</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="macro">try</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">formatter</span>.<span class="ident">start_value</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">writer</span>));
-        <span class="ident">fmt_f32_or_null</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">writer</span>, <span class="kw">if</span> <span class="ident">value</span> <span class="op">=</span><span class="op">=</span> <span class="op">-</span><span class="number">0f32</span> { <span class="number">0f32</span> } <span class="kw">else</span> { <span class="ident">value</span> }).<span class="ident">map_err</span>(<span class="ident">From</span>::<span class="ident">from</span>)
+        <span class="macro">try!</span>(<span class="self">self</span>.<span class="ident">formatter</span>.<span class="ident">start_value</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">writer</span>));
+        <span class="ident">fmt_f32_or_null</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">writer</span>, <span class="kw">if</span> <span class="ident">value</span> <span class="op">=</span><span class="op">=</span> <span class="op">-</span><span class="number">0f32</span> { <span class="number">0f32</span> } <span class="kw">else</span> { <span class="ident">value</span> }).<span class="ident">map_err</span>(<span class="ident">From::from</span>)
     }
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">serialize_f64</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="ident">f64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="macro">try</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">formatter</span>.<span class="ident">start_value</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">writer</span>));
-        <span class="ident">fmt_f64_or_null</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">writer</span>, <span class="kw">if</span> <span class="ident">value</span> <span class="op">=</span><span class="op">=</span> <span class="op">-</span><span class="number">0f64</span> { <span class="number">0f64</span> } <span class="kw">else</span> { <span class="ident">value</span> }).<span class="ident">map_err</span>(<span class="ident">From</span>::<span class="ident">from</span>)
+        <span class="macro">try!</span>(<span class="self">self</span>.<span class="ident">formatter</span>.<span class="ident">start_value</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">writer</span>));
+        <span class="ident">fmt_f64_or_null</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">writer</span>, <span class="kw">if</span> <span class="ident">value</span> <span class="op">=</span><span class="op">=</span> <span class="op">-</span><span class="number">0f64</span> { <span class="number">0f64</span> } <span class="kw">else</span> { <span class="ident">value</span> }).<span class="ident">map_err</span>(<span class="ident">From::from</span>)
     }
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">serialize_char</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="ident">char</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="macro">try</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">formatter</span>.<span class="ident">start_value</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">writer</span>));
-        <span class="ident">escape_char</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">writer</span>, <span class="ident">value</span>).<span class="ident">map_err</span>(<span class="ident">From</span>::<span class="ident">from</span>)
+        <span class="macro">try!</span>(<span class="self">self</span>.<span class="ident">formatter</span>.<span class="ident">start_value</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">writer</span>));
+        <span class="ident">escape_char</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">writer</span>, <span class="ident">value</span>).<span class="ident">map_err</span>(<span class="ident">From::from</span>)
     }
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">serialize_str</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="ident">quote_str</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">writer</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">formatter</span>, <span class="ident">value</span>).<span class="ident">map_err</span>(<span class="ident">From</span>::<span class="ident">from</span>)
+        <span class="ident">quote_str</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">writer</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">formatter</span>, <span class="ident">value</span>).<span class="ident">map_err</span>(<span class="ident">From::from</span>)
     }
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">serialize_bytes</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">state</span> <span class="op">=</span> <span class="macro">try</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">serialize_seq</span>(<span class="prelude-val">Some</span>(<span class="ident">value</span>.<span class="ident">len</span>())));
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">state</span> <span class="op">=</span> <span class="macro">try!</span>(<span class="self">self</span>.<span class="ident">serialize_seq</span>(<span class="prelude-val">Some</span>(<span class="ident">value</span>.<span class="ident">len</span>())));
         <span class="kw">for</span> <span class="ident">byte</span> <span class="kw">in</span> <span class="ident">value</span> {
-            <span class="macro">try</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">serialize_seq_elt</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">state</span>, <span class="ident">byte</span>));
+            <span class="macro">try!</span>(<span class="self">self</span>.<span class="ident">serialize_seq_elt</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">state</span>, <span class="ident">byte</span>));
         }
         <span class="self">self</span>.<span class="ident">serialize_seq_end</span>(<span class="ident">state</span>)
     }
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">serialize_unit</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="macro">try</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">formatter</span>.<span class="ident">start_value</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">writer</span>));
-        <span class="self">self</span>.<span class="ident">writer</span>.<span class="ident">write_all</span>(<span class="string">b&quot;null&quot;</span>).<span class="ident">map_err</span>(<span class="ident">From</span>::<span class="ident">from</span>)
+        <span class="macro">try!</span>(<span class="self">self</span>.<span class="ident">formatter</span>.<span class="ident">start_value</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">writer</span>));
+        <span class="self">self</span>.<span class="ident">writer</span>.<span class="ident">write_all</span>(<span class="string">b&quot;null&quot;</span>).<span class="ident">map_err</span>(<span class="ident">From::from</span>)
     }
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
@@ -1259,7 +1259,7 @@
         <span class="ident">_name</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>,
         <span class="ident">value</span>: <span class="ident">T</span>
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
-        <span class="kw">where</span> <span class="ident">T</span>: <span class="ident">ser</span>::<span class="ident">Serialize</span>,
+        <span class="kw">where</span> <span class="ident">T</span>: <span class="ident">ser::Serialize</span>,
     {
         <span class="ident">value</span>.<span class="ident">serialize</span>(<span class="self">self</span>)
     }
@@ -1272,13 +1272,13 @@
         <span class="ident">variant</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>,
         <span class="ident">value</span>: <span class="ident">T</span>
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
-        <span class="kw">where</span> <span class="ident">T</span>: <span class="ident">ser</span>::<span class="ident">Serialize</span>,
+        <span class="kw">where</span> <span class="ident">T</span>: <span class="ident">ser::Serialize</span>,
     {
-        <span class="macro">try</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">formatter</span>.<span class="ident">open</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">writer</span>, <span class="string">b&#39;{&#39;</span>));
-        <span class="macro">try</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">formatter</span>.<span class="ident">comma</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">writer</span>, <span class="bool-val">true</span>));
-        <span class="macro">try</span><span class="macro">!</span>(<span class="ident">escape_key</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">writer</span>, <span class="ident">variant</span>));
-        <span class="macro">try</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">formatter</span>.<span class="ident">colon</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">writer</span>));
-        <span class="macro">try</span><span class="macro">!</span>(<span class="ident">value</span>.<span class="ident">serialize</span>(<span class="self">self</span>));
+        <span class="macro">try!</span>(<span class="self">self</span>.<span class="ident">formatter</span>.<span class="ident">open</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">writer</span>, <span class="string">b&#39;{&#39;</span>));
+        <span class="macro">try!</span>(<span class="self">self</span>.<span class="ident">formatter</span>.<span class="ident">comma</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">writer</span>, <span class="bool-val">true</span>));
+        <span class="macro">try!</span>(<span class="ident">escape_key</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">writer</span>, <span class="ident">variant</span>));
+        <span class="macro">try!</span>(<span class="self">self</span>.<span class="ident">formatter</span>.<span class="ident">colon</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">writer</span>));
+        <span class="macro">try!</span>(<span class="ident">value</span>.<span class="ident">serialize</span>(<span class="self">self</span>));
         <span class="self">self</span>.<span class="ident">formatter</span>.<span class="ident">close</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">writer</span>, <span class="string">b&#39;}&#39;</span>)
     }
 
@@ -1289,39 +1289,39 @@
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">serialize_some</span><span class="op">&lt;</span><span class="ident">V</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="ident">V</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
-        <span class="kw">where</span> <span class="ident">V</span>: <span class="ident">ser</span>::<span class="ident">Serialize</span> {
+        <span class="kw">where</span> <span class="ident">V</span>: <span class="ident">ser::Serialize</span> {
         <span class="ident">value</span>.<span class="ident">serialize</span>(<span class="self">self</span>)
     }
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">serialize_seq</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">len</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">State</span><span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="ident">len</span> <span class="op">=</span><span class="op">=</span> <span class="prelude-val">Some</span>(<span class="number">0</span>) {
-            <span class="macro">try</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">formatter</span>.<span class="ident">start_value</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">writer</span>));
-            <span class="macro">try</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">writer</span>.<span class="ident">write_all</span>(<span class="string">b&quot;[]&quot;</span>));
-            <span class="prelude-val">Ok</span>(<span class="ident">State</span>::<span class="ident">Empty</span>)
+            <span class="macro">try!</span>(<span class="self">self</span>.<span class="ident">formatter</span>.<span class="ident">start_value</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">writer</span>));
+            <span class="macro">try!</span>(<span class="self">self</span>.<span class="ident">writer</span>.<span class="ident">write_all</span>(<span class="string">b&quot;[]&quot;</span>));
+            <span class="prelude-val">Ok</span>(<span class="ident">State::Empty</span>)
         } <span class="kw">else</span> {
-            <span class="macro">try</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">formatter</span>.<span class="ident">open</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">writer</span>, <span class="string">b&#39;[&#39;</span>));
-            <span class="prelude-val">Ok</span>(<span class="ident">State</span>::<span class="ident">First</span>)
+            <span class="macro">try!</span>(<span class="self">self</span>.<span class="ident">formatter</span>.<span class="ident">open</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">writer</span>, <span class="string">b&#39;[&#39;</span>));
+            <span class="prelude-val">Ok</span>(<span class="ident">State::First</span>)
         }
     }
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">serialize_seq_elt</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">ser</span>::<span class="ident">Serialize</span><span class="op">&gt;</span>(
+    <span class="kw">fn</span> <span class="ident">serialize_seq_elt</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">ser::Serialize</span><span class="op">&gt;</span>(
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
         <span class="ident">state</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">State</span>,
         <span class="ident">value</span>: <span class="ident">T</span>
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
-        <span class="kw">where</span> <span class="ident">T</span>: <span class="ident">ser</span>::<span class="ident">Serialize</span>,
+        <span class="kw">where</span> <span class="ident">T</span>: <span class="ident">ser::Serialize</span>,
     {
-        <span class="macro">try</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">formatter</span>.<span class="ident">comma</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">writer</span>, <span class="kw-2">*</span><span class="ident">state</span> <span class="op">=</span><span class="op">=</span> <span class="ident">State</span>::<span class="ident">First</span>));
-        <span class="kw-2">*</span><span class="ident">state</span> <span class="op">=</span> <span class="ident">State</span>::<span class="ident">Rest</span>;
+        <span class="macro">try!</span>(<span class="self">self</span>.<span class="ident">formatter</span>.<span class="ident">comma</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">writer</span>, <span class="kw-2">*</span><span class="ident">state</span> <span class="op">=</span><span class="op">=</span> <span class="ident">State::First</span>));
+        <span class="kw-2">*</span><span class="ident">state</span> <span class="op">=</span> <span class="ident">State::Rest</span>;
         <span class="ident">value</span>.<span class="ident">serialize</span>(<span class="self">self</span>)
     }
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">serialize_seq_end</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">state</span>: <span class="ident">State</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="ident">state</span> {
-            <span class="ident">State</span>::<span class="ident">Empty</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(()),
+            <span class="ident">State::Empty</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(()),
             <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">formatter</span>.<span class="ident">close</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">writer</span>, <span class="string">b&#39;]&#39;</span>),
         }
     }
@@ -1337,7 +1337,7 @@
     }
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">serialize_tuple_elt</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">ser</span>::<span class="ident">Serialize</span><span class="op">&gt;</span>(
+    <span class="kw">fn</span> <span class="ident">serialize_tuple_elt</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">ser::Serialize</span><span class="op">&gt;</span>(
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
         <span class="ident">state</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">State</span>,
         <span class="ident">value</span>: <span class="ident">T</span>
@@ -1360,7 +1360,7 @@
     }
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">serialize_tuple_struct_elt</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">ser</span>::<span class="ident">Serialize</span><span class="op">&gt;</span>(
+    <span class="kw">fn</span> <span class="ident">serialize_tuple_struct_elt</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">ser::Serialize</span><span class="op">&gt;</span>(
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
         <span class="ident">state</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">State</span>,
         <span class="ident">value</span>: <span class="ident">T</span>
@@ -1381,15 +1381,15 @@
         <span class="ident">variant</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>,
         <span class="ident">len</span>: <span class="ident">usize</span>
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">State</span><span class="op">&gt;</span> {
-        <span class="macro">try</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">formatter</span>.<span class="ident">open</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">writer</span>, <span class="string">b&#39;{&#39;</span>));
-        <span class="macro">try</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">formatter</span>.<span class="ident">comma</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">writer</span>, <span class="bool-val">true</span>));
-        <span class="macro">try</span><span class="macro">!</span>(<span class="ident">escape_key</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">writer</span>, <span class="ident">variant</span>));
-        <span class="macro">try</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">formatter</span>.<span class="ident">colon</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">writer</span>));
+        <span class="macro">try!</span>(<span class="self">self</span>.<span class="ident">formatter</span>.<span class="ident">open</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">writer</span>, <span class="string">b&#39;{&#39;</span>));
+        <span class="macro">try!</span>(<span class="self">self</span>.<span class="ident">formatter</span>.<span class="ident">comma</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">writer</span>, <span class="bool-val">true</span>));
+        <span class="macro">try!</span>(<span class="ident">escape_key</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">writer</span>, <span class="ident">variant</span>));
+        <span class="macro">try!</span>(<span class="self">self</span>.<span class="ident">formatter</span>.<span class="ident">colon</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">writer</span>));
         <span class="self">self</span>.<span class="ident">serialize_seq</span>(<span class="prelude-val">Some</span>(<span class="ident">len</span>))
     }
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">serialize_tuple_variant_elt</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">ser</span>::<span class="ident">Serialize</span><span class="op">&gt;</span>(
+    <span class="kw">fn</span> <span class="ident">serialize_tuple_variant_elt</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">ser::Serialize</span><span class="op">&gt;</span>(
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
         <span class="ident">state</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">State</span>,
         <span class="ident">value</span>: <span class="ident">T</span>
@@ -1399,32 +1399,32 @@
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">serialize_tuple_variant_end</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">state</span>: <span class="ident">State</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="macro">try</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">serialize_seq_end</span>(<span class="ident">state</span>));
+        <span class="macro">try!</span>(<span class="self">self</span>.<span class="ident">serialize_seq_end</span>(<span class="ident">state</span>));
         <span class="self">self</span>.<span class="ident">formatter</span>.<span class="ident">close</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">writer</span>, <span class="string">b&#39;}&#39;</span>)
     }
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">serialize_map</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">len</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">State</span><span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="ident">len</span> <span class="op">=</span><span class="op">=</span> <span class="prelude-val">Some</span>(<span class="number">0</span>) {
-            <span class="macro">try</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">formatter</span>.<span class="ident">start_value</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">writer</span>));
-            <span class="macro">try</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">writer</span>.<span class="ident">write_all</span>(<span class="string">b&quot;{}&quot;</span>));
-            <span class="prelude-val">Ok</span>(<span class="ident">State</span>::<span class="ident">Empty</span>)
+            <span class="macro">try!</span>(<span class="self">self</span>.<span class="ident">formatter</span>.<span class="ident">start_value</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">writer</span>));
+            <span class="macro">try!</span>(<span class="self">self</span>.<span class="ident">writer</span>.<span class="ident">write_all</span>(<span class="string">b&quot;{}&quot;</span>));
+            <span class="prelude-val">Ok</span>(<span class="ident">State::Empty</span>)
         } <span class="kw">else</span> {
-            <span class="macro">try</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">formatter</span>.<span class="ident">open</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">writer</span>, <span class="string">b&#39;{&#39;</span>));
-            <span class="prelude-val">Ok</span>(<span class="ident">State</span>::<span class="ident">First</span>)
+            <span class="macro">try!</span>(<span class="self">self</span>.<span class="ident">formatter</span>.<span class="ident">open</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">writer</span>, <span class="string">b&#39;{&#39;</span>));
+            <span class="prelude-val">Ok</span>(<span class="ident">State::First</span>)
         }
     }
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">serialize_map_key</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">ser</span>::<span class="ident">Serialize</span><span class="op">&gt;</span>(
+    <span class="kw">fn</span> <span class="ident">serialize_map_key</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">ser::Serialize</span><span class="op">&gt;</span>(
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
         <span class="ident">state</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">State</span>,
         <span class="ident">key</span>: <span class="ident">T</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="macro">try</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">formatter</span>.<span class="ident">comma</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">writer</span>, <span class="kw-2">*</span><span class="ident">state</span> <span class="op">=</span><span class="op">=</span> <span class="ident">State</span>::<span class="ident">First</span>));
-        <span class="kw-2">*</span><span class="ident">state</span> <span class="op">=</span> <span class="ident">State</span>::<span class="ident">Rest</span>;
+        <span class="macro">try!</span>(<span class="self">self</span>.<span class="ident">formatter</span>.<span class="ident">comma</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">writer</span>, <span class="kw-2">*</span><span class="ident">state</span> <span class="op">=</span><span class="op">=</span> <span class="ident">State::First</span>));
+        <span class="kw-2">*</span><span class="ident">state</span> <span class="op">=</span> <span class="ident">State::Rest</span>;
 
-        <span class="macro">try</span><span class="macro">!</span>(<span class="ident">key</span>.<span class="ident">serialize</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">MapKeySerializer</span> {
+        <span class="macro">try!</span>(<span class="ident">key</span>.<span class="ident">serialize</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">MapKeySerializer</span> {
             <span class="ident">ser</span>: <span class="self">self</span>,
         }));
 
@@ -1432,7 +1432,7 @@
     }
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">serialize_map_value</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">ser</span>::<span class="ident">Serialize</span><span class="op">&gt;</span>(
+    <span class="kw">fn</span> <span class="ident">serialize_map_value</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">ser::Serialize</span><span class="op">&gt;</span>(
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
         <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">State</span>,
         <span class="ident">value</span>: <span class="ident">T</span>,
@@ -1443,7 +1443,7 @@
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">serialize_map_end</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">state</span>: <span class="ident">State</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="ident">state</span> {
-            <span class="ident">State</span>::<span class="ident">Empty</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(()),
+            <span class="ident">State::Empty</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(()),
             <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">formatter</span>.<span class="ident">close</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">writer</span>, <span class="string">b&#39;}&#39;</span>),
         }
     }
@@ -1458,13 +1458,13 @@
     }
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">serialize_struct_elt</span><span class="op">&lt;</span><span class="ident">V</span>: <span class="ident">ser</span>::<span class="ident">Serialize</span><span class="op">&gt;</span>(
+    <span class="kw">fn</span> <span class="ident">serialize_struct_elt</span><span class="op">&lt;</span><span class="ident">V</span>: <span class="ident">ser::Serialize</span><span class="op">&gt;</span>(
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
         <span class="ident">state</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">State</span>,
         <span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>,
         <span class="ident">value</span>: <span class="ident">V</span>
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="macro">try</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">serialize_map_key</span>(<span class="ident">state</span>, <span class="ident">key</span>));
+        <span class="macro">try!</span>(<span class="self">self</span>.<span class="ident">serialize_map_key</span>(<span class="ident">state</span>, <span class="ident">key</span>));
         <span class="self">self</span>.<span class="ident">serialize_map_value</span>(<span class="ident">state</span>, <span class="ident">value</span>)
     }
 
@@ -1481,15 +1481,15 @@
         <span class="ident">variant</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>,
         <span class="ident">len</span>: <span class="ident">usize</span>
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">State</span><span class="op">&gt;</span> {
-        <span class="macro">try</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">formatter</span>.<span class="ident">open</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">writer</span>, <span class="string">b&#39;{&#39;</span>));
-        <span class="macro">try</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">formatter</span>.<span class="ident">comma</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">writer</span>, <span class="bool-val">true</span>));
-        <span class="macro">try</span><span class="macro">!</span>(<span class="ident">escape_key</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">writer</span>, <span class="ident">variant</span>));
-        <span class="macro">try</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">formatter</span>.<span class="ident">colon</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">writer</span>));
+        <span class="macro">try!</span>(<span class="self">self</span>.<span class="ident">formatter</span>.<span class="ident">open</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">writer</span>, <span class="string">b&#39;{&#39;</span>));
+        <span class="macro">try!</span>(<span class="self">self</span>.<span class="ident">formatter</span>.<span class="ident">comma</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">writer</span>, <span class="bool-val">true</span>));
+        <span class="macro">try!</span>(<span class="ident">escape_key</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">writer</span>, <span class="ident">variant</span>));
+        <span class="macro">try!</span>(<span class="self">self</span>.<span class="ident">formatter</span>.<span class="ident">colon</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">writer</span>));
         <span class="self">self</span>.<span class="ident">serialize_map</span>(<span class="prelude-val">Some</span>(<span class="ident">len</span>))
     }
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">serialize_struct_variant_elt</span><span class="op">&lt;</span><span class="ident">V</span>: <span class="ident">ser</span>::<span class="ident">Serialize</span><span class="op">&gt;</span>(
+    <span class="kw">fn</span> <span class="ident">serialize_struct_variant_elt</span><span class="op">&lt;</span><span class="ident">V</span>: <span class="ident">ser::Serialize</span><span class="op">&gt;</span>(
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
         <span class="ident">state</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">State</span>,
         <span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>,
@@ -1500,7 +1500,7 @@
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">serialize_struct_variant_end</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">state</span>: <span class="ident">State</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="macro">try</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">serialize_struct_end</span>(<span class="ident">state</span>));
+        <span class="macro">try!</span>(<span class="self">self</span>.<span class="ident">serialize_struct_end</span>(<span class="ident">state</span>));
         <span class="self">self</span>.<span class="ident">formatter</span>.<span class="ident">close</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">writer</span>, <span class="string">b&#39;}&#39;</span>)
     }
 }
@@ -1509,14 +1509,14 @@
     <span class="ident">ser</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="ident">Serializer</span><span class="op">&lt;</span><span class="ident">W</span>, <span class="ident">F</span><span class="op">&gt;</span>,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">W</span>, <span class="ident">F</span><span class="op">&gt;</span> <span class="ident">ser</span>::<span class="ident">Serializer</span> <span class="kw">for</span> <span class="ident">MapKeySerializer</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">W</span>, <span class="ident">F</span><span class="op">&gt;</span>
-    <span class="kw">where</span> <span class="ident">W</span>: <span class="ident">io</span>::<span class="ident">Write</span>,
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">W</span>, <span class="ident">F</span><span class="op">&gt;</span> <span class="ident">ser::Serializer</span> <span class="kw">for</span> <span class="ident">MapKeySerializer</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">W</span>, <span class="ident">F</span><span class="op">&gt;</span>
+    <span class="kw">where</span> <span class="ident">W</span>: <span class="ident">io::Write</span>,
           <span class="ident">F</span>: <span class="ident">Formatter</span> {
     <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">Error</span>;
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">serialize_str</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="ident">escape_key</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">ser</span>.<span class="ident">writer</span>, <span class="ident">value</span>).<span class="ident">map_err</span>(<span class="ident">From</span>::<span class="ident">from</span>)
+        <span class="ident">escape_key</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">ser</span>.<span class="ident">writer</span>, <span class="ident">value</span>).<span class="ident">map_err</span>(<span class="ident">From::from</span>)
     }
 
     <span class="kw">type</span> <span class="ident">SeqState</span> <span class="op">=</span> ();
@@ -1528,71 +1528,71 @@
     <span class="kw">type</span> <span class="ident">StructVariantState</span> <span class="op">=</span> ();
 
     <span class="kw">fn</span> <span class="ident">serialize_bool</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">_value</span>: <span class="ident">bool</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">Syntax</span>(<span class="ident">ErrorCode</span>::<span class="ident">KeyMustBeAString</span>, <span class="number">0</span>, <span class="number">0</span>))
+        <span class="prelude-val">Err</span>(<span class="ident">Error::Syntax</span>(<span class="ident">ErrorCode::KeyMustBeAString</span>, <span class="number">0</span>, <span class="number">0</span>))
     }
 
     <span class="kw">fn</span> <span class="ident">serialize_isize</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">_value</span>: <span class="ident">isize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">Syntax</span>(<span class="ident">ErrorCode</span>::<span class="ident">KeyMustBeAString</span>, <span class="number">0</span>, <span class="number">0</span>))
+        <span class="prelude-val">Err</span>(<span class="ident">Error::Syntax</span>(<span class="ident">ErrorCode::KeyMustBeAString</span>, <span class="number">0</span>, <span class="number">0</span>))
     }
 
     <span class="kw">fn</span> <span class="ident">serialize_i8</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">_value</span>: <span class="ident">i8</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">Syntax</span>(<span class="ident">ErrorCode</span>::<span class="ident">KeyMustBeAString</span>, <span class="number">0</span>, <span class="number">0</span>))
+        <span class="prelude-val">Err</span>(<span class="ident">Error::Syntax</span>(<span class="ident">ErrorCode::KeyMustBeAString</span>, <span class="number">0</span>, <span class="number">0</span>))
     }
 
     <span class="kw">fn</span> <span class="ident">serialize_i16</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">_value</span>: <span class="ident">i16</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">Syntax</span>(<span class="ident">ErrorCode</span>::<span class="ident">KeyMustBeAString</span>, <span class="number">0</span>, <span class="number">0</span>))
+        <span class="prelude-val">Err</span>(<span class="ident">Error::Syntax</span>(<span class="ident">ErrorCode::KeyMustBeAString</span>, <span class="number">0</span>, <span class="number">0</span>))
     }
 
     <span class="kw">fn</span> <span class="ident">serialize_i32</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">_value</span>: <span class="ident">i32</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">Syntax</span>(<span class="ident">ErrorCode</span>::<span class="ident">KeyMustBeAString</span>, <span class="number">0</span>, <span class="number">0</span>))
+        <span class="prelude-val">Err</span>(<span class="ident">Error::Syntax</span>(<span class="ident">ErrorCode::KeyMustBeAString</span>, <span class="number">0</span>, <span class="number">0</span>))
     }
 
     <span class="kw">fn</span> <span class="ident">serialize_i64</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">_value</span>: <span class="ident">i64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">Syntax</span>(<span class="ident">ErrorCode</span>::<span class="ident">KeyMustBeAString</span>, <span class="number">0</span>, <span class="number">0</span>))
+        <span class="prelude-val">Err</span>(<span class="ident">Error::Syntax</span>(<span class="ident">ErrorCode::KeyMustBeAString</span>, <span class="number">0</span>, <span class="number">0</span>))
     }
 
     <span class="kw">fn</span> <span class="ident">serialize_usize</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">_value</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">Syntax</span>(<span class="ident">ErrorCode</span>::<span class="ident">KeyMustBeAString</span>, <span class="number">0</span>, <span class="number">0</span>))
+        <span class="prelude-val">Err</span>(<span class="ident">Error::Syntax</span>(<span class="ident">ErrorCode::KeyMustBeAString</span>, <span class="number">0</span>, <span class="number">0</span>))
     }
 
     <span class="kw">fn</span> <span class="ident">serialize_u8</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">_value</span>: <span class="ident">u8</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">Syntax</span>(<span class="ident">ErrorCode</span>::<span class="ident">KeyMustBeAString</span>, <span class="number">0</span>, <span class="number">0</span>))
+        <span class="prelude-val">Err</span>(<span class="ident">Error::Syntax</span>(<span class="ident">ErrorCode::KeyMustBeAString</span>, <span class="number">0</span>, <span class="number">0</span>))
     }
 
     <span class="kw">fn</span> <span class="ident">serialize_u16</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">_value</span>: <span class="ident">u16</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">Syntax</span>(<span class="ident">ErrorCode</span>::<span class="ident">KeyMustBeAString</span>, <span class="number">0</span>, <span class="number">0</span>))
+        <span class="prelude-val">Err</span>(<span class="ident">Error::Syntax</span>(<span class="ident">ErrorCode::KeyMustBeAString</span>, <span class="number">0</span>, <span class="number">0</span>))
     }
 
     <span class="kw">fn</span> <span class="ident">serialize_u32</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">_value</span>: <span class="ident">u32</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">Syntax</span>(<span class="ident">ErrorCode</span>::<span class="ident">KeyMustBeAString</span>, <span class="number">0</span>, <span class="number">0</span>))
+        <span class="prelude-val">Err</span>(<span class="ident">Error::Syntax</span>(<span class="ident">ErrorCode::KeyMustBeAString</span>, <span class="number">0</span>, <span class="number">0</span>))
     }
 
     <span class="kw">fn</span> <span class="ident">serialize_u64</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">_value</span>: <span class="ident">u64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">Syntax</span>(<span class="ident">ErrorCode</span>::<span class="ident">KeyMustBeAString</span>, <span class="number">0</span>, <span class="number">0</span>))
+        <span class="prelude-val">Err</span>(<span class="ident">Error::Syntax</span>(<span class="ident">ErrorCode::KeyMustBeAString</span>, <span class="number">0</span>, <span class="number">0</span>))
     }
 
     <span class="kw">fn</span> <span class="ident">serialize_f32</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">_value</span>: <span class="ident">f32</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">Syntax</span>(<span class="ident">ErrorCode</span>::<span class="ident">KeyMustBeAString</span>, <span class="number">0</span>, <span class="number">0</span>))
+        <span class="prelude-val">Err</span>(<span class="ident">Error::Syntax</span>(<span class="ident">ErrorCode::KeyMustBeAString</span>, <span class="number">0</span>, <span class="number">0</span>))
     }
 
     <span class="kw">fn</span> <span class="ident">serialize_f64</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">_value</span>: <span class="ident">f64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">Syntax</span>(<span class="ident">ErrorCode</span>::<span class="ident">KeyMustBeAString</span>, <span class="number">0</span>, <span class="number">0</span>))
+        <span class="prelude-val">Err</span>(<span class="ident">Error::Syntax</span>(<span class="ident">ErrorCode::KeyMustBeAString</span>, <span class="number">0</span>, <span class="number">0</span>))
     }
 
     <span class="kw">fn</span> <span class="ident">serialize_char</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">_value</span>: <span class="ident">char</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">Syntax</span>(<span class="ident">ErrorCode</span>::<span class="ident">KeyMustBeAString</span>, <span class="number">0</span>, <span class="number">0</span>))
+        <span class="prelude-val">Err</span>(<span class="ident">Error::Syntax</span>(<span class="ident">ErrorCode::KeyMustBeAString</span>, <span class="number">0</span>, <span class="number">0</span>))
     }
 
     <span class="kw">fn</span> <span class="ident">serialize_bytes</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">_value</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">Syntax</span>(<span class="ident">ErrorCode</span>::<span class="ident">KeyMustBeAString</span>, <span class="number">0</span>, <span class="number">0</span>))
+        <span class="prelude-val">Err</span>(<span class="ident">Error::Syntax</span>(<span class="ident">ErrorCode::KeyMustBeAString</span>, <span class="number">0</span>, <span class="number">0</span>))
     }
 
     <span class="kw">fn</span> <span class="ident">serialize_unit</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">Syntax</span>(<span class="ident">ErrorCode</span>::<span class="ident">KeyMustBeAString</span>, <span class="number">0</span>, <span class="number">0</span>))
+        <span class="prelude-val">Err</span>(<span class="ident">Error::Syntax</span>(<span class="ident">ErrorCode::KeyMustBeAString</span>, <span class="number">0</span>, <span class="number">0</span>))
     }
 
     <span class="kw">fn</span> <span class="ident">serialize_unit_struct</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">_name</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">Syntax</span>(<span class="ident">ErrorCode</span>::<span class="ident">KeyMustBeAString</span>, <span class="number">0</span>, <span class="number">0</span>))
+        <span class="prelude-val">Err</span>(<span class="ident">Error::Syntax</span>(<span class="ident">ErrorCode::KeyMustBeAString</span>, <span class="number">0</span>, <span class="number">0</span>))
     }
 
     <span class="kw">fn</span> <span class="ident">serialize_unit_variant</span>(
@@ -1601,7 +1601,7 @@
         <span class="ident">_variant_index</span>: <span class="ident">usize</span>,
         <span class="ident">_variant</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">Syntax</span>(<span class="ident">ErrorCode</span>::<span class="ident">KeyMustBeAString</span>, <span class="number">0</span>, <span class="number">0</span>))
+        <span class="prelude-val">Err</span>(<span class="ident">Error::Syntax</span>(<span class="ident">ErrorCode::KeyMustBeAString</span>, <span class="number">0</span>, <span class="number">0</span>))
     }
 
     <span class="kw">fn</span> <span class="ident">serialize_newtype_struct</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(
@@ -1609,9 +1609,9 @@
         <span class="ident">_name</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>,
         <span class="ident">_value</span>: <span class="ident">T</span>
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
-        <span class="kw">where</span> <span class="ident">T</span>: <span class="ident">ser</span>::<span class="ident">Serialize</span>,
+        <span class="kw">where</span> <span class="ident">T</span>: <span class="ident">ser::Serialize</span>,
     {
-        <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">Syntax</span>(<span class="ident">ErrorCode</span>::<span class="ident">KeyMustBeAString</span>, <span class="number">0</span>, <span class="number">0</span>))
+        <span class="prelude-val">Err</span>(<span class="ident">Error::Syntax</span>(<span class="ident">ErrorCode::KeyMustBeAString</span>, <span class="number">0</span>, <span class="number">0</span>))
     }
 
     <span class="kw">fn</span> <span class="ident">serialize_newtype_variant</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(
@@ -1621,57 +1621,57 @@
         <span class="ident">_variant</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>,
         <span class="ident">_value</span>: <span class="ident">T</span>
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
-        <span class="kw">where</span> <span class="ident">T</span>: <span class="ident">ser</span>::<span class="ident">Serialize</span>,
+        <span class="kw">where</span> <span class="ident">T</span>: <span class="ident">ser::Serialize</span>,
     {
-        <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">Syntax</span>(<span class="ident">ErrorCode</span>::<span class="ident">KeyMustBeAString</span>, <span class="number">0</span>, <span class="number">0</span>))
+        <span class="prelude-val">Err</span>(<span class="ident">Error::Syntax</span>(<span class="ident">ErrorCode::KeyMustBeAString</span>, <span class="number">0</span>, <span class="number">0</span>))
     }
 
     <span class="kw">fn</span> <span class="ident">serialize_none</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">Syntax</span>(<span class="ident">ErrorCode</span>::<span class="ident">KeyMustBeAString</span>, <span class="number">0</span>, <span class="number">0</span>))
+        <span class="prelude-val">Err</span>(<span class="ident">Error::Syntax</span>(<span class="ident">ErrorCode::KeyMustBeAString</span>, <span class="number">0</span>, <span class="number">0</span>))
     }
 
     <span class="kw">fn</span> <span class="ident">serialize_some</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">_value</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
-        <span class="kw">where</span> <span class="ident">T</span>: <span class="ident">ser</span>::<span class="ident">Serialize</span>,
+        <span class="kw">where</span> <span class="ident">T</span>: <span class="ident">ser::Serialize</span>,
     {
-        <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">Syntax</span>(<span class="ident">ErrorCode</span>::<span class="ident">KeyMustBeAString</span>, <span class="number">0</span>, <span class="number">0</span>))
+        <span class="prelude-val">Err</span>(<span class="ident">Error::Syntax</span>(<span class="ident">ErrorCode::KeyMustBeAString</span>, <span class="number">0</span>, <span class="number">0</span>))
     }
 
     <span class="kw">fn</span> <span class="ident">serialize_seq</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">_len</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">Syntax</span>(<span class="ident">ErrorCode</span>::<span class="ident">KeyMustBeAString</span>, <span class="number">0</span>, <span class="number">0</span>))
+        <span class="prelude-val">Err</span>(<span class="ident">Error::Syntax</span>(<span class="ident">ErrorCode::KeyMustBeAString</span>, <span class="number">0</span>, <span class="number">0</span>))
     }
 
-    <span class="kw">fn</span> <span class="ident">serialize_seq_elt</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">ser</span>::<span class="ident">Serialize</span><span class="op">&gt;</span>(
+    <span class="kw">fn</span> <span class="ident">serialize_seq_elt</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">ser::Serialize</span><span class="op">&gt;</span>(
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
         <span class="ident">_state</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> (),
         <span class="ident">_value</span>: <span class="ident">T</span>
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
-        <span class="kw">where</span> <span class="ident">T</span>: <span class="ident">ser</span>::<span class="ident">Serialize</span>,
+        <span class="kw">where</span> <span class="ident">T</span>: <span class="ident">ser::Serialize</span>,
     {
-        <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">Syntax</span>(<span class="ident">ErrorCode</span>::<span class="ident">KeyMustBeAString</span>, <span class="number">0</span>, <span class="number">0</span>))
+        <span class="prelude-val">Err</span>(<span class="ident">Error::Syntax</span>(<span class="ident">ErrorCode::KeyMustBeAString</span>, <span class="number">0</span>, <span class="number">0</span>))
     }
 
     <span class="kw">fn</span> <span class="ident">serialize_seq_end</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">_state</span>: ()) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">Syntax</span>(<span class="ident">ErrorCode</span>::<span class="ident">KeyMustBeAString</span>, <span class="number">0</span>, <span class="number">0</span>))
+        <span class="prelude-val">Err</span>(<span class="ident">Error::Syntax</span>(<span class="ident">ErrorCode::KeyMustBeAString</span>, <span class="number">0</span>, <span class="number">0</span>))
     }
 
     <span class="kw">fn</span> <span class="ident">serialize_seq_fixed_size</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">_size</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">Syntax</span>(<span class="ident">ErrorCode</span>::<span class="ident">KeyMustBeAString</span>, <span class="number">0</span>, <span class="number">0</span>))
+        <span class="prelude-val">Err</span>(<span class="ident">Error::Syntax</span>(<span class="ident">ErrorCode::KeyMustBeAString</span>, <span class="number">0</span>, <span class="number">0</span>))
     }
 
     <span class="kw">fn</span> <span class="ident">serialize_tuple</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">_len</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">Syntax</span>(<span class="ident">ErrorCode</span>::<span class="ident">KeyMustBeAString</span>, <span class="number">0</span>, <span class="number">0</span>))
+        <span class="prelude-val">Err</span>(<span class="ident">Error::Syntax</span>(<span class="ident">ErrorCode::KeyMustBeAString</span>, <span class="number">0</span>, <span class="number">0</span>))
     }
 
-    <span class="kw">fn</span> <span class="ident">serialize_tuple_elt</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">ser</span>::<span class="ident">Serialize</span><span class="op">&gt;</span>(
+    <span class="kw">fn</span> <span class="ident">serialize_tuple_elt</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">ser::Serialize</span><span class="op">&gt;</span>(
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
         <span class="ident">_state</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> (),
         <span class="ident">_value</span>: <span class="ident">T</span>
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">Syntax</span>(<span class="ident">ErrorCode</span>::<span class="ident">KeyMustBeAString</span>, <span class="number">0</span>, <span class="number">0</span>))
+        <span class="prelude-val">Err</span>(<span class="ident">Error::Syntax</span>(<span class="ident">ErrorCode::KeyMustBeAString</span>, <span class="number">0</span>, <span class="number">0</span>))
     }
 
     <span class="kw">fn</span> <span class="ident">serialize_tuple_end</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">_state</span>: ()) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">Syntax</span>(<span class="ident">ErrorCode</span>::<span class="ident">KeyMustBeAString</span>, <span class="number">0</span>, <span class="number">0</span>))
+        <span class="prelude-val">Err</span>(<span class="ident">Error::Syntax</span>(<span class="ident">ErrorCode::KeyMustBeAString</span>, <span class="number">0</span>, <span class="number">0</span>))
     }
 
     <span class="kw">fn</span> <span class="ident">serialize_tuple_struct</span>(
@@ -1679,19 +1679,19 @@
         <span class="ident">_name</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>,
         <span class="ident">_len</span>: <span class="ident">usize</span>
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">Syntax</span>(<span class="ident">ErrorCode</span>::<span class="ident">KeyMustBeAString</span>, <span class="number">0</span>, <span class="number">0</span>))
+        <span class="prelude-val">Err</span>(<span class="ident">Error::Syntax</span>(<span class="ident">ErrorCode::KeyMustBeAString</span>, <span class="number">0</span>, <span class="number">0</span>))
     }
 
-    <span class="kw">fn</span> <span class="ident">serialize_tuple_struct_elt</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">ser</span>::<span class="ident">Serialize</span><span class="op">&gt;</span>(
+    <span class="kw">fn</span> <span class="ident">serialize_tuple_struct_elt</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">ser::Serialize</span><span class="op">&gt;</span>(
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
         <span class="ident">_state</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> (),
         <span class="ident">_value</span>: <span class="ident">T</span>
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">Syntax</span>(<span class="ident">ErrorCode</span>::<span class="ident">KeyMustBeAString</span>, <span class="number">0</span>, <span class="number">0</span>))
+        <span class="prelude-val">Err</span>(<span class="ident">Error::Syntax</span>(<span class="ident">ErrorCode::KeyMustBeAString</span>, <span class="number">0</span>, <span class="number">0</span>))
     }
 
     <span class="kw">fn</span> <span class="ident">serialize_tuple_struct_end</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">_state</span>: ()) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">Syntax</span>(<span class="ident">ErrorCode</span>::<span class="ident">KeyMustBeAString</span>, <span class="number">0</span>, <span class="number">0</span>))
+        <span class="prelude-val">Err</span>(<span class="ident">Error::Syntax</span>(<span class="ident">ErrorCode::KeyMustBeAString</span>, <span class="number">0</span>, <span class="number">0</span>))
     }
 
     <span class="kw">fn</span> <span class="ident">serialize_tuple_variant</span>(
@@ -1701,43 +1701,43 @@
         <span class="ident">_variant</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>,
         <span class="ident">_len</span>: <span class="ident">usize</span>
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">Syntax</span>(<span class="ident">ErrorCode</span>::<span class="ident">KeyMustBeAString</span>, <span class="number">0</span>, <span class="number">0</span>))
+        <span class="prelude-val">Err</span>(<span class="ident">Error::Syntax</span>(<span class="ident">ErrorCode::KeyMustBeAString</span>, <span class="number">0</span>, <span class="number">0</span>))
     }
 
-    <span class="kw">fn</span> <span class="ident">serialize_tuple_variant_elt</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">ser</span>::<span class="ident">Serialize</span><span class="op">&gt;</span>(
+    <span class="kw">fn</span> <span class="ident">serialize_tuple_variant_elt</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">ser::Serialize</span><span class="op">&gt;</span>(
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
         <span class="ident">_state</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> (),
         <span class="ident">_value</span>: <span class="ident">T</span>
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">Syntax</span>(<span class="ident">ErrorCode</span>::<span class="ident">KeyMustBeAString</span>, <span class="number">0</span>, <span class="number">0</span>))
+        <span class="prelude-val">Err</span>(<span class="ident">Error::Syntax</span>(<span class="ident">ErrorCode::KeyMustBeAString</span>, <span class="number">0</span>, <span class="number">0</span>))
     }
 
     <span class="kw">fn</span> <span class="ident">serialize_tuple_variant_end</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">_state</span>: ()) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">Syntax</span>(<span class="ident">ErrorCode</span>::<span class="ident">KeyMustBeAString</span>, <span class="number">0</span>, <span class="number">0</span>))
+        <span class="prelude-val">Err</span>(<span class="ident">Error::Syntax</span>(<span class="ident">ErrorCode::KeyMustBeAString</span>, <span class="number">0</span>, <span class="number">0</span>))
     }
 
     <span class="kw">fn</span> <span class="ident">serialize_map</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">_len</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">Syntax</span>(<span class="ident">ErrorCode</span>::<span class="ident">KeyMustBeAString</span>, <span class="number">0</span>, <span class="number">0</span>))
+        <span class="prelude-val">Err</span>(<span class="ident">Error::Syntax</span>(<span class="ident">ErrorCode::KeyMustBeAString</span>, <span class="number">0</span>, <span class="number">0</span>))
     }
 
-    <span class="kw">fn</span> <span class="ident">serialize_map_key</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">ser</span>::<span class="ident">Serialize</span><span class="op">&gt;</span>(
+    <span class="kw">fn</span> <span class="ident">serialize_map_key</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">ser::Serialize</span><span class="op">&gt;</span>(
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
         <span class="ident">_state</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> (),
         <span class="ident">_key</span>: <span class="ident">T</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">Syntax</span>(<span class="ident">ErrorCode</span>::<span class="ident">KeyMustBeAString</span>, <span class="number">0</span>, <span class="number">0</span>))
+        <span class="prelude-val">Err</span>(<span class="ident">Error::Syntax</span>(<span class="ident">ErrorCode::KeyMustBeAString</span>, <span class="number">0</span>, <span class="number">0</span>))
     }
 
-    <span class="kw">fn</span> <span class="ident">serialize_map_value</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">ser</span>::<span class="ident">Serialize</span><span class="op">&gt;</span>(
+    <span class="kw">fn</span> <span class="ident">serialize_map_value</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">ser::Serialize</span><span class="op">&gt;</span>(
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
         <span class="ident">_state</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> (),
         <span class="ident">_value</span>: <span class="ident">T</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">Syntax</span>(<span class="ident">ErrorCode</span>::<span class="ident">KeyMustBeAString</span>, <span class="number">0</span>, <span class="number">0</span>))
+        <span class="prelude-val">Err</span>(<span class="ident">Error::Syntax</span>(<span class="ident">ErrorCode::KeyMustBeAString</span>, <span class="number">0</span>, <span class="number">0</span>))
     }
 
     <span class="kw">fn</span> <span class="ident">serialize_map_end</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">_state</span>: ()) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">Syntax</span>(<span class="ident">ErrorCode</span>::<span class="ident">KeyMustBeAString</span>, <span class="number">0</span>, <span class="number">0</span>))
+        <span class="prelude-val">Err</span>(<span class="ident">Error::Syntax</span>(<span class="ident">ErrorCode::KeyMustBeAString</span>, <span class="number">0</span>, <span class="number">0</span>))
     }
 
     <span class="kw">fn</span> <span class="ident">serialize_struct</span>(
@@ -1745,20 +1745,20 @@
         <span class="ident">_name</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>,
         <span class="ident">_len</span>: <span class="ident">usize</span>
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">Syntax</span>(<span class="ident">ErrorCode</span>::<span class="ident">KeyMustBeAString</span>, <span class="number">0</span>, <span class="number">0</span>))
+        <span class="prelude-val">Err</span>(<span class="ident">Error::Syntax</span>(<span class="ident">ErrorCode::KeyMustBeAString</span>, <span class="number">0</span>, <span class="number">0</span>))
     }
 
-    <span class="kw">fn</span> <span class="ident">serialize_struct_elt</span><span class="op">&lt;</span><span class="ident">V</span>: <span class="ident">ser</span>::<span class="ident">Serialize</span><span class="op">&gt;</span>(
+    <span class="kw">fn</span> <span class="ident">serialize_struct_elt</span><span class="op">&lt;</span><span class="ident">V</span>: <span class="ident">ser::Serialize</span><span class="op">&gt;</span>(
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
         <span class="ident">_state</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> (),
         <span class="ident">_key</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>,
         <span class="ident">_value</span>: <span class="ident">V</span>
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">Syntax</span>(<span class="ident">ErrorCode</span>::<span class="ident">KeyMustBeAString</span>, <span class="number">0</span>, <span class="number">0</span>))
+        <span class="prelude-val">Err</span>(<span class="ident">Error::Syntax</span>(<span class="ident">ErrorCode::KeyMustBeAString</span>, <span class="number">0</span>, <span class="number">0</span>))
     }
 
     <span class="kw">fn</span> <span class="ident">serialize_struct_end</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">_state</span>: ()) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">Syntax</span>(<span class="ident">ErrorCode</span>::<span class="ident">KeyMustBeAString</span>, <span class="number">0</span>, <span class="number">0</span>))
+        <span class="prelude-val">Err</span>(<span class="ident">Error::Syntax</span>(<span class="ident">ErrorCode::KeyMustBeAString</span>, <span class="number">0</span>, <span class="number">0</span>))
     }
 
     <span class="kw">fn</span> <span class="ident">serialize_struct_variant</span>(
@@ -1768,20 +1768,20 @@
         <span class="ident">_variant</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>,
         <span class="ident">_len</span>: <span class="ident">usize</span>
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">Syntax</span>(<span class="ident">ErrorCode</span>::<span class="ident">KeyMustBeAString</span>, <span class="number">0</span>, <span class="number">0</span>))
+        <span class="prelude-val">Err</span>(<span class="ident">Error::Syntax</span>(<span class="ident">ErrorCode::KeyMustBeAString</span>, <span class="number">0</span>, <span class="number">0</span>))
     }
 
-    <span class="kw">fn</span> <span class="ident">serialize_struct_variant_elt</span><span class="op">&lt;</span><span class="ident">V</span>: <span class="ident">ser</span>::<span class="ident">Serialize</span><span class="op">&gt;</span>(
+    <span class="kw">fn</span> <span class="ident">serialize_struct_variant_elt</span><span class="op">&lt;</span><span class="ident">V</span>: <span class="ident">ser::Serialize</span><span class="op">&gt;</span>(
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
         <span class="ident">_state</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> (),
         <span class="ident">_key</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>,
         <span class="ident">_value</span>: <span class="ident">V</span>
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">Syntax</span>(<span class="ident">ErrorCode</span>::<span class="ident">KeyMustBeAString</span>, <span class="number">0</span>, <span class="number">0</span>))
+        <span class="prelude-val">Err</span>(<span class="ident">Error::Syntax</span>(<span class="ident">ErrorCode::KeyMustBeAString</span>, <span class="number">0</span>, <span class="number">0</span>))
     }
 
     <span class="kw">fn</span> <span class="ident">serialize_struct_variant_end</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">_state</span>: ()) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">Syntax</span>(<span class="ident">ErrorCode</span>::<span class="ident">KeyMustBeAString</span>, <span class="number">0</span>, <span class="number">0</span>))
+        <span class="prelude-val">Err</span>(<span class="ident">Error::Syntax</span>(<span class="ident">ErrorCode::KeyMustBeAString</span>, <span class="number">0</span>, <span class="number">0</span>))
     }
 }
 
@@ -1789,27 +1789,27 @@
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Formatter</span> {
     <span class="doccomment">/// Called when serializing a &#39;{&#39; or &#39;[&#39;.</span>
     <span class="kw">fn</span> <span class="ident">open</span><span class="op">&lt;</span><span class="ident">W</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">writer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">W</span>, <span class="ident">ch</span>: <span class="ident">u8</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
-        <span class="kw">where</span> <span class="ident">W</span>: <span class="ident">io</span>::<span class="ident">Write</span>;
+        <span class="kw">where</span> <span class="ident">W</span>: <span class="ident">io::Write</span>;
 
     <span class="doccomment">/// Called when serializing a &#39;,&#39;.</span>
     <span class="kw">fn</span> <span class="ident">comma</span><span class="op">&lt;</span><span class="ident">W</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">writer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">W</span>, <span class="ident">first</span>: <span class="ident">bool</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
-        <span class="kw">where</span> <span class="ident">W</span>: <span class="ident">io</span>::<span class="ident">Write</span>;
+        <span class="kw">where</span> <span class="ident">W</span>: <span class="ident">io::Write</span>;
 
     <span class="doccomment">/// Called when serializing a &#39;:&#39;.</span>
     <span class="kw">fn</span> <span class="ident">colon</span><span class="op">&lt;</span><span class="ident">W</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">writer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">W</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
-        <span class="kw">where</span> <span class="ident">W</span>: <span class="ident">io</span>::<span class="ident">Write</span>;
+        <span class="kw">where</span> <span class="ident">W</span>: <span class="ident">io::Write</span>;
 
     <span class="doccomment">/// Called when serializing a &#39;}&#39; or &#39;]&#39;.</span>
     <span class="kw">fn</span> <span class="ident">close</span><span class="op">&lt;</span><span class="ident">W</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">writer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">W</span>, <span class="ident">ch</span>: <span class="ident">u8</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
-        <span class="kw">where</span> <span class="ident">W</span>: <span class="ident">io</span>::<span class="ident">Write</span>;
+        <span class="kw">where</span> <span class="ident">W</span>: <span class="ident">io::Write</span>;
 
     <span class="doccomment">/// Newline with indent.</span>
     <span class="kw">fn</span> <span class="ident">newline</span><span class="op">&lt;</span><span class="ident">W</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">writer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">W</span>, <span class="ident">add_indent</span>: <span class="ident">i32</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
-        <span class="kw">where</span> <span class="ident">W</span>: <span class="ident">io</span>::<span class="ident">Write</span>;
+        <span class="kw">where</span> <span class="ident">W</span>: <span class="ident">io::Write</span>;
 
     <span class="doccomment">/// Start a value.</span>
     <span class="kw">fn</span> <span class="ident">start_value</span><span class="op">&lt;</span><span class="ident">W</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">writer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">W</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
-        <span class="kw">where</span> <span class="ident">W</span>: <span class="ident">io</span>::<span class="ident">Write</span>;
+        <span class="kw">where</span> <span class="ident">W</span>: <span class="ident">io::Write</span>;
 }
 
 <span class="kw">struct</span> <span class="ident">HjsonFormatter</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
@@ -1824,7 +1824,7 @@
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">HjsonFormatter</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="doccomment">/// Construct a formatter that defaults to using two spaces for indentation.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="ident">HjsonFormatter</span>::<span class="ident">with_indent</span>(<span class="string">b&quot;  &quot;</span>)
+        <span class="ident">HjsonFormatter::with_indent</span>(<span class="string">b&quot;  &quot;</span>)
     }
 
     <span class="doccomment">/// Construct a formatter that uses the `indent` string for indentation.</span>
@@ -1832,7 +1832,7 @@
         <span class="ident">HjsonFormatter</span> {
             <span class="ident">current_indent</span>: <span class="number">0</span>,
             <span class="ident">current_is_array</span>: <span class="bool-val">false</span>,
-            <span class="ident">stack</span>: <span class="ident">Vec</span>::<span class="ident">new</span>(),
+            <span class="ident">stack</span>: <span class="ident">Vec::new</span>(),
             <span class="ident">at_colon</span>: <span class="bool-val">false</span>,
             <span class="ident">indent</span>: <span class="ident">indent</span>,
             <span class="ident">braces_same_line</span>: <span class="bool-val">false</span>,
@@ -1842,52 +1842,52 @@
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">Formatter</span> <span class="kw">for</span> <span class="ident">HjsonFormatter</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="kw">fn</span> <span class="ident">open</span><span class="op">&lt;</span><span class="ident">W</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">writer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">W</span>, <span class="ident">ch</span>: <span class="ident">u8</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
-        <span class="kw">where</span> <span class="ident">W</span>: <span class="ident">io</span>::<span class="ident">Write</span> {
+        <span class="kw">where</span> <span class="ident">W</span>: <span class="ident">io::Write</span> {
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">current_indent</span> <span class="op">&gt;</span> <span class="number">0</span> <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">current_is_array</span> <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">braces_same_line</span> {
-            <span class="macro">try</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">newline</span>(<span class="ident">writer</span>, <span class="number">0</span>));
+            <span class="macro">try!</span>(<span class="self">self</span>.<span class="ident">newline</span>(<span class="ident">writer</span>, <span class="number">0</span>));
         } <span class="kw">else</span> {
-            <span class="macro">try</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">start_value</span>(<span class="ident">writer</span>));
+            <span class="macro">try!</span>(<span class="self">self</span>.<span class="ident">start_value</span>(<span class="ident">writer</span>));
         }
         <span class="self">self</span>.<span class="ident">current_indent</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
         <span class="self">self</span>.<span class="ident">stack</span>.<span class="ident">push</span>(<span class="self">self</span>.<span class="ident">current_is_array</span>);
         <span class="self">self</span>.<span class="ident">current_is_array</span> <span class="op">=</span> <span class="ident">ch</span> <span class="op">=</span><span class="op">=</span> <span class="string">b&#39;[&#39;</span>;
-        <span class="ident">writer</span>.<span class="ident">write_all</span>(<span class="kw-2">&amp;</span>[<span class="ident">ch</span>]).<span class="ident">map_err</span>(<span class="ident">From</span>::<span class="ident">from</span>)
+        <span class="ident">writer</span>.<span class="ident">write_all</span>(<span class="kw-2">&amp;</span>[<span class="ident">ch</span>]).<span class="ident">map_err</span>(<span class="ident">From::from</span>)
     }
 
     <span class="kw">fn</span> <span class="ident">comma</span><span class="op">&lt;</span><span class="ident">W</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">writer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">W</span>, <span class="kw">_</span>: <span class="ident">bool</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
-        <span class="kw">where</span> <span class="ident">W</span>: <span class="ident">io</span>::<span class="ident">Write</span> {
-        <span class="macro">try</span><span class="macro">!</span>(<span class="ident">writer</span>.<span class="ident">write_all</span>(<span class="string">b&quot;\n&quot;</span>));
+        <span class="kw">where</span> <span class="ident">W</span>: <span class="ident">io::Write</span> {
+        <span class="macro">try!</span>(<span class="ident">writer</span>.<span class="ident">write_all</span>(<span class="string">b&quot;\n&quot;</span>));
         <span class="ident">indent</span>(<span class="ident">writer</span>, <span class="self">self</span>.<span class="ident">current_indent</span>, <span class="self">self</span>.<span class="ident">indent</span>)
     }
 
     <span class="kw">fn</span> <span class="ident">colon</span><span class="op">&lt;</span><span class="ident">W</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">writer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">W</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
-        <span class="kw">where</span> <span class="ident">W</span>: <span class="ident">io</span>::<span class="ident">Write</span> {
+        <span class="kw">where</span> <span class="ident">W</span>: <span class="ident">io::Write</span> {
         <span class="self">self</span>.<span class="ident">at_colon</span> <span class="op">=</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">braces_same_line</span>;
-        <span class="ident">writer</span>.<span class="ident">write_all</span>(<span class="kw">if</span> <span class="self">self</span>.<span class="ident">braces_same_line</span> { <span class="string">b&quot;: &quot;</span> } <span class="kw">else</span> { <span class="string">b&quot;:&quot;</span> }).<span class="ident">map_err</span>(<span class="ident">From</span>::<span class="ident">from</span>)
+        <span class="ident">writer</span>.<span class="ident">write_all</span>(<span class="kw">if</span> <span class="self">self</span>.<span class="ident">braces_same_line</span> { <span class="string">b&quot;: &quot;</span> } <span class="kw">else</span> { <span class="string">b&quot;:&quot;</span> }).<span class="ident">map_err</span>(<span class="ident">From::from</span>)
     }
 
     <span class="kw">fn</span> <span class="ident">close</span><span class="op">&lt;</span><span class="ident">W</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">writer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">W</span>, <span class="ident">ch</span>: <span class="ident">u8</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
-        <span class="kw">where</span> <span class="ident">W</span>: <span class="ident">io</span>::<span class="ident">Write</span> {
+        <span class="kw">where</span> <span class="ident">W</span>: <span class="ident">io::Write</span> {
         <span class="self">self</span>.<span class="ident">current_indent</span> <span class="op">-</span><span class="op">=</span> <span class="number">1</span>;
         <span class="self">self</span>.<span class="ident">current_is_array</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">stack</span>.<span class="ident">pop</span>().<span class="ident">unwrap</span>();
-        <span class="macro">try</span><span class="macro">!</span>(<span class="ident">writer</span>.<span class="ident">write</span>(<span class="string">b&quot;\n&quot;</span>));
-        <span class="macro">try</span><span class="macro">!</span>(<span class="ident">indent</span>(<span class="ident">writer</span>, <span class="self">self</span>.<span class="ident">current_indent</span>, <span class="self">self</span>.<span class="ident">indent</span>));
-        <span class="ident">writer</span>.<span class="ident">write_all</span>(<span class="kw-2">&amp;</span>[<span class="ident">ch</span>]).<span class="ident">map_err</span>(<span class="ident">From</span>::<span class="ident">from</span>)
+        <span class="macro">try!</span>(<span class="ident">writer</span>.<span class="ident">write</span>(<span class="string">b&quot;\n&quot;</span>));
+        <span class="macro">try!</span>(<span class="ident">indent</span>(<span class="ident">writer</span>, <span class="self">self</span>.<span class="ident">current_indent</span>, <span class="self">self</span>.<span class="ident">indent</span>));
+        <span class="ident">writer</span>.<span class="ident">write_all</span>(<span class="kw-2">&amp;</span>[<span class="ident">ch</span>]).<span class="ident">map_err</span>(<span class="ident">From::from</span>)
     }
 
     <span class="kw">fn</span> <span class="ident">newline</span><span class="op">&lt;</span><span class="ident">W</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">writer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">W</span>, <span class="ident">add_indent</span>: <span class="ident">i32</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
-        <span class="kw">where</span> <span class="ident">W</span>: <span class="ident">io</span>::<span class="ident">Write</span> {
+        <span class="kw">where</span> <span class="ident">W</span>: <span class="ident">io::Write</span> {
         <span class="self">self</span>.<span class="ident">at_colon</span> <span class="op">=</span> <span class="bool-val">false</span>;
-        <span class="macro">try</span><span class="macro">!</span>(<span class="ident">writer</span>.<span class="ident">write_all</span>(<span class="string">b&quot;\n&quot;</span>));
+        <span class="macro">try!</span>(<span class="ident">writer</span>.<span class="ident">write_all</span>(<span class="string">b&quot;\n&quot;</span>));
         <span class="kw">let</span> <span class="ident">ii</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">current_indent</span> <span class="kw">as</span> <span class="ident">i32</span> <span class="op">+</span> <span class="ident">add_indent</span>;
         <span class="ident">indent</span>(<span class="ident">writer</span>, <span class="kw">if</span> <span class="ident">ii</span> <span class="op">&lt;</span> <span class="number">0</span> { <span class="number">0</span> } <span class="kw">else</span> { <span class="ident">ii</span> <span class="kw">as</span> <span class="ident">usize</span> }, <span class="self">self</span>.<span class="ident">indent</span>)
     }
 
     <span class="kw">fn</span> <span class="ident">start_value</span><span class="op">&lt;</span><span class="ident">W</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">writer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">W</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
-        <span class="kw">where</span> <span class="ident">W</span>: <span class="ident">io</span>::<span class="ident">Write</span> {
+        <span class="kw">where</span> <span class="ident">W</span>: <span class="ident">io::Write</span> {
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">at_colon</span> {
             <span class="self">self</span>.<span class="ident">at_colon</span> <span class="op">=</span> <span class="bool-val">false</span>;
-            <span class="macro">try</span><span class="macro">!</span>(<span class="ident">writer</span>.<span class="ident">write_all</span>(<span class="string">b&quot; &quot;</span>))
+            <span class="macro">try!</span>(<span class="ident">writer</span>.<span class="ident">write_all</span>(<span class="string">b&quot; &quot;</span>))
         }
         <span class="prelude-val">Ok</span>(())
     }
@@ -1896,8 +1896,8 @@
 <span class="doccomment">/// Serializes and escapes a `&amp;[u8]` into a Hjson string.</span>
 <span class="attribute">#[<span class="ident">inline</span>]</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">escape_bytes</span><span class="op">&lt;</span><span class="ident">W</span><span class="op">&gt;</span>(<span class="ident">wr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">W</span>, <span class="ident">bytes</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
-    <span class="kw">where</span> <span class="ident">W</span>: <span class="ident">io</span>::<span class="ident">Write</span> {
-    <span class="macro">try</span><span class="macro">!</span>(<span class="ident">wr</span>.<span class="ident">write_all</span>(<span class="string">b&quot;\&quot;&quot;</span>));
+    <span class="kw">where</span> <span class="ident">W</span>: <span class="ident">io::Write</span> {
+    <span class="macro">try!</span>(<span class="ident">wr</span>.<span class="ident">write_all</span>(<span class="string">b&quot;\&quot;&quot;</span>));
 
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">start</span> <span class="op">=</span> <span class="number">0</span>;
 
@@ -1914,47 +1914,47 @@
         };
 
         <span class="kw">if</span> <span class="ident">start</span> <span class="op">&lt;</span> <span class="ident">i</span> {
-            <span class="macro">try</span><span class="macro">!</span>(<span class="ident">wr</span>.<span class="ident">write_all</span>(<span class="kw-2">&amp;</span><span class="ident">bytes</span>[<span class="ident">start</span>..<span class="ident">i</span>]));
+            <span class="macro">try!</span>(<span class="ident">wr</span>.<span class="ident">write_all</span>(<span class="kw-2">&amp;</span><span class="ident">bytes</span>[<span class="ident">start</span>..<span class="ident">i</span>]));
         }
 
-        <span class="macro">try</span><span class="macro">!</span>(<span class="ident">wr</span>.<span class="ident">write_all</span>(<span class="ident">escaped</span>));
+        <span class="macro">try!</span>(<span class="ident">wr</span>.<span class="ident">write_all</span>(<span class="ident">escaped</span>));
 
         <span class="ident">start</span> <span class="op">=</span> <span class="ident">i</span> <span class="op">+</span> <span class="number">1</span>;
     }
 
     <span class="kw">if</span> <span class="ident">start</span> <span class="op">!</span><span class="op">=</span> <span class="ident">bytes</span>.<span class="ident">len</span>() {
-        <span class="macro">try</span><span class="macro">!</span>(<span class="ident">wr</span>.<span class="ident">write_all</span>(<span class="kw-2">&amp;</span><span class="ident">bytes</span>[<span class="ident">start</span>..]));
+        <span class="macro">try!</span>(<span class="ident">wr</span>.<span class="ident">write_all</span>(<span class="kw-2">&amp;</span><span class="ident">bytes</span>[<span class="ident">start</span>..]));
     }
 
-    <span class="macro">try</span><span class="macro">!</span>(<span class="ident">wr</span>.<span class="ident">write_all</span>(<span class="string">b&quot;\&quot;&quot;</span>));
+    <span class="macro">try!</span>(<span class="ident">wr</span>.<span class="ident">write_all</span>(<span class="string">b&quot;\&quot;&quot;</span>));
     <span class="prelude-val">Ok</span>(())
 }
 
 <span class="doccomment">/// Serializes and escapes a `&amp;str` into a Hjson string.</span>
 <span class="attribute">#[<span class="ident">inline</span>]</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">quote_str</span><span class="op">&lt;</span><span class="ident">W</span>, <span class="ident">F</span><span class="op">&gt;</span>(<span class="ident">wr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">W</span>, <span class="ident">formatter</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">F</span>, <span class="ident">value</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
-    <span class="kw">where</span> <span class="ident">W</span>: <span class="ident">io</span>::<span class="ident">Write</span>,
+    <span class="kw">where</span> <span class="ident">W</span>: <span class="ident">io::Write</span>,
           <span class="ident">F</span>: <span class="ident">Formatter</span> {
-    <span class="macro">lazy_static</span><span class="macro">!</span> {
+    <span class="macro">lazy_static!</span> {
         <span class="comment">// NEEDS_ESCAPE tests if the string can be written without escapes</span>
-        <span class="kw">static</span> <span class="kw-2">ref</span> <span class="ident">NEEDS_ESCAPE</span>: <span class="ident">Regex</span> <span class="op">=</span> <span class="ident">Regex</span>::<span class="ident">new</span>(<span class="string">&quot;[\\\\\&quot;\x00-\x1f\x7f-\u{9f}\u{00ad}\u{0600}-\u{0604}\u{070f}\u{17b4}\u{17b5}\u{200c}-\u{200f}\u{2028}-\u{202f}\u{2060}-\u{206f}\u{feff}\u{fff0}-\u{ffff}]&quot;</span>).<span class="ident">unwrap</span>();
+        <span class="kw">static</span> <span class="kw-2">ref</span> <span class="ident">NEEDS_ESCAPE</span>: <span class="ident">Regex</span> <span class="op">=</span> <span class="ident">Regex::new</span>(<span class="string">&quot;[\\\\\&quot;\x00-\x1f\x7f-\u{9f}\u{00ad}\u{0600}-\u{0604}\u{070f}\u{17b4}\u{17b5}\u{200c}-\u{200f}\u{2028}-\u{202f}\u{2060}-\u{206f}\u{feff}\u{fff0}-\u{ffff}]&quot;</span>).<span class="ident">unwrap</span>();
         <span class="comment">// NEEDS_QUOTES tests if the string can be written as a quoteless string (includes needsEscape but without \\ and \&quot;)</span>
-        <span class="kw">static</span> <span class="kw-2">ref</span> <span class="ident">NEEDS_QUOTES</span>: <span class="ident">Regex</span> <span class="op">=</span> <span class="ident">Regex</span>::<span class="ident">new</span>(<span class="string">&quot;^\\s|^\&quot;|^&#39;&#39;&#39;|^#|^/\\*|^//|^\\{|^\\}|^\\[|^\\]|^:|^,|\\s$|[\x00-\x1f\x7f-\u{9f}\u{00ad}\u{0600}-\u{0604}\u{070f}\u{17b4}\u{17b5}\u{200c}-\u{200f}\u{2028}-\u{202f}\u{2060}-\u{206f}\u{feff}\u{fff0}-\u{ffff}]&quot;</span>).<span class="ident">unwrap</span>();
+        <span class="kw">static</span> <span class="kw-2">ref</span> <span class="ident">NEEDS_QUOTES</span>: <span class="ident">Regex</span> <span class="op">=</span> <span class="ident">Regex::new</span>(<span class="string">&quot;^\\s|^\&quot;|^&#39;&#39;&#39;|^#|^/\\*|^//|^\\{|^\\}|^\\[|^\\]|^:|^,|\\s$|[\x00-\x1f\x7f-\u{9f}\u{00ad}\u{0600}-\u{0604}\u{070f}\u{17b4}\u{17b5}\u{200c}-\u{200f}\u{2028}-\u{202f}\u{2060}-\u{206f}\u{feff}\u{fff0}-\u{ffff}]&quot;</span>).<span class="ident">unwrap</span>();
         <span class="comment">// NEEDS_ESCAPEML tests if the string can be written as a multiline string (includes needsEscape but without \n, \r, \\ and \&quot;)</span>
-        <span class="kw">static</span> <span class="kw-2">ref</span> <span class="ident">NEEDS_ESCAPEML</span>: <span class="ident">Regex</span> <span class="op">=</span> <span class="ident">Regex</span>::<span class="ident">new</span>(<span class="string">&quot;&#39;&#39;&#39;|[\x00-\x09\x0b\x0c\x0e-\x1f\x7f-\u{9f}\u{00ad}\u{0600}-\u{0604}\u{070f}\u{17b4}\u{17b5}\u{200c}-\u{200f}\u{2028}-\u{202f}\u{2060}-\u{206f}\u{feff}\u{fff0}-\u{ffff}]&quot;</span>).<span class="ident">unwrap</span>();
+        <span class="kw">static</span> <span class="kw-2">ref</span> <span class="ident">NEEDS_ESCAPEML</span>: <span class="ident">Regex</span> <span class="op">=</span> <span class="ident">Regex::new</span>(<span class="string">&quot;&#39;&#39;&#39;|[\x00-\x09\x0b\x0c\x0e-\x1f\x7f-\u{9f}\u{00ad}\u{0600}-\u{0604}\u{070f}\u{17b4}\u{17b5}\u{200c}-\u{200f}\u{2028}-\u{202f}\u{2060}-\u{206f}\u{feff}\u{fff0}-\u{ffff}]&quot;</span>).<span class="ident">unwrap</span>();
         <span class="comment">// starts with a keyword and optionally is followed by a comment</span>
-        <span class="kw">static</span> <span class="kw-2">ref</span> <span class="ident">STARTS_WITH_KEYWORD</span>: <span class="ident">Regex</span> <span class="op">=</span> <span class="ident">Regex</span>::<span class="ident">new</span>(<span class="string">r#&quot;^(true|false|null)\s*((,|\]|\}|#|//|/\*).*)?$&quot;#</span>).<span class="ident">unwrap</span>();
+        <span class="kw">static</span> <span class="kw-2">ref</span> <span class="ident">STARTS_WITH_KEYWORD</span>: <span class="ident">Regex</span> <span class="op">=</span> <span class="ident">Regex::new</span>(<span class="string">r#&quot;^(true|false|null)\s*((,|\]|\}|#|//|/\*).*)?$&quot;#</span>).<span class="ident">unwrap</span>();
     }
 
     <span class="kw">if</span> <span class="ident">value</span>.<span class="ident">len</span>() <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
-        <span class="macro">try</span><span class="macro">!</span>(<span class="ident">formatter</span>.<span class="ident">start_value</span>(<span class="ident">wr</span>));
+        <span class="macro">try!</span>(<span class="ident">formatter</span>.<span class="ident">start_value</span>(<span class="ident">wr</span>));
         <span class="kw">return</span> <span class="ident">escape_bytes</span>(<span class="ident">wr</span>, <span class="ident">value</span>.<span class="ident">as_bytes</span>());
     }
 
     <span class="comment">// Check if we can insert this string without quotes</span>
     <span class="comment">// see hjson syntax (must not parse as true, false, null or number)</span>
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pn</span> <span class="op">=</span> <span class="ident">ParseNumber</span>::<span class="ident">new</span>(<span class="ident">value</span>.<span class="ident">bytes</span>());
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pn</span> <span class="op">=</span> <span class="ident">ParseNumber::new</span>(<span class="ident">value</span>.<span class="ident">bytes</span>());
     <span class="kw">let</span> <span class="ident">is_number</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">pn</span>.<span class="ident">parse</span>(<span class="bool-val">true</span>) {
         <span class="prelude-val">Ok</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
         <span class="prelude-val">Err</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
@@ -1968,20 +1968,20 @@
         <span class="kw">if</span> <span class="ident">NEEDS_ESCAPE</span>.<span class="ident">is_match</span>(<span class="ident">value</span>) <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">NEEDS_ESCAPEML</span>.<span class="ident">is_match</span>(<span class="ident">value</span>)  <span class="comment">/* &amp;&amp; !isRootObject */</span> {
             <span class="ident">ml_str</span>(<span class="ident">wr</span>, <span class="ident">formatter</span>, <span class="ident">value</span>)
         } <span class="kw">else</span> {
-            <span class="macro">try</span><span class="macro">!</span>(<span class="ident">formatter</span>.<span class="ident">start_value</span>(<span class="ident">wr</span>));
+            <span class="macro">try!</span>(<span class="ident">formatter</span>.<span class="ident">start_value</span>(<span class="ident">wr</span>));
             <span class="ident">escape_bytes</span>(<span class="ident">wr</span>, <span class="ident">value</span>.<span class="ident">as_bytes</span>())
         }
     }
     <span class="kw">else</span> {
         <span class="comment">// without quotes</span>
-        <span class="macro">try</span><span class="macro">!</span>(<span class="ident">formatter</span>.<span class="ident">start_value</span>(<span class="ident">wr</span>));
-        <span class="ident">wr</span>.<span class="ident">write_all</span>(<span class="ident">value</span>.<span class="ident">as_bytes</span>()).<span class="ident">map_err</span>(<span class="ident">From</span>::<span class="ident">from</span>)
+        <span class="macro">try!</span>(<span class="ident">formatter</span>.<span class="ident">start_value</span>(<span class="ident">wr</span>));
+        <span class="ident">wr</span>.<span class="ident">write_all</span>(<span class="ident">value</span>.<span class="ident">as_bytes</span>()).<span class="ident">map_err</span>(<span class="ident">From::from</span>)
     }
 }
 
 <span class="doccomment">/// Serializes and escapes a `&amp;str` into a multiline Hjson string.</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ml_str</span><span class="op">&lt;</span><span class="ident">W</span>, <span class="ident">F</span><span class="op">&gt;</span>(<span class="ident">wr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">W</span>, <span class="ident">formatter</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">F</span>, <span class="ident">value</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
-    <span class="kw">where</span> <span class="ident">W</span>: <span class="ident">io</span>::<span class="ident">Write</span>,
+    <span class="kw">where</span> <span class="ident">W</span>: <span class="ident">io::Write</span>,
           <span class="ident">F</span>: <span class="ident">Formatter</span> {
 
     <span class="comment">// wrap the string into the &#39;&#39;&#39; (multiline) format</span>
@@ -1992,19 +1992,19 @@
         <span class="comment">// The string contains only a single line. We still use the multiline</span>
         <span class="comment">// format as it avoids escaping the \ character (e.g. when used in a</span>
         <span class="comment">// regex).</span>
-        <span class="macro">try</span><span class="macro">!</span>(<span class="ident">formatter</span>.<span class="ident">start_value</span>(<span class="ident">wr</span>));
-        <span class="macro">try</span><span class="macro">!</span>(<span class="ident">wr</span>.<span class="ident">write_all</span>(<span class="string">b&quot;&#39;&#39;&#39;&quot;</span>));
-        <span class="macro">try</span><span class="macro">!</span>(<span class="ident">wr</span>.<span class="ident">write_all</span>(<span class="ident">a</span>[<span class="number">0</span>].<span class="ident">as_bytes</span>()));
-        <span class="macro">try</span><span class="macro">!</span>(<span class="ident">wr</span>.<span class="ident">write_all</span>(<span class="string">b&quot;&#39;&#39;&#39;&quot;</span>))
+        <span class="macro">try!</span>(<span class="ident">formatter</span>.<span class="ident">start_value</span>(<span class="ident">wr</span>));
+        <span class="macro">try!</span>(<span class="ident">wr</span>.<span class="ident">write_all</span>(<span class="string">b&quot;&#39;&#39;&#39;&quot;</span>));
+        <span class="macro">try!</span>(<span class="ident">wr</span>.<span class="ident">write_all</span>(<span class="ident">a</span>[<span class="number">0</span>].<span class="ident">as_bytes</span>()));
+        <span class="macro">try!</span>(<span class="ident">wr</span>.<span class="ident">write_all</span>(<span class="string">b&quot;&#39;&#39;&#39;&quot;</span>))
     } <span class="kw">else</span> {
-        <span class="macro">try</span><span class="macro">!</span>(<span class="ident">formatter</span>.<span class="ident">newline</span>(<span class="ident">wr</span>, <span class="number">1</span>));
-        <span class="macro">try</span><span class="macro">!</span>(<span class="ident">wr</span>.<span class="ident">write_all</span>(<span class="string">b&quot;&#39;&#39;&#39;&quot;</span>));
+        <span class="macro">try!</span>(<span class="ident">formatter</span>.<span class="ident">newline</span>(<span class="ident">wr</span>, <span class="number">1</span>));
+        <span class="macro">try!</span>(<span class="ident">wr</span>.<span class="ident">write_all</span>(<span class="string">b&quot;&#39;&#39;&#39;&quot;</span>));
         <span class="kw">for</span> <span class="ident">line</span> <span class="kw">in</span> <span class="ident">a</span> {
-            <span class="macro">try</span><span class="macro">!</span>(<span class="ident">formatter</span>.<span class="ident">newline</span>(<span class="ident">wr</span>, <span class="kw">if</span> <span class="ident">line</span>.<span class="ident">len</span>() <span class="op">&gt;</span> <span class="number">0</span> { <span class="number">1</span> } <span class="kw">else</span> { <span class="op">-</span><span class="number">999</span> }));
-            <span class="macro">try</span><span class="macro">!</span>(<span class="ident">wr</span>.<span class="ident">write_all</span>(<span class="ident">line</span>.<span class="ident">as_bytes</span>()));
+            <span class="macro">try!</span>(<span class="ident">formatter</span>.<span class="ident">newline</span>(<span class="ident">wr</span>, <span class="kw">if</span> <span class="ident">line</span>.<span class="ident">len</span>() <span class="op">&gt;</span> <span class="number">0</span> { <span class="number">1</span> } <span class="kw">else</span> { <span class="op">-</span><span class="number">999</span> }));
+            <span class="macro">try!</span>(<span class="ident">wr</span>.<span class="ident">write_all</span>(<span class="ident">line</span>.<span class="ident">as_bytes</span>()));
         }
-        <span class="macro">try</span><span class="macro">!</span>(<span class="ident">formatter</span>.<span class="ident">newline</span>(<span class="ident">wr</span>, <span class="number">1</span>));
-        <span class="macro">try</span><span class="macro">!</span>(<span class="ident">wr</span>.<span class="ident">write_all</span>(<span class="string">b&quot;&#39;&#39;&#39;&quot;</span>));
+        <span class="macro">try!</span>(<span class="ident">formatter</span>.<span class="ident">newline</span>(<span class="ident">wr</span>, <span class="number">1</span>));
+        <span class="macro">try!</span>(<span class="ident">wr</span>.<span class="ident">write_all</span>(<span class="string">b&quot;&#39;&#39;&#39;&quot;</span>));
     }
     <span class="prelude-val">Ok</span>(())
 }
@@ -2012,38 +2012,38 @@
 <span class="doccomment">/// Serializes and escapes a `&amp;str` into a Hjson key.</span>
 <span class="attribute">#[<span class="ident">inline</span>]</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">escape_key</span><span class="op">&lt;</span><span class="ident">W</span><span class="op">&gt;</span>(<span class="ident">wr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">W</span>, <span class="ident">value</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
-    <span class="kw">where</span> <span class="ident">W</span>: <span class="ident">io</span>::<span class="ident">Write</span> {
+    <span class="kw">where</span> <span class="ident">W</span>: <span class="ident">io::Write</span> {
 
-    <span class="macro">lazy_static</span><span class="macro">!</span> {
-        <span class="kw">static</span> <span class="kw-2">ref</span> <span class="ident">NEEDS_ESCAPE_NAME</span>: <span class="ident">Regex</span> <span class="op">=</span> <span class="ident">Regex</span>::<span class="ident">new</span>(<span class="string">r#&quot;[,\{\[\}\]\s:#&quot;]|//|/\*|&#39;&#39;&#39;|^$&quot;#</span>).<span class="ident">unwrap</span>();
+    <span class="macro">lazy_static!</span> {
+        <span class="kw">static</span> <span class="kw-2">ref</span> <span class="ident">NEEDS_ESCAPE_NAME</span>: <span class="ident">Regex</span> <span class="op">=</span> <span class="ident">Regex::new</span>(<span class="string">r#&quot;[,\{\[\}\]\s:#&quot;]|//|/\*|&#39;&#39;&#39;|^$&quot;#</span>).<span class="ident">unwrap</span>();
     }
 
     <span class="comment">// Check if we can insert this name without quotes</span>
     <span class="kw">if</span> <span class="ident">NEEDS_ESCAPE_NAME</span>.<span class="ident">is_match</span>(<span class="ident">value</span>) {
-        <span class="ident">escape_bytes</span>(<span class="ident">wr</span>, <span class="ident">value</span>.<span class="ident">as_bytes</span>()).<span class="ident">map_err</span>(<span class="ident">From</span>::<span class="ident">from</span>)
+        <span class="ident">escape_bytes</span>(<span class="ident">wr</span>, <span class="ident">value</span>.<span class="ident">as_bytes</span>()).<span class="ident">map_err</span>(<span class="ident">From::from</span>)
     } <span class="kw">else</span> {
-        <span class="ident">wr</span>.<span class="ident">write_all</span>(<span class="ident">value</span>.<span class="ident">as_bytes</span>()).<span class="ident">map_err</span>(<span class="ident">From</span>::<span class="ident">from</span>)
+        <span class="ident">wr</span>.<span class="ident">write_all</span>(<span class="ident">value</span>.<span class="ident">as_bytes</span>()).<span class="ident">map_err</span>(<span class="ident">From::from</span>)
     }
 }
 
 <span class="attribute">#[<span class="ident">inline</span>]</span>
 <span class="kw">fn</span> <span class="ident">escape_char</span><span class="op">&lt;</span><span class="ident">W</span><span class="op">&gt;</span>(<span class="ident">wr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">W</span>, <span class="ident">value</span>: <span class="ident">char</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
-    <span class="kw">where</span> <span class="ident">W</span>: <span class="ident">io</span>::<span class="ident">Write</span> {
+    <span class="kw">where</span> <span class="ident">W</span>: <span class="ident">io::Write</span> {
     <span class="comment">// FIXME: this allocation is required in order to be compatible with stable</span>
     <span class="comment">// rust, which doesn&#39;t support encoding a `char` into a stack buffer.</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident">String</span>::<span class="ident">new</span>();
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident">String::new</span>();
     <span class="ident">s</span>.<span class="ident">push</span>(<span class="ident">value</span>);
     <span class="ident">escape_bytes</span>(<span class="ident">wr</span>, <span class="ident">s</span>.<span class="ident">as_bytes</span>())
 }
 
 <span class="kw">fn</span> <span class="ident">fmt_f32_or_null</span><span class="op">&lt;</span><span class="ident">W</span><span class="op">&gt;</span>(<span class="ident">wr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">W</span>, <span class="ident">value</span>: <span class="ident">f32</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
-    <span class="kw">where</span> <span class="ident">W</span>: <span class="ident">io</span>::<span class="ident">Write</span> {
+    <span class="kw">where</span> <span class="ident">W</span>: <span class="ident">io::Write</span> {
     <span class="kw">match</span> <span class="ident">value</span>.<span class="ident">classify</span>() {
-        <span class="ident">FpCategory</span>::<span class="ident">Nan</span> <span class="op">|</span> <span class="ident">FpCategory</span>::<span class="ident">Infinite</span> <span class="op">=</span><span class="op">&gt;</span> {
-            <span class="macro">try</span><span class="macro">!</span>(<span class="ident">wr</span>.<span class="ident">write_all</span>(<span class="string">b&quot;null&quot;</span>))
+        <span class="ident">FpCategory::Nan</span> <span class="op">|</span> <span class="ident">FpCategory::Infinite</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="macro">try!</span>(<span class="ident">wr</span>.<span class="ident">write_all</span>(<span class="string">b&quot;null&quot;</span>))
         }
         <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {
-            <span class="macro">try</span><span class="macro">!</span>(<span class="ident">wr</span>.<span class="ident">write_all</span>(<span class="ident">fmt_small</span>(<span class="ident">value</span>).<span class="ident">as_bytes</span>()))
+            <span class="macro">try!</span>(<span class="ident">wr</span>.<span class="ident">write_all</span>(<span class="ident">fmt_small</span>(<span class="ident">value</span>).<span class="ident">as_bytes</span>()))
         }
     }
 
@@ -2051,13 +2051,13 @@
 }
 
 <span class="kw">fn</span> <span class="ident">fmt_f64_or_null</span><span class="op">&lt;</span><span class="ident">W</span><span class="op">&gt;</span>(<span class="ident">wr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">W</span>, <span class="ident">value</span>: <span class="ident">f64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
-    <span class="kw">where</span> <span class="ident">W</span>: <span class="ident">io</span>::<span class="ident">Write</span> {
+    <span class="kw">where</span> <span class="ident">W</span>: <span class="ident">io::Write</span> {
     <span class="kw">match</span> <span class="ident">value</span>.<span class="ident">classify</span>() {
-        <span class="ident">FpCategory</span>::<span class="ident">Nan</span> <span class="op">|</span> <span class="ident">FpCategory</span>::<span class="ident">Infinite</span> <span class="op">=</span><span class="op">&gt;</span> {
-            <span class="macro">try</span><span class="macro">!</span>(<span class="ident">wr</span>.<span class="ident">write_all</span>(<span class="string">b&quot;null&quot;</span>))
+        <span class="ident">FpCategory::Nan</span> <span class="op">|</span> <span class="ident">FpCategory::Infinite</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="macro">try!</span>(<span class="ident">wr</span>.<span class="ident">write_all</span>(<span class="string">b&quot;null&quot;</span>))
         }
         <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {
-            <span class="macro">try</span><span class="macro">!</span>(<span class="ident">wr</span>.<span class="ident">write_all</span>(<span class="ident">fmt_small</span>(<span class="ident">value</span>).<span class="ident">as_bytes</span>()))
+            <span class="macro">try!</span>(<span class="ident">wr</span>.<span class="ident">write_all</span>(<span class="ident">fmt_small</span>(<span class="ident">value</span>).<span class="ident">as_bytes</span>()))
         }
     }
 
@@ -2065,9 +2065,9 @@
 }
 
 <span class="kw">fn</span> <span class="ident">indent</span><span class="op">&lt;</span><span class="ident">W</span><span class="op">&gt;</span>(<span class="ident">wr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">W</span>, <span class="ident">n</span>: <span class="ident">usize</span>, <span class="ident">s</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
-    <span class="kw">where</span> <span class="ident">W</span>: <span class="ident">io</span>::<span class="ident">Write</span> {
+    <span class="kw">where</span> <span class="ident">W</span>: <span class="ident">io::Write</span> {
     <span class="kw">for</span> <span class="kw">_</span> <span class="kw">in</span> <span class="number">0</span> .. <span class="ident">n</span> {
-        <span class="macro">try</span><span class="macro">!</span>(<span class="ident">wr</span>.<span class="ident">write_all</span>(<span class="ident">s</span>));
+        <span class="macro">try!</span>(<span class="ident">wr</span>.<span class="ident">write_all</span>(<span class="ident">s</span>));
     }
 
     <span class="prelude-val">Ok</span>(())
@@ -2076,8 +2076,8 @@
 <span class="comment">// format similar to es6</span>
 <span class="kw">fn</span> <span class="ident">fmt_small</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span>(<span class="ident">value</span>: <span class="ident">N</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span>
     <span class="kw">where</span> <span class="ident">N</span>: <span class="ident">Display</span> <span class="op">+</span> <span class="ident">LowerExp</span> {
-    <span class="kw">let</span> <span class="ident">f1</span> <span class="op">=</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">value</span>);
-    <span class="kw">let</span> <span class="ident">f2</span> <span class="op">=</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{:e}&quot;</span>, <span class="ident">value</span>);
+    <span class="kw">let</span> <span class="ident">f1</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">value</span>);
+    <span class="kw">let</span> <span class="ident">f2</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;{:e}&quot;</span>, <span class="ident">value</span>);
     <span class="kw">if</span> <span class="ident">f1</span>.<span class="ident">len</span>() <span class="op">&lt;</span><span class="op">=</span> <span class="ident">f2</span>.<span class="ident">len</span>() <span class="op">+</span> <span class="number">1</span> {
         <span class="ident">f1</span>
     } <span class="kw">else</span> {
@@ -2088,32 +2088,32 @@
 <span class="doccomment">/// Encode the specified struct into a Hjson `[u8]` writer.</span>
 <span class="attribute">#[<span class="ident">inline</span>]</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_writer</span><span class="op">&lt;</span><span class="ident">W</span>, <span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">writer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">W</span>, <span class="ident">value</span>: <span class="kw-2">&amp;</span><span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
-    <span class="kw">where</span> <span class="ident">W</span>: <span class="ident">io</span>::<span class="ident">Write</span>,
-          <span class="ident">T</span>: <span class="ident">ser</span>::<span class="ident">Serialize</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ser</span> <span class="op">=</span> <span class="ident">Serializer</span>::<span class="ident">new</span>(<span class="ident">writer</span>);
-    <span class="macro">try</span><span class="macro">!</span>(<span class="ident">value</span>.<span class="ident">serialize</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ser</span>));
+    <span class="kw">where</span> <span class="ident">W</span>: <span class="ident">io::Write</span>,
+          <span class="ident">T</span>: <span class="ident">ser::Serialize</span> {
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ser</span> <span class="op">=</span> <span class="ident">Serializer::new</span>(<span class="ident">writer</span>);
+    <span class="macro">try!</span>(<span class="ident">value</span>.<span class="ident">serialize</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ser</span>));
     <span class="prelude-val">Ok</span>(())
 }
 
 <span class="doccomment">/// Encode the specified struct into a Hjson `[u8]` buffer.</span>
 <span class="attribute">#[<span class="ident">inline</span>]</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_vec</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">value</span>: <span class="kw-2">&amp;</span><span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span>
-    <span class="kw">where</span> <span class="ident">T</span>: <span class="ident">ser</span>::<span class="ident">Serialize</span> {
+    <span class="kw">where</span> <span class="ident">T</span>: <span class="ident">ser::Serialize</span> {
     <span class="comment">// We are writing to a Vec, which doesn&#39;t fail. So we can ignore</span>
     <span class="comment">// the error.</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">writer</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">with_capacity</span>(<span class="number">128</span>);
-    <span class="macro">try</span><span class="macro">!</span>(<span class="ident">to_writer</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">writer</span>, <span class="ident">value</span>));
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">writer</span> <span class="op">=</span> <span class="ident">Vec::with_capacity</span>(<span class="number">128</span>);
+    <span class="macro">try!</span>(<span class="ident">to_writer</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">writer</span>, <span class="ident">value</span>));
     <span class="prelude-val">Ok</span>(<span class="ident">writer</span>)
 }
 
 <span class="doccomment">/// Encode the specified struct into a Hjson `String` buffer.</span>
 <span class="attribute">#[<span class="ident">inline</span>]</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_string</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">value</span>: <span class="kw-2">&amp;</span><span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>
-    <span class="kw">where</span> <span class="ident">T</span>: <span class="ident">ser</span>::<span class="ident">Serialize</span> {
-    <span class="kw">let</span> <span class="ident">vec</span> <span class="op">=</span> <span class="macro">try</span><span class="macro">!</span>(<span class="ident">to_vec</span>(<span class="ident">value</span>));
-    <span class="kw">let</span> <span class="ident">string</span> <span class="op">=</span> <span class="macro">try</span><span class="macro">!</span>(<span class="ident">String</span>::<span class="ident">from_utf8</span>(<span class="ident">vec</span>));
+    <span class="kw">where</span> <span class="ident">T</span>: <span class="ident">ser::Serialize</span> {
+    <span class="kw">let</span> <span class="ident">vec</span> <span class="op">=</span> <span class="macro">try!</span>(<span class="ident">to_vec</span>(<span class="ident">value</span>));
+    <span class="kw">let</span> <span class="ident">string</span> <span class="op">=</span> <span class="macro">try!</span>(<span class="ident">String::from_utf8</span>(<span class="ident">vec</span>));
     <span class="prelude-val">Ok</span>(<span class="ident">string</span>)
 }
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="serde_hjson" data-search-js="../../search-index.js"></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="serde_hjson" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
     <script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script></body></html>

@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/usr/local/cargo/registry/src/github.com-1ecc6299db9ec823/async-std-1.9.0/src/task/builder.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>builder.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png">
-<link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../async_std/index.html'><div class='logo-container'><img src='https://async.rs/images/logo--hero.svg' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+<link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../async_std/index.html'><div class='logo-container'><img src='https://async.rs/images/logo--hero.svg' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../../settings.html"><img src="../../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
@@ -205,15 +205,15 @@
 <span id="202">202</span>
 <span id="203">203</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">future</span>::<span class="ident">Future</span>;
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">pin</span>::<span class="ident">Pin</span>;
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">sync</span>::<span class="ident">Arc</span>;
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">task</span>::{<span class="ident">Context</span>, <span class="ident">Poll</span>};
+<span class="kw">use</span> <span class="ident">std::future::Future</span>;
+<span class="kw">use</span> <span class="ident">std::pin::Pin</span>;
+<span class="kw">use</span> <span class="ident">std::sync::Arc</span>;
+<span class="kw">use</span> <span class="ident">std::task</span>::{<span class="ident">Context</span>, <span class="ident">Poll</span>};
 
-<span class="kw">use</span> <span class="ident">pin_project_lite</span>::<span class="ident">pin_project</span>;
+<span class="kw">use</span> <span class="ident">pin_project_lite::pin_project</span>;
 
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">io</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">task</span>::{<span class="ident">JoinHandle</span>, <span class="ident">Task</span>, <span class="ident">TaskLocalsWrapper</span>};
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::io</span>;
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::task</span>::{<span class="ident">JoinHandle</span>, <span class="ident">Task</span>, <span class="ident">TaskLocalsWrapper</span>};
 
 <span class="doccomment">/// Task builder that configures the settings of a new task.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Default</span>)]</span>
@@ -239,92 +239,92 @@
     <span class="kw">where</span>
         <span class="ident">F</span>: <span class="ident">Future</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> <span class="ident">T</span><span class="op">&gt;</span>,
     {
-        <span class="kw">let</span> <span class="ident">name</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">name</span>.<span class="ident">map</span>(<span class="ident">Arc</span>::<span class="ident">new</span>);
+        <span class="kw">let</span> <span class="ident">name</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">name</span>.<span class="ident">map</span>(<span class="ident">Arc::new</span>);
 
         <span class="comment">// Create a new task handle.</span>
-        <span class="kw">let</span> <span class="ident">task</span> <span class="op">=</span> <span class="ident">Task</span>::<span class="ident">new</span>(<span class="ident">name</span>);
+        <span class="kw">let</span> <span class="ident">task</span> <span class="op">=</span> <span class="ident">Task::new</span>(<span class="ident">name</span>);
 
         <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;unknown&quot;</span>))]</span>
-        <span class="ident">once_cell</span>::<span class="ident">sync</span>::<span class="ident">Lazy</span>::<span class="ident">force</span>(<span class="kw-2">&amp;</span><span class="kw">crate</span>::<span class="ident">rt</span>::<span class="ident">RUNTIME</span>);
+        <span class="ident">once_cell::sync::Lazy::force</span>(<span class="kw-2">&amp;</span><span class="kw">crate</span><span class="ident">::rt::RUNTIME</span>);
 
-        <span class="kw">let</span> <span class="ident">tag</span> <span class="op">=</span> <span class="ident">TaskLocalsWrapper</span>::<span class="ident">new</span>(<span class="ident">task</span>);
+        <span class="kw">let</span> <span class="ident">tag</span> <span class="op">=</span> <span class="ident">TaskLocalsWrapper::new</span>(<span class="ident">task</span>);
 
         <span class="ident">SupportTaskLocals</span> { <span class="ident">tag</span>, <span class="ident">future</span> }
     }
 
     <span class="doccomment">/// Spawns a task with the configured settings.</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;unknown&quot;</span>))]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">spawn</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">future</span>: <span class="ident">F</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">JoinHandle</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">spawn</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">future</span>: <span class="ident">F</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">JoinHandle</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="ident">F</span>: <span class="ident">Future</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> <span class="ident">T</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Send</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
         <span class="ident">T</span>: <span class="ident">Send</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
     {
         <span class="kw">let</span> <span class="ident">wrapped</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">build</span>(<span class="ident">future</span>);
 
-        <span class="ident">kv_log_macro</span>::<span class="macro">trace</span><span class="macro">!</span>(<span class="string">&quot;spawn&quot;</span>, {
+        <span class="macro">kv_log_macro::trace!</span>(<span class="string">&quot;spawn&quot;</span>, {
             <span class="ident">task_id</span>: <span class="ident">wrapped</span>.<span class="ident">tag</span>.<span class="ident">id</span>().<span class="number">0</span>,
-            <span class="ident">parent_task_id</span>: <span class="ident">TaskLocalsWrapper</span>::<span class="ident">get_current</span>(<span class="op">|</span><span class="ident">t</span><span class="op">|</span> <span class="ident">t</span>.<span class="ident">id</span>().<span class="number">0</span>).<span class="ident">unwrap_or</span>(<span class="number">0</span>),
+            <span class="ident">parent_task_id</span>: <span class="ident">TaskLocalsWrapper::get_current</span>(<span class="op">|</span><span class="ident">t</span><span class="op">|</span> <span class="ident">t</span>.<span class="ident">id</span>().<span class="number">0</span>).<span class="ident">unwrap_or</span>(<span class="number">0</span>),
         });
 
         <span class="kw">let</span> <span class="ident">task</span> <span class="op">=</span> <span class="ident">wrapped</span>.<span class="ident">tag</span>.<span class="ident">task</span>().<span class="ident">clone</span>();
-        <span class="kw">let</span> <span class="ident">handle</span> <span class="op">=</span> <span class="ident">async_global_executor</span>::<span class="ident">spawn</span>(<span class="ident">wrapped</span>);
+        <span class="kw">let</span> <span class="ident">handle</span> <span class="op">=</span> <span class="ident">async_global_executor::spawn</span>(<span class="ident">wrapped</span>);
 
-        <span class="prelude-val">Ok</span>(<span class="ident">JoinHandle</span>::<span class="ident">new</span>(<span class="ident">handle</span>, <span class="ident">task</span>))
+        <span class="prelude-val">Ok</span>(<span class="ident">JoinHandle::new</span>(<span class="ident">handle</span>, <span class="ident">task</span>))
     }
 
     <span class="doccomment">/// Spawns a task locally with the configured settings.</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">not</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;unknown&quot;</span>), <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;unstable&quot;</span>))]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">local</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">future</span>: <span class="ident">F</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">JoinHandle</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">local</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">future</span>: <span class="ident">F</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">JoinHandle</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="ident">F</span>: <span class="ident">Future</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> <span class="ident">T</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
         <span class="ident">T</span>: <span class="lifetime">&#39;static</span>,
     {
         <span class="kw">let</span> <span class="ident">wrapped</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">build</span>(<span class="ident">future</span>);
 
-        <span class="ident">kv_log_macro</span>::<span class="macro">trace</span><span class="macro">!</span>(<span class="string">&quot;spawn_local&quot;</span>, {
+        <span class="macro">kv_log_macro::trace!</span>(<span class="string">&quot;spawn_local&quot;</span>, {
             <span class="ident">task_id</span>: <span class="ident">wrapped</span>.<span class="ident">tag</span>.<span class="ident">id</span>().<span class="number">0</span>,
-            <span class="ident">parent_task_id</span>: <span class="ident">TaskLocalsWrapper</span>::<span class="ident">get_current</span>(<span class="op">|</span><span class="ident">t</span><span class="op">|</span> <span class="ident">t</span>.<span class="ident">id</span>().<span class="number">0</span>).<span class="ident">unwrap_or</span>(<span class="number">0</span>),
+            <span class="ident">parent_task_id</span>: <span class="ident">TaskLocalsWrapper::get_current</span>(<span class="op">|</span><span class="ident">t</span><span class="op">|</span> <span class="ident">t</span>.<span class="ident">id</span>().<span class="number">0</span>).<span class="ident">unwrap_or</span>(<span class="number">0</span>),
         });
 
         <span class="kw">let</span> <span class="ident">task</span> <span class="op">=</span> <span class="ident">wrapped</span>.<span class="ident">tag</span>.<span class="ident">task</span>().<span class="ident">clone</span>();
-        <span class="kw">let</span> <span class="ident">handle</span> <span class="op">=</span> <span class="ident">async_global_executor</span>::<span class="ident">spawn_local</span>(<span class="ident">wrapped</span>);
+        <span class="kw">let</span> <span class="ident">handle</span> <span class="op">=</span> <span class="ident">async_global_executor::spawn_local</span>(<span class="ident">wrapped</span>);
 
-        <span class="prelude-val">Ok</span>(<span class="ident">JoinHandle</span>::<span class="ident">new</span>(<span class="ident">handle</span>, <span class="ident">task</span>))
+        <span class="prelude-val">Ok</span>(<span class="ident">JoinHandle::new</span>(<span class="ident">handle</span>, <span class="ident">task</span>))
     }
 
     <span class="doccomment">/// Spawns a task locally with the configured settings.</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;unstable&quot;</span>))]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">local</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">future</span>: <span class="ident">F</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">JoinHandle</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">local</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">future</span>: <span class="ident">F</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">JoinHandle</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="ident">F</span>: <span class="ident">Future</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> <span class="ident">T</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
         <span class="ident">T</span>: <span class="lifetime">&#39;static</span>,
     {
-        <span class="kw">use</span> <span class="ident">futures_channel</span>::<span class="ident">oneshot</span>::<span class="ident">channel</span>;
+        <span class="kw">use</span> <span class="ident">futures_channel::oneshot::channel</span>;
         <span class="kw">let</span> (<span class="ident">sender</span>, <span class="ident">receiver</span>) <span class="op">=</span> <span class="ident">channel</span>();
 
         <span class="kw">let</span> <span class="ident">wrapped</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">build</span>(<span class="kw">async</span> <span class="kw">move</span> {
             <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">future</span>.<span class="kw">await</span>;
             <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">sender</span>.<span class="ident">send</span>(<span class="ident">res</span>);
         });
-        <span class="ident">kv_log_macro</span>::<span class="macro">trace</span><span class="macro">!</span>(<span class="string">&quot;spawn_local&quot;</span>, {
+        <span class="macro">kv_log_macro::trace!</span>(<span class="string">&quot;spawn_local&quot;</span>, {
             <span class="ident">task_id</span>: <span class="ident">wrapped</span>.<span class="ident">tag</span>.<span class="ident">id</span>().<span class="number">0</span>,
-            <span class="ident">parent_task_id</span>: <span class="ident">TaskLocalsWrapper</span>::<span class="ident">get_current</span>(<span class="op">|</span><span class="ident">t</span><span class="op">|</span> <span class="ident">t</span>.<span class="ident">id</span>().<span class="number">0</span>).<span class="ident">unwrap_or</span>(<span class="number">0</span>),
+            <span class="ident">parent_task_id</span>: <span class="ident">TaskLocalsWrapper::get_current</span>(<span class="op">|</span><span class="ident">t</span><span class="op">|</span> <span class="ident">t</span>.<span class="ident">id</span>().<span class="number">0</span>).<span class="ident">unwrap_or</span>(<span class="number">0</span>),
         });
 
         <span class="kw">let</span> <span class="ident">task</span> <span class="op">=</span> <span class="ident">wrapped</span>.<span class="ident">tag</span>.<span class="ident">task</span>().<span class="ident">clone</span>();
-        <span class="ident">wasm_bindgen_futures</span>::<span class="ident">spawn_local</span>(<span class="ident">wrapped</span>);
+        <span class="ident">wasm_bindgen_futures::spawn_local</span>(<span class="ident">wrapped</span>);
 
-        <span class="prelude-val">Ok</span>(<span class="ident">JoinHandle</span>::<span class="ident">new</span>(<span class="ident">receiver</span>, <span class="ident">task</span>))
+        <span class="prelude-val">Ok</span>(<span class="ident">JoinHandle::new</span>(<span class="ident">receiver</span>, <span class="ident">task</span>))
     }
 
     <span class="doccomment">/// Spawns a task locally with the configured settings.</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>, <span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;unstable&quot;</span>)))]</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">local</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">future</span>: <span class="ident">F</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">JoinHandle</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">local</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">future</span>: <span class="ident">F</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">JoinHandle</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="ident">F</span>: <span class="ident">Future</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> <span class="ident">T</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
         <span class="ident">T</span>: <span class="lifetime">&#39;static</span>,
     {
-        <span class="kw">use</span> <span class="ident">futures_channel</span>::<span class="ident">oneshot</span>::<span class="ident">channel</span>;
+        <span class="kw">use</span> <span class="ident">futures_channel::oneshot::channel</span>;
         <span class="kw">let</span> (<span class="ident">sender</span>, <span class="ident">receiver</span>) <span class="op">=</span> <span class="ident">channel</span>();
 
         <span class="kw">let</span> <span class="ident">wrapped</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">build</span>(<span class="kw">async</span> <span class="kw">move</span> {
@@ -332,15 +332,15 @@
             <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">sender</span>.<span class="ident">send</span>(<span class="ident">res</span>);
         });
 
-        <span class="ident">kv_log_macro</span>::<span class="macro">trace</span><span class="macro">!</span>(<span class="string">&quot;spawn_local&quot;</span>, {
+        <span class="macro">kv_log_macro::trace!</span>(<span class="string">&quot;spawn_local&quot;</span>, {
             <span class="ident">task_id</span>: <span class="ident">wrapped</span>.<span class="ident">tag</span>.<span class="ident">id</span>().<span class="number">0</span>,
-            <span class="ident">parent_task_id</span>: <span class="ident">TaskLocalsWrapper</span>::<span class="ident">get_current</span>(<span class="op">|</span><span class="ident">t</span><span class="op">|</span> <span class="ident">t</span>.<span class="ident">id</span>().<span class="number">0</span>).<span class="ident">unwrap_or</span>(<span class="number">0</span>),
+            <span class="ident">parent_task_id</span>: <span class="ident">TaskLocalsWrapper::get_current</span>(<span class="op">|</span><span class="ident">t</span><span class="op">|</span> <span class="ident">t</span>.<span class="ident">id</span>().<span class="number">0</span>).<span class="ident">unwrap_or</span>(<span class="number">0</span>),
         });
 
         <span class="kw">let</span> <span class="ident">task</span> <span class="op">=</span> <span class="ident">wrapped</span>.<span class="ident">tag</span>.<span class="ident">task</span>().<span class="ident">clone</span>();
-        <span class="ident">wasm_bindgen_futures</span>::<span class="ident">spawn_local</span>(<span class="ident">wrapped</span>);
+        <span class="ident">wasm_bindgen_futures::spawn_local</span>(<span class="ident">wrapped</span>);
 
-        <span class="prelude-val">Ok</span>(<span class="ident">JoinHandle</span>::<span class="ident">new</span>(<span class="ident">receiver</span>, <span class="ident">task</span>))
+        <span class="prelude-val">Ok</span>(<span class="ident">JoinHandle::new</span>(<span class="ident">receiver</span>, <span class="ident">task</span>))
     }
 
     <span class="doccomment">/// Spawns a task with the configured settings, blocking on its execution.</span>
@@ -349,19 +349,19 @@
     <span class="kw">where</span>
         <span class="ident">F</span>: <span class="ident">Future</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> <span class="ident">T</span><span class="op">&gt;</span>,
     {
-        <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">cell</span>::<span class="ident">Cell</span>;
+        <span class="kw">use</span> <span class="ident">std::cell::Cell</span>;
 
         <span class="kw">let</span> <span class="ident">wrapped</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">build</span>(<span class="ident">future</span>);
 
         <span class="comment">// Log this `block_on` operation.</span>
-        <span class="ident">kv_log_macro</span>::<span class="macro">trace</span><span class="macro">!</span>(<span class="string">&quot;block_on&quot;</span>, {
+        <span class="macro">kv_log_macro::trace!</span>(<span class="string">&quot;block_on&quot;</span>, {
             <span class="ident">task_id</span>: <span class="ident">wrapped</span>.<span class="ident">tag</span>.<span class="ident">id</span>().<span class="number">0</span>,
-            <span class="ident">parent_task_id</span>: <span class="ident">TaskLocalsWrapper</span>::<span class="ident">get_current</span>(<span class="op">|</span><span class="ident">t</span><span class="op">|</span> <span class="ident">t</span>.<span class="ident">id</span>().<span class="number">0</span>).<span class="ident">unwrap_or</span>(<span class="number">0</span>),
+            <span class="ident">parent_task_id</span>: <span class="ident">TaskLocalsWrapper::get_current</span>(<span class="op">|</span><span class="ident">t</span><span class="op">|</span> <span class="ident">t</span>.<span class="ident">id</span>().<span class="number">0</span>).<span class="ident">unwrap_or</span>(<span class="number">0</span>),
         });
 
-        <span class="macro">thread_local</span><span class="macro">!</span> {
+        <span class="macro">thread_local!</span> {
             <span class="doccomment">/// Tracks the number of nested block_on calls.</span>
-            <span class="kw">static</span> <span class="ident">NUM_NESTED_BLOCKING</span>: <span class="ident">Cell</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Cell</span>::<span class="ident">new</span>(<span class="number">0</span>);
+            <span class="kw">static</span> <span class="ident">NUM_NESTED_BLOCKING</span>: <span class="ident">Cell</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Cell::new</span>(<span class="number">0</span>);
         }
 
         <span class="comment">// Run the future as a task.</span>
@@ -372,12 +372,12 @@
             <span class="ident">num_nested_blocking</span>.<span class="ident">replace</span>(<span class="ident">count</span> <span class="op">+</span> <span class="number">1</span>);
 
             <span class="kw">unsafe</span> {
-                <span class="ident">TaskLocalsWrapper</span>::<span class="ident">set_current</span>(<span class="kw-2">&amp;</span><span class="ident">wrapped</span>.<span class="ident">tag</span>, <span class="op">|</span><span class="op">|</span> {
+                <span class="ident">TaskLocalsWrapper::set_current</span>(<span class="kw-2">&amp;</span><span class="ident">wrapped</span>.<span class="ident">tag</span>, <span class="op">|</span><span class="op">|</span> {
                     <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">should_run</span> {
                         <span class="comment">// The first call should run the executor</span>
-                        <span class="ident">async_global_executor</span>::<span class="ident">block_on</span>(<span class="ident">wrapped</span>)
+                        <span class="ident">async_global_executor::block_on</span>(<span class="ident">wrapped</span>)
                     } <span class="kw">else</span> {
-                        <span class="ident">futures_lite</span>::<span class="ident">future</span>::<span class="ident">block_on</span>(<span class="ident">wrapped</span>)
+                        <span class="ident">futures_lite::future::block_on</span>(<span class="ident">wrapped</span>)
                     };
                     <span class="ident">num_nested_blocking</span>.<span class="ident">replace</span>(<span class="ident">num_nested_blocking</span>.<span class="ident">get</span>() <span class="op">-</span> <span class="number">1</span>);
                     <span class="ident">res</span>
@@ -387,7 +387,7 @@
     }
 }
 
-<span class="macro">pin_project</span><span class="macro">!</span> {
+<span class="macro">pin_project!</span> {
     <span class="doccomment">/// Wrapper to add support for task locals.</span>
     <span class="kw">struct</span> <span class="ident">SupportTaskLocals</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span> {
         <span class="ident">tag</span>: <span class="ident">TaskLocalsWrapper</span>,
@@ -397,11 +397,11 @@
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">F</span>: <span class="ident">Future</span><span class="op">&gt;</span> <span class="ident">Future</span> <span class="kw">for</span> <span class="ident">SupportTaskLocals</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span> {
-    <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="ident">F</span>::<span class="ident">Output</span>;
+    <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="ident">F::Output</span>;
 
-    <span class="kw">fn</span> <span class="ident">poll</span>(<span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="self">Self</span>::<span class="ident">Output</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">poll</span>(<span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="self">Self</span><span class="ident">::Output</span><span class="op">&gt;</span> {
         <span class="kw">unsafe</span> {
-            <span class="ident">TaskLocalsWrapper</span>::<span class="ident">set_current</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">tag</span>, <span class="op">|</span><span class="op">|</span> {
+            <span class="ident">TaskLocalsWrapper::set_current</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">tag</span>, <span class="op">|</span><span class="op">|</span> {
                 <span class="kw">let</span> <span class="ident">this</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">project</span>();
                 <span class="ident">this</span>.<span class="ident">future</span>.<span class="ident">poll</span>(<span class="ident">cx</span>)
             })
@@ -409,5 +409,5 @@
     }
 }
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="async_std" data-search-js="../../../search-index.js"></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="async_std" data-search-index-js="../../../search-index.js" data-search-js="../../../search.js"></div>
     <script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script></body></html>

@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/usr/local/cargo/registry/src/github.com-1ecc6299db9ec823/canonical_json-0.4.0/src/ser.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>ser.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../favicon-16x16.png">
-<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../canonical_json/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../canonical_json/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
@@ -427,12 +427,12 @@
 <span id="424">424</span>
 <span id="425">425</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">use</span> <span class="ident">regex</span>::<span class="ident">Regex</span>;
-<span class="kw">use</span> <span class="ident">serde</span>::<span class="ident">ser</span>::<span class="ident">Serialize</span>;
-<span class="kw">use</span> <span class="ident">serde_json</span>::<span class="ident">ser</span>::{<span class="ident">CharEscape</span>, <span class="ident">Formatter</span>};
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">io</span>::<span class="ident">Write</span>;
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">string</span>::<span class="ident">FromUtf8Error</span> <span class="kw">as</span> <span class="ident">Utf8Error</span>;
-<span class="kw">use</span> <span class="ident">thiserror</span>::<span class="ident">Error</span>;
+<span class="kw">use</span> <span class="ident">regex::Regex</span>;
+<span class="kw">use</span> <span class="ident">serde::ser::Serialize</span>;
+<span class="kw">use</span> <span class="ident">serde_json::ser</span>::{<span class="ident">CharEscape</span>, <span class="ident">Formatter</span>};
+<span class="kw">use</span> <span class="ident">std::io::Write</span>;
+<span class="kw">use</span> <span class="ident">std::string::FromUtf8Error</span> <span class="kw">as</span> <span class="ident">Utf8Error</span>;
+<span class="kw">use</span> <span class="ident">thiserror::Error</span>;
 
 <span class="kw">struct</span> <span class="ident">JSONFormatter</span> {}
 
@@ -441,11 +441,11 @@
     <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;UTF-8 related error: {0}&quot;</span>)]</span>
     <span class="ident">Utf8Error</span>(<span class="attribute">#[<span class="ident">from</span>]</span> <span class="ident">Utf8Error</span>),
     <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;JSON related error: {0}&quot;</span>)]</span>
-    <span class="ident">JSONError</span>(<span class="attribute">#[<span class="ident">from</span>]</span> <span class="ident">serde_json</span>::<span class="ident">error</span>::<span class="ident">Error</span>)
+    <span class="ident">JSONError</span>(<span class="attribute">#[<span class="ident">from</span>]</span> <span class="ident">serde_json::error::Error</span>)
 }
 
 <span class="kw">impl</span> <span class="ident">Formatter</span> <span class="kw">for</span> <span class="ident">JSONFormatter</span> {
-    <span class="kw">fn</span> <span class="ident">write_f64</span><span class="op">&lt;</span><span class="ident">W</span>: <span class="question-mark">?</span><span class="ident">Sized</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">writer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">W</span>, <span class="ident">value</span>: <span class="ident">f64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">std</span>::<span class="ident">io</span>::<span class="ident">Error</span><span class="op">&gt;</span>
+    <span class="kw">fn</span> <span class="ident">write_f64</span><span class="op">&lt;</span><span class="ident">W</span>: <span class="question-mark">?</span><span class="ident">Sized</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">writer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">W</span>, <span class="ident">value</span>: <span class="ident">f64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">std::io::Error</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="ident">W</span>: <span class="ident">Write</span>,
     {
@@ -457,36 +457,36 @@
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
         <span class="ident">writer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">W</span>,
         <span class="ident">char_escape</span>: <span class="ident">CharEscape</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">std</span>::<span class="ident">io</span>::<span class="ident">Error</span><span class="op">&gt;</span>
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">std::io::Error</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="ident">W</span>: <span class="ident">Write</span>,
     {
         <span class="kw">match</span> <span class="ident">char_escape</span> {
-            <span class="ident">CharEscape</span>::<span class="ident">Quote</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">CharEscape::Quote</span> <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="ident">writer</span>.<span class="ident">write</span>(<span class="string">b&quot;\\\&quot;&quot;</span>)<span class="question-mark">?</span>;
             }
-            <span class="ident">CharEscape</span>::<span class="ident">ReverseSolidus</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">CharEscape::ReverseSolidus</span> <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="ident">writer</span>.<span class="ident">write</span>(<span class="string">b&quot;\\\\&quot;</span>)<span class="question-mark">?</span>;
             }
-            <span class="ident">CharEscape</span>::<span class="ident">LineFeed</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">CharEscape::LineFeed</span> <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="ident">writer</span>.<span class="ident">write</span>(<span class="string">b&quot;\\n&quot;</span>)<span class="question-mark">?</span>;
             }
-            <span class="ident">CharEscape</span>::<span class="ident">Tab</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">CharEscape::Tab</span> <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="ident">writer</span>.<span class="ident">write</span>(<span class="string">b&quot;\\t&quot;</span>)<span class="question-mark">?</span>;
             }
-            <span class="ident">CharEscape</span>::<span class="ident">CarriageReturn</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">CharEscape::CarriageReturn</span> <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="ident">writer</span>.<span class="ident">write</span>(<span class="string">b&quot;\\r&quot;</span>)<span class="question-mark">?</span>;
             }
-            <span class="ident">CharEscape</span>::<span class="ident">Solidus</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">CharEscape::Solidus</span> <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="ident">writer</span>.<span class="ident">write</span>(<span class="string">b&quot;\\/&quot;</span>)<span class="question-mark">?</span>;
             }
-            <span class="ident">CharEscape</span>::<span class="ident">Backspace</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">CharEscape::Backspace</span> <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="ident">writer</span>.<span class="ident">write</span>(<span class="string">b&quot;\\b&quot;</span>)<span class="question-mark">?</span>;
             }
-            <span class="ident">CharEscape</span>::<span class="ident">FormFeed</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">CharEscape::FormFeed</span> <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="ident">writer</span>.<span class="ident">write</span>(<span class="string">b&quot;\\f&quot;</span>)<span class="question-mark">?</span>;
             }
-            <span class="ident">CharEscape</span>::<span class="ident">AsciiControl</span>(<span class="ident">number</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">CharEscape::AsciiControl</span>(<span class="ident">number</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">static</span> <span class="ident">HEX_DIGITS</span>: [<span class="ident">u8</span>; <span class="number">16</span>] <span class="op">=</span> <span class="kw-2">*</span><span class="string">b&quot;0123456789abcdef&quot;</span>;
                 <span class="kw">let</span> <span class="ident">bytes</span> <span class="op">=</span> <span class="kw-2">&amp;</span>[
                     <span class="string">b&#39;\\&#39;</span>,
@@ -507,11 +507,11 @@
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
         <span class="ident">writer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">W</span>,
         <span class="ident">fragment</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">std</span>::<span class="ident">io</span>::<span class="ident">Error</span><span class="op">&gt;</span>
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">std::io::Error</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="ident">W</span>: <span class="ident">Write</span>,
     {
-        <span class="kw">let</span> <span class="ident">formatted_string</span> <span class="op">=</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">fragment</span>)
+        <span class="kw">let</span> <span class="ident">formatted_string</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">fragment</span>)
             .<span class="ident">escape_default</span>()
             .<span class="ident">to_string</span>()
             .<span class="ident">replace</span>(<span class="string">r#&quot;\&#39;&quot;#</span>, <span class="string">&quot;&#39;&quot;</span>);
@@ -520,11 +520,11 @@
     }
 }
 
-<span class="kw">fn</span> <span class="ident">format_number</span><span class="op">&lt;</span><span class="ident">W</span>: <span class="question-mark">?</span><span class="ident">Sized</span><span class="op">&gt;</span>(<span class="ident">writer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">W</span>, <span class="ident">number</span>: <span class="ident">f64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">std</span>::<span class="ident">io</span>::<span class="ident">Error</span><span class="op">&gt;</span>
+<span class="kw">fn</span> <span class="ident">format_number</span><span class="op">&lt;</span><span class="ident">W</span>: <span class="question-mark">?</span><span class="ident">Sized</span><span class="op">&gt;</span>(<span class="ident">writer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">W</span>, <span class="ident">number</span>: <span class="ident">f64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">std::io::Error</span><span class="op">&gt;</span>
 <span class="kw">where</span>
     <span class="ident">W</span>: <span class="ident">Write</span>,
 {
-    <span class="kw">let</span> <span class="ident">formatted</span> <span class="op">=</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{:e}&quot;</span>, <span class="ident">number</span>);
+    <span class="kw">let</span> <span class="ident">formatted</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;{:e}&quot;</span>, <span class="ident">number</span>);
     <span class="kw">let</span> <span class="ident">normalized</span> <span class="op">=</span> <span class="ident">normalize_number</span>(<span class="ident">formatted</span>);
     <span class="ident">writer</span>.<span class="ident">write</span>(<span class="kw-2">&amp;</span><span class="ident">normalized</span>.<span class="ident">into_bytes</span>())<span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(())
@@ -533,7 +533,7 @@
 <span class="comment">// force capital-E exponent, remove + signs and leading zeroes</span>
 <span class="kw">fn</span> <span class="ident">normalize_number</span>(<span class="ident">input</span>: <span class="ident">String</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
     <span class="comment">// https://github.com/gibson042/canonicaljson-go/blob/b9eb21a76/encode.go#L506-L514</span>
-    <span class="kw">let</span> <span class="ident">re</span> <span class="op">=</span> <span class="ident">Regex</span>::<span class="ident">new</span>(<span class="string">&quot;(?:E(?:[+]0*|(-|)0+)|e(?:[+]|(-|))0*)([0-9])&quot;</span>).<span class="ident">unwrap</span>();
+    <span class="kw">let</span> <span class="ident">re</span> <span class="op">=</span> <span class="ident">Regex::new</span>(<span class="string">&quot;(?:E(?:[+]0*|(-|)0+)|e(?:[+]|(-|))0*)([0-9])&quot;</span>).<span class="ident">unwrap</span>();
     <span class="ident">re</span>.<span class="ident">replace_all</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>, <span class="string">&quot;E$1$2$3&quot;</span>).<span class="ident">to_string</span>()
 }
 
@@ -541,7 +541,7 @@
 <span class="kw">fn</span> <span class="ident">normalize_unicode</span><span class="op">&lt;</span><span class="ident">W</span>: <span class="question-mark">?</span><span class="ident">Sized</span><span class="op">&gt;</span>(
     <span class="ident">writer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">W</span>,
     <span class="ident">serialized_string</span>: <span class="ident">String</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">std</span>::<span class="ident">io</span>::<span class="ident">Error</span><span class="op">&gt;</span>
+) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">std::io::Error</span><span class="op">&gt;</span>
 <span class="kw">where</span>
     <span class="ident">W</span>: <span class="ident">Write</span>,
 {
@@ -554,7 +554,7 @@
 
             <span class="kw">if</span> <span class="ident">string_iter</span>.<span class="ident">peek</span>() <span class="op">=</span><span class="op">=</span> <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="string">&#39;{&#39;</span>) {
                 <span class="comment">// consume at most 4 characters till &#39;}&#39; is found</span>
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">characters</span> <span class="op">=</span> <span class="ident">String</span>::<span class="ident">new</span>();
+                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">characters</span> <span class="op">=</span> <span class="ident">String::new</span>();
                 <span class="ident">string_iter</span>.<span class="ident">next</span>(); <span class="comment">// skip the &#39;{&#39; for now</span>
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">index</span> <span class="op">=</span> <span class="number">0</span>;
 
@@ -579,15 +579,15 @@
                     } <span class="kw">else</span> {
                         <span class="kw">if</span> <span class="ident">characters</span>.<span class="ident">len</span>() <span class="op">&gt;</span> <span class="number">4</span> {
                             <span class="comment">// Surrogates pairs.</span>
-                            <span class="kw">match</span> <span class="ident">hex</span>::<span class="ident">decode</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{:0&gt;6}&quot;</span>, <span class="ident">characters</span>)) {
+                            <span class="kw">match</span> <span class="ident">hex::decode</span>(<span class="macro">format!</span>(<span class="string">&quot;{:0&gt;6}&quot;</span>, <span class="ident">characters</span>)) {
                                 <span class="prelude-val">Ok</span>(<span class="ident">v</span>) <span class="op">=</span><span class="op">&gt;</span> {
                                     <span class="kw">let</span> <span class="ident">codepoint</span> <span class="op">=</span> (<span class="ident">v</span>[<span class="number">2</span>] <span class="kw">as</span> <span class="ident">u32</span>)
                                         <span class="op">+</span> ((<span class="ident">v</span>[<span class="number">1</span>] <span class="kw">as</span> <span class="ident">u32</span>) <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">8</span>)
                                         <span class="op">+</span> ((<span class="ident">v</span>[<span class="number">0</span>] <span class="kw">as</span> <span class="ident">u32</span>) <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">16</span>);
                                     <span class="kw">let</span> <span class="ident">high</span> <span class="op">=</span> ((<span class="ident">codepoint</span> <span class="op">-</span> <span class="number">0x10000</span>) <span class="op">/</span> <span class="number">0x400</span>) <span class="op">+</span> <span class="number">0xD800</span>;
                                     <span class="kw">let</span> <span class="ident">low</span> <span class="op">=</span> ((<span class="ident">codepoint</span> <span class="op">-</span> <span class="number">0x10000</span>) <span class="op">%</span> <span class="number">0x400</span>) <span class="op">+</span> <span class="number">0xDC00</span>;
-                                    <span class="ident">writer</span>.<span class="ident">write</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{:x}&quot;</span>, <span class="ident">high</span>).<span class="ident">as_bytes</span>())<span class="question-mark">?</span>;
-                                    <span class="ident">writer</span>.<span class="ident">write</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;\\u{:x}&quot;</span>, <span class="ident">low</span>).<span class="ident">as_bytes</span>())<span class="question-mark">?</span>;
+                                    <span class="ident">writer</span>.<span class="ident">write</span>(<span class="macro">format!</span>(<span class="string">&quot;{:x}&quot;</span>, <span class="ident">high</span>).<span class="ident">as_bytes</span>())<span class="question-mark">?</span>;
+                                    <span class="ident">writer</span>.<span class="ident">write</span>(<span class="macro">format!</span>(<span class="string">&quot;\\u{:x}&quot;</span>, <span class="ident">low</span>).<span class="ident">as_bytes</span>())<span class="question-mark">?</span>;
                                 }
                                 <span class="prelude-val">Err</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
                                     <span class="ident">writer</span>.<span class="ident">write</span>(<span class="kw-2">&amp;</span><span class="ident">characters</span>.<span class="ident">into_bytes</span>())<span class="question-mark">?</span>;
@@ -595,7 +595,7 @@
                             };
                         } <span class="kw">else</span> {
                             <span class="ident">writer</span>.<span class="ident">write</span>(
-                                <span class="kw-2">&amp;</span><span class="ident">std</span>::<span class="ident">iter</span>::<span class="ident">repeat</span>(<span class="string">&quot;0&quot;</span>)
+                                <span class="kw-2">&amp;</span><span class="ident">std::iter::repeat</span>(<span class="string">&quot;0&quot;</span>)
                                     .<span class="ident">take</span>(<span class="number">4</span> <span class="op">-</span> <span class="ident">characters</span>.<span class="ident">len</span>())
                                     .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>()
                                     .<span class="ident">into_bytes</span>(),
@@ -639,102 +639,102 @@
 <span class="doccomment">/// # }</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// ```</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_string</span>(<span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="ident">serde_json</span>::<span class="ident">Value</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">CanonicalJSONError</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">string</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[];
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">serializer</span> <span class="op">=</span> <span class="ident">serde_json</span>::<span class="ident">Serializer</span>::<span class="ident">with_formatter</span>(<span class="ident">string</span>, <span class="ident">JSONFormatter</span> {});
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_string</span>(<span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="ident">serde_json::Value</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">CanonicalJSONError</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="ident">string</span> <span class="op">=</span> <span class="macro">vec!</span>[];
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">serializer</span> <span class="op">=</span> <span class="ident">serde_json::Serializer::with_formatter</span>(<span class="ident">string</span>, <span class="ident">JSONFormatter</span> {});
     <span class="ident">input</span>.<span class="ident">serialize</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">serializer</span>)<span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">serialized_string</span> <span class="op">=</span> <span class="ident">String</span>::<span class="ident">from_utf8</span>(<span class="ident">serializer</span>.<span class="ident">into_inner</span>())<span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">serialized_string</span> <span class="op">=</span> <span class="ident">String::from_utf8</span>(<span class="ident">serializer</span>.<span class="ident">into_inner</span>())<span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(<span class="ident">serialized_string</span>)
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
 <span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="kw">use</span> <span class="kw">super</span>::<span class="ident">to_string</span>;
-    <span class="kw">use</span> <span class="ident">serde_json</span>::<span class="ident">json</span>;
+    <span class="kw">use</span> <span class="kw">super</span><span class="ident">::to_string</span>;
+    <span class="kw">use</span> <span class="ident">serde_json::json</span>;
 
-    <span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">test_canonical_json</span> {
+    <span class="macro">macro_rules!</span> <span class="ident">test_canonical_json</span> {
         (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">v</span>:<span class="ident">tt</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">e</span>:<span class="ident">expr</span>) <span class="op">=</span><span class="op">&gt;</span> {
-            <span class="kw">match</span> <span class="ident">to_string</span>(<span class="kw-2">&amp;</span><span class="macro">json</span><span class="macro">!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">v</span>)) {
+            <span class="kw">match</span> <span class="ident">to_string</span>(<span class="kw-2">&amp;</span><span class="macro">json!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">v</span>)) {
                 <span class="prelude-val">Ok</span>(<span class="ident">serialized_string</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;serialized is {}&quot;</span>, <span class="ident">serialized_string</span>);
-                    <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">serialized_string</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">e</span>)
+                    <span class="macro">println!</span>(<span class="string">&quot;serialized is {}&quot;</span>, <span class="ident">serialized_string</span>);
+                    <span class="macro">assert_eq!</span>(<span class="ident">serialized_string</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">e</span>)
                 },
-                <span class="prelude-val">Err</span>(<span class="ident">error</span>) <span class="op">=</span><span class="op">&gt;</span> { <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;error serializing input : {:?}&quot;</span>, <span class="ident">error</span>) }
+                <span class="prelude-val">Err</span>(<span class="ident">error</span>) <span class="op">=</span><span class="op">&gt;</span> { <span class="macro">panic!</span>(<span class="string">&quot;error serializing input : {:?}&quot;</span>, <span class="ident">error</span>) }
             };
         };
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_to_string</span>() {
-        <span class="macro">test_canonical_json</span><span class="macro">!</span>(<span class="ident">null</span>, <span class="string">&quot;null&quot;</span>);
-        <span class="macro">test_canonical_json</span><span class="macro">!</span>((<span class="ident">std</span>::<span class="ident">f64</span>::<span class="ident">NAN</span>), <span class="string">&quot;null&quot;</span>);
-        <span class="macro">test_canonical_json</span><span class="macro">!</span>((<span class="ident">std</span>::<span class="ident">f64</span>::<span class="ident">INFINITY</span>), <span class="string">&quot;null&quot;</span>);
-        <span class="macro">test_canonical_json</span><span class="macro">!</span>((<span class="ident">std</span>::<span class="ident">f64</span>::<span class="ident">NEG_INFINITY</span>), <span class="string">&quot;null&quot;</span>);
-        <span class="macro">test_canonical_json</span><span class="macro">!</span>(<span class="bool-val">true</span>, <span class="string">&quot;true&quot;</span>);
-        <span class="macro">test_canonical_json</span><span class="macro">!</span>(<span class="bool-val">false</span>, <span class="string">&quot;false&quot;</span>);
-        <span class="macro">test_canonical_json</span><span class="macro">!</span>(<span class="number">0</span>, <span class="string">&quot;0&quot;</span>);
-        <span class="macro">test_canonical_json</span><span class="macro">!</span>(<span class="number">123</span>, <span class="string">&quot;123&quot;</span>);
-        <span class="macro">test_canonical_json</span><span class="macro">!</span>((<span class="op">-</span><span class="number">123</span>), <span class="string">&quot;-123&quot;</span>);
-        <span class="macro">test_canonical_json</span><span class="macro">!</span>(<span class="number">23.1</span>, <span class="string">&quot;2.31E1&quot;</span>);
-        <span class="macro">test_canonical_json</span><span class="macro">!</span>(<span class="number">23</span>, <span class="string">&quot;23&quot;</span>);
-        <span class="macro">test_canonical_json</span><span class="macro">!</span>(<span class="number">1_f64</span>, <span class="string">&quot;1E0&quot;</span>);
-        <span class="macro">test_canonical_json</span><span class="macro">!</span>(<span class="number">0_f64</span>, <span class="string">&quot;0E0&quot;</span>);
-        <span class="macro">test_canonical_json</span><span class="macro">!</span>(<span class="number">23.0</span>, <span class="string">&quot;2.3E1&quot;</span>);
-        <span class="macro">test_canonical_json</span><span class="macro">!</span>((<span class="op">-</span><span class="number">23.0</span>), <span class="string">&quot;-2.3E1&quot;</span>);
-        <span class="macro">test_canonical_json</span><span class="macro">!</span>(<span class="number">2300</span>, <span class="string">&quot;2300&quot;</span>);
-        <span class="macro">test_canonical_json</span><span class="macro">!</span>(<span class="number">0.00099</span>, <span class="string">&quot;9.9E-4&quot;</span>);
-        <span class="macro">test_canonical_json</span><span class="macro">!</span>(<span class="number">0.000011</span>, <span class="string">&quot;1.1E-5&quot;</span>);
-        <span class="macro">test_canonical_json</span><span class="macro">!</span>(<span class="number">0.0000011</span>, <span class="string">&quot;1.1E-6&quot;</span>);
-        <span class="macro">test_canonical_json</span><span class="macro">!</span>(<span class="number">0.000001</span>, <span class="string">&quot;1E-6&quot;</span>);
-        <span class="macro">test_canonical_json</span><span class="macro">!</span>(<span class="number">5.6</span>, <span class="string">&quot;5.6E0&quot;</span>);
-        <span class="macro">test_canonical_json</span><span class="macro">!</span>(<span class="number">0.00000099</span>, <span class="string">&quot;9.9E-7&quot;</span>);
-        <span class="macro">test_canonical_json</span><span class="macro">!</span>(<span class="number">0.0000001</span>, <span class="string">&quot;1E-7&quot;</span>);
-        <span class="macro">test_canonical_json</span><span class="macro">!</span>(<span class="number">0.000000930258908</span>, <span class="string">&quot;9.30258908E-7&quot;</span>);
-        <span class="macro">test_canonical_json</span><span class="macro">!</span>(<span class="number">0.00000000000068272</span>, <span class="string">&quot;6.8272E-13&quot;</span>);
-        <span class="macro">test_canonical_json</span><span class="macro">!</span>((<span class="number">10.000_f64</span>.<span class="ident">powf</span>(<span class="number">21.0</span>)), <span class="string">&quot;1E21&quot;</span>);
-        <span class="macro">test_canonical_json</span><span class="macro">!</span>((<span class="number">10.0_f64</span>.<span class="ident">powi</span>(<span class="number">20</span>)), <span class="string">&quot;1E20&quot;</span>);
-        <span class="macro">test_canonical_json</span><span class="macro">!</span>((<span class="number">10.0_f64</span>.<span class="ident">powi</span>(<span class="number">15</span>) <span class="op">+</span> <span class="number">0.1</span>), <span class="string">&quot;1.0000000000000001E15&quot;</span>);
-        <span class="macro">test_canonical_json</span><span class="macro">!</span>((<span class="number">10.0_f64</span>.<span class="ident">powi</span>(<span class="number">16</span>) <span class="op">*</span> <span class="number">1.1</span>), <span class="string">&quot;1.1E16&quot;</span>);
+        <span class="macro">test_canonical_json!</span>(<span class="ident">null</span>, <span class="string">&quot;null&quot;</span>);
+        <span class="macro">test_canonical_json!</span>((<span class="ident">std::f64::NAN</span>), <span class="string">&quot;null&quot;</span>);
+        <span class="macro">test_canonical_json!</span>((<span class="ident">std::f64::INFINITY</span>), <span class="string">&quot;null&quot;</span>);
+        <span class="macro">test_canonical_json!</span>((<span class="ident">std::f64::NEG_INFINITY</span>), <span class="string">&quot;null&quot;</span>);
+        <span class="macro">test_canonical_json!</span>(<span class="bool-val">true</span>, <span class="string">&quot;true&quot;</span>);
+        <span class="macro">test_canonical_json!</span>(<span class="bool-val">false</span>, <span class="string">&quot;false&quot;</span>);
+        <span class="macro">test_canonical_json!</span>(<span class="number">0</span>, <span class="string">&quot;0&quot;</span>);
+        <span class="macro">test_canonical_json!</span>(<span class="number">123</span>, <span class="string">&quot;123&quot;</span>);
+        <span class="macro">test_canonical_json!</span>((<span class="op">-</span><span class="number">123</span>), <span class="string">&quot;-123&quot;</span>);
+        <span class="macro">test_canonical_json!</span>(<span class="number">23.1</span>, <span class="string">&quot;2.31E1&quot;</span>);
+        <span class="macro">test_canonical_json!</span>(<span class="number">23</span>, <span class="string">&quot;23&quot;</span>);
+        <span class="macro">test_canonical_json!</span>(<span class="number">1_f64</span>, <span class="string">&quot;1E0&quot;</span>);
+        <span class="macro">test_canonical_json!</span>(<span class="number">0_f64</span>, <span class="string">&quot;0E0&quot;</span>);
+        <span class="macro">test_canonical_json!</span>(<span class="number">23.0</span>, <span class="string">&quot;2.3E1&quot;</span>);
+        <span class="macro">test_canonical_json!</span>((<span class="op">-</span><span class="number">23.0</span>), <span class="string">&quot;-2.3E1&quot;</span>);
+        <span class="macro">test_canonical_json!</span>(<span class="number">2300</span>, <span class="string">&quot;2300&quot;</span>);
+        <span class="macro">test_canonical_json!</span>(<span class="number">0.00099</span>, <span class="string">&quot;9.9E-4&quot;</span>);
+        <span class="macro">test_canonical_json!</span>(<span class="number">0.000011</span>, <span class="string">&quot;1.1E-5&quot;</span>);
+        <span class="macro">test_canonical_json!</span>(<span class="number">0.0000011</span>, <span class="string">&quot;1.1E-6&quot;</span>);
+        <span class="macro">test_canonical_json!</span>(<span class="number">0.000001</span>, <span class="string">&quot;1E-6&quot;</span>);
+        <span class="macro">test_canonical_json!</span>(<span class="number">5.6</span>, <span class="string">&quot;5.6E0&quot;</span>);
+        <span class="macro">test_canonical_json!</span>(<span class="number">0.00000099</span>, <span class="string">&quot;9.9E-7&quot;</span>);
+        <span class="macro">test_canonical_json!</span>(<span class="number">0.0000001</span>, <span class="string">&quot;1E-7&quot;</span>);
+        <span class="macro">test_canonical_json!</span>(<span class="number">0.000000930258908</span>, <span class="string">&quot;9.30258908E-7&quot;</span>);
+        <span class="macro">test_canonical_json!</span>(<span class="number">0.00000000000068272</span>, <span class="string">&quot;6.8272E-13&quot;</span>);
+        <span class="macro">test_canonical_json!</span>((<span class="number">10.000_f64</span>.<span class="ident">powf</span>(<span class="number">21.0</span>)), <span class="string">&quot;1E21&quot;</span>);
+        <span class="macro">test_canonical_json!</span>((<span class="number">10.0_f64</span>.<span class="ident">powi</span>(<span class="number">20</span>)), <span class="string">&quot;1E20&quot;</span>);
+        <span class="macro">test_canonical_json!</span>((<span class="number">10.0_f64</span>.<span class="ident">powi</span>(<span class="number">15</span>) <span class="op">+</span> <span class="number">0.1</span>), <span class="string">&quot;1.0000000000000001E15&quot;</span>);
+        <span class="macro">test_canonical_json!</span>((<span class="number">10.0_f64</span>.<span class="ident">powi</span>(<span class="number">16</span>) <span class="op">*</span> <span class="number">1.1</span>), <span class="string">&quot;1.1E16&quot;</span>);
 
         <span class="comment">// serialize string</span>
-        <span class="macro">test_canonical_json</span><span class="macro">!</span>(<span class="string">&quot;&quot;</span>, <span class="string">r#&quot;&quot;&quot;&quot;#</span>);
+        <span class="macro">test_canonical_json!</span>(<span class="string">&quot;&quot;</span>, <span class="string">r#&quot;&quot;&quot;&quot;#</span>);
         <span class="comment">//escape quotes</span>
-        <span class="macro">test_canonical_json</span><span class="macro">!</span>(
+        <span class="macro">test_canonical_json!</span>(
             <span class="string">&quot; Preserve single quotes&#39;in string&quot;</span>,
             <span class="string">r#&quot;&quot; Preserve single quotes&#39;in string&quot;&quot;#</span>
         );
-        <span class="macro">test_canonical_json</span><span class="macro">!</span>(<span class="string">&quot; Escapes quotes \&quot; &quot;</span>, <span class="string">r#&quot;&quot; Escapes quotes \&quot; &quot;&quot;#</span>);
-        <span class="macro">test_canonical_json</span><span class="macro">!</span>(<span class="string">&quot;test&quot;</span>, <span class="string">r#&quot;&quot;test&quot;&quot;#</span>);
+        <span class="macro">test_canonical_json!</span>(<span class="string">&quot; Escapes quotes \&quot; &quot;</span>, <span class="string">r#&quot;&quot; Escapes quotes \&quot; &quot;&quot;#</span>);
+        <span class="macro">test_canonical_json!</span>(<span class="string">&quot;test&quot;</span>, <span class="string">r#&quot;&quot;test&quot;&quot;#</span>);
         <span class="comment">// escapes backslashes</span>
-        <span class="macro">test_canonical_json</span><span class="macro">!</span>(<span class="string">&quot;This\\and this&quot;</span>, <span class="string">r#&quot;&quot;This\\and this&quot;&quot;#</span>);
+        <span class="macro">test_canonical_json!</span>(<span class="string">&quot;This\\and this&quot;</span>, <span class="string">r#&quot;&quot;This\\and this&quot;&quot;#</span>);
         <span class="comment">// convert unicode characters to unicode escape sequences</span>
-        <span class="macro">test_canonical_json</span><span class="macro">!</span>(<span class="string">&quot;I ❤ testing&quot;</span>, <span class="string">r#&quot;&quot;I \u2764 testing&quot;&quot;#</span>);
+        <span class="macro">test_canonical_json!</span>(<span class="string">&quot;I ❤ testing&quot;</span>, <span class="string">r#&quot;&quot;I \u2764 testing&quot;&quot;#</span>);
 
         <span class="comment">// serialize does not alter certain strings (newline, tab, carriagereturn, forwardslashes)</span>
-        <span class="macro">test_canonical_json</span><span class="macro">!</span>(<span class="string">&quot;This is a sentence.\n&quot;</span>, <span class="string">r#&quot;&quot;This is a sentence.\n&quot;&quot;#</span>);
-        <span class="macro">test_canonical_json</span><span class="macro">!</span>(<span class="string">&quot;This is a \t tab.&quot;</span>, <span class="string">r#&quot;&quot;This is a \t tab.&quot;&quot;#</span>);
-        <span class="macro">test_canonical_json</span><span class="macro">!</span>(
+        <span class="macro">test_canonical_json!</span>(<span class="string">&quot;This is a sentence.\n&quot;</span>, <span class="string">r#&quot;&quot;This is a sentence.\n&quot;&quot;#</span>);
+        <span class="macro">test_canonical_json!</span>(<span class="string">&quot;This is a \t tab.&quot;</span>, <span class="string">r#&quot;&quot;This is a \t tab.&quot;&quot;#</span>);
+        <span class="macro">test_canonical_json!</span>(
             <span class="string">&quot;This is a \r carriage return char.&quot;</span>,
             <span class="string">r#&quot;&quot;This is a \r carriage return char.&quot;&quot;#</span>
         );
-        <span class="macro">test_canonical_json</span><span class="macro">!</span>(<span class="string">&quot;image/jpeg&quot;</span>, <span class="string">r#&quot;&quot;image/jpeg&quot;&quot;#</span>);
-        <span class="macro">test_canonical_json</span><span class="macro">!</span>(<span class="string">&quot;image//jpeg&quot;</span>, <span class="string">r#&quot;&quot;image//jpeg&quot;&quot;#</span>);
+        <span class="macro">test_canonical_json!</span>(<span class="string">&quot;image/jpeg&quot;</span>, <span class="string">r#&quot;&quot;image/jpeg&quot;&quot;#</span>);
+        <span class="macro">test_canonical_json!</span>(<span class="string">&quot;image//jpeg&quot;</span>, <span class="string">r#&quot;&quot;image//jpeg&quot;&quot;#</span>);
         <span class="comment">// serialize preserves scientific notation number within string</span>
-        <span class="macro">test_canonical_json</span><span class="macro">!</span>(<span class="string">&quot;frequency at 10.0e+04&quot;</span>, <span class="string">r#&quot;&quot;frequency at 10.0e+04&quot;&quot;#</span>);
+        <span class="macro">test_canonical_json!</span>(<span class="string">&quot;frequency at 10.0e+04&quot;</span>, <span class="string">r#&quot;&quot;frequency at 10.0e+04&quot;&quot;#</span>);
         <span class="comment">// serialize preserves invalid unicode escape sequence</span>
-        <span class="macro">test_canonical_json</span><span class="macro">!</span>(<span class="string">&quot;I \\u{} testing&quot;</span>, <span class="string">r#&quot;&quot;I \\u{} testing&quot;&quot;#</span>);
+        <span class="macro">test_canonical_json!</span>(<span class="string">&quot;I \\u{} testing&quot;</span>, <span class="string">r#&quot;&quot;I \\u{} testing&quot;&quot;#</span>);
         <span class="comment">// serialize preserves opening curly brackets when invalid unicode escape sequence</span>
-        <span class="macro">test_canonical_json</span><span class="macro">!</span>(<span class="string">&quot;I \\u{1234 testing&quot;</span>, <span class="string">r#&quot;&quot;I \\u{1234 testing&quot;&quot;#</span>);
-        <span class="macro">test_canonical_json</span><span class="macro">!</span>(<span class="string">&quot;I \\u{{12345}} testing&quot;</span>, <span class="string">r#&quot;&quot;I \\u{{12345}} testing&quot;&quot;#</span>);
+        <span class="macro">test_canonical_json!</span>(<span class="string">&quot;I \\u{1234 testing&quot;</span>, <span class="string">r#&quot;&quot;I \\u{1234 testing&quot;&quot;#</span>);
+        <span class="macro">test_canonical_json!</span>(<span class="string">&quot;I \\u{{12345}} testing&quot;</span>, <span class="string">r#&quot;&quot;I \\u{{12345}} testing&quot;&quot;#</span>);
 
         <span class="comment">// surrogates pairs</span>
-        <span class="macro">test_canonical_json</span><span class="macro">!</span>(<span class="string">&quot;𝄞&quot;</span>, <span class="string">r#&quot;&quot;\ud834\udd1e&quot;&quot;#</span>);
-        <span class="macro">test_canonical_json</span><span class="macro">!</span>(<span class="string">&quot;𝗠𝗼𝘇&quot;</span>, <span class="string">r#&quot;&quot;\ud835\udde0\ud835\uddfc\ud835\ude07&quot;&quot;#</span>);
+        <span class="macro">test_canonical_json!</span>(<span class="string">&quot;𝄞&quot;</span>, <span class="string">r#&quot;&quot;\ud834\udd1e&quot;&quot;#</span>);
+        <span class="macro">test_canonical_json!</span>(<span class="string">&quot;𝗠𝗼𝘇&quot;</span>, <span class="string">r#&quot;&quot;\ud835\udde0\ud835\uddfc\ud835\ude07&quot;&quot;#</span>);
         <span class="comment">// lowest and highest</span>
-        <span class="macro">test_canonical_json</span><span class="macro">!</span>(<span class="string">&quot;\u{10000} \u{10FFFF}&quot;</span>, <span class="string">r#&quot;&quot;\ud800\udc00 \udbff\udfff&quot;&quot;#</span>);
+        <span class="macro">test_canonical_json!</span>(<span class="string">&quot;\u{10000} \u{10FFFF}&quot;</span>, <span class="string">r#&quot;&quot;\ud800\udc00 \udbff\udfff&quot;&quot;#</span>);
 
         <span class="comment">// serialize object</span>
-        <span class="macro">test_canonical_json</span><span class="macro">!</span>(
+        <span class="macro">test_canonical_json!</span>(
             {
                 <span class="string">&quot;a&quot;</span>: {},
                 <span class="string">&quot;b&quot;</span>: <span class="string">&quot;b&quot;</span>
@@ -743,7 +743,7 @@
         );
 
         <span class="comment">// serialize object with keys ordered</span>
-        <span class="macro">test_canonical_json</span><span class="macro">!</span>(
+        <span class="macro">test_canonical_json!</span>(
             {
                 <span class="string">&quot;a&quot;</span>: <span class="string">&quot;a&quot;</span>,
                 <span class="string">&quot;id&quot;</span>: <span class="string">&quot;1&quot;</span>,
@@ -753,23 +753,23 @@
         );
 
         <span class="comment">// serialize deeply nested objects</span>
-        <span class="macro">test_canonical_json</span><span class="macro">!</span>(
+        <span class="macro">test_canonical_json!</span>(
             {
-                <span class="string">&quot;a&quot;</span>: <span class="macro">json</span><span class="macro">!</span>({
+                <span class="string">&quot;a&quot;</span>: <span class="macro">json!</span>({
                     <span class="string">&quot;b&quot;</span>: <span class="string">&quot;b&quot;</span>,
                     <span class="string">&quot;a&quot;</span>: <span class="string">&quot;a&quot;</span>,
-                    <span class="string">&quot;c&quot;</span>: <span class="macro">json</span><span class="macro">!</span>({
+                    <span class="string">&quot;c&quot;</span>: <span class="macro">json!</span>({
                         <span class="string">&quot;b&quot;</span>: <span class="string">&quot;b&quot;</span>,
                         <span class="string">&quot;a&quot;</span>: <span class="string">&quot;a&quot;</span>,
                         <span class="string">&quot;c&quot;</span>: [<span class="string">&quot;b&quot;</span>, <span class="string">&quot;a&quot;</span>, <span class="string">&quot;c&quot;</span>],
-                        <span class="string">&quot;d&quot;</span>: <span class="macro">json</span><span class="macro">!</span>({ <span class="string">&quot;b&quot;</span>: <span class="string">&quot;b&quot;</span>, <span class="string">&quot;a&quot;</span>: <span class="string">&quot;a&quot;</span> }),
+                        <span class="string">&quot;d&quot;</span>: <span class="macro">json!</span>({ <span class="string">&quot;b&quot;</span>: <span class="string">&quot;b&quot;</span>, <span class="string">&quot;a&quot;</span>: <span class="string">&quot;a&quot;</span> }),
                         <span class="string">&quot;id&quot;</span>: <span class="string">&quot;1&quot;</span>,
                         <span class="string">&quot;e&quot;</span>: <span class="number">1</span>,
                         <span class="string">&quot;f&quot;</span>: [<span class="number">2</span>, <span class="number">3</span>, <span class="number">1</span>],
-                        <span class="string">&quot;g&quot;</span>: <span class="macro">json</span><span class="macro">!</span>({
+                        <span class="string">&quot;g&quot;</span>: <span class="macro">json!</span>({
                             <span class="string">&quot;2&quot;</span>: <span class="number">2</span>,
                             <span class="string">&quot;3&quot;</span>: <span class="number">3</span>,
-                            <span class="string">&quot;1&quot;</span>: <span class="macro">json</span><span class="macro">!</span>({
+                            <span class="string">&quot;1&quot;</span>: <span class="macro">json!</span>({
                                 <span class="string">&quot;b&quot;</span>: <span class="string">&quot;b&quot;</span>,
                                 <span class="string">&quot;a&quot;</span>: <span class="string">&quot;a&quot;</span>,
                                 <span class="string">&quot;c&quot;</span>: <span class="string">&quot;c&quot;</span>,
@@ -779,22 +779,22 @@
                 }),
                 <span class="string">&quot;id&quot;</span>: <span class="string">&quot;1&quot;</span>
             },
-            <span class="macro">concat</span><span class="macro">!</span>(
+            <span class="macro">concat!</span>(
                 <span class="string">r#&quot;{&quot;a&quot;:{&quot;a&quot;:&quot;a&quot;,&quot;b&quot;:&quot;b&quot;,&quot;c&quot;:{&quot;a&quot;:&quot;a&quot;,&quot;b&quot;:&quot;b&quot;,&quot;c&quot;:[&quot;b&quot;,&quot;a&quot;,&quot;c&quot;],&quot;#</span>,
                 <span class="string">r#&quot;&quot;d&quot;:{&quot;a&quot;:&quot;a&quot;,&quot;b&quot;:&quot;b&quot;},&quot;e&quot;:1,&quot;f&quot;:[2,3,1],&quot;#</span>,
                 <span class="string">r#&quot;&quot;g&quot;:{&quot;1&quot;:{&quot;a&quot;:&quot;a&quot;,&quot;b&quot;:&quot;b&quot;,&quot;c&quot;:&quot;c&quot;},&quot;2&quot;:2,&quot;3&quot;:3},&quot;id&quot;:&quot;1&quot;}},&quot;id&quot;:&quot;1&quot;}&quot;#</span>
             )
         );
 
-        <span class="macro">test_canonical_json</span><span class="macro">!</span>(
+        <span class="macro">test_canonical_json!</span>(
             {
-                <span class="string">&quot;b&quot;</span>: <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;two&quot;</span>, <span class="string">&quot;three&quot;</span>],
-                <span class="string">&quot;a&quot;</span>: <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;zero&quot;</span>, <span class="string">&quot;one&quot;</span>]
+                <span class="string">&quot;b&quot;</span>: <span class="macro">vec!</span>[<span class="string">&quot;two&quot;</span>, <span class="string">&quot;three&quot;</span>],
+                <span class="string">&quot;a&quot;</span>: <span class="macro">vec!</span>[<span class="string">&quot;zero&quot;</span>, <span class="string">&quot;one&quot;</span>]
             },
             <span class="string">r#&quot;{&quot;a&quot;:[&quot;zero&quot;,&quot;one&quot;],&quot;b&quot;:[&quot;two&quot;,&quot;three&quot;]}&quot;#</span>
         );
 
-        <span class="macro">test_canonical_json</span><span class="macro">!</span>(
+        <span class="macro">test_canonical_json!</span>(
             {
                 <span class="string">&quot;b&quot;</span>: { <span class="string">&quot;d&quot;</span>: <span class="string">&quot;d&quot;</span>, <span class="string">&quot;c&quot;</span>: <span class="string">&quot;c&quot;</span> },
                 <span class="string">&quot;a&quot;</span>: { <span class="string">&quot;b&quot;</span>: <span class="string">&quot;b&quot;</span>, <span class="string">&quot;a&quot;</span>: <span class="string">&quot;a&quot;</span> },
@@ -803,13 +803,13 @@
         );
 
         <span class="comment">// escapes unicode characters in object keys</span>
-        <span class="macro">test_canonical_json</span><span class="macro">!</span>({<span class="string">&quot;é&quot;</span>: <span class="string">&quot;check&quot;</span>}, <span class="string">r#&quot;{&quot;\u00e9&quot;:&quot;check&quot;}&quot;#</span>);
+        <span class="macro">test_canonical_json!</span>({<span class="string">&quot;é&quot;</span>: <span class="string">&quot;check&quot;</span>}, <span class="string">r#&quot;{&quot;\u00e9&quot;:&quot;check&quot;}&quot;#</span>);
 
-        <span class="macro">test_canonical_json</span><span class="macro">!</span>(
+        <span class="macro">test_canonical_json!</span>(
             {
                 <span class="string">&quot;def&quot;</span>: <span class="string">&quot;bar&quot;</span>,
-                <span class="string">&quot;abc&quot;</span>: <span class="macro">json</span><span class="macro">!</span>(<span class="number">0.000000930258908</span>),
-                <span class="string">&quot;ghi&quot;</span>: <span class="macro">json</span><span class="macro">!</span>(<span class="number">1000000000000000000000.0_f64</span>),
+                <span class="string">&quot;abc&quot;</span>: <span class="macro">json!</span>(<span class="number">0.000000930258908</span>),
+                <span class="string">&quot;ghi&quot;</span>: <span class="macro">json!</span>(<span class="number">1000000000000000000000.0_f64</span>),
                 <span class="string">&quot;rust&quot;</span>: <span class="string">&quot;❤&quot;</span>,
                 <span class="string">&quot;zoo&quot;</span>: [
                     <span class="string">&quot;zorilla&quot;</span>,
@@ -820,38 +820,38 @@
         );
 
         <span class="comment">// serialize empty array</span>
-        <span class="macro">test_canonical_json</span><span class="macro">!</span>([], <span class="string">&quot;[]&quot;</span>);
+        <span class="macro">test_canonical_json!</span>([], <span class="string">&quot;[]&quot;</span>);
 
         <span class="comment">// serialize array should preserve array order</span>
-        <span class="macro">test_canonical_json</span><span class="macro">!</span>((<span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;one&quot;</span>, <span class="string">&quot;two&quot;</span>, <span class="string">&quot;three&quot;</span>]), <span class="string">r#&quot;[&quot;one&quot;,&quot;two&quot;,&quot;three&quot;]&quot;#</span>);
+        <span class="macro">test_canonical_json!</span>((<span class="macro">vec!</span>[<span class="string">&quot;one&quot;</span>, <span class="string">&quot;two&quot;</span>, <span class="string">&quot;three&quot;</span>]), <span class="string">r#&quot;[&quot;one&quot;,&quot;two&quot;,&quot;three&quot;]&quot;#</span>);
 
-        <span class="macro">test_canonical_json</span><span class="macro">!</span>((<span class="macro">vec</span><span class="macro">!</span>[<span class="macro">json</span><span class="macro">!</span>({ <span class="string">&quot;key&quot;</span>: <span class="string">&quot;✓&quot;</span> })]), <span class="string">r#&quot;[{&quot;key&quot;:&quot;\u2713&quot;}]&quot;#</span>);
+        <span class="macro">test_canonical_json!</span>((<span class="macro">vec!</span>[<span class="macro">json!</span>({ <span class="string">&quot;key&quot;</span>: <span class="string">&quot;✓&quot;</span> })]), <span class="string">r#&quot;[{&quot;key&quot;:&quot;\u2713&quot;}]&quot;#</span>);
 
         <span class="comment">// escapes unicode values with 1 preceding zeros</span>
-        <span class="macro">test_canonical_json</span><span class="macro">!</span>((<span class="macro">vec</span><span class="macro">!</span>[<span class="macro">json</span><span class="macro">!</span>({ <span class="string">&quot;key&quot;</span>: <span class="string">&quot;ę&quot;</span> })]), <span class="string">r#&quot;[{&quot;key&quot;:&quot;\u0119&quot;}]&quot;#</span>);
+        <span class="macro">test_canonical_json!</span>((<span class="macro">vec!</span>[<span class="macro">json!</span>({ <span class="string">&quot;key&quot;</span>: <span class="string">&quot;ę&quot;</span> })]), <span class="string">r#&quot;[{&quot;key&quot;:&quot;\u0119&quot;}]&quot;#</span>);
 
         <span class="comment">// escapes unicode values with 2 preceding zeros</span>
-        <span class="macro">test_canonical_json</span><span class="macro">!</span>((<span class="macro">vec</span><span class="macro">!</span>[<span class="macro">json</span><span class="macro">!</span>({ <span class="string">&quot;key&quot;</span>: <span class="string">&quot;é&quot;</span> })]), <span class="string">r#&quot;[{&quot;key&quot;:&quot;\u00e9&quot;}]&quot;#</span>);
+        <span class="macro">test_canonical_json!</span>((<span class="macro">vec!</span>[<span class="macro">json!</span>({ <span class="string">&quot;key&quot;</span>: <span class="string">&quot;é&quot;</span> })]), <span class="string">r#&quot;[{&quot;key&quot;:&quot;\u00e9&quot;}]&quot;#</span>);
 
         <span class="comment">// serialize array preserves data</span>
-        <span class="macro">test_canonical_json</span><span class="macro">!</span>(
-            (<span class="macro">vec</span><span class="macro">!</span>[
-                <span class="macro">json</span><span class="macro">!</span>({ <span class="string">&quot;foo&quot;</span>: <span class="string">&quot;bar&quot;</span>, <span class="string">&quot;last_modified&quot;</span>: <span class="string">&quot;12345&quot;</span>, <span class="string">&quot;id&quot;</span>: <span class="string">&quot;1&quot;</span> }),
-                <span class="macro">json</span><span class="macro">!</span>({ <span class="string">&quot;bar&quot;</span>: <span class="string">&quot;baz&quot;</span>, <span class="string">&quot;last_modified&quot;</span>: <span class="string">&quot;45678&quot;</span>, <span class="string">&quot;id&quot;</span>: <span class="string">&quot;2&quot;</span> }),
+        <span class="macro">test_canonical_json!</span>(
+            (<span class="macro">vec!</span>[
+                <span class="macro">json!</span>({ <span class="string">&quot;foo&quot;</span>: <span class="string">&quot;bar&quot;</span>, <span class="string">&quot;last_modified&quot;</span>: <span class="string">&quot;12345&quot;</span>, <span class="string">&quot;id&quot;</span>: <span class="string">&quot;1&quot;</span> }),
+                <span class="macro">json!</span>({ <span class="string">&quot;bar&quot;</span>: <span class="string">&quot;baz&quot;</span>, <span class="string">&quot;last_modified&quot;</span>: <span class="string">&quot;45678&quot;</span>, <span class="string">&quot;id&quot;</span>: <span class="string">&quot;2&quot;</span> }),
             ]),
             <span class="string">r#&quot;[{&quot;foo&quot;:&quot;bar&quot;,&quot;id&quot;:&quot;1&quot;,&quot;last_modified&quot;:&quot;12345&quot;},{&quot;bar&quot;:&quot;baz&quot;,&quot;id&quot;:&quot;2&quot;,&quot;last_modified&quot;:&quot;45678&quot;}]&quot;#</span>
         );
 
         <span class="comment">// serialize does not add space separators</span>
-        <span class="macro">test_canonical_json</span><span class="macro">!</span>(
-            (<span class="macro">vec</span><span class="macro">!</span>[
-                <span class="macro">json</span><span class="macro">!</span>({ <span class="string">&quot;foo&quot;</span>: <span class="string">&quot;bar&quot;</span>, <span class="string">&quot;last_modified&quot;</span>: <span class="string">&quot;12345&quot;</span>, <span class="string">&quot;id&quot;</span>: <span class="string">&quot;1&quot;</span> }),
-                <span class="macro">json</span><span class="macro">!</span>({ <span class="string">&quot;bar&quot;</span>: <span class="string">&quot;baz&quot;</span>, <span class="string">&quot;last_modified&quot;</span>: <span class="string">&quot;45678&quot;</span>, <span class="string">&quot;id&quot;</span>: <span class="string">&quot;2&quot;</span> }),
+        <span class="macro">test_canonical_json!</span>(
+            (<span class="macro">vec!</span>[
+                <span class="macro">json!</span>({ <span class="string">&quot;foo&quot;</span>: <span class="string">&quot;bar&quot;</span>, <span class="string">&quot;last_modified&quot;</span>: <span class="string">&quot;12345&quot;</span>, <span class="string">&quot;id&quot;</span>: <span class="string">&quot;1&quot;</span> }),
+                <span class="macro">json!</span>({ <span class="string">&quot;bar&quot;</span>: <span class="string">&quot;baz&quot;</span>, <span class="string">&quot;last_modified&quot;</span>: <span class="string">&quot;45678&quot;</span>, <span class="string">&quot;id&quot;</span>: <span class="string">&quot;2&quot;</span> }),
             ]),
             <span class="string">r#&quot;[{&quot;foo&quot;:&quot;bar&quot;,&quot;id&quot;:&quot;1&quot;,&quot;last_modified&quot;:&quot;12345&quot;},{&quot;bar&quot;:&quot;baz&quot;,&quot;id&quot;:&quot;2&quot;,&quot;last_modified&quot;:&quot;45678&quot;}]&quot;#</span>
         );
     }
 }
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="canonical_json" data-search-js="../../search-index.js"></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="canonical_json" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
     <script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script></body></html>

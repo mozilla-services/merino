@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/usr/local/cargo/registry/src/github.com-1ecc6299db9ec823/async-std-1.9.0/src/fs/file.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>file.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png">
-<link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../async_std/index.html'><div class='logo-container'><img src='https://async.rs/images/logo--hero.svg' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+<link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../async_std/index.html'><div class='logo-container'><img src='https://async.rs/images/logo--hero.svg' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../../settings.html"><img src="../../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
@@ -883,22 +883,22 @@
 <span id="880">880</span>
 <span id="881">881</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">cell</span>::<span class="ident">UnsafeCell</span>;
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">cmp</span>;
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>;
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">io</span>::{<span class="ident">Read</span> <span class="kw">as</span> <span class="kw">_</span>, <span class="ident">Seek</span> <span class="kw">as</span> <span class="kw">_</span>, <span class="ident">Write</span> <span class="kw">as</span> <span class="kw">_</span>};
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">ops</span>::{<span class="ident">Deref</span>, <span class="ident">DerefMut</span>};
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">pin</span>::<span class="ident">Pin</span>;
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">sync</span>::<span class="ident">atomic</span>::{<span class="ident">AtomicBool</span>, <span class="ident">Ordering</span>};
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">sync</span>::{<span class="ident">Arc</span>, <span class="ident">Mutex</span>};
+<span class="kw">use</span> <span class="ident">std::cell::UnsafeCell</span>;
+<span class="kw">use</span> <span class="ident">std::cmp</span>;
+<span class="kw">use</span> <span class="ident">std::fmt</span>;
+<span class="kw">use</span> <span class="ident">std::io</span>::{<span class="ident">Read</span> <span class="kw">as</span> <span class="kw">_</span>, <span class="ident">Seek</span> <span class="kw">as</span> <span class="kw">_</span>, <span class="ident">Write</span> <span class="kw">as</span> <span class="kw">_</span>};
+<span class="kw">use</span> <span class="ident">std::ops</span>::{<span class="ident">Deref</span>, <span class="ident">DerefMut</span>};
+<span class="kw">use</span> <span class="ident">std::pin::Pin</span>;
+<span class="kw">use</span> <span class="ident">std::sync::atomic</span>::{<span class="ident">AtomicBool</span>, <span class="ident">Ordering</span>};
+<span class="kw">use</span> <span class="ident">std::sync</span>::{<span class="ident">Arc</span>, <span class="ident">Mutex</span>};
 
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">fs</span>::{<span class="ident">Metadata</span>, <span class="ident">Permissions</span>};
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">future</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">io</span>::{<span class="self">self</span>, <span class="ident">Read</span>, <span class="ident">Seek</span>, <span class="ident">SeekFrom</span>, <span class="ident">Write</span>};
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">path</span>::<span class="ident">Path</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">prelude</span>::<span class="kw-2">*</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">task</span>::{<span class="ident">spawn_blocking</span>, <span class="ident">Context</span>, <span class="ident">Poll</span>, <span class="ident">Waker</span>};
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">utils</span>::<span class="ident">Context</span> <span class="kw">as</span> <span class="kw">_</span>;
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::fs</span>::{<span class="ident">Metadata</span>, <span class="ident">Permissions</span>};
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::future</span>;
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::io</span>::{<span class="self">self</span>, <span class="ident">Read</span>, <span class="ident">Seek</span>, <span class="ident">SeekFrom</span>, <span class="ident">Write</span>};
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::path::Path</span>;
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::prelude</span>::<span class="kw-2">*</span>;
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::task</span>::{<span class="ident">spawn_blocking</span>, <span class="ident">Context</span>, <span class="ident">Poll</span>, <span class="ident">Waker</span>};
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::utils::Context</span> <span class="kw">as</span> <span class="kw">_</span>;
 
 <span class="doccomment">/// An open file on the filesystem.</span>
 <span class="doccomment">///</span>
@@ -945,7 +945,7 @@
 <span class="doccomment">/// ```</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">File</span> {
     <span class="doccomment">/// A reference to the inner file.</span>
-    <span class="ident">file</span>: <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">std</span>::<span class="ident">fs</span>::<span class="ident">File</span><span class="op">&gt;</span>,
+    <span class="ident">file</span>: <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">std::fs::File</span><span class="op">&gt;</span>,
 
     <span class="doccomment">/// The state of the file protected by an async lock.</span>
     <span class="ident">lock</span>: <span class="ident">Lock</span><span class="op">&lt;</span><span class="ident">State</span><span class="op">&gt;</span>,
@@ -953,15 +953,15 @@
 
 <span class="kw">impl</span> <span class="ident">File</span> {
     <span class="doccomment">/// Creates an async file handle.</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">file</span>: <span class="ident">std</span>::<span class="ident">fs</span>::<span class="ident">File</span>, <span class="ident">is_flushed</span>: <span class="ident">bool</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">File</span> {
-        <span class="kw">let</span> <span class="ident">file</span> <span class="op">=</span> <span class="ident">Arc</span>::<span class="ident">new</span>(<span class="ident">file</span>);
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">file</span>: <span class="ident">std::fs::File</span>, <span class="ident">is_flushed</span>: <span class="ident">bool</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">File</span> {
+        <span class="kw">let</span> <span class="ident">file</span> <span class="op">=</span> <span class="ident">Arc::new</span>(<span class="ident">file</span>);
 
         <span class="ident">File</span> {
             <span class="ident">file</span>: <span class="ident">file</span>.<span class="ident">clone</span>(),
-            <span class="ident">lock</span>: <span class="ident">Lock</span>::<span class="ident">new</span>(<span class="ident">State</span> {
+            <span class="ident">lock</span>: <span class="ident">Lock::new</span>(<span class="ident">State</span> {
                 <span class="ident">file</span>,
-                <span class="ident">mode</span>: <span class="ident">Mode</span>::<span class="ident">Idle</span>,
-                <span class="ident">cache</span>: <span class="ident">Vec</span>::<span class="ident">new</span>(),
+                <span class="ident">mode</span>: <span class="ident">Mode::Idle</span>,
+                <span class="ident">cache</span>: <span class="ident">Vec::new</span>(),
                 <span class="ident">is_flushed</span>,
                 <span class="ident">last_read_err</span>: <span class="prelude-val">None</span>,
                 <span class="ident">last_write_err</span>: <span class="prelude-val">None</span>,
@@ -996,13 +996,13 @@
     <span class="doccomment">/// #</span>
     <span class="doccomment">/// # Ok(()) }) }</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">open</span><span class="op">&lt;</span><span class="ident">P</span>: <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">Path</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">path</span>: <span class="ident">P</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">File</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">open</span><span class="op">&lt;</span><span class="ident">P</span>: <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">Path</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">path</span>: <span class="ident">P</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">File</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident">path</span>.<span class="ident">as_ref</span>().<span class="ident">to_owned</span>();
         <span class="kw">let</span> <span class="ident">file</span> <span class="op">=</span> <span class="ident">spawn_blocking</span>(<span class="kw">move</span> <span class="op">|</span><span class="op">|</span> {
-            <span class="ident">std</span>::<span class="ident">fs</span>::<span class="ident">File</span>::<span class="ident">open</span>(<span class="kw-2">&amp;</span><span class="ident">path</span>).<span class="ident">context</span>(<span class="op">|</span><span class="op">|</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;could not open `{}`&quot;</span>, <span class="ident">path</span>.<span class="ident">display</span>()))
+            <span class="ident">std::fs::File::open</span>(<span class="kw-2">&amp;</span><span class="ident">path</span>).<span class="ident">context</span>(<span class="op">|</span><span class="op">|</span> <span class="macro">format!</span>(<span class="string">&quot;could not open `{}`&quot;</span>, <span class="ident">path</span>.<span class="ident">display</span>()))
         })
         .<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="prelude-val">Ok</span>(<span class="ident">File</span>::<span class="ident">new</span>(<span class="ident">file</span>, <span class="bool-val">true</span>))
+        <span class="prelude-val">Ok</span>(<span class="ident">File::new</span>(<span class="ident">file</span>, <span class="bool-val">true</span>))
     }
 
     <span class="doccomment">/// Opens a file in write-only mode.</span>
@@ -1034,14 +1034,14 @@
     <span class="doccomment">/// #</span>
     <span class="doccomment">/// # Ok(()) }) }</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">create</span><span class="op">&lt;</span><span class="ident">P</span>: <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">Path</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">path</span>: <span class="ident">P</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">File</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">create</span><span class="op">&lt;</span><span class="ident">P</span>: <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">Path</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">path</span>: <span class="ident">P</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">File</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident">path</span>.<span class="ident">as_ref</span>().<span class="ident">to_owned</span>();
         <span class="kw">let</span> <span class="ident">file</span> <span class="op">=</span> <span class="ident">spawn_blocking</span>(<span class="kw">move</span> <span class="op">|</span><span class="op">|</span> {
-            <span class="ident">std</span>::<span class="ident">fs</span>::<span class="ident">File</span>::<span class="ident">create</span>(<span class="kw-2">&amp;</span><span class="ident">path</span>)
-                .<span class="ident">context</span>(<span class="op">|</span><span class="op">|</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;could not create `{}`&quot;</span>, <span class="ident">path</span>.<span class="ident">display</span>()))
+            <span class="ident">std::fs::File::create</span>(<span class="kw-2">&amp;</span><span class="ident">path</span>)
+                .<span class="ident">context</span>(<span class="op">|</span><span class="op">|</span> <span class="macro">format!</span>(<span class="string">&quot;could not create `{}`&quot;</span>, <span class="ident">path</span>.<span class="ident">display</span>()))
         })
         .<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="prelude-val">Ok</span>(<span class="ident">File</span>::<span class="ident">new</span>(<span class="ident">file</span>, <span class="bool-val">true</span>))
+        <span class="prelude-val">Ok</span>(<span class="ident">File::new</span>(<span class="ident">file</span>, <span class="bool-val">true</span>))
     }
 
     <span class="doccomment">/// Synchronizes OS-internal buffered contents and metadata to disk.</span>
@@ -1065,10 +1065,10 @@
     <span class="doccomment">/// #</span>
     <span class="doccomment">/// # Ok(()) }) }</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">sync_all</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">sync_all</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="comment">// Flush the write cache before calling `sync_all()`.</span>
-        <span class="kw">let</span> <span class="ident">state</span> <span class="op">=</span> <span class="ident">future</span>::<span class="ident">poll_fn</span>(<span class="op">|</span><span class="ident">cx</span><span class="op">|</span> {
-            <span class="kw">let</span> <span class="ident">state</span> <span class="op">=</span> <span class="ident">futures_core</span>::<span class="macro">ready</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">lock</span>.<span class="ident">poll_lock</span>(<span class="ident">cx</span>));
+        <span class="kw">let</span> <span class="ident">state</span> <span class="op">=</span> <span class="ident">future::poll_fn</span>(<span class="op">|</span><span class="ident">cx</span><span class="op">|</span> {
+            <span class="kw">let</span> <span class="ident">state</span> <span class="op">=</span> <span class="macro">futures_core::ready!</span>(<span class="self">self</span>.<span class="ident">lock</span>.<span class="ident">poll_lock</span>(<span class="ident">cx</span>));
             <span class="ident">state</span>.<span class="ident">poll_flush</span>(<span class="ident">cx</span>)
         })
         .<span class="kw">await</span><span class="question-mark">?</span>;
@@ -1101,10 +1101,10 @@
     <span class="doccomment">/// #</span>
     <span class="doccomment">/// # Ok(()) }) }</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">sync_data</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">sync_data</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="comment">// Flush the write cache before calling `sync_data()`.</span>
-        <span class="kw">let</span> <span class="ident">state</span> <span class="op">=</span> <span class="ident">future</span>::<span class="ident">poll_fn</span>(<span class="op">|</span><span class="ident">cx</span><span class="op">|</span> {
-            <span class="kw">let</span> <span class="ident">state</span> <span class="op">=</span> <span class="ident">futures_core</span>::<span class="macro">ready</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">lock</span>.<span class="ident">poll_lock</span>(<span class="ident">cx</span>));
+        <span class="kw">let</span> <span class="ident">state</span> <span class="op">=</span> <span class="ident">future::poll_fn</span>(<span class="op">|</span><span class="ident">cx</span><span class="op">|</span> {
+            <span class="kw">let</span> <span class="ident">state</span> <span class="op">=</span> <span class="macro">futures_core::ready!</span>(<span class="self">self</span>.<span class="ident">lock</span>.<span class="ident">poll_lock</span>(<span class="ident">cx</span>));
             <span class="ident">state</span>.<span class="ident">poll_flush</span>(<span class="ident">cx</span>)
         })
         .<span class="kw">await</span><span class="question-mark">?</span>;
@@ -1133,11 +1133,11 @@
     <span class="doccomment">/// #</span>
     <span class="doccomment">/// # Ok(()) }) }</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">set_len</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">size</span>: <span class="ident">u64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">set_len</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">size</span>: <span class="ident">u64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="comment">// Invalidate the read cache and flush the write cache before calling `set_len()`.</span>
-        <span class="kw">let</span> <span class="ident">state</span> <span class="op">=</span> <span class="ident">future</span>::<span class="ident">poll_fn</span>(<span class="op">|</span><span class="ident">cx</span><span class="op">|</span> {
-            <span class="kw">let</span> <span class="ident">state</span> <span class="op">=</span> <span class="ident">futures_core</span>::<span class="macro">ready</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">lock</span>.<span class="ident">poll_lock</span>(<span class="ident">cx</span>));
-            <span class="kw">let</span> <span class="ident">state</span> <span class="op">=</span> <span class="ident">futures_core</span>::<span class="macro">ready</span><span class="macro">!</span>(<span class="ident">state</span>.<span class="ident">poll_unread</span>(<span class="ident">cx</span>))<span class="question-mark">?</span>;
+        <span class="kw">let</span> <span class="ident">state</span> <span class="op">=</span> <span class="ident">future::poll_fn</span>(<span class="op">|</span><span class="ident">cx</span><span class="op">|</span> {
+            <span class="kw">let</span> <span class="ident">state</span> <span class="op">=</span> <span class="macro">futures_core::ready!</span>(<span class="self">self</span>.<span class="ident">lock</span>.<span class="ident">poll_lock</span>(<span class="ident">cx</span>));
+            <span class="kw">let</span> <span class="ident">state</span> <span class="op">=</span> <span class="macro">futures_core::ready!</span>(<span class="ident">state</span>.<span class="ident">poll_unread</span>(<span class="ident">cx</span>))<span class="question-mark">?</span>;
             <span class="ident">state</span>.<span class="ident">poll_flush</span>(<span class="ident">cx</span>)
         })
         .<span class="kw">await</span><span class="question-mark">?</span>;
@@ -1159,7 +1159,7 @@
     <span class="doccomment">/// #</span>
     <span class="doccomment">/// # Ok(()) }) }</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">metadata</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Metadata</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">metadata</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">Metadata</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">file</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">file</span>.<span class="ident">clone</span>();
         <span class="ident">spawn_blocking</span>(<span class="kw">move</span> <span class="op">|</span><span class="op">|</span> <span class="ident">file</span>.<span class="ident">metadata</span>()).<span class="kw">await</span>
     }
@@ -1188,7 +1188,7 @@
     <span class="doccomment">/// #</span>
     <span class="doccomment">/// # Ok(()) }) }</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">set_permissions</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">perm</span>: <span class="ident">Permissions</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">set_permissions</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">perm</span>: <span class="ident">Permissions</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">file</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">file</span>.<span class="ident">clone</span>();
         <span class="ident">spawn_blocking</span>(<span class="kw">move</span> <span class="op">|</span><span class="op">|</span> <span class="ident">file</span>.<span class="ident">set_permissions</span>(<span class="ident">perm</span>)).<span class="kw">await</span>
     }
@@ -1200,12 +1200,12 @@
         <span class="comment">// non-blocking fashion, but our only other option here is losing data remaining in the</span>
         <span class="comment">// write cache. Good task schedulers should be resilient to occasional blocking hiccups in</span>
         <span class="comment">// file destructors so we don&#39;t expect this to be a common problem in practice.</span>
-        <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">futures_lite</span>::<span class="ident">future</span>::<span class="ident">block_on</span>(<span class="self">self</span>.<span class="ident">flush</span>());
+        <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">futures_lite::future::block_on</span>(<span class="self">self</span>.<span class="ident">flush</span>());
     }
 }
 
-<span class="kw">impl</span> <span class="ident">fmt</span>::<span class="ident">Debug</span> <span class="kw">for</span> <span class="ident">File</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt</span>::<span class="ident">Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
+<span class="kw">impl</span> <span class="ident">fmt::Debug</span> <span class="kw">for</span> <span class="ident">File</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
         <span class="self">self</span>.<span class="ident">file</span>.<span class="ident">fmt</span>(<span class="ident">f</span>)
     }
 }
@@ -1215,8 +1215,8 @@
         <span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span><span class="op">&gt;</span>,
         <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
         <span class="ident">buf</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u8</span>],
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="ident">io</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="ident">Pin</span>::<span class="ident">new</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="self">self</span>).<span class="ident">poll_read</span>(<span class="ident">cx</span>, <span class="ident">buf</span>)
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+        <span class="ident">Pin::new</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="self">self</span>).<span class="ident">poll_read</span>(<span class="ident">cx</span>, <span class="ident">buf</span>)
     }
 }
 
@@ -1225,8 +1225,8 @@
         <span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span><span class="op">&gt;</span>,
         <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
         <span class="ident">buf</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u8</span>],
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="ident">io</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">state</span> <span class="op">=</span> <span class="ident">futures_core</span>::<span class="macro">ready</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">lock</span>.<span class="ident">poll_lock</span>(<span class="ident">cx</span>));
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">state</span> <span class="op">=</span> <span class="macro">futures_core::ready!</span>(<span class="self">self</span>.<span class="ident">lock</span>.<span class="ident">poll_lock</span>(<span class="ident">cx</span>));
         <span class="ident">state</span>.<span class="ident">poll_read</span>(<span class="ident">cx</span>, <span class="ident">buf</span>)
     }
 }
@@ -1236,16 +1236,16 @@
         <span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span><span class="op">&gt;</span>,
         <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
         <span class="ident">buf</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="ident">io</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="ident">Pin</span>::<span class="ident">new</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="self">self</span>).<span class="ident">poll_write</span>(<span class="ident">cx</span>, <span class="ident">buf</span>)
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+        <span class="ident">Pin::new</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="self">self</span>).<span class="ident">poll_write</span>(<span class="ident">cx</span>, <span class="ident">buf</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">poll_flush</span>(<span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="ident">io</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="ident">Pin</span>::<span class="ident">new</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="self">self</span>).<span class="ident">poll_flush</span>(<span class="ident">cx</span>)
+    <span class="kw">fn</span> <span class="ident">poll_flush</span>(<span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span><span class="op">&gt;</span> {
+        <span class="ident">Pin::new</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="self">self</span>).<span class="ident">poll_flush</span>(<span class="ident">cx</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">poll_close</span>(<span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="ident">io</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="ident">Pin</span>::<span class="ident">new</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="self">self</span>).<span class="ident">poll_close</span>(<span class="ident">cx</span>)
+    <span class="kw">fn</span> <span class="ident">poll_close</span>(<span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span><span class="op">&gt;</span> {
+        <span class="ident">Pin::new</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="self">self</span>).<span class="ident">poll_close</span>(<span class="ident">cx</span>)
     }
 }
 
@@ -1254,18 +1254,18 @@
         <span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span><span class="op">&gt;</span>,
         <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
         <span class="ident">buf</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="ident">io</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">state</span> <span class="op">=</span> <span class="ident">futures_core</span>::<span class="macro">ready</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">lock</span>.<span class="ident">poll_lock</span>(<span class="ident">cx</span>));
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">state</span> <span class="op">=</span> <span class="macro">futures_core::ready!</span>(<span class="self">self</span>.<span class="ident">lock</span>.<span class="ident">poll_lock</span>(<span class="ident">cx</span>));
         <span class="ident">state</span>.<span class="ident">poll_write</span>(<span class="ident">cx</span>, <span class="ident">buf</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">poll_flush</span>(<span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="ident">io</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">state</span> <span class="op">=</span> <span class="ident">futures_core</span>::<span class="macro">ready</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">lock</span>.<span class="ident">poll_lock</span>(<span class="ident">cx</span>));
+    <span class="kw">fn</span> <span class="ident">poll_flush</span>(<span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">state</span> <span class="op">=</span> <span class="macro">futures_core::ready!</span>(<span class="self">self</span>.<span class="ident">lock</span>.<span class="ident">poll_lock</span>(<span class="ident">cx</span>));
         <span class="ident">state</span>.<span class="ident">poll_flush</span>(<span class="ident">cx</span>).<span class="ident">map</span>(<span class="op">|</span><span class="ident">res</span><span class="op">|</span> <span class="ident">res</span>.<span class="ident">map</span>(<span class="ident">drop</span>))
     }
 
-    <span class="kw">fn</span> <span class="ident">poll_close</span>(<span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="ident">io</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">state</span> <span class="op">=</span> <span class="ident">futures_core</span>::<span class="macro">ready</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">lock</span>.<span class="ident">poll_lock</span>(<span class="ident">cx</span>));
+    <span class="kw">fn</span> <span class="ident">poll_close</span>(<span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">state</span> <span class="op">=</span> <span class="macro">futures_core::ready!</span>(<span class="self">self</span>.<span class="ident">lock</span>.<span class="ident">poll_lock</span>(<span class="ident">cx</span>));
         <span class="ident">state</span>.<span class="ident">poll_close</span>(<span class="ident">cx</span>)
     }
 }
@@ -1275,8 +1275,8 @@
         <span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span><span class="op">&gt;</span>,
         <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
         <span class="ident">pos</span>: <span class="ident">SeekFrom</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="ident">io</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="ident">Pin</span>::<span class="ident">new</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="self">self</span>).<span class="ident">poll_seek</span>(<span class="ident">cx</span>, <span class="ident">pos</span>)
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+        <span class="ident">Pin::new</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="self">self</span>).<span class="ident">poll_seek</span>(<span class="ident">cx</span>, <span class="ident">pos</span>)
     }
 }
 
@@ -1285,20 +1285,20 @@
         <span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span><span class="op">&gt;</span>,
         <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
         <span class="ident">pos</span>: <span class="ident">SeekFrom</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="ident">io</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">state</span> <span class="op">=</span> <span class="ident">futures_core</span>::<span class="macro">ready</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">lock</span>.<span class="ident">poll_lock</span>(<span class="ident">cx</span>));
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">state</span> <span class="op">=</span> <span class="macro">futures_core::ready!</span>(<span class="self">self</span>.<span class="ident">lock</span>.<span class="ident">poll_lock</span>(<span class="ident">cx</span>));
         <span class="ident">state</span>.<span class="ident">poll_seek</span>(<span class="ident">cx</span>, <span class="ident">pos</span>)
     }
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">std</span>::<span class="ident">fs</span>::<span class="ident">File</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">File</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">file</span>: <span class="ident">std</span>::<span class="ident">fs</span>::<span class="ident">File</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">File</span> {
-        <span class="ident">File</span>::<span class="ident">new</span>(<span class="ident">file</span>, <span class="bool-val">false</span>)
+<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">std::fs::File</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">File</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">file</span>: <span class="ident">std::fs::File</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">File</span> {
+        <span class="ident">File::new</span>(<span class="ident">file</span>, <span class="bool-val">false</span>)
     }
 }
 
-<span class="macro">cfg_unix</span><span class="macro">!</span> {
-    <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">os</span>::<span class="ident">unix</span>::<span class="ident">io</span>::{<span class="ident">AsRawFd</span>, <span class="ident">FromRawFd</span>, <span class="ident">IntoRawFd</span>, <span class="ident">RawFd</span>};
+<span class="macro">cfg_unix!</span> {
+    <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::os::unix::io</span>::{<span class="ident">AsRawFd</span>, <span class="ident">FromRawFd</span>, <span class="ident">IntoRawFd</span>, <span class="ident">RawFd</span>};
 
     <span class="kw">impl</span> <span class="ident">AsRawFd</span> <span class="kw">for</span> <span class="ident">File</span> {
         <span class="kw">fn</span> <span class="ident">as_raw_fd</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">RawFd</span> {
@@ -1308,7 +1308,7 @@
 
     <span class="kw">impl</span> <span class="ident">FromRawFd</span> <span class="kw">for</span> <span class="ident">File</span> {
         <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">from_raw_fd</span>(<span class="ident">fd</span>: <span class="ident">RawFd</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">File</span> {
-            <span class="ident">std</span>::<span class="ident">fs</span>::<span class="ident">File</span>::<span class="ident">from_raw_fd</span>(<span class="ident">fd</span>).<span class="ident">into</span>()
+            <span class="ident">std::fs::File::from_raw_fd</span>(<span class="ident">fd</span>).<span class="ident">into</span>()
         }
     }
 
@@ -1316,15 +1316,15 @@
         <span class="kw">fn</span> <span class="ident">into_raw_fd</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">RawFd</span> {
             <span class="kw">let</span> <span class="ident">file</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">file</span>.<span class="ident">clone</span>();
             <span class="ident">drop</span>(<span class="self">self</span>);
-            <span class="ident">Arc</span>::<span class="ident">try_unwrap</span>(<span class="ident">file</span>)
+            <span class="ident">Arc::try_unwrap</span>(<span class="ident">file</span>)
                 .<span class="ident">expect</span>(<span class="string">&quot;cannot acquire ownership of the file handle after drop&quot;</span>)
                 .<span class="ident">into_raw_fd</span>()
         }
     }
 }
 
-<span class="macro">cfg_windows</span><span class="macro">!</span> {
-    <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">os</span>::<span class="ident">windows</span>::<span class="ident">io</span>::{<span class="ident">AsRawHandle</span>, <span class="ident">FromRawHandle</span>, <span class="ident">IntoRawHandle</span>, <span class="ident">RawHandle</span>};
+<span class="macro">cfg_windows!</span> {
+    <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::os::windows::io</span>::{<span class="ident">AsRawHandle</span>, <span class="ident">FromRawHandle</span>, <span class="ident">IntoRawHandle</span>, <span class="ident">RawHandle</span>};
 
     <span class="kw">impl</span> <span class="ident">AsRawHandle</span> <span class="kw">for</span> <span class="ident">File</span> {
         <span class="kw">fn</span> <span class="ident">as_raw_handle</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">RawHandle</span> {
@@ -1334,7 +1334,7 @@
 
     <span class="kw">impl</span> <span class="ident">FromRawHandle</span> <span class="kw">for</span> <span class="ident">File</span> {
         <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">from_raw_handle</span>(<span class="ident">handle</span>: <span class="ident">RawHandle</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">File</span> {
-            <span class="ident">std</span>::<span class="ident">fs</span>::<span class="ident">File</span>::<span class="ident">from_raw_handle</span>(<span class="ident">handle</span>).<span class="ident">into</span>()
+            <span class="ident">std::fs::File::from_raw_handle</span>(<span class="ident">handle</span>).<span class="ident">into</span>()
         }
     }
 
@@ -1342,7 +1342,7 @@
         <span class="kw">fn</span> <span class="ident">into_raw_handle</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">RawHandle</span> {
             <span class="kw">let</span> <span class="ident">file</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">file</span>.<span class="ident">clone</span>();
             <span class="ident">drop</span>(<span class="self">self</span>);
-            <span class="ident">Arc</span>::<span class="ident">try_unwrap</span>(<span class="ident">file</span>)
+            <span class="ident">Arc::try_unwrap</span>(<span class="ident">file</span>)
                 .<span class="ident">expect</span>(<span class="string">&quot;cannot acquire ownership of the file handle after drop&quot;</span>)
                 .<span class="ident">into_raw_handle</span>()
         }
@@ -1370,32 +1370,32 @@
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Lock</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
     <span class="doccomment">/// Creates a new lock initialized with `value`.</span>
     <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">value</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Lock</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-        <span class="ident">Lock</span>(<span class="ident">Arc</span>::<span class="ident">new</span>(<span class="ident">LockState</span> {
-            <span class="ident">locked</span>: <span class="ident">AtomicBool</span>::<span class="ident">new</span>(<span class="bool-val">false</span>),
-            <span class="ident">value</span>: <span class="ident">UnsafeCell</span>::<span class="ident">new</span>(<span class="ident">value</span>),
-            <span class="ident">wakers</span>: <span class="ident">Mutex</span>::<span class="ident">new</span>(<span class="ident">Vec</span>::<span class="ident">new</span>()),
+        <span class="ident">Lock</span>(<span class="ident">Arc::new</span>(<span class="ident">LockState</span> {
+            <span class="ident">locked</span>: <span class="ident">AtomicBool::new</span>(<span class="bool-val">false</span>),
+            <span class="ident">value</span>: <span class="ident">UnsafeCell::new</span>(<span class="ident">value</span>),
+            <span class="ident">wakers</span>: <span class="ident">Mutex::new</span>(<span class="ident">Vec::new</span>()),
         }))
     }
 
     <span class="doccomment">/// Attempts to acquire the lock.</span>
     <span class="kw">fn</span> <span class="ident">poll_lock</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="ident">LockGuard</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="comment">// Try acquiring the lock.</span>
-        <span class="kw">if</span> <span class="self">self</span>.<span class="number">0</span>.<span class="ident">locked</span>.<span class="ident">swap</span>(<span class="bool-val">true</span>, <span class="ident">Ordering</span>::<span class="ident">Acquire</span>) {
+        <span class="kw">if</span> <span class="self">self</span>.<span class="number">0</span>.<span class="ident">locked</span>.<span class="ident">swap</span>(<span class="bool-val">true</span>, <span class="ident">Ordering::Acquire</span>) {
             <span class="comment">// Lock the list of wakers.</span>
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">list</span> <span class="op">=</span> <span class="self">self</span>.<span class="number">0</span>.<span class="ident">wakers</span>.<span class="ident">lock</span>().<span class="ident">unwrap</span>();
 
             <span class="comment">// Try acquiring the lock again.</span>
-            <span class="kw">if</span> <span class="self">self</span>.<span class="number">0</span>.<span class="ident">locked</span>.<span class="ident">swap</span>(<span class="bool-val">true</span>, <span class="ident">Ordering</span>::<span class="ident">Acquire</span>) {
+            <span class="kw">if</span> <span class="self">self</span>.<span class="number">0</span>.<span class="ident">locked</span>.<span class="ident">swap</span>(<span class="bool-val">true</span>, <span class="ident">Ordering::Acquire</span>) {
                 <span class="comment">// If failed again, add the current task to the list and return.</span>
                 <span class="kw">if</span> <span class="ident">list</span>.<span class="ident">iter</span>().<span class="ident">all</span>(<span class="op">|</span><span class="ident">w</span><span class="op">|</span> <span class="op">!</span><span class="ident">w</span>.<span class="ident">will_wake</span>(<span class="ident">cx</span>.<span class="ident">waker</span>())) {
                     <span class="ident">list</span>.<span class="ident">push</span>(<span class="ident">cx</span>.<span class="ident">waker</span>().<span class="ident">clone</span>());
                 }
-                <span class="kw">return</span> <span class="ident">Poll</span>::<span class="ident">Pending</span>;
+                <span class="kw">return</span> <span class="ident">Poll::Pending</span>;
             }
         }
 
         <span class="comment">// The lock was successfully acquired.</span>
-        <span class="ident">Poll</span>::<span class="ident">Ready</span>(<span class="ident">LockGuard</span>(<span class="self">self</span>.<span class="number">0</span>.<span class="ident">clone</span>()))
+        <span class="ident">Poll::Ready</span>(<span class="ident">LockGuard</span>(<span class="self">self</span>.<span class="number">0</span>.<span class="ident">clone</span>()))
     }
 }
 
@@ -1423,7 +1423,7 @@
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Drop</span> <span class="kw">for</span> <span class="ident">LockGuard</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
     <span class="kw">fn</span> <span class="ident">drop</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
         <span class="comment">// Release the lock.</span>
-        <span class="self">self</span>.<span class="number">0</span>.<span class="ident">locked</span>.<span class="ident">store</span>(<span class="bool-val">false</span>, <span class="ident">Ordering</span>::<span class="ident">Release</span>);
+        <span class="self">self</span>.<span class="number">0</span>.<span class="ident">locked</span>.<span class="ident">store</span>(<span class="bool-val">false</span>, <span class="ident">Ordering::Release</span>);
 
         <span class="comment">// Wake up all registered tasks interested in acquiring the lock.</span>
         <span class="kw">for</span> <span class="ident">w</span> <span class="kw">in</span> <span class="self">self</span>.<span class="number">0</span>.<span class="ident">wakers</span>.<span class="ident">lock</span>().<span class="ident">unwrap</span>().<span class="ident">drain</span>(..) {
@@ -1470,7 +1470,7 @@
 <span class="doccomment">/// of the state and return it back once the operation completes.</span>
 <span class="kw">struct</span> <span class="ident">State</span> {
     <span class="doccomment">/// The inner file.</span>
-    <span class="ident">file</span>: <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">std</span>::<span class="ident">fs</span>::<span class="ident">File</span><span class="op">&gt;</span>,
+    <span class="ident">file</span>: <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">std::fs::File</span><span class="op">&gt;</span>,
 
     <span class="doccomment">/// The current mode (idle, reading, or writing).</span>
     <span class="ident">mode</span>: <span class="ident">Mode</span>,
@@ -1487,68 +1487,68 @@
     <span class="ident">is_flushed</span>: <span class="ident">bool</span>,
 
     <span class="doccomment">/// The last read error that came from an async operation.</span>
-    <span class="ident">last_read_err</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">io</span>::<span class="ident">Error</span><span class="op">&gt;</span>,
+    <span class="ident">last_read_err</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">io::Error</span><span class="op">&gt;</span>,
 
     <span class="doccomment">/// The last write error that came from an async operation.</span>
-    <span class="ident">last_write_err</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">io</span>::<span class="ident">Error</span><span class="op">&gt;</span>,
+    <span class="ident">last_write_err</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">io::Error</span><span class="op">&gt;</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">LockGuard</span><span class="op">&lt;</span><span class="ident">State</span><span class="op">&gt;</span> {
     <span class="doccomment">/// Seeks to a new position in the file.</span>
-    <span class="kw">fn</span> <span class="ident">poll_seek</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>, <span class="ident">pos</span>: <span class="ident">SeekFrom</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="ident">io</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">poll_seek</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>, <span class="ident">pos</span>: <span class="ident">SeekFrom</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="comment">// If this operation doesn&#39;t move the cursor, then poll the current position inside the</span>
         <span class="comment">// file. This call should not block because it doesn&#39;t touch the actual file on disk.</span>
-        <span class="kw">if</span> <span class="ident">pos</span> <span class="op">=</span><span class="op">=</span> <span class="ident">SeekFrom</span>::<span class="ident">Current</span>(<span class="number">0</span>) {
+        <span class="kw">if</span> <span class="ident">pos</span> <span class="op">=</span><span class="op">=</span> <span class="ident">SeekFrom::Current</span>(<span class="number">0</span>) {
             <span class="comment">// Poll the internal file cursor.</span>
-            <span class="kw">let</span> <span class="ident">internal</span> <span class="op">=</span> (<span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="self">self</span>.<span class="ident">file</span>).<span class="ident">seek</span>(<span class="ident">SeekFrom</span>::<span class="ident">Current</span>(<span class="number">0</span>))<span class="question-mark">?</span>;
+            <span class="kw">let</span> <span class="ident">internal</span> <span class="op">=</span> (<span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="self">self</span>.<span class="ident">file</span>).<span class="ident">seek</span>(<span class="ident">SeekFrom::Current</span>(<span class="number">0</span>))<span class="question-mark">?</span>;
 
             <span class="comment">// Factor in the difference caused by caching.</span>
             <span class="kw">let</span> <span class="ident">actual</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">mode</span> {
-                <span class="ident">Mode</span>::<span class="ident">Idle</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">internal</span>,
-                <span class="ident">Mode</span>::<span class="ident">Reading</span>(<span class="ident">start</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">internal</span> <span class="op">-</span> <span class="self">self</span>.<span class="ident">cache</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">u64</span> <span class="op">+</span> <span class="ident">start</span> <span class="kw">as</span> <span class="ident">u64</span>,
-                <span class="ident">Mode</span>::<span class="ident">Writing</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">internal</span> <span class="op">+</span> <span class="self">self</span>.<span class="ident">cache</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">u64</span>,
+                <span class="ident">Mode::Idle</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">internal</span>,
+                <span class="ident">Mode::Reading</span>(<span class="ident">start</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">internal</span> <span class="op">-</span> <span class="self">self</span>.<span class="ident">cache</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">u64</span> <span class="op">+</span> <span class="ident">start</span> <span class="kw">as</span> <span class="ident">u64</span>,
+                <span class="ident">Mode::Writing</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">internal</span> <span class="op">+</span> <span class="self">self</span>.<span class="ident">cache</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">u64</span>,
             };
-            <span class="kw">return</span> <span class="ident">Poll</span>::<span class="ident">Ready</span>(<span class="prelude-val">Ok</span>(<span class="ident">actual</span>));
+            <span class="kw">return</span> <span class="ident">Poll::Ready</span>(<span class="prelude-val">Ok</span>(<span class="ident">actual</span>));
         }
 
         <span class="comment">// If the file is in reading mode and the cache will stay valid after seeking, then adjust</span>
         <span class="comment">// the current position in the read cache without invaliding it.</span>
-        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Mode</span>::<span class="ident">Reading</span>(<span class="ident">start</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">mode</span> {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">SeekFrom</span>::<span class="ident">Current</span>(<span class="ident">diff</span>) <span class="op">=</span> <span class="ident">pos</span> {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Mode::Reading</span>(<span class="ident">start</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">mode</span> {
+            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">SeekFrom::Current</span>(<span class="ident">diff</span>) <span class="op">=</span> <span class="ident">pos</span> {
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">new</span>) <span class="op">=</span> (<span class="ident">start</span> <span class="kw">as</span> <span class="ident">i64</span>).<span class="ident">checked_add</span>(<span class="ident">diff</span>) {
                     <span class="kw">if</span> <span class="number">0</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident">new</span> <span class="op">&amp;&amp;</span> <span class="ident">new</span> <span class="op">&lt;</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">cache</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">i64</span> {
                         <span class="comment">// Poll the internal file cursor.</span>
-                        <span class="kw">let</span> <span class="ident">internal</span> <span class="op">=</span> (<span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="self">self</span>.<span class="ident">file</span>).<span class="ident">seek</span>(<span class="ident">SeekFrom</span>::<span class="ident">Current</span>(<span class="number">0</span>))<span class="question-mark">?</span>;
+                        <span class="kw">let</span> <span class="ident">internal</span> <span class="op">=</span> (<span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="self">self</span>.<span class="ident">file</span>).<span class="ident">seek</span>(<span class="ident">SeekFrom::Current</span>(<span class="number">0</span>))<span class="question-mark">?</span>;
 
                         <span class="comment">// Adjust the current position in the read cache.</span>
-                        <span class="self">self</span>.<span class="ident">mode</span> <span class="op">=</span> <span class="ident">Mode</span>::<span class="ident">Reading</span>(<span class="ident">new</span> <span class="kw">as</span> <span class="ident">usize</span>);
+                        <span class="self">self</span>.<span class="ident">mode</span> <span class="op">=</span> <span class="ident">Mode::Reading</span>(<span class="ident">new</span> <span class="kw">as</span> <span class="ident">usize</span>);
 
                         <span class="comment">// Factor in the difference caused by caching.</span>
-                        <span class="kw">return</span> <span class="ident">Poll</span>::<span class="ident">Ready</span>(<span class="prelude-val">Ok</span>(<span class="ident">internal</span> <span class="op">-</span> <span class="self">self</span>.<span class="ident">cache</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">u64</span> <span class="op">+</span> <span class="ident">new</span> <span class="kw">as</span> <span class="ident">u64</span>));
+                        <span class="kw">return</span> <span class="ident">Poll::Ready</span>(<span class="prelude-val">Ok</span>(<span class="ident">internal</span> <span class="op">-</span> <span class="self">self</span>.<span class="ident">cache</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">u64</span> <span class="op">+</span> <span class="ident">new</span> <span class="kw">as</span> <span class="ident">u64</span>));
                     }
                 }
             }
         }
 
         <span class="comment">// Invalidate the read cache and flush the write cache before calling `seek()`.</span>
-        <span class="self">self</span> <span class="op">=</span> <span class="ident">futures_core</span>::<span class="macro">ready</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">poll_unread</span>(<span class="ident">cx</span>))<span class="question-mark">?</span>;
-        <span class="self">self</span> <span class="op">=</span> <span class="ident">futures_core</span>::<span class="macro">ready</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">poll_flush</span>(<span class="ident">cx</span>))<span class="question-mark">?</span>;
+        <span class="self">self</span> <span class="op">=</span> <span class="macro">futures_core::ready!</span>(<span class="self">self</span>.<span class="ident">poll_unread</span>(<span class="ident">cx</span>))<span class="question-mark">?</span>;
+        <span class="self">self</span> <span class="op">=</span> <span class="macro">futures_core::ready!</span>(<span class="self">self</span>.<span class="ident">poll_flush</span>(<span class="ident">cx</span>))<span class="question-mark">?</span>;
 
         <span class="comment">// Seek to the new position. This call should not block because it only changes the</span>
         <span class="comment">// internal offset into the file and doesn&#39;t touch the actual file on disk.</span>
-        <span class="ident">Poll</span>::<span class="ident">Ready</span>((<span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="self">self</span>.<span class="ident">file</span>).<span class="ident">seek</span>(<span class="ident">pos</span>))
+        <span class="ident">Poll::Ready</span>((<span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="self">self</span>.<span class="ident">file</span>).<span class="ident">seek</span>(<span class="ident">pos</span>))
     }
 
     <span class="doccomment">/// Reads some bytes from the file into a buffer.</span>
-    <span class="kw">fn</span> <span class="ident">poll_read</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>, <span class="ident">buf</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="ident">io</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">poll_read</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>, <span class="ident">buf</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="comment">// If an async operation has left a read error, return it now.</span>
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">err</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">last_read_err</span>.<span class="ident">take</span>() {
-            <span class="kw">return</span> <span class="ident">Poll</span>::<span class="ident">Ready</span>(<span class="prelude-val">Err</span>(<span class="ident">err</span>));
+            <span class="kw">return</span> <span class="ident">Poll::Ready</span>(<span class="prelude-val">Err</span>(<span class="ident">err</span>));
         }
 
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">mode</span> {
-            <span class="ident">Mode</span>::<span class="ident">Idle</span> <span class="op">=</span><span class="op">&gt;</span> {}
-            <span class="ident">Mode</span>::<span class="ident">Reading</span>(<span class="ident">start</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">Mode::Idle</span> <span class="op">=</span><span class="op">&gt;</span> {}
+            <span class="ident">Mode::Reading</span>(<span class="ident">start</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="comment">// How many bytes in the cache are available for reading.</span>
                 <span class="kw">let</span> <span class="ident">available</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">cache</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="ident">start</span>;
 
@@ -1557,18 +1557,18 @@
                 <span class="comment">// any bytes, i.e. it reached the end of the file.</span>
                 <span class="kw">if</span> <span class="ident">available</span> <span class="op">&gt;</span> <span class="number">0</span> <span class="op">|</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">cache</span>.<span class="ident">is_empty</span>() {
                     <span class="comment">// Copy data from the cache into the buffer.</span>
-                    <span class="kw">let</span> <span class="ident">n</span> <span class="op">=</span> <span class="ident">cmp</span>::<span class="ident">min</span>(<span class="ident">available</span>, <span class="ident">buf</span>.<span class="ident">len</span>());
+                    <span class="kw">let</span> <span class="ident">n</span> <span class="op">=</span> <span class="ident">cmp::min</span>(<span class="ident">available</span>, <span class="ident">buf</span>.<span class="ident">len</span>());
                     <span class="ident">buf</span>[..<span class="ident">n</span>].<span class="ident">copy_from_slice</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">cache</span>[<span class="ident">start</span>..(<span class="ident">start</span> <span class="op">+</span> <span class="ident">n</span>)]);
 
                     <span class="comment">// Move the read cursor forward.</span>
-                    <span class="self">self</span>.<span class="ident">mode</span> <span class="op">=</span> <span class="ident">Mode</span>::<span class="ident">Reading</span>(<span class="ident">start</span> <span class="op">+</span> <span class="ident">n</span>);
+                    <span class="self">self</span>.<span class="ident">mode</span> <span class="op">=</span> <span class="ident">Mode::Reading</span>(<span class="ident">start</span> <span class="op">+</span> <span class="ident">n</span>);
 
-                    <span class="kw">return</span> <span class="ident">Poll</span>::<span class="ident">Ready</span>(<span class="prelude-val">Ok</span>(<span class="ident">n</span>));
+                    <span class="kw">return</span> <span class="ident">Poll::Ready</span>(<span class="prelude-val">Ok</span>(<span class="ident">n</span>));
                 }
             }
-            <span class="ident">Mode</span>::<span class="ident">Writing</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">Mode::Writing</span> <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="comment">// If we&#39;re in writing mode, flush the write cache.</span>
-                <span class="self">self</span> <span class="op">=</span> <span class="ident">futures_core</span>::<span class="macro">ready</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">poll_flush</span>(<span class="ident">cx</span>))<span class="question-mark">?</span>;
+                <span class="self">self</span> <span class="op">=</span> <span class="macro">futures_core::ready!</span>(<span class="self">self</span>.<span class="ident">poll_flush</span>(<span class="ident">cx</span>))<span class="question-mark">?</span>;
             }
         }
 
@@ -1598,28 +1598,28 @@
                     <span class="kw">unsafe</span> {
                         <span class="self">self</span>.<span class="ident">cache</span>.<span class="ident">set_len</span>(<span class="ident">n</span>);
                     }
-                    <span class="self">self</span>.<span class="ident">mode</span> <span class="op">=</span> <span class="ident">Mode</span>::<span class="ident">Reading</span>(<span class="number">0</span>);
+                    <span class="self">self</span>.<span class="ident">mode</span> <span class="op">=</span> <span class="ident">Mode::Reading</span>(<span class="number">0</span>);
                 }
                 <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="comment">// Save the error and switch to idle mode.</span>
                     <span class="self">self</span>.<span class="ident">cache</span>.<span class="ident">clear</span>();
-                    <span class="self">self</span>.<span class="ident">mode</span> <span class="op">=</span> <span class="ident">Mode</span>::<span class="ident">Idle</span>;
+                    <span class="self">self</span>.<span class="ident">mode</span> <span class="op">=</span> <span class="ident">Mode::Idle</span>;
                     <span class="self">self</span>.<span class="ident">last_read_err</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">err</span>);
                 }
             }
         });
 
-        <span class="ident">Poll</span>::<span class="ident">Pending</span>
+        <span class="ident">Poll::Pending</span>
     }
 
     <span class="doccomment">/// Invalidates the read cache.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// This method will also move the internal file&#39;s cursor backwards by the number of unconsumed</span>
     <span class="doccomment">/// bytes in the read cache.</span>
-    <span class="kw">fn</span> <span class="ident">poll_unread</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="ident">io</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">poll_unread</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="ident">io::Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">mode</span> {
-            <span class="ident">Mode</span>::<span class="ident">Idle</span> <span class="op">|</span> <span class="ident">Mode</span>::<span class="ident">Writing</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Poll</span>::<span class="ident">Ready</span>(<span class="prelude-val">Ok</span>(<span class="self">self</span>)),
-            <span class="ident">Mode</span>::<span class="ident">Reading</span>(<span class="ident">start</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">Mode::Idle</span> <span class="op">|</span> <span class="ident">Mode::Writing</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Poll::Ready</span>(<span class="prelude-val">Ok</span>(<span class="self">self</span>)),
+            <span class="ident">Mode::Reading</span>(<span class="ident">start</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="comment">// The number of unconsumed bytes in the read cache.</span>
                 <span class="kw">let</span> <span class="ident">n</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">cache</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="ident">start</span>;
 
@@ -1629,27 +1629,27 @@
                     <span class="comment">//</span>
                     <span class="comment">// We ignore errors here because special files like `/dev/random` are not</span>
                     <span class="comment">// seekable.</span>
-                    <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> (<span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="self">self</span>.<span class="ident">file</span>).<span class="ident">seek</span>(<span class="ident">SeekFrom</span>::<span class="ident">Current</span>(<span class="op">-</span>(<span class="ident">n</span> <span class="kw">as</span> <span class="ident">i64</span>)));
+                    <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> (<span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="self">self</span>.<span class="ident">file</span>).<span class="ident">seek</span>(<span class="ident">SeekFrom::Current</span>(<span class="op">-</span>(<span class="ident">n</span> <span class="kw">as</span> <span class="ident">i64</span>)));
                 }
 
                 <span class="comment">// Switch to idle mode.</span>
                 <span class="self">self</span>.<span class="ident">cache</span>.<span class="ident">clear</span>();
-                <span class="self">self</span>.<span class="ident">mode</span> <span class="op">=</span> <span class="ident">Mode</span>::<span class="ident">Idle</span>;
+                <span class="self">self</span>.<span class="ident">mode</span> <span class="op">=</span> <span class="ident">Mode::Idle</span>;
 
-                <span class="ident">Poll</span>::<span class="ident">Ready</span>(<span class="prelude-val">Ok</span>(<span class="self">self</span>))
+                <span class="ident">Poll::Ready</span>(<span class="prelude-val">Ok</span>(<span class="self">self</span>))
             }
         }
     }
 
     <span class="doccomment">/// Writes some data from a buffer into the file.</span>
-    <span class="kw">fn</span> <span class="ident">poll_write</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>, <span class="ident">buf</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="ident">io</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">poll_write</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>, <span class="ident">buf</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="comment">// If an async operation has left a write error, return it now.</span>
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">err</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">last_write_err</span>.<span class="ident">take</span>() {
-            <span class="kw">return</span> <span class="ident">Poll</span>::<span class="ident">Ready</span>(<span class="prelude-val">Err</span>(<span class="ident">err</span>));
+            <span class="kw">return</span> <span class="ident">Poll::Ready</span>(<span class="prelude-val">Err</span>(<span class="ident">err</span>));
         }
 
         <span class="comment">// If we&#39;re in reading mode, invalidate the read buffer.</span>
-        <span class="self">self</span> <span class="op">=</span> <span class="ident">futures_core</span>::<span class="macro">ready</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">poll_unread</span>(<span class="ident">cx</span>))<span class="question-mark">?</span>;
+        <span class="self">self</span> <span class="op">=</span> <span class="macro">futures_core::ready!</span>(<span class="self">self</span>.<span class="ident">poll_unread</span>(<span class="ident">cx</span>))<span class="question-mark">?</span>;
 
         <span class="comment">// If necessary, grow the cache to have as much capacity as `buf`.</span>
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">cache</span>.<span class="ident">capacity</span>() <span class="op">&lt;</span> <span class="ident">buf</span>.<span class="ident">len</span>() {
@@ -1663,7 +1663,7 @@
         <span class="comment">// If there is space available in the cache or if the buffer is empty, we can write data</span>
         <span class="comment">// into the cache.</span>
         <span class="kw">if</span> <span class="ident">available</span> <span class="op">&gt;</span> <span class="number">0</span> <span class="op">|</span><span class="op">|</span> <span class="ident">buf</span>.<span class="ident">is_empty</span>() {
-            <span class="kw">let</span> <span class="ident">n</span> <span class="op">=</span> <span class="ident">cmp</span>::<span class="ident">min</span>(<span class="ident">available</span>, <span class="ident">buf</span>.<span class="ident">len</span>());
+            <span class="kw">let</span> <span class="ident">n</span> <span class="op">=</span> <span class="ident">cmp::min</span>(<span class="ident">available</span>, <span class="ident">buf</span>.<span class="ident">len</span>());
             <span class="kw">let</span> <span class="ident">start</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">cache</span>.<span class="ident">len</span>();
 
             <span class="comment">// Copy data from the buffer into the cache.</span>
@@ -1674,25 +1674,25 @@
 
             <span class="comment">// Mark the file as not flushed and switch to writing mode.</span>
             <span class="self">self</span>.<span class="ident">is_flushed</span> <span class="op">=</span> <span class="bool-val">false</span>;
-            <span class="self">self</span>.<span class="ident">mode</span> <span class="op">=</span> <span class="ident">Mode</span>::<span class="ident">Writing</span>;
-            <span class="ident">Poll</span>::<span class="ident">Ready</span>(<span class="prelude-val">Ok</span>(<span class="ident">n</span>))
+            <span class="self">self</span>.<span class="ident">mode</span> <span class="op">=</span> <span class="ident">Mode::Writing</span>;
+            <span class="ident">Poll::Ready</span>(<span class="prelude-val">Ok</span>(<span class="ident">n</span>))
         } <span class="kw">else</span> {
             <span class="comment">// Drain the write cache because it&#39;s full.</span>
-            <span class="ident">futures_core</span>::<span class="macro">ready</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">poll_drain</span>(<span class="ident">cx</span>))<span class="question-mark">?</span>;
-            <span class="ident">Poll</span>::<span class="ident">Pending</span>
+            <span class="macro">futures_core::ready!</span>(<span class="self">self</span>.<span class="ident">poll_drain</span>(<span class="ident">cx</span>))<span class="question-mark">?</span>;
+            <span class="ident">Poll::Pending</span>
         }
     }
 
     <span class="doccomment">/// Drains the write cache.</span>
-    <span class="kw">fn</span> <span class="ident">poll_drain</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="ident">io</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">poll_drain</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="ident">io::Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="comment">// If an async operation has left a write error, return it now.</span>
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">err</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">last_write_err</span>.<span class="ident">take</span>() {
-            <span class="kw">return</span> <span class="ident">Poll</span>::<span class="ident">Ready</span>(<span class="prelude-val">Err</span>(<span class="ident">err</span>));
+            <span class="kw">return</span> <span class="ident">Poll::Ready</span>(<span class="prelude-val">Err</span>(<span class="ident">err</span>));
         }
 
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">mode</span> {
-            <span class="ident">Mode</span>::<span class="ident">Idle</span> <span class="op">|</span> <span class="ident">Mode</span>::<span class="ident">Reading</span>(..) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Poll</span>::<span class="ident">Ready</span>(<span class="prelude-val">Ok</span>(<span class="self">self</span>)),
-            <span class="ident">Mode</span>::<span class="ident">Writing</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">Mode::Idle</span> <span class="op">|</span> <span class="ident">Mode::Reading</span>(..) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Poll::Ready</span>(<span class="prelude-val">Ok</span>(<span class="self">self</span>)),
+            <span class="ident">Mode::Writing</span> <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="comment">// Register current task&#39;s interest in the file lock.</span>
                 <span class="self">self</span>.<span class="ident">register</span>(<span class="ident">cx</span>);
 
@@ -1702,7 +1702,7 @@
                         <span class="prelude-val">Ok</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
                             <span class="comment">// Switch to idle mode.</span>
                             <span class="self">self</span>.<span class="ident">cache</span>.<span class="ident">clear</span>();
-                            <span class="self">self</span>.<span class="ident">mode</span> <span class="op">=</span> <span class="ident">Mode</span>::<span class="ident">Idle</span>;
+                            <span class="self">self</span>.<span class="ident">mode</span> <span class="op">=</span> <span class="ident">Mode::Idle</span>;
                         }
                         <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> {
                             <span class="comment">// Save the error.</span>
@@ -1711,20 +1711,20 @@
                     };
                 });
 
-                <span class="ident">Poll</span>::<span class="ident">Pending</span>
+                <span class="ident">Poll::Pending</span>
             }
         }
     }
 
     <span class="doccomment">/// Flushes the write cache into the file.</span>
-    <span class="kw">fn</span> <span class="ident">poll_flush</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="ident">io</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">poll_flush</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="ident">io::Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="comment">// If the file is already in flushed state, return.</span>
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">is_flushed</span> {
-            <span class="kw">return</span> <span class="ident">Poll</span>::<span class="ident">Ready</span>(<span class="prelude-val">Ok</span>(<span class="self">self</span>));
+            <span class="kw">return</span> <span class="ident">Poll::Ready</span>(<span class="prelude-val">Ok</span>(<span class="self">self</span>));
         }
 
         <span class="comment">// If there is data in the write cache, drain it.</span>
-        <span class="self">self</span> <span class="op">=</span> <span class="ident">futures_core</span>::<span class="macro">ready</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">poll_drain</span>(<span class="ident">cx</span>))<span class="question-mark">?</span>;
+        <span class="self">self</span> <span class="op">=</span> <span class="macro">futures_core::ready!</span>(<span class="self">self</span>.<span class="ident">poll_drain</span>(<span class="ident">cx</span>))<span class="question-mark">?</span>;
 
         <span class="comment">// Register current task&#39;s interest in the file lock.</span>
         <span class="self">self</span>.<span class="ident">register</span>(<span class="ident">cx</span>);
@@ -1743,13 +1743,13 @@
             }
         });
 
-        <span class="ident">Poll</span>::<span class="ident">Pending</span>
+        <span class="ident">Poll::Pending</span>
     }
 
     <span class="comment">// This function does nothing because we&#39;re not sure about `AsyncWrite::poll_close()`&#39;s exact</span>
     <span class="comment">// semantics nor whether it will stay in the `AsyncWrite` trait.</span>
-    <span class="kw">fn</span> <span class="ident">poll_close</span>(<span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="ident">io</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="ident">Poll</span>::<span class="ident">Ready</span>(<span class="prelude-val">Ok</span>(()))
+    <span class="kw">fn</span> <span class="ident">poll_close</span>(<span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span><span class="op">&gt;</span> {
+        <span class="ident">Poll::Ready</span>(<span class="prelude-val">Ok</span>(()))
     }
 }
 
@@ -1759,11 +1759,11 @@
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">async_file_drop</span>() {
-        <span class="kw">crate</span>::<span class="ident">task</span>::<span class="ident">block_on</span>(<span class="kw">async</span> <span class="kw">move</span> {
-            <span class="ident">File</span>::<span class="ident">open</span>(<span class="macro">file</span><span class="macro">!</span>()).<span class="kw">await</span>.<span class="ident">unwrap</span>();
+        <span class="kw">crate</span><span class="ident">::task::block_on</span>(<span class="kw">async</span> <span class="kw">move</span> {
+            <span class="ident">File::open</span>(<span class="macro">file!</span>()).<span class="kw">await</span>.<span class="ident">unwrap</span>();
         });
     }
 }
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="async_std" data-search-js="../../../search-index.js"></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="async_std" data-search-index-js="../../../search-index.js" data-search-js="../../../search.js"></div>
     <script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script></body></html>

@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/usr/local/cargo/registry/src/github.com-1ecc6299db9ec823/ffi-support-0.4.2/src/handle_map.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>handle_map.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../favicon-16x16.png">
-<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../ffi_support/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../ffi_support/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">   1</span>
 <span id="2">   2</span>
 <span id="3">   3</span>
@@ -1320,13 +1320,13 @@
 <span class="doccomment">//! just might fail to notice a bug). The third issue also seems unimportant for</span>
 <span class="doccomment">//! our use case.</span>
 
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">error</span>::{<span class="ident">ErrorCode</span>, <span class="ident">ExternError</span>};
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">into_ffi</span>::<span class="ident">IntoFfi</span>;
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">error</span>::<span class="ident">Error</span> <span class="kw">as</span> <span class="ident">StdError</span>;
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>;
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">ops</span>;
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">sync</span>::<span class="ident">atomic</span>::{<span class="ident">AtomicUsize</span>, <span class="ident">Ordering</span>};
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">sync</span>::{<span class="ident">Mutex</span>, <span class="ident">RwLock</span>};
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::error</span>::{<span class="ident">ErrorCode</span>, <span class="ident">ExternError</span>};
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::into_ffi::IntoFfi</span>;
+<span class="kw">use</span> <span class="ident">std::error::Error</span> <span class="kw">as</span> <span class="ident">StdError</span>;
+<span class="kw">use</span> <span class="ident">std::fmt</span>;
+<span class="kw">use</span> <span class="ident">std::ops</span>;
+<span class="kw">use</span> <span class="ident">std::sync::atomic</span>::{<span class="ident">AtomicUsize</span>, <span class="ident">Ordering</span>};
+<span class="kw">use</span> <span class="ident">std::sync</span>::{<span class="ident">Mutex</span>, <span class="ident">RwLock</span>};
 
 <span class="doccomment">/// `HandleMap` is a collection type which can hold any type of value, and</span>
 <span class="doccomment">/// offers a stable handle which can be used to retrieve it on insertion. These</span>
@@ -1379,7 +1379,7 @@
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">debug_assertions</span>, <span class="ident">test</span>))]</span>
     <span class="kw">fn</span> <span class="ident">is_end_of_list</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">EntryState</span>::<span class="ident">EndOfFreeList</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
+            <span class="ident">EntryState::EndOfFreeList</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
             <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
         }
     }
@@ -1392,7 +1392,7 @@
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">get_item</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">T</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">EntryState</span>::<span class="ident">Active</span>(<span class="ident">v</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">v</span>),
+            <span class="ident">EntryState::Active</span>(<span class="ident">v</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">v</span>),
             <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
         }
     }
@@ -1400,7 +1400,7 @@
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">get_item_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">T</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">EntryState</span>::<span class="ident">Active</span>(<span class="ident">v</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">v</span>),
+            <span class="ident">EntryState::Active</span>(<span class="ident">v</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">v</span>),
             <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
         }
     }
@@ -1409,9 +1409,9 @@
 <span class="comment">// Small helper to check our casts.</span>
 <span class="attribute">#[<span class="ident">inline</span>]</span>
 <span class="kw">fn</span> <span class="ident">to_u16</span>(<span class="ident">v</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u16</span> {
-    <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">u16</span>::<span class="ident">MAX</span> <span class="kw">as</span> <span class="ident">U16_MAX</span>;
+    <span class="kw">use</span> <span class="ident">std::u16::MAX</span> <span class="kw">as</span> <span class="ident">U16_MAX</span>;
     <span class="comment">// Shouldn&#39;t ever happen.</span>
-    <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">v</span> <span class="op">&lt;</span><span class="op">=</span> (<span class="ident">U16_MAX</span> <span class="kw">as</span> <span class="ident">usize</span>), <span class="string">&quot;Bug: Doesn&#39;t fit in u16: {}&quot;</span>, <span class="ident">v</span>);
+    <span class="macro">assert!</span>(<span class="ident">v</span> <span class="op">&lt;</span><span class="op">=</span> (<span class="ident">U16_MAX</span> <span class="kw">as</span> <span class="ident">usize</span>), <span class="string">&quot;Bug: Doesn&#39;t fit in u16: {}&quot;</span>, <span class="ident">v</span>);
     <span class="ident">v</span> <span class="kw">as</span> <span class="ident">u16</span>
 }
 
@@ -1453,8 +1453,8 @@
 
 <span class="kw">impl</span> <span class="ident">StdError</span> <span class="kw">for</span> <span class="ident">HandleError</span> {}
 
-<span class="kw">impl</span> <span class="ident">fmt</span>::<span class="ident">Display</span> <span class="kw">for</span> <span class="ident">HandleError</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt</span>::<span class="ident">Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
+<span class="kw">impl</span> <span class="ident">fmt::Display</span> <span class="kw">for</span> <span class="ident">HandleError</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
         <span class="kw">use</span> <span class="ident">HandleError</span>::<span class="kw-2">*</span>;
         <span class="kw">match</span> <span class="self">self</span> {
             <span class="ident">NullHandle</span> <span class="op">=</span><span class="op">&gt;</span> {
@@ -1470,14 +1470,14 @@
 
 <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">HandleError</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ExternError</span> {
     <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">e</span>: <span class="ident">HandleError</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="ident">ExternError</span>::<span class="ident">new_error</span>(<span class="ident">ErrorCode</span>::<span class="ident">INVALID_HANDLE</span>, <span class="ident">e</span>.<span class="ident">to_string</span>())
+        <span class="ident">ExternError::new_error</span>(<span class="ident">ErrorCode::INVALID_HANDLE</span>, <span class="ident">e</span>.<span class="ident">to_string</span>())
     }
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">HandleMap</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
     <span class="doccomment">/// Create a new `HandleMap` with the default capacity.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="self">Self</span>::<span class="ident">new_with_capacity</span>(<span class="ident">MIN_CAPACITY</span>)
+        <span class="self">Self</span><span class="ident">::new_with_capacity</span>(<span class="ident">MIN_CAPACITY</span>)
     }
 
     <span class="doccomment">/// Allocate a new `HandleMap`. Note that the actual capacity may be larger</span>
@@ -1485,7 +1485,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// Panics if `request` is greater than [`handle_map::MAX_CAPACITY`](MAX_CAPACITY)</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_with_capacity</span>(<span class="ident">request</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="macro">assert</span><span class="macro">!</span>(
+        <span class="macro">assert!</span>(
             <span class="ident">request</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident">MAX_CAPACITY</span>,
             <span class="string">&quot;HandleMap capacity is limited to {} (request was {})&quot;</span>,
             <span class="ident">MAX_CAPACITY</span>,
@@ -1494,13 +1494,13 @@
 
         <span class="kw">let</span> <span class="ident">capacity</span> <span class="op">=</span> <span class="ident">request</span>.<span class="ident">max</span>(<span class="ident">MIN_CAPACITY</span>);
         <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="ident">next_handle_map_id</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">entries</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">with_capacity</span>(<span class="ident">capacity</span>);
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">entries</span> <span class="op">=</span> <span class="ident">Vec::with_capacity</span>(<span class="ident">capacity</span>);
 
         <span class="comment">// Initialize each entry with version 1, and as a member of the free list</span>
         <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span>..(<span class="ident">capacity</span> <span class="op">-</span> <span class="number">1</span>) {
             <span class="ident">entries</span>.<span class="ident">push</span>(<span class="ident">Entry</span> {
                 <span class="ident">version</span>: <span class="number">1</span>,
-                <span class="ident">state</span>: <span class="ident">EntryState</span>::<span class="ident">InFreeList</span>(<span class="ident">to_u16</span>(<span class="ident">i</span> <span class="op">+</span> <span class="number">1</span>)),
+                <span class="ident">state</span>: <span class="ident">EntryState::InFreeList</span>(<span class="ident">to_u16</span>(<span class="ident">i</span> <span class="op">+</span> <span class="number">1</span>)),
             });
         }
 
@@ -1508,7 +1508,7 @@
         <span class="comment">// (but still has version 1).</span>
         <span class="ident">entries</span>.<span class="ident">push</span>(<span class="ident">Entry</span> {
             <span class="ident">version</span>: <span class="number">1</span>,
-            <span class="ident">state</span>: <span class="ident">EntryState</span>::<span class="ident">EndOfFreeList</span>,
+            <span class="ident">state</span>: <span class="ident">EntryState::EndOfFreeList</span>,
         });
         <span class="self">Self</span> {
             <span class="ident">id</span>,
@@ -1539,8 +1539,8 @@
     }
 
     <span class="kw">fn</span> <span class="ident">ensure_capacity</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">cap_at_least</span>: <span class="ident">usize</span>) {
-        <span class="macro">assert_ne</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">len</span>(), <span class="self">self</span>.<span class="ident">capacity</span>(), <span class="string">&quot;Bug: should have grown by now&quot;</span>);
-        <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">cap_at_least</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident">MAX_CAPACITY</span>, <span class="string">&quot;HandleMap overfilled&quot;</span>);
+        <span class="macro">assert_ne!</span>(<span class="self">self</span>.<span class="ident">len</span>(), <span class="self">self</span>.<span class="ident">capacity</span>(), <span class="string">&quot;Bug: should have grown by now&quot;</span>);
+        <span class="macro">assert!</span>(<span class="ident">cap_at_least</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident">MAX_CAPACITY</span>, <span class="string">&quot;HandleMap overfilled&quot;</span>);
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">capacity</span>() <span class="op">&gt;</span> <span class="ident">cap_at_least</span> {
             <span class="kw">return</span>;
         }
@@ -1554,7 +1554,7 @@
         <span class="kw">let</span> <span class="ident">need_extra</span> <span class="op">=</span> <span class="ident">next_cap</span>.<span class="ident">saturating_sub</span>(<span class="self">self</span>.<span class="ident">entries</span>.<span class="ident">capacity</span>());
         <span class="self">self</span>.<span class="ident">entries</span>.<span class="ident">reserve</span>(<span class="ident">need_extra</span>);
 
-        <span class="macro">assert</span><span class="macro">!</span>(
+        <span class="macro">assert!</span>(
             <span class="op">!</span><span class="self">self</span>.<span class="ident">entries</span>[<span class="self">self</span>.<span class="ident">first_free</span> <span class="kw">as</span> <span class="ident">usize</span>].<span class="ident">state</span>.<span class="ident">is_occupied</span>(),
             <span class="string">&quot;Bug: HandleMap.first_free points at occupied index&quot;</span>
         );
@@ -1565,7 +1565,7 @@
             <span class="comment">// front of the free list one at a time.</span>
             <span class="self">self</span>.<span class="ident">entries</span>.<span class="ident">push</span>(<span class="ident">Entry</span> {
                 <span class="ident">version</span>: <span class="number">1</span>,
-                <span class="ident">state</span>: <span class="ident">EntryState</span>::<span class="ident">InFreeList</span>(<span class="self">self</span>.<span class="ident">first_free</span>),
+                <span class="ident">state</span>: <span class="ident">EntryState::InFreeList</span>(<span class="self">self</span>.<span class="ident">first_free</span>),
             });
             <span class="self">self</span>.<span class="ident">first_free</span> <span class="op">=</span> <span class="ident">to_u16</span>(<span class="self">self</span>.<span class="ident">entries</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span>);
         }
@@ -1584,8 +1584,8 @@
 
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">debug_assertions</span>, <span class="ident">test</span>))]</span>
     <span class="kw">fn</span> <span class="ident">assert_valid</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) {
-        <span class="macro">assert_ne</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">len</span>(), <span class="self">self</span>.<span class="ident">capacity</span>());
-        <span class="macro">assert</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">capacity</span>() <span class="op">&lt;</span><span class="op">=</span> <span class="ident">MAX_CAPACITY</span>, <span class="string">&quot;Entries too large&quot;</span>);
+        <span class="macro">assert_ne!</span>(<span class="self">self</span>.<span class="ident">len</span>(), <span class="self">self</span>.<span class="ident">capacity</span>());
+        <span class="macro">assert!</span>(<span class="self">self</span>.<span class="ident">capacity</span>() <span class="op">&lt;</span><span class="op">=</span> <span class="ident">MAX_CAPACITY</span>, <span class="string">&quot;Entries too large&quot;</span>);
         <span class="comment">// Validate that our free list is correct.</span>
 
         <span class="kw">let</span> <span class="ident">number_of_ends</span> <span class="op">=</span> <span class="self">self</span>
@@ -1593,14 +1593,14 @@
             .<span class="ident">iter</span>()
             .<span class="ident">filter</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> <span class="ident">e</span>.<span class="ident">state</span>.<span class="ident">is_end_of_list</span>())
             .<span class="ident">count</span>();
-        <span class="macro">assert_eq</span><span class="macro">!</span>(
+        <span class="macro">assert_eq!</span>(
             <span class="ident">number_of_ends</span>, <span class="number">1</span>,
             <span class="string">&quot;More than one entry think&#39;s it&#39;s the end of the list, or no entries do&quot;</span>
         );
 
         <span class="comment">// Check that the free list hits every unoccupied item.</span>
         <span class="comment">// The tuple is: `(should_be_in_free_list, is_in_free_list)`.</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">free_indices</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[(<span class="bool-val">false</span>, <span class="bool-val">false</span>); <span class="self">self</span>.<span class="ident">capacity</span>()];
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">free_indices</span> <span class="op">=</span> <span class="macro">vec!</span>[(<span class="bool-val">false</span>, <span class="bool-val">false</span>); <span class="self">self</span>.<span class="ident">capacity</span>()];
         <span class="kw">for</span> (<span class="ident">i</span>, <span class="ident">e</span>) <span class="kw">in</span> <span class="self">self</span>.<span class="ident">entries</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
             <span class="kw">if</span> <span class="op">!</span><span class="ident">e</span>.<span class="ident">state</span>.<span class="ident">is_occupied</span>() {
                 <span class="ident">free_indices</span>[<span class="ident">i</span>].<span class="number">0</span> <span class="op">=</span> <span class="bool-val">true</span>;
@@ -1611,18 +1611,18 @@
         <span class="kw">loop</span> {
             <span class="kw">let</span> <span class="ident">ni</span> <span class="op">=</span> <span class="ident">next</span> <span class="kw">as</span> <span class="ident">usize</span>;
 
-            <span class="macro">assert</span><span class="macro">!</span>(
+            <span class="macro">assert!</span>(
                 <span class="ident">ni</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident">free_indices</span>.<span class="ident">len</span>(),
                 <span class="string">&quot;Free list contains out of bounds index!&quot;</span>
             );
 
-            <span class="macro">assert</span><span class="macro">!</span>(
+            <span class="macro">assert!</span>(
                 <span class="ident">free_indices</span>[<span class="ident">ni</span>].<span class="number">0</span>,
                 <span class="string">&quot;Free list has an index that shouldn&#39;t be free! {}&quot;</span>,
                 <span class="ident">ni</span>
             );
 
-            <span class="macro">assert</span><span class="macro">!</span>(
+            <span class="macro">assert!</span>(
                 <span class="op">!</span><span class="ident">free_indices</span>[<span class="ident">ni</span>].<span class="number">1</span>,
                 <span class="string">&quot;Free list hit an index ({}) more than once! Cycle detected!&quot;</span>,
                 <span class="ident">ni</span>
@@ -1631,15 +1631,15 @@
             <span class="ident">free_indices</span>[<span class="ident">ni</span>].<span class="number">1</span> <span class="op">=</span> <span class="bool-val">true</span>;
 
             <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">entries</span>[<span class="ident">ni</span>].<span class="ident">state</span> {
-                <span class="ident">EntryState</span>::<span class="ident">InFreeList</span>(<span class="ident">next_index</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">next</span> <span class="op">=</span> <span class="kw-2">*</span><span class="ident">next_index</span>,
-                <span class="ident">EntryState</span>::<span class="ident">EndOfFreeList</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">break</span>,
+                <span class="ident">EntryState::InFreeList</span>(<span class="ident">next_index</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">next</span> <span class="op">=</span> <span class="kw-2">*</span><span class="ident">next_index</span>,
+                <span class="ident">EntryState::EndOfFreeList</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">break</span>,
                 <span class="comment">// Hitting `Active` here is probably not possible because of the checks above, but who knows.</span>
-                <span class="ident">EntryState</span>::<span class="ident">Active</span>(..) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(<span class="string">&quot;Bug: Active item in free list at {}&quot;</span>, <span class="ident">next</span>),
+                <span class="ident">EntryState::Active</span>(..) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(<span class="string">&quot;Bug: Active item in free list at {}&quot;</span>, <span class="ident">next</span>),
             }
         }
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">occupied_count</span> <span class="op">=</span> <span class="number">0</span>;
         <span class="kw">for</span> (<span class="ident">i</span>, <span class="kw-2">&amp;</span>(<span class="ident">should_be_free</span>, <span class="ident">is_free</span>)) <span class="kw">in</span> <span class="ident">free_indices</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
-            <span class="macro">assert_eq</span><span class="macro">!</span>(
+            <span class="macro">assert_eq!</span>(
                 <span class="ident">should_be_free</span>, <span class="ident">is_free</span>,
                 <span class="string">&quot;Free list missed item, or contains an item it shouldn&#39;t: {}&quot;</span>,
                 <span class="ident">i</span>
@@ -1648,7 +1648,7 @@
                 <span class="ident">occupied_count</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
             }
         }
-        <span class="macro">assert_eq</span><span class="macro">!</span>(
+        <span class="macro">assert_eq!</span>(
             <span class="self">self</span>.<span class="ident">num_entries</span>, <span class="ident">occupied_count</span>,
             <span class="string">&quot;num_entries doesn&#39;t reflect the actual number of entries&quot;</span>
         );
@@ -1663,14 +1663,14 @@
             <span class="comment">// Scoped mutable borrow of entry.</span>
             <span class="kw">let</span> <span class="ident">entry</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">entries</span>[<span class="ident">index</span> <span class="kw">as</span> <span class="ident">usize</span>];
             <span class="kw">let</span> <span class="ident">new_first_free</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">entry</span>.<span class="ident">state</span> {
-                <span class="ident">EntryState</span>::<span class="ident">InFreeList</span>(<span class="ident">i</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">i</span>,
-                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;Bug: next_index pointed at non-free list entry (or end of list)&quot;</span>),
+                <span class="ident">EntryState::InFreeList</span>(<span class="ident">i</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">i</span>,
+                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">panic!</span>(<span class="string">&quot;Bug: next_index pointed at non-free list entry (or end of list)&quot;</span>),
             };
             <span class="ident">entry</span>.<span class="ident">version</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
             <span class="kw">if</span> <span class="ident">entry</span>.<span class="ident">version</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
                 <span class="ident">entry</span>.<span class="ident">version</span> <span class="op">+</span><span class="op">=</span> <span class="number">2</span>;
             }
-            <span class="ident">entry</span>.<span class="ident">state</span> <span class="op">=</span> <span class="ident">EntryState</span>::<span class="ident">Active</span>(<span class="ident">v</span>);
+            <span class="ident">entry</span>.<span class="ident">state</span> <span class="op">=</span> <span class="ident">EntryState::Active</span>(<span class="ident">v</span>);
             <span class="self">self</span>.<span class="ident">first_free</span> <span class="op">=</span> <span class="ident">new_first_free</span>;
             <span class="self">self</span>.<span class="ident">num_entries</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
 
@@ -1687,25 +1687,25 @@
     <span class="comment">// Helper to contain the handle validation boilerplate. Returns `h.index as usize`.</span>
     <span class="kw">fn</span> <span class="ident">check_handle</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">h</span>: <span class="ident">Handle</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span>, <span class="ident">HandleError</span><span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="ident">h</span>.<span class="ident">map_id</span> <span class="op">!</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">id</span> {
-            <span class="ident">log</span>::<span class="macro">info</span><span class="macro">!</span>(
+            <span class="macro">log::info!</span>(
                 <span class="string">&quot;HandleMap access with handle having wrong map id: {:?} (our map id is {})&quot;</span>,
                 <span class="ident">h</span>,
                 <span class="self">self</span>.<span class="ident">id</span>
             );
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">HandleError</span>::<span class="ident">WrongMap</span>);
+            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">HandleError::WrongMap</span>);
         }
         <span class="kw">let</span> <span class="ident">index</span> <span class="op">=</span> <span class="ident">h</span>.<span class="ident">index</span> <span class="kw">as</span> <span class="ident">usize</span>;
         <span class="kw">if</span> <span class="ident">index</span> <span class="op">&gt;</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">entries</span>.<span class="ident">len</span>() {
-            <span class="ident">log</span>::<span class="macro">info</span><span class="macro">!</span>(<span class="string">&quot;HandleMap accessed with handle past end of map: {:?}&quot;</span>, <span class="ident">h</span>);
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">HandleError</span>::<span class="ident">IndexPastEnd</span>);
+            <span class="macro">log::info!</span>(<span class="string">&quot;HandleMap accessed with handle past end of map: {:?}&quot;</span>, <span class="ident">h</span>);
+            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">HandleError::IndexPastEnd</span>);
         }
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">entries</span>[<span class="ident">index</span>].<span class="ident">version</span> <span class="op">!</span><span class="op">=</span> <span class="ident">h</span>.<span class="ident">version</span> {
-            <span class="ident">log</span>::<span class="macro">info</span><span class="macro">!</span>(
+            <span class="macro">log::info!</span>(
                 <span class="string">&quot;HandleMap accessed with handle with wrong version {:?} (entry version is {})&quot;</span>,
                 <span class="ident">h</span>,
                 <span class="self">self</span>.<span class="ident">entries</span>[<span class="ident">index</span>].<span class="ident">version</span>
             );
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">HandleError</span>::<span class="ident">StaleVersion</span>);
+            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">HandleError::StaleVersion</span>);
         }
         <span class="comment">// At this point, we know the handle version matches the entry version,</span>
         <span class="comment">// but if someone created a specially invalid handle, they could have</span>
@@ -1723,11 +1723,11 @@
         <span class="comment">// practice when we convert `u64`s into `Handle`s, which is the only</span>
         <span class="comment">// way we ever use these in the real world.</span>
         <span class="kw">if</span> (<span class="ident">h</span>.<span class="ident">version</span> <span class="op">%</span> <span class="number">2</span>) <span class="op">!</span><span class="op">=</span> <span class="number">0</span> {
-            <span class="ident">log</span>::<span class="macro">info</span><span class="macro">!</span>(
+            <span class="macro">log::info!</span>(
                 <span class="string">&quot;HandleMap given handle with matching but illegal version: {:?}&quot;</span>,
                 <span class="ident">h</span>,
             );
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">HandleError</span>::<span class="ident">StaleVersion</span>);
+            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">HandleError::StaleVersion</span>);
         }
         <span class="prelude-val">Ok</span>(<span class="ident">index</span>)
     }
@@ -1746,16 +1746,16 @@
             <span class="ident">entry</span>.<span class="ident">version</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
             <span class="kw">let</span> <span class="ident">index</span> <span class="op">=</span> <span class="ident">h</span>.<span class="ident">index</span>;
             <span class="kw">let</span> <span class="ident">last_state</span> <span class="op">=</span>
-                <span class="ident">std</span>::<span class="ident">mem</span>::<span class="ident">replace</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">entry</span>.<span class="ident">state</span>, <span class="ident">EntryState</span>::<span class="ident">InFreeList</span>(<span class="self">self</span>.<span class="ident">first_free</span>));
+                <span class="ident">std::mem::replace</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">entry</span>.<span class="ident">state</span>, <span class="ident">EntryState::InFreeList</span>(<span class="self">self</span>.<span class="ident">first_free</span>));
             <span class="self">self</span>.<span class="ident">num_entries</span> <span class="op">-</span><span class="op">=</span> <span class="number">1</span>;
             <span class="self">self</span>.<span class="ident">first_free</span> <span class="op">=</span> <span class="ident">index</span>;
 
-            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">EntryState</span>::<span class="ident">Active</span>(<span class="ident">value</span>) <span class="op">=</span> <span class="ident">last_state</span> {
+            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">EntryState::Active</span>(<span class="ident">value</span>) <span class="op">=</span> <span class="ident">last_state</span> {
                 <span class="ident">value</span>
             } <span class="kw">else</span> {
                 <span class="comment">// This indicates either a bug in HandleMap or memory</span>
                 <span class="comment">// corruption. Abandon all hope.</span>
-                <span class="macro">unreachable</span><span class="macro">!</span>(
+                <span class="macro">unreachable!</span>(
                     <span class="string">&quot;Handle {:?} passed validation but references unoccupied entry&quot;</span>,
                     <span class="ident">h</span>
                 );
@@ -1775,7 +1775,7 @@
         <span class="kw">let</span> <span class="ident">item</span> <span class="op">=</span> <span class="ident">entry</span>
             .<span class="ident">state</span>
             .<span class="ident">get_item</span>()
-            .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">HandleError</span>::<span class="ident">InvalidHandle</span>)<span class="question-mark">?</span>;
+            .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">HandleError::InvalidHandle</span>)<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(<span class="ident">item</span>)
     }
 
@@ -1789,7 +1789,7 @@
         <span class="kw">let</span> <span class="ident">item</span> <span class="op">=</span> <span class="ident">entry</span>
             .<span class="ident">state</span>
             .<span class="ident">get_item_mut</span>()
-            .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">HandleError</span>::<span class="ident">InvalidHandle</span>)<span class="question-mark">?</span>;
+            .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">HandleError::InvalidHandle</span>)<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(<span class="ident">item</span>)
     }
 }
@@ -1797,11 +1797,11 @@
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">HandleMap</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="ident">HandleMap</span>::<span class="ident">new</span>()
+        <span class="ident">HandleMap::new</span>()
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">ops</span>::<span class="ident">Index</span><span class="op">&lt;</span><span class="ident">Handle</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">HandleMap</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">ops::Index</span><span class="op">&lt;</span><span class="ident">Handle</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">HandleMap</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
     <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="ident">T</span>;
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">index</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">h</span>: <span class="ident">Handle</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">T</span> {
@@ -1854,12 +1854,12 @@
     <span class="doccomment">/// Most uses of this will be automatic due to our [`IntoFfi`] implementation.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_u64</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u64</span> {
-        <span class="kw">let</span> <span class="ident">map_id</span> <span class="op">=</span> <span class="ident">u64</span>::<span class="ident">from</span>(<span class="self">self</span>.<span class="ident">map_id</span>);
-        <span class="kw">let</span> <span class="ident">version</span> <span class="op">=</span> <span class="ident">u64</span>::<span class="ident">from</span>(<span class="self">self</span>.<span class="ident">version</span>);
-        <span class="kw">let</span> <span class="ident">index</span> <span class="op">=</span> <span class="ident">u64</span>::<span class="ident">from</span>(<span class="self">self</span>.<span class="ident">index</span>);
+        <span class="kw">let</span> <span class="ident">map_id</span> <span class="op">=</span> <span class="ident">u64::from</span>(<span class="self">self</span>.<span class="ident">map_id</span>);
+        <span class="kw">let</span> <span class="ident">version</span> <span class="op">=</span> <span class="ident">u64::from</span>(<span class="self">self</span>.<span class="ident">version</span>);
+        <span class="kw">let</span> <span class="ident">index</span> <span class="op">=</span> <span class="ident">u64::from</span>(<span class="self">self</span>.<span class="ident">index</span>);
         <span class="comment">// SOMEDAY: we could also use this as a sort of CRC if we were really paranoid.</span>
         <span class="comment">// e.g. `magic = combine_to_u16(map_id, version, index)`.</span>
-        <span class="kw">let</span> <span class="ident">magic</span> <span class="op">=</span> <span class="ident">u64</span>::<span class="ident">from</span>(<span class="ident">HANDLE_MAGIC</span>);
+        <span class="kw">let</span> <span class="ident">magic</span> <span class="op">=</span> <span class="ident">u64::from</span>(<span class="ident">HANDLE_MAGIC</span>);
         (<span class="ident">magic</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">48</span>) <span class="op">|</span> (<span class="ident">map_id</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">32</span>) <span class="op">|</span> (<span class="ident">index</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">16</span>) <span class="op">|</span> <span class="ident">version</span>
     }
 
@@ -1869,12 +1869,12 @@
     <span class="doccomment">/// Returns [`HandleError::InvalidHandle`](HandleError) if the bits cannot</span>
     <span class="doccomment">/// possibly represent a valid handle.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_u64</span>(<span class="ident">v</span>: <span class="ident">u64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">HandleError</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="op">!</span><span class="ident">Handle</span>::<span class="ident">is_valid</span>(<span class="ident">v</span>) {
-            <span class="ident">log</span>::<span class="macro">warn</span><span class="macro">!</span>(<span class="string">&quot;Illegal handle! {:x}&quot;</span>, <span class="ident">v</span>);
+        <span class="kw">if</span> <span class="op">!</span><span class="ident">Handle::is_valid</span>(<span class="ident">v</span>) {
+            <span class="macro">log::warn!</span>(<span class="string">&quot;Illegal handle! {:x}&quot;</span>, <span class="ident">v</span>);
             <span class="kw">if</span> <span class="ident">v</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
-                <span class="prelude-val">Err</span>(<span class="ident">HandleError</span>::<span class="ident">NullHandle</span>)
+                <span class="prelude-val">Err</span>(<span class="ident">HandleError::NullHandle</span>)
             } <span class="kw">else</span> {
-                <span class="prelude-val">Err</span>(<span class="ident">HandleError</span>::<span class="ident">InvalidHandle</span>)
+                <span class="prelude-val">Err</span>(<span class="ident">HandleError::InvalidHandle</span>)
             }
         } <span class="kw">else</span> {
             <span class="kw">let</span> <span class="ident">map_id</span> <span class="op">=</span> (<span class="ident">v</span> <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">32</span>) <span class="kw">as</span> <span class="ident">u16</span>;
@@ -1892,7 +1892,7 @@
     <span class="doccomment">/// encoded [`Handle`].</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_valid</span>(<span class="ident">v</span>: <span class="ident">u64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-        (<span class="ident">v</span> <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">48</span>) <span class="op">=</span><span class="op">=</span> <span class="ident">u64</span>::<span class="ident">from</span>(<span class="ident">HANDLE_MAGIC</span>) <span class="op">&amp;&amp;</span>
+        (<span class="ident">v</span> <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">48</span>) <span class="op">=</span><span class="op">=</span> <span class="ident">u64::from</span>(<span class="ident">HANDLE_MAGIC</span>) <span class="op">&amp;&amp;</span>
         <span class="comment">// The &quot;bottom&quot; field is the version. We increment it both when</span>
         <span class="comment">// inserting and removing, and they&#39;re all initially 1. So, all valid</span>
         <span class="comment">// handles that we returned should have an even version.</span>
@@ -1902,7 +1902,7 @@
 
 <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Handle</span> {
     <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">u</span>: <span class="ident">u64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="ident">Handle</span>::<span class="ident">from_u64</span>(<span class="ident">u</span>).<span class="ident">expect</span>(<span class="string">&quot;Illegal handle!&quot;</span>)
+        <span class="ident">Handle::from_u64</span>(<span class="ident">u</span>).<span class="ident">expect</span>(<span class="string">&quot;Illegal handle!&quot;</span>)
     }
 }
 
@@ -1984,7 +1984,7 @@
     <span class="doccomment">/// Construct a new `ConcurrentHandleMap`.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="self">Self</span> {
-            <span class="ident">map</span>: <span class="ident">RwLock</span>::<span class="ident">new</span>(<span class="ident">HandleMap</span>::<span class="ident">new</span>()),
+            <span class="ident">map</span>: <span class="ident">RwLock::new</span>(<span class="ident">HandleMap::new</span>()),
         }
     }
 
@@ -2017,7 +2017,7 @@
         <span class="comment">// could always insert anyway (by matching on LockResult), but that</span>
         <span class="comment">// seems... really quite dubious.</span>
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">map</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">map</span>.<span class="ident">write</span>().<span class="ident">unwrap</span>();
-        <span class="ident">map</span>.<span class="ident">insert</span>(<span class="ident">Mutex</span>::<span class="ident">new</span>(<span class="ident">v</span>))
+        <span class="ident">map</span>.<span class="ident">insert</span>(<span class="ident">Mutex::new</span>(<span class="ident">v</span>))
     }
 
     <span class="doccomment">/// Remove an item from the map.</span>
@@ -2044,7 +2044,7 @@
     <span class="doccomment">/// that takes a [`Handle`] is that it allows handling handle-related errors</span>
     <span class="doccomment">/// in one place.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">delete_u64</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">h</span>: <span class="ident">u64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">HandleError</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">delete</span>(<span class="ident">Handle</span>::<span class="ident">from_u64</span>(<span class="ident">h</span>)<span class="question-mark">?</span>)
+        <span class="self">self</span>.<span class="ident">delete</span>(<span class="ident">Handle::from_u64</span>(<span class="ident">h</span>)<span class="question-mark">?</span>)
     }
 
     <span class="doccomment">/// Remove an item from the map, returning either the item,</span>
@@ -2067,7 +2067,7 @@
     <span class="doccomment">/// that takes a [`Handle`] is that it allows handling handle-related errors</span>
     <span class="doccomment">/// in one place.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">remove_u64</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">h</span>: <span class="ident">u64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>, <span class="ident">HandleError</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">remove</span>(<span class="ident">Handle</span>::<span class="ident">from_u64</span>(<span class="ident">h</span>)<span class="question-mark">?</span>)
+        <span class="self">self</span>.<span class="ident">remove</span>(<span class="ident">Handle::from_u64</span>(<span class="ident">h</span>)<span class="question-mark">?</span>)
     }
 
     <span class="doccomment">/// Call `callback` with a non-mutable reference to the item from the map,</span>
@@ -2155,7 +2155,7 @@
         <span class="ident">F</span>: <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident">E</span><span class="op">&gt;</span>,
         <span class="ident">E</span>: <span class="ident">From</span><span class="op">&lt;</span><span class="ident">HandleError</span><span class="op">&gt;</span>,
     {
-        <span class="self">self</span>.<span class="ident">get</span>(<span class="ident">Handle</span>::<span class="ident">from_u64</span>(<span class="ident">u</span>)<span class="question-mark">?</span>, <span class="ident">callback</span>)
+        <span class="self">self</span>.<span class="ident">get</span>(<span class="ident">Handle::from_u64</span>(<span class="ident">u</span>)<span class="question-mark">?</span>, <span class="ident">callback</span>)
     }
 
     <span class="doccomment">/// Convenient wrapper for `get_mut` which takes a `u64` that it will</span>
@@ -2180,7 +2180,7 @@
         <span class="ident">F</span>: <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident">E</span><span class="op">&gt;</span>,
         <span class="ident">E</span>: <span class="ident">From</span><span class="op">&lt;</span><span class="ident">HandleError</span><span class="op">&gt;</span>,
     {
-        <span class="self">self</span>.<span class="ident">get_mut</span>(<span class="ident">Handle</span>::<span class="ident">from_u64</span>(<span class="ident">u</span>)<span class="question-mark">?</span>, <span class="ident">callback</span>)
+        <span class="self">self</span>.<span class="ident">get_mut</span>(<span class="ident">Handle::from_u64</span>(<span class="ident">u</span>)<span class="question-mark">?</span>, <span class="ident">callback</span>)
     }
 
     <span class="doccomment">/// Helper that performs both a [`call_with_result`] and [`get`](ConcurrentHandleMap::get_mut).</span>
@@ -2189,17 +2189,17 @@
         <span class="ident">out_error</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ExternError</span>,
         <span class="ident">h</span>: <span class="ident">u64</span>,
         <span class="ident">callback</span>: <span class="ident">F</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">R</span>::<span class="ident">Value</span>
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">R::Value</span>
     <span class="kw">where</span>
-        <span class="ident">F</span>: <span class="ident">std</span>::<span class="ident">panic</span>::<span class="ident">UnwindSafe</span> <span class="op">+</span> <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident">E</span><span class="op">&gt;</span>,
+        <span class="ident">F</span>: <span class="ident">std::panic::UnwindSafe</span> <span class="op">+</span> <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident">E</span><span class="op">&gt;</span>,
         <span class="ident">ExternError</span>: <span class="ident">From</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>,
         <span class="ident">R</span>: <span class="ident">IntoFfi</span>,
     {
-        <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">call_with_result</span>;
+        <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::call_with_result</span>;
         <span class="ident">call_with_result</span>(<span class="ident">out_error</span>, <span class="op">|</span><span class="op">|</span> <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw">_</span>, <span class="ident">ExternError</span><span class="op">&gt;</span> {
             <span class="comment">// We can&#39;t reuse get_mut here because it would require E:</span>
             <span class="comment">// From&lt;HandleError&gt;, which is inconvenient...</span>
-            <span class="kw">let</span> <span class="ident">h</span> <span class="op">=</span> <span class="ident">Handle</span>::<span class="ident">from_u64</span>(<span class="ident">h</span>)<span class="question-mark">?</span>;
+            <span class="kw">let</span> <span class="ident">h</span> <span class="op">=</span> <span class="ident">Handle::from_u64</span>(<span class="ident">h</span>)<span class="question-mark">?</span>;
             <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">map</span>.<span class="ident">read</span>().<span class="ident">unwrap</span>();
             <span class="kw">let</span> <span class="ident">mtx</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get</span>(<span class="ident">h</span>)<span class="question-mark">?</span>;
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">hm</span> <span class="op">=</span> <span class="ident">mtx</span>.<span class="ident">lock</span>().<span class="ident">unwrap</span>();
@@ -2213,9 +2213,9 @@
         <span class="ident">out_error</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ExternError</span>,
         <span class="ident">h</span>: <span class="ident">u64</span>,
         <span class="ident">callback</span>: <span class="ident">F</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">R</span>::<span class="ident">Value</span>
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">R::Value</span>
     <span class="kw">where</span>
-        <span class="ident">F</span>: <span class="ident">std</span>::<span class="ident">panic</span>::<span class="ident">UnwindSafe</span> <span class="op">+</span> <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident">E</span><span class="op">&gt;</span>,
+        <span class="ident">F</span>: <span class="ident">std::panic::UnwindSafe</span> <span class="op">+</span> <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident">E</span><span class="op">&gt;</span>,
         <span class="ident">ExternError</span>: <span class="ident">From</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>,
         <span class="ident">R</span>: <span class="ident">IntoFfi</span>,
     {
@@ -2228,9 +2228,9 @@
         <span class="ident">out_error</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ExternError</span>,
         <span class="ident">h</span>: <span class="ident">u64</span>,
         <span class="ident">callback</span>: <span class="ident">F</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">R</span>::<span class="ident">Value</span>
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">R::Value</span>
     <span class="kw">where</span>
-        <span class="ident">F</span>: <span class="ident">std</span>::<span class="ident">panic</span>::<span class="ident">UnwindSafe</span> <span class="op">+</span> <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">R</span>,
+        <span class="ident">F</span>: <span class="ident">std::panic::UnwindSafe</span> <span class="op">+</span> <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">R</span>,
         <span class="ident">R</span>: <span class="ident">IntoFfi</span>,
     {
         <span class="self">self</span>.<span class="ident">call_with_result</span>(<span class="ident">out_error</span>, <span class="ident">h</span>, <span class="op">|</span><span class="ident">r</span><span class="op">|</span> <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw">_</span>, <span class="ident">HandleError</span><span class="op">&gt;</span> {
@@ -2244,9 +2244,9 @@
         <span class="ident">out_error</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ExternError</span>,
         <span class="ident">h</span>: <span class="ident">u64</span>,
         <span class="ident">callback</span>: <span class="ident">F</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">R</span>::<span class="ident">Value</span>
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">R::Value</span>
     <span class="kw">where</span>
-        <span class="ident">F</span>: <span class="ident">std</span>::<span class="ident">panic</span>::<span class="ident">UnwindSafe</span> <span class="op">+</span> <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">R</span>,
+        <span class="ident">F</span>: <span class="ident">std::panic::UnwindSafe</span> <span class="op">+</span> <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">R</span>,
         <span class="ident">R</span>: <span class="ident">IntoFfi</span>,
     {
         <span class="self">self</span>.<span class="ident">call_with_result_mut</span>(<span class="ident">out_error</span>, <span class="ident">h</span>, <span class="op">|</span><span class="ident">r</span><span class="op">|</span> <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw">_</span>, <span class="ident">HandleError</span><span class="op">&gt;</span> {
@@ -2259,10 +2259,10 @@
     <span class="doccomment">/// `ExternError`).</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">insert_with_result</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">F</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">out_error</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ExternError</span>, <span class="ident">constructor</span>: <span class="ident">F</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u64</span>
     <span class="kw">where</span>
-        <span class="ident">F</span>: <span class="ident">std</span>::<span class="ident">panic</span>::<span class="ident">UnwindSafe</span> <span class="op">+</span> <span class="ident">FnOnce</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">E</span><span class="op">&gt;</span>,
+        <span class="ident">F</span>: <span class="ident">std::panic::UnwindSafe</span> <span class="op">+</span> <span class="ident">FnOnce</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">E</span><span class="op">&gt;</span>,
         <span class="ident">ExternError</span>: <span class="ident">From</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>,
     {
-        <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">call_with_result</span>;
+        <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::call_with_result</span>;
         <span class="ident">call_with_result</span>(<span class="ident">out_error</span>, <span class="op">|</span><span class="op">|</span> <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw">_</span>, <span class="ident">ExternError</span><span class="op">&gt;</span> {
             <span class="comment">// Note: it&#39;s important that we don&#39;t call the constructor while</span>
             <span class="comment">// we&#39;re holding the write lock, because we don&#39;t want to poison</span>
@@ -2280,7 +2280,7 @@
     <span class="doccomment">/// clear that it contains a [`call_with_output`] internally.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">insert_with_output</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">out_error</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ExternError</span>, <span class="ident">constructor</span>: <span class="ident">F</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u64</span>
     <span class="kw">where</span>
-        <span class="ident">F</span>: <span class="ident">std</span>::<span class="ident">panic</span>::<span class="ident">UnwindSafe</span> <span class="op">+</span> <span class="ident">FnOnce</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T</span>,
+        <span class="ident">F</span>: <span class="ident">std::panic::UnwindSafe</span> <span class="op">+</span> <span class="ident">FnOnce</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T</span>,
     {
         <span class="comment">// The Err type isn&#39;t important here beyond being convertable to ExternError</span>
         <span class="self">self</span>.<span class="ident">insert_with_result</span>(<span class="ident">out_error</span>, <span class="op">|</span><span class="op">|</span> <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw">_</span>, <span class="ident">HandleError</span><span class="op">&gt;</span> {
@@ -2292,14 +2292,14 @@
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">ConcurrentHandleMap</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="self">Self</span>::<span class="ident">new</span>()
+        <span class="self">Self</span><span class="ident">::new</span>()
     }
 }
 
 <span class="comment">// Returns the next map_id.</span>
 <span class="kw">fn</span> <span class="ident">next_handle_map_id</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u16</span> {
     <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="ident">HANDLE_MAP_ID_COUNTER</span>
-        .<span class="ident">fetch_add</span>(<span class="number">1</span>, <span class="ident">Ordering</span>::<span class="ident">SeqCst</span>)
+        .<span class="ident">fetch_add</span>(<span class="number">1</span>, <span class="ident">Ordering::SeqCst</span>)
         .<span class="ident">wrapping_add</span>(<span class="number">1</span>);
     <span class="ident">id</span> <span class="kw">as</span> <span class="ident">u16</span>
 }
@@ -2307,16 +2307,16 @@
 <span class="comment">// Note: These IDs are only used to detect using a key against the wrong HandleMap.</span>
 <span class="comment">// We ensure they&#39;re randomly initialized, to prevent using them across separately</span>
 <span class="comment">// compiled .so files.</span>
-<span class="ident">lazy_static</span>::<span class="macro">lazy_static</span><span class="macro">!</span> {
+<span class="macro">lazy_static::lazy_static!</span> {
     <span class="comment">// This should be `AtomicU16`, but those aren&#39;t stablilized yet.</span>
     <span class="comment">// Instead, we just cast to u16 on read.</span>
     <span class="kw">static</span> <span class="kw-2">ref</span> <span class="ident">HANDLE_MAP_ID_COUNTER</span>: <span class="ident">AtomicUsize</span> <span class="op">=</span> {
         <span class="comment">// Abuse HashMap&#39;s RandomState to get a strong RNG without bringing in</span>
         <span class="comment">// the `rand` crate (OTOH maybe we should just bring in the rand crate?)</span>
-        <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">hash_map</span>::<span class="ident">RandomState</span>;
-        <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">hash</span>::{<span class="ident">BuildHasher</span>, <span class="ident">Hasher</span>};
-        <span class="kw">let</span> <span class="ident">init</span> <span class="op">=</span> <span class="ident">RandomState</span>::<span class="ident">new</span>().<span class="ident">build_hasher</span>().<span class="ident">finish</span>() <span class="kw">as</span> <span class="ident">usize</span>;
-        <span class="ident">AtomicUsize</span>::<span class="ident">new</span>(<span class="ident">init</span>)
+        <span class="kw">use</span> <span class="ident">std::collections::hash_map::RandomState</span>;
+        <span class="kw">use</span> <span class="ident">std::hash</span>::{<span class="ident">BuildHasher</span>, <span class="ident">Hasher</span>};
+        <span class="kw">let</span> <span class="ident">init</span> <span class="op">=</span> <span class="ident">RandomState::new</span>().<span class="ident">build_hasher</span>().<span class="ident">finish</span>() <span class="kw">as</span> <span class="ident">usize</span>;
+        <span class="ident">AtomicUsize::new</span>(<span class="ident">init</span>)
     };
 }
 
@@ -2329,15 +2329,15 @@
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_invalid_handle</span>() {
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">Handle</span>::<span class="ident">from_u64</span>(<span class="number">0</span>), <span class="prelude-val">Err</span>(<span class="ident">HandleError</span>::<span class="ident">NullHandle</span>));
+        <span class="macro">assert_eq!</span>(<span class="ident">Handle::from_u64</span>(<span class="number">0</span>), <span class="prelude-val">Err</span>(<span class="ident">HandleError::NullHandle</span>));
         <span class="comment">// Valid except `version` is odd</span>
-        <span class="macro">assert_eq</span><span class="macro">!</span>(
-            <span class="ident">Handle</span>::<span class="ident">from_u64</span>((<span class="ident">u64</span>::<span class="ident">from</span>(<span class="ident">HANDLE_MAGIC</span>) <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">48</span>) <span class="op">|</span> <span class="number">0x1234_0012_0001</span>),
-            <span class="prelude-val">Err</span>(<span class="ident">HandleError</span>::<span class="ident">InvalidHandle</span>)
+        <span class="macro">assert_eq!</span>(
+            <span class="ident">Handle::from_u64</span>((<span class="ident">u64::from</span>(<span class="ident">HANDLE_MAGIC</span>) <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">48</span>) <span class="op">|</span> <span class="number">0x1234_0012_0001</span>),
+            <span class="prelude-val">Err</span>(<span class="ident">HandleError::InvalidHandle</span>)
         );
 
-        <span class="macro">assert_eq</span><span class="macro">!</span>(
-            <span class="ident">Handle</span>::<span class="ident">from_u64</span>((<span class="ident">u64</span>::<span class="ident">from</span>(<span class="ident">HANDLE_MAGIC</span>) <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">48</span>) <span class="op">|</span> <span class="number">0x1234_0012_0002</span>),
+        <span class="macro">assert_eq!</span>(
+            <span class="ident">Handle::from_u64</span>((<span class="ident">u64::from</span>(<span class="ident">HANDLE_MAGIC</span>) <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">48</span>) <span class="op">|</span> <span class="number">0x1234_0012_0002</span>),
             <span class="prelude-val">Ok</span>(<span class="ident">Handle</span> {
                 <span class="ident">version</span>: <span class="number">0x0002</span>,
                 <span class="ident">index</span>: <span class="number">0x0012</span>,
@@ -2348,78 +2348,78 @@
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_correct_value_single</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">map</span> <span class="op">=</span> <span class="ident">HandleMap</span>::<span class="ident">new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">map</span> <span class="op">=</span> <span class="ident">HandleMap::new</span>();
         <span class="kw">let</span> <span class="ident">handle</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">insert</span>(<span class="ident">Foobar</span>(<span class="number">1234</span>));
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">map</span>.<span class="ident">get</span>(<span class="ident">handle</span>).<span class="ident">unwrap</span>(), <span class="kw-2">&amp;</span><span class="ident">Foobar</span>(<span class="number">1234</span>));
+        <span class="macro">assert_eq!</span>(<span class="ident">map</span>.<span class="ident">get</span>(<span class="ident">handle</span>).<span class="ident">unwrap</span>(), <span class="kw-2">&amp;</span><span class="ident">Foobar</span>(<span class="number">1234</span>));
         <span class="ident">map</span>.<span class="ident">delete</span>(<span class="ident">handle</span>).<span class="ident">unwrap</span>();
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">map</span>.<span class="ident">get</span>(<span class="ident">handle</span>), <span class="prelude-val">Err</span>(<span class="ident">HandleError</span>::<span class="ident">StaleVersion</span>));
+        <span class="macro">assert_eq!</span>(<span class="ident">map</span>.<span class="ident">get</span>(<span class="ident">handle</span>), <span class="prelude-val">Err</span>(<span class="ident">HandleError::StaleVersion</span>));
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_correct_value_multiple</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">map</span> <span class="op">=</span> <span class="ident">HandleMap</span>::<span class="ident">new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">map</span> <span class="op">=</span> <span class="ident">HandleMap::new</span>();
         <span class="kw">let</span> <span class="ident">handle1</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">insert</span>(<span class="ident">Foobar</span>(<span class="number">1234</span>));
         <span class="kw">let</span> <span class="ident">handle2</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">insert</span>(<span class="ident">Foobar</span>(<span class="number">4321</span>));
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">map</span>.<span class="ident">get</span>(<span class="ident">handle1</span>).<span class="ident">unwrap</span>(), <span class="kw-2">&amp;</span><span class="ident">Foobar</span>(<span class="number">1234</span>));
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">map</span>.<span class="ident">get</span>(<span class="ident">handle2</span>).<span class="ident">unwrap</span>(), <span class="kw-2">&amp;</span><span class="ident">Foobar</span>(<span class="number">4321</span>));
+        <span class="macro">assert_eq!</span>(<span class="ident">map</span>.<span class="ident">get</span>(<span class="ident">handle1</span>).<span class="ident">unwrap</span>(), <span class="kw-2">&amp;</span><span class="ident">Foobar</span>(<span class="number">1234</span>));
+        <span class="macro">assert_eq!</span>(<span class="ident">map</span>.<span class="ident">get</span>(<span class="ident">handle2</span>).<span class="ident">unwrap</span>(), <span class="kw-2">&amp;</span><span class="ident">Foobar</span>(<span class="number">4321</span>));
         <span class="ident">map</span>.<span class="ident">delete</span>(<span class="ident">handle1</span>).<span class="ident">unwrap</span>();
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">map</span>.<span class="ident">get</span>(<span class="ident">handle1</span>), <span class="prelude-val">Err</span>(<span class="ident">HandleError</span>::<span class="ident">StaleVersion</span>));
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">map</span>.<span class="ident">get</span>(<span class="ident">handle2</span>).<span class="ident">unwrap</span>(), <span class="kw-2">&amp;</span><span class="ident">Foobar</span>(<span class="number">4321</span>));
+        <span class="macro">assert_eq!</span>(<span class="ident">map</span>.<span class="ident">get</span>(<span class="ident">handle1</span>), <span class="prelude-val">Err</span>(<span class="ident">HandleError::StaleVersion</span>));
+        <span class="macro">assert_eq!</span>(<span class="ident">map</span>.<span class="ident">get</span>(<span class="ident">handle2</span>).<span class="ident">unwrap</span>(), <span class="kw-2">&amp;</span><span class="ident">Foobar</span>(<span class="number">4321</span>));
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_wrong_map</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">map1</span> <span class="op">=</span> <span class="ident">HandleMap</span>::<span class="ident">new</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">map2</span> <span class="op">=</span> <span class="ident">HandleMap</span>::<span class="ident">new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">map1</span> <span class="op">=</span> <span class="ident">HandleMap::new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">map2</span> <span class="op">=</span> <span class="ident">HandleMap::new</span>();
 
         <span class="kw">let</span> <span class="ident">handle1</span> <span class="op">=</span> <span class="ident">map1</span>.<span class="ident">insert</span>(<span class="ident">Foobar</span>(<span class="number">1234</span>));
         <span class="kw">let</span> <span class="ident">handle2</span> <span class="op">=</span> <span class="ident">map2</span>.<span class="ident">insert</span>(<span class="ident">Foobar</span>(<span class="number">1234</span>));
 
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">map1</span>.<span class="ident">get</span>(<span class="ident">handle1</span>).<span class="ident">unwrap</span>(), <span class="kw-2">&amp;</span><span class="ident">Foobar</span>(<span class="number">1234</span>));
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">map2</span>.<span class="ident">get</span>(<span class="ident">handle2</span>).<span class="ident">unwrap</span>(), <span class="kw-2">&amp;</span><span class="ident">Foobar</span>(<span class="number">1234</span>));
+        <span class="macro">assert_eq!</span>(<span class="ident">map1</span>.<span class="ident">get</span>(<span class="ident">handle1</span>).<span class="ident">unwrap</span>(), <span class="kw-2">&amp;</span><span class="ident">Foobar</span>(<span class="number">1234</span>));
+        <span class="macro">assert_eq!</span>(<span class="ident">map2</span>.<span class="ident">get</span>(<span class="ident">handle2</span>).<span class="ident">unwrap</span>(), <span class="kw-2">&amp;</span><span class="ident">Foobar</span>(<span class="number">1234</span>));
 
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">map1</span>.<span class="ident">get</span>(<span class="ident">handle2</span>), <span class="prelude-val">Err</span>(<span class="ident">HandleError</span>::<span class="ident">WrongMap</span>));
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">map2</span>.<span class="ident">get</span>(<span class="ident">handle1</span>), <span class="prelude-val">Err</span>(<span class="ident">HandleError</span>::<span class="ident">WrongMap</span>));
+        <span class="macro">assert_eq!</span>(<span class="ident">map1</span>.<span class="ident">get</span>(<span class="ident">handle2</span>), <span class="prelude-val">Err</span>(<span class="ident">HandleError::WrongMap</span>));
+        <span class="macro">assert_eq!</span>(<span class="ident">map2</span>.<span class="ident">get</span>(<span class="ident">handle1</span>), <span class="prelude-val">Err</span>(<span class="ident">HandleError::WrongMap</span>));
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_bad_index</span>() {
-        <span class="kw">let</span> <span class="ident">map</span>: <span class="ident">HandleMap</span><span class="op">&lt;</span><span class="ident">Foobar</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">HandleMap</span>::<span class="ident">new</span>();
-        <span class="macro">assert_eq</span><span class="macro">!</span>(
+        <span class="kw">let</span> <span class="ident">map</span>: <span class="ident">HandleMap</span><span class="op">&lt;</span><span class="ident">Foobar</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">HandleMap::new</span>();
+        <span class="macro">assert_eq!</span>(
             <span class="ident">map</span>.<span class="ident">get</span>(<span class="ident">Handle</span> {
                 <span class="ident">map_id</span>: <span class="ident">map</span>.<span class="ident">id</span>,
                 <span class="ident">version</span>: <span class="number">2</span>,
                 <span class="ident">index</span>: <span class="number">100</span>
             }),
-            <span class="prelude-val">Err</span>(<span class="ident">HandleError</span>::<span class="ident">IndexPastEnd</span>)
+            <span class="prelude-val">Err</span>(<span class="ident">HandleError::IndexPastEnd</span>)
         );
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_resizing</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">map</span> <span class="op">=</span> <span class="ident">HandleMap</span>::<span class="ident">new</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">handles</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[];
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">map</span> <span class="op">=</span> <span class="ident">HandleMap::new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">handles</span> <span class="op">=</span> <span class="macro">vec!</span>[];
         <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span>..<span class="number">1000</span> {
             <span class="ident">handles</span>.<span class="ident">push</span>(<span class="ident">map</span>.<span class="ident">insert</span>(<span class="ident">Foobar</span>(<span class="ident">i</span>)))
         }
         <span class="kw">for</span> (<span class="ident">i</span>, <span class="kw-2">&amp;</span><span class="ident">h</span>) <span class="kw">in</span> <span class="ident">handles</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
-            <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">map</span>.<span class="ident">get</span>(<span class="ident">h</span>).<span class="ident">unwrap</span>(), <span class="kw-2">&amp;</span><span class="ident">Foobar</span>(<span class="ident">i</span>));
-            <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">map</span>.<span class="ident">remove</span>(<span class="ident">h</span>).<span class="ident">unwrap</span>(), <span class="ident">Foobar</span>(<span class="ident">i</span>));
+            <span class="macro">assert_eq!</span>(<span class="ident">map</span>.<span class="ident">get</span>(<span class="ident">h</span>).<span class="ident">unwrap</span>(), <span class="kw-2">&amp;</span><span class="ident">Foobar</span>(<span class="ident">i</span>));
+            <span class="macro">assert_eq!</span>(<span class="ident">map</span>.<span class="ident">remove</span>(<span class="ident">h</span>).<span class="ident">unwrap</span>(), <span class="ident">Foobar</span>(<span class="ident">i</span>));
         }
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">handles2</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[];
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">handles2</span> <span class="op">=</span> <span class="macro">vec!</span>[];
         <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">1000</span>..<span class="number">2000</span> {
             <span class="comment">// Not really related to this test, but it&#39;s convenient to check this here.</span>
             <span class="kw">let</span> <span class="ident">h</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">insert</span>(<span class="ident">Foobar</span>(<span class="ident">i</span>));
             <span class="kw">let</span> <span class="ident">hu</span> <span class="op">=</span> <span class="ident">h</span>.<span class="ident">into_u64</span>();
-            <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">Handle</span>::<span class="ident">from_u64</span>(<span class="ident">hu</span>).<span class="ident">unwrap</span>(), <span class="ident">h</span>);
+            <span class="macro">assert_eq!</span>(<span class="ident">Handle::from_u64</span>(<span class="ident">hu</span>).<span class="ident">unwrap</span>(), <span class="ident">h</span>);
             <span class="ident">handles2</span>.<span class="ident">push</span>(<span class="ident">hu</span>);
         }
 
         <span class="kw">for</span> (<span class="ident">i</span>, (<span class="kw-2">&amp;</span><span class="ident">h0</span>, <span class="ident">h1u</span>)) <span class="kw">in</span> <span class="ident">handles</span>.<span class="ident">iter</span>().<span class="ident">zip</span>(<span class="ident">handles2</span>).<span class="ident">enumerate</span>() {
             <span class="comment">// It&#39;s still a stale version, even though the slot is occupied again.</span>
-            <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">map</span>.<span class="ident">get</span>(<span class="ident">h0</span>), <span class="prelude-val">Err</span>(<span class="ident">HandleError</span>::<span class="ident">StaleVersion</span>));
-            <span class="kw">let</span> <span class="ident">h1</span> <span class="op">=</span> <span class="ident">Handle</span>::<span class="ident">from_u64</span>(<span class="ident">h1u</span>).<span class="ident">unwrap</span>();
-            <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">map</span>.<span class="ident">get</span>(<span class="ident">h1</span>).<span class="ident">unwrap</span>(), <span class="kw-2">&amp;</span><span class="ident">Foobar</span>(<span class="ident">i</span> <span class="op">+</span> <span class="number">1000</span>));
+            <span class="macro">assert_eq!</span>(<span class="ident">map</span>.<span class="ident">get</span>(<span class="ident">h0</span>), <span class="prelude-val">Err</span>(<span class="ident">HandleError::StaleVersion</span>));
+            <span class="kw">let</span> <span class="ident">h1</span> <span class="op">=</span> <span class="ident">Handle::from_u64</span>(<span class="ident">h1u</span>).<span class="ident">unwrap</span>();
+            <span class="macro">assert_eq!</span>(<span class="ident">map</span>.<span class="ident">get</span>(<span class="ident">h1</span>).<span class="ident">unwrap</span>(), <span class="kw-2">&amp;</span><span class="ident">Foobar</span>(<span class="ident">i</span> <span class="op">+</span> <span class="number">1000</span>));
         }
     }
 
@@ -2439,77 +2439,77 @@
         <span class="kw">struct</span> <span class="ident">PanicOnDrop</span>(());
         <span class="kw">impl</span> <span class="ident">Drop</span> <span class="kw">for</span> <span class="ident">PanicOnDrop</span> {
             <span class="kw">fn</span> <span class="ident">drop</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
-                <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;intentional panic (drop)&quot;</span>);
+                <span class="macro">panic!</span>(<span class="string">&quot;intentional panic (drop)&quot;</span>);
             }
         }
 
         <span class="attribute">#[<span class="ident">test</span>]</span>
         <span class="kw">fn</span> <span class="ident">test_panicking_drop</span>() {
-            <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="ident">ConcurrentHandleMap</span>::<span class="ident">new</span>();
+            <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="ident">ConcurrentHandleMap::new</span>();
             <span class="kw">let</span> <span class="ident">h</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">insert</span>(<span class="ident">PanicOnDrop</span>(())).<span class="ident">into_u64</span>();
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">e</span> <span class="op">=</span> <span class="ident">ExternError</span>::<span class="ident">success</span>();
-            <span class="kw">crate</span>::<span class="ident">call_with_result</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">e</span>, <span class="op">|</span><span class="op">|</span> <span class="ident">map</span>.<span class="ident">delete_u64</span>(<span class="ident">h</span>));
-            <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">e</span>.<span class="ident">get_code</span>(), <span class="kw">crate</span>::<span class="ident">ErrorCode</span>::<span class="ident">PANIC</span>);
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">e</span> <span class="op">=</span> <span class="ident">ExternError::success</span>();
+            <span class="kw">crate</span><span class="ident">::call_with_result</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">e</span>, <span class="op">|</span><span class="op">|</span> <span class="ident">map</span>.<span class="ident">delete_u64</span>(<span class="ident">h</span>));
+            <span class="macro">assert_eq!</span>(<span class="ident">e</span>.<span class="ident">get_code</span>(), <span class="kw">crate</span><span class="ident">::ErrorCode::PANIC</span>);
             <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="ident">e</span>.<span class="ident">get_and_consume_message</span>() };
-            <span class="macro">assert</span><span class="macro">!</span>(<span class="op">!</span><span class="ident">map</span>.<span class="ident">map</span>.<span class="ident">is_poisoned</span>());
+            <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">map</span>.<span class="ident">map</span>.<span class="ident">is_poisoned</span>());
             <span class="kw">let</span> <span class="ident">inner</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">map</span>.<span class="ident">read</span>().<span class="ident">unwrap</span>();
             <span class="ident">inner</span>.<span class="ident">assert_valid</span>();
-            <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">inner</span>.<span class="ident">len</span>(), <span class="number">0</span>);
+            <span class="macro">assert_eq!</span>(<span class="ident">inner</span>.<span class="ident">len</span>(), <span class="number">0</span>);
         }
 
         <span class="attribute">#[<span class="ident">test</span>]</span>
         <span class="kw">fn</span> <span class="ident">test_panicking_call_with</span>() {
-            <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="ident">ConcurrentHandleMap</span>::<span class="ident">new</span>();
+            <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="ident">ConcurrentHandleMap::new</span>();
             <span class="kw">let</span> <span class="ident">h</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">insert</span>(<span class="ident">Foobar</span>(<span class="number">0</span>)).<span class="ident">into_u64</span>();
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">e</span> <span class="op">=</span> <span class="ident">ExternError</span>::<span class="ident">success</span>();
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">e</span> <span class="op">=</span> <span class="ident">ExternError::success</span>();
             <span class="ident">map</span>.<span class="ident">call_with_output</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">e</span>, <span class="ident">h</span>, <span class="op">|</span><span class="ident">_thing</span><span class="op">|</span> {
-                <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;intentional panic (call_with_output)&quot;</span>);
+                <span class="macro">panic!</span>(<span class="string">&quot;intentional panic (call_with_output)&quot;</span>);
             });
 
-            <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">e</span>.<span class="ident">get_code</span>(), <span class="kw">crate</span>::<span class="ident">ErrorCode</span>::<span class="ident">PANIC</span>);
+            <span class="macro">assert_eq!</span>(<span class="ident">e</span>.<span class="ident">get_code</span>(), <span class="kw">crate</span><span class="ident">::ErrorCode::PANIC</span>);
             <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="ident">e</span>.<span class="ident">get_and_consume_message</span>() };
 
             {
-                <span class="macro">assert</span><span class="macro">!</span>(<span class="op">!</span><span class="ident">map</span>.<span class="ident">map</span>.<span class="ident">is_poisoned</span>());
+                <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">map</span>.<span class="ident">map</span>.<span class="ident">is_poisoned</span>());
                 <span class="kw">let</span> <span class="ident">inner</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">map</span>.<span class="ident">read</span>().<span class="ident">unwrap</span>();
                 <span class="ident">inner</span>.<span class="ident">assert_valid</span>();
-                <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">inner</span>.<span class="ident">len</span>(), <span class="number">1</span>);
+                <span class="macro">assert_eq!</span>(<span class="ident">inner</span>.<span class="ident">len</span>(), <span class="number">1</span>);
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">seen</span> <span class="op">=</span> <span class="bool-val">false</span>;
                 <span class="kw">for</span> <span class="ident">e</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">inner</span>.<span class="ident">entries</span> {
-                    <span class="kw">if</span> <span class="kw">let</span> <span class="ident">EntryState</span>::<span class="ident">Active</span>(<span class="ident">v</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">e</span>.<span class="ident">state</span> {
-                        <span class="macro">assert</span><span class="macro">!</span>(<span class="op">!</span><span class="ident">seen</span>);
-                        <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">v</span>.<span class="ident">is_poisoned</span>());
+                    <span class="kw">if</span> <span class="kw">let</span> <span class="ident">EntryState::Active</span>(<span class="ident">v</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">e</span>.<span class="ident">state</span> {
+                        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">seen</span>);
+                        <span class="macro">assert!</span>(<span class="ident">v</span>.<span class="ident">is_poisoned</span>());
                         <span class="ident">seen</span> <span class="op">=</span> <span class="bool-val">true</span>;
                     }
                 }
             }
-            <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">map</span>.<span class="ident">delete_u64</span>(<span class="ident">h</span>).<span class="ident">is_ok</span>());
-            <span class="macro">assert</span><span class="macro">!</span>(<span class="op">!</span><span class="ident">map</span>.<span class="ident">map</span>.<span class="ident">is_poisoned</span>());
+            <span class="macro">assert!</span>(<span class="ident">map</span>.<span class="ident">delete_u64</span>(<span class="ident">h</span>).<span class="ident">is_ok</span>());
+            <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">map</span>.<span class="ident">map</span>.<span class="ident">is_poisoned</span>());
             <span class="kw">let</span> <span class="ident">inner</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">map</span>.<span class="ident">read</span>().<span class="ident">unwrap</span>();
             <span class="ident">inner</span>.<span class="ident">assert_valid</span>();
-            <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">inner</span>.<span class="ident">len</span>(), <span class="number">0</span>);
+            <span class="macro">assert_eq!</span>(<span class="ident">inner</span>.<span class="ident">len</span>(), <span class="number">0</span>);
         }
 
         <span class="attribute">#[<span class="ident">test</span>]</span>
         <span class="kw">fn</span> <span class="ident">test_panicking_insert_with</span>() {
-            <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="ident">ConcurrentHandleMap</span>::<span class="ident">new</span>();
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">e</span> <span class="op">=</span> <span class="ident">ExternError</span>::<span class="ident">success</span>();
+            <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="ident">ConcurrentHandleMap::new</span>();
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">e</span> <span class="op">=</span> <span class="ident">ExternError::success</span>();
             <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">insert_with_output</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">e</span>, <span class="op">|</span><span class="op">|</span> {
-                <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;intentional panic (insert_with_output)&quot;</span>);
+                <span class="macro">panic!</span>(<span class="string">&quot;intentional panic (insert_with_output)&quot;</span>);
             });
 
-            <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">e</span>.<span class="ident">get_code</span>(), <span class="kw">crate</span>::<span class="ident">ErrorCode</span>::<span class="ident">PANIC</span>);
+            <span class="macro">assert_eq!</span>(<span class="ident">e</span>.<span class="ident">get_code</span>(), <span class="kw">crate</span><span class="ident">::ErrorCode::PANIC</span>);
             <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="ident">e</span>.<span class="ident">get_and_consume_message</span>() };
 
-            <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">res</span>, <span class="number">0</span>);
+            <span class="macro">assert_eq!</span>(<span class="ident">res</span>, <span class="number">0</span>);
 
-            <span class="macro">assert</span><span class="macro">!</span>(<span class="op">!</span><span class="ident">map</span>.<span class="ident">map</span>.<span class="ident">is_poisoned</span>());
+            <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">map</span>.<span class="ident">map</span>.<span class="ident">is_poisoned</span>());
             <span class="kw">let</span> <span class="ident">inner</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">map</span>.<span class="ident">read</span>().<span class="ident">unwrap</span>();
             <span class="ident">inner</span>.<span class="ident">assert_valid</span>();
-            <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">inner</span>.<span class="ident">len</span>(), <span class="number">0</span>);
+            <span class="macro">assert_eq!</span>(<span class="ident">inner</span>.<span class="ident">len</span>(), <span class="number">0</span>);
         }
     }
 }
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="ffi_support" data-search-js="../../search-index.js"></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="ffi_support" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
     <script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script></body></html>

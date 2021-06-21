@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/usr/local/cargo/registry/src/github.com-1ecc6299db9ec823/serde-hjson-0.9.1/src/de.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>de.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../favicon-16x16.png">
-<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../serde_hjson/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../serde_hjson/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
@@ -860,16 +860,16 @@
 <span class="doccomment">//!</span>
 <span class="doccomment">//! This module provides for Hjson deserialization with the type `Deserializer`.</span>
 
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">char</span>;
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">io</span>;
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">str</span>;
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">marker</span>::<span class="ident">PhantomData</span>;
+<span class="kw">use</span> <span class="ident">std::char</span>;
+<span class="kw">use</span> <span class="ident">std::io</span>;
+<span class="kw">use</span> <span class="ident">std::str</span>;
+<span class="kw">use</span> <span class="ident">std::marker::PhantomData</span>;
 
-<span class="kw">use</span> <span class="ident">serde</span>::<span class="ident">de</span>;
+<span class="kw">use</span> <span class="ident">serde::de</span>;
 
-<span class="kw">use</span> <span class="kw">super</span>::<span class="ident">error</span>::{<span class="ident">Error</span>, <span class="ident">ErrorCode</span>, <span class="prelude-ty">Result</span>};
-<span class="kw">use</span> <span class="kw">super</span>::<span class="ident">util</span>::<span class="ident">StringReader</span>;
-<span class="kw">use</span> <span class="kw">super</span>::<span class="ident">util</span>::{<span class="ident">ParseNumber</span>, <span class="ident">Number</span>};
+<span class="kw">use</span> <span class="kw">super</span><span class="ident">::error</span>::{<span class="ident">Error</span>, <span class="ident">ErrorCode</span>, <span class="prelude-ty">Result</span>};
+<span class="kw">use</span> <span class="kw">super</span><span class="ident">::util::StringReader</span>;
+<span class="kw">use</span> <span class="kw">super</span><span class="ident">::util</span>::{<span class="ident">ParseNumber</span>, <span class="ident">Number</span>};
 
 <span class="kw">enum</span> <span class="ident">State</span> {
     <span class="ident">Normal</span>,
@@ -900,17 +900,17 @@
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">rdr</span>: <span class="ident">Iter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Deserializer</span><span class="op">&lt;</span><span class="ident">Iter</span><span class="op">&gt;</span> {
         <span class="ident">Deserializer</span> {
-            <span class="ident">rdr</span>: <span class="ident">StringReader</span>::<span class="ident">new</span>(<span class="ident">rdr</span>),
-            <span class="ident">str_buf</span>: <span class="ident">Vec</span>::<span class="ident">with_capacity</span>(<span class="number">128</span>),
-            <span class="ident">state</span>: <span class="ident">State</span>::<span class="ident">Normal</span>,
+            <span class="ident">rdr</span>: <span class="ident">StringReader::new</span>(<span class="ident">rdr</span>),
+            <span class="ident">str_buf</span>: <span class="ident">Vec::with_capacity</span>(<span class="number">128</span>),
+            <span class="ident">state</span>: <span class="ident">State::Normal</span>,
         }
     }
 
     <span class="doccomment">/// Creates the Hjson parser from an `std::iter::Iterator`.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_for_root</span>(<span class="ident">rdr</span>: <span class="ident">Iter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Deserializer</span><span class="op">&lt;</span><span class="ident">Iter</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">Deserializer</span>::<span class="ident">new</span>(<span class="ident">rdr</span>);
-        <span class="ident">res</span>.<span class="ident">state</span> <span class="op">=</span> <span class="ident">State</span>::<span class="ident">Root</span>;
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">Deserializer::new</span>(<span class="ident">rdr</span>);
+        <span class="ident">res</span>.<span class="ident">state</span> <span class="op">=</span> <span class="ident">State::Root</span>;
         <span class="ident">res</span>
     }
 
@@ -919,11 +919,11 @@
     <span class="doccomment">/// only has trailing whitespace.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">end</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="macro">try</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">rdr</span>.<span class="ident">parse_whitespace</span>());
-        <span class="kw">if</span> <span class="macro">try</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">rdr</span>.<span class="ident">eof</span>()) {
+        <span class="macro">try!</span>(<span class="self">self</span>.<span class="ident">rdr</span>.<span class="ident">parse_whitespace</span>());
+        <span class="kw">if</span> <span class="macro">try!</span>(<span class="self">self</span>.<span class="ident">rdr</span>.<span class="ident">eof</span>()) {
             <span class="prelude-val">Ok</span>(())
         } <span class="kw">else</span> {
-            <span class="prelude-val">Err</span>(<span class="self">self</span>.<span class="ident">rdr</span>.<span class="ident">error</span>(<span class="ident">ErrorCode</span>::<span class="ident">TrailingCharacters</span>))
+            <span class="prelude-val">Err</span>(<span class="self">self</span>.<span class="ident">rdr</span>.<span class="ident">error</span>(<span class="ident">ErrorCode::TrailingCharacters</span>))
         }
     }
 
@@ -934,8 +934,8 @@
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">parse_keyname</span><span class="op">&lt;</span><span class="ident">V</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="kw-2">mut</span> <span class="ident">visitor</span>: <span class="ident">V</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">V</span>::<span class="ident">Value</span><span class="op">&gt;</span>
-        <span class="kw">where</span> <span class="ident">V</span>: <span class="ident">de</span>::<span class="ident">Visitor</span> {
+    <span class="kw">fn</span> <span class="ident">parse_keyname</span><span class="op">&lt;</span><span class="ident">V</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="kw-2">mut</span> <span class="ident">visitor</span>: <span class="ident">V</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">V::Value</span><span class="op">&gt;</span>
+        <span class="kw">where</span> <span class="ident">V</span>: <span class="ident">de::Visitor</span> {
         <span class="comment">// quotes for keys are optional in Hjson</span>
         <span class="comment">// unless they include {}[],: or whitespace.</span>
         <span class="comment">// assume whitespace was already eaten</span>
@@ -944,47 +944,47 @@
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">space</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> <span class="op">=</span> <span class="prelude-val">None</span>;
         <span class="kw">loop</span> {
-            <span class="kw">let</span> <span class="ident">ch</span> <span class="op">=</span> <span class="macro">try</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">rdr</span>.<span class="ident">next_char_or_null</span>());
+            <span class="kw">let</span> <span class="ident">ch</span> <span class="op">=</span> <span class="macro">try!</span>(<span class="self">self</span>.<span class="ident">rdr</span>.<span class="ident">next_char_or_null</span>());
 
             <span class="kw">if</span> <span class="ident">ch</span> <span class="op">=</span><span class="op">=</span> <span class="string">b&#39;:&#39;</span> {
-              <span class="kw">if</span> <span class="self">self</span>.<span class="ident">str_buf</span>.<span class="ident">len</span>()<span class="op">=</span><span class="op">=</span><span class="number">0</span> { <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="self">self</span>.<span class="ident">rdr</span>.<span class="ident">error</span>(<span class="ident">ErrorCode</span>::<span class="ident">Custom</span>(<span class="string">&quot;Found &#39;:&#39; but no key name (for an empty key name use quotes)&quot;</span>.<span class="ident">to_string</span>()))); }
-              <span class="kw">else</span> <span class="kw">if</span> <span class="ident">space</span>.<span class="ident">is_some</span>() <span class="op">&amp;&amp;</span> <span class="ident">space</span>.<span class="ident">unwrap</span>() <span class="op">!</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">str_buf</span>.<span class="ident">len</span>() { <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="self">self</span>.<span class="ident">rdr</span>.<span class="ident">error</span>(<span class="ident">ErrorCode</span>::<span class="ident">Custom</span>(<span class="string">&quot;Found whitespace in your key name (use quotes to include)&quot;</span>.<span class="ident">to_string</span>()))); }
+              <span class="kw">if</span> <span class="self">self</span>.<span class="ident">str_buf</span>.<span class="ident">len</span>()<span class="op">=</span><span class="op">=</span><span class="number">0</span> { <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="self">self</span>.<span class="ident">rdr</span>.<span class="ident">error</span>(<span class="ident">ErrorCode::Custom</span>(<span class="string">&quot;Found &#39;:&#39; but no key name (for an empty key name use quotes)&quot;</span>.<span class="ident">to_string</span>()))); }
+              <span class="kw">else</span> <span class="kw">if</span> <span class="ident">space</span>.<span class="ident">is_some</span>() <span class="op">&amp;&amp;</span> <span class="ident">space</span>.<span class="ident">unwrap</span>() <span class="op">!</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">str_buf</span>.<span class="ident">len</span>() { <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="self">self</span>.<span class="ident">rdr</span>.<span class="ident">error</span>(<span class="ident">ErrorCode::Custom</span>(<span class="string">&quot;Found whitespace in your key name (use quotes to include)&quot;</span>.<span class="ident">to_string</span>()))); }
               <span class="self">self</span>.<span class="ident">rdr</span>.<span class="ident">uneat_char</span>(<span class="ident">ch</span>);
-              <span class="kw">let</span> <span class="ident">s</span><span class="op">=</span><span class="ident">str</span>::<span class="ident">from_utf8</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">str_buf</span>).<span class="ident">unwrap</span>();
+              <span class="kw">let</span> <span class="ident">s</span><span class="op">=</span><span class="ident">str::from_utf8</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">str_buf</span>).<span class="ident">unwrap</span>();
               <span class="kw">return</span> <span class="ident">visitor</span>.<span class="ident">visit_str</span>(<span class="ident">s</span>);
             }
             <span class="kw">else</span> <span class="kw">if</span> <span class="ident">ch</span> <span class="op">&lt;</span><span class="op">=</span> <span class="string">b&#39; &#39;</span> {
-              <span class="kw">if</span> <span class="ident">ch</span><span class="op">=</span><span class="op">=</span><span class="number">0</span> { <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="self">self</span>.<span class="ident">rdr</span>.<span class="ident">error</span>(<span class="ident">ErrorCode</span>::<span class="ident">EOFWhileParsingObject</span>)); }
+              <span class="kw">if</span> <span class="ident">ch</span><span class="op">=</span><span class="op">=</span><span class="number">0</span> { <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="self">self</span>.<span class="ident">rdr</span>.<span class="ident">error</span>(<span class="ident">ErrorCode::EOFWhileParsingObject</span>)); }
               <span class="kw">else</span> <span class="kw">if</span> <span class="ident">space</span>.<span class="ident">is_none</span>() { <span class="ident">space</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">str_buf</span>.<span class="ident">len</span>()); }
             }
             <span class="kw">else</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">is_punctuator_char</span>(<span class="ident">ch</span>) {
-              <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="self">self</span>.<span class="ident">rdr</span>.<span class="ident">error</span>(<span class="ident">ErrorCode</span>::<span class="ident">Custom</span>(<span class="string">&quot;Found a punctuator where a key name was expected (check your syntax or use quotes if the key name includes {}[],: or whitespace)&quot;</span>.<span class="ident">to_string</span>())));
+              <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="self">self</span>.<span class="ident">rdr</span>.<span class="ident">error</span>(<span class="ident">ErrorCode::Custom</span>(<span class="string">&quot;Found a punctuator where a key name was expected (check your syntax or use quotes if the key name includes {}[],: or whitespace)&quot;</span>.<span class="ident">to_string</span>())));
             }
             <span class="kw">else</span> { <span class="self">self</span>.<span class="ident">str_buf</span>.<span class="ident">push</span>(<span class="ident">ch</span>); }
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">parse_value</span><span class="op">&lt;</span><span class="ident">V</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="kw-2">mut</span> <span class="ident">visitor</span>: <span class="ident">V</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">V</span>::<span class="ident">Value</span><span class="op">&gt;</span>
-        <span class="kw">where</span> <span class="ident">V</span>: <span class="ident">de</span>::<span class="ident">Visitor</span> {
-        <span class="macro">try</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">rdr</span>.<span class="ident">parse_whitespace</span>());
+    <span class="kw">fn</span> <span class="ident">parse_value</span><span class="op">&lt;</span><span class="ident">V</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="kw-2">mut</span> <span class="ident">visitor</span>: <span class="ident">V</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">V::Value</span><span class="op">&gt;</span>
+        <span class="kw">where</span> <span class="ident">V</span>: <span class="ident">de::Visitor</span> {
+        <span class="macro">try!</span>(<span class="self">self</span>.<span class="ident">rdr</span>.<span class="ident">parse_whitespace</span>());
 
-        <span class="kw">if</span> <span class="macro">try</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">rdr</span>.<span class="ident">eof</span>()) {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="self">self</span>.<span class="ident">rdr</span>.<span class="ident">error</span>(<span class="ident">ErrorCode</span>::<span class="ident">EOFWhileParsingValue</span>));
+        <span class="kw">if</span> <span class="macro">try!</span>(<span class="self">self</span>.<span class="ident">rdr</span>.<span class="ident">eof</span>()) {
+            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="self">self</span>.<span class="ident">rdr</span>.<span class="ident">error</span>(<span class="ident">ErrorCode::EOFWhileParsingValue</span>));
         }
 
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">state</span> {
-            <span class="ident">State</span>::<span class="ident">Keyname</span> <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="self">self</span>.<span class="ident">state</span> <span class="op">=</span> <span class="ident">State</span>::<span class="ident">Normal</span>;
+            <span class="ident">State::Keyname</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="self">self</span>.<span class="ident">state</span> <span class="op">=</span> <span class="ident">State::Normal</span>;
                 <span class="kw">return</span> <span class="self">self</span>.<span class="ident">parse_keyname</span>(<span class="ident">visitor</span>);
             },
-            <span class="ident">State</span>::<span class="ident">Root</span> <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="self">self</span>.<span class="ident">state</span> <span class="op">=</span> <span class="ident">State</span>::<span class="ident">Normal</span>;
-                <span class="kw">return</span> <span class="ident">visitor</span>.<span class="ident">visit_map</span>(<span class="ident">MapVisitor</span>::<span class="ident">new</span>(<span class="self">self</span>, <span class="bool-val">true</span>));
+            <span class="ident">State::Root</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="self">self</span>.<span class="ident">state</span> <span class="op">=</span> <span class="ident">State::Normal</span>;
+                <span class="kw">return</span> <span class="ident">visitor</span>.<span class="ident">visit_map</span>(<span class="ident">MapVisitor::new</span>(<span class="self">self</span>, <span class="bool-val">true</span>));
             }
             <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {},
         }
 
-        <span class="kw">let</span> <span class="ident">value</span> <span class="op">=</span> <span class="kw">match</span> <span class="macro">try</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">rdr</span>.<span class="ident">peek_or_null</span>()) {
+        <span class="kw">let</span> <span class="ident">value</span> <span class="op">=</span> <span class="kw">match</span> <span class="macro">try!</span>(<span class="self">self</span>.<span class="ident">rdr</span>.<span class="ident">peek_or_null</span>()) {
             <span class="comment">/*
             b&#39;-&#39; =&gt; {
                 self.rdr.eat_char();
@@ -996,20 +996,20 @@
             */</span>
             <span class="string">b&#39;&quot;&#39;</span> <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="self">self</span>.<span class="ident">rdr</span>.<span class="ident">eat_char</span>();
-                <span class="macro">try</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">parse_string</span>());
-                <span class="kw">let</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident">str</span>::<span class="ident">from_utf8</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">str_buf</span>).<span class="ident">unwrap</span>();
+                <span class="macro">try!</span>(<span class="self">self</span>.<span class="ident">parse_string</span>());
+                <span class="kw">let</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident">str::from_utf8</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">str_buf</span>).<span class="ident">unwrap</span>();
                 <span class="ident">visitor</span>.<span class="ident">visit_str</span>(<span class="ident">s</span>)
             }
             <span class="string">b&#39;[&#39;</span> <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="self">self</span>.<span class="ident">rdr</span>.<span class="ident">eat_char</span>();
-                <span class="ident">visitor</span>.<span class="ident">visit_seq</span>(<span class="ident">SeqVisitor</span>::<span class="ident">new</span>(<span class="self">self</span>))
+                <span class="ident">visitor</span>.<span class="ident">visit_seq</span>(<span class="ident">SeqVisitor::new</span>(<span class="self">self</span>))
             }
             <span class="string">b&#39;{&#39;</span> <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="self">self</span>.<span class="ident">rdr</span>.<span class="ident">eat_char</span>();
-                <span class="ident">visitor</span>.<span class="ident">visit_map</span>(<span class="ident">MapVisitor</span>::<span class="ident">new</span>(<span class="self">self</span>, <span class="bool-val">false</span>))
+                <span class="ident">visitor</span>.<span class="ident">visit_map</span>(<span class="ident">MapVisitor::new</span>(<span class="self">self</span>, <span class="bool-val">false</span>))
             }
             <span class="string">b&#39;\x00&#39;</span> <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="prelude-val">Err</span>(<span class="self">self</span>.<span class="ident">rdr</span>.<span class="ident">error</span>(<span class="ident">ErrorCode</span>::<span class="ident">ExpectedSomeValue</span>))
+                <span class="prelude-val">Err</span>(<span class="self">self</span>.<span class="ident">rdr</span>.<span class="ident">error</span>(<span class="ident">ErrorCode::ExpectedSomeValue</span>))
             }
             <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="self">self</span>.<span class="ident">parse_tfnns</span>(<span class="ident">visitor</span>)
@@ -1018,40 +1018,40 @@
 
         <span class="kw">match</span> <span class="ident">value</span> {
             <span class="prelude-val">Ok</span>(<span class="ident">value</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">value</span>),
-            <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">Syntax</span>(<span class="ident">code</span>, <span class="kw">_</span>, <span class="kw">_</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="self">self</span>.<span class="ident">rdr</span>.<span class="ident">error</span>(<span class="ident">code</span>)),
+            <span class="prelude-val">Err</span>(<span class="ident">Error::Syntax</span>(<span class="ident">code</span>, <span class="kw">_</span>, <span class="kw">_</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="self">self</span>.<span class="ident">rdr</span>.<span class="ident">error</span>(<span class="ident">code</span>)),
             <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">err</span>),
         }
     }
 
     <span class="kw">fn</span> <span class="ident">parse_ident</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ident</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="kw">for</span> <span class="ident">c</span> <span class="kw">in</span> <span class="ident">ident</span> {
-            <span class="kw">if</span> <span class="prelude-val">Some</span>(<span class="kw-2">*</span><span class="ident">c</span>) <span class="op">!</span><span class="op">=</span> <span class="macro">try</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">rdr</span>.<span class="ident">next_char</span>()) {
-                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="self">self</span>.<span class="ident">rdr</span>.<span class="ident">error</span>(<span class="ident">ErrorCode</span>::<span class="ident">ExpectedSomeIdent</span>));
+            <span class="kw">if</span> <span class="prelude-val">Some</span>(<span class="kw-2">*</span><span class="ident">c</span>) <span class="op">!</span><span class="op">=</span> <span class="macro">try!</span>(<span class="self">self</span>.<span class="ident">rdr</span>.<span class="ident">next_char</span>()) {
+                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="self">self</span>.<span class="ident">rdr</span>.<span class="ident">error</span>(<span class="ident">ErrorCode::ExpectedSomeIdent</span>));
             }
         }
 
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="kw">fn</span> <span class="ident">parse_tfnns</span><span class="op">&lt;</span><span class="ident">V</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="kw-2">mut</span> <span class="ident">visitor</span>: <span class="ident">V</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">V</span>::<span class="ident">Value</span><span class="op">&gt;</span>
-        <span class="kw">where</span> <span class="ident">V</span>: <span class="ident">de</span>::<span class="ident">Visitor</span> {
+    <span class="kw">fn</span> <span class="ident">parse_tfnns</span><span class="op">&lt;</span><span class="ident">V</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="kw-2">mut</span> <span class="ident">visitor</span>: <span class="ident">V</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">V::Value</span><span class="op">&gt;</span>
+        <span class="kw">where</span> <span class="ident">V</span>: <span class="ident">de::Visitor</span> {
 
         <span class="comment">// Hjson strings can be quoteless</span>
         <span class="comment">// returns string, true, false, or null.</span>
         <span class="self">self</span>.<span class="ident">str_buf</span>.<span class="ident">clear</span>();
 
-        <span class="kw">let</span> <span class="ident">first</span> <span class="op">=</span> <span class="macro">try</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">rdr</span>.<span class="ident">peek</span>()).<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">first</span> <span class="op">=</span> <span class="macro">try!</span>(<span class="self">self</span>.<span class="ident">rdr</span>.<span class="ident">peek</span>()).<span class="ident">unwrap</span>();
 
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">is_punctuator_char</span>(<span class="ident">first</span>) {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="self">self</span>.<span class="ident">rdr</span>.<span class="ident">error</span>(<span class="ident">ErrorCode</span>::<span class="ident">PunctuatorInQlString</span>));
+            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="self">self</span>.<span class="ident">rdr</span>.<span class="ident">error</span>(<span class="ident">ErrorCode::PunctuatorInQlString</span>));
         }
 
         <span class="kw">loop</span> {
-            <span class="kw">let</span> <span class="ident">ch</span> <span class="op">=</span> <span class="macro">try</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">rdr</span>.<span class="ident">next_char_or_null</span>());
+            <span class="kw">let</span> <span class="ident">ch</span> <span class="op">=</span> <span class="macro">try!</span>(<span class="self">self</span>.<span class="ident">rdr</span>.<span class="ident">next_char_or_null</span>());
 
             <span class="kw">let</span> <span class="ident">is_eol</span> <span class="op">=</span> <span class="ident">ch</span> <span class="op">=</span><span class="op">=</span> <span class="string">b&#39;\r&#39;</span> <span class="op">|</span><span class="op">|</span> <span class="ident">ch</span> <span class="op">=</span><span class="op">=</span> <span class="string">b&#39;\n&#39;</span> <span class="op">|</span><span class="op">|</span> <span class="ident">ch</span> <span class="op">=</span><span class="op">=</span> <span class="string">b&#39;\x00&#39;</span>;
             <span class="kw">let</span> <span class="ident">is_comment</span> <span class="op">=</span> <span class="ident">ch</span> <span class="op">=</span><span class="op">=</span> <span class="string">b&#39;#&#39;</span> <span class="op">|</span><span class="op">|</span> <span class="kw">if</span> <span class="ident">ch</span> <span class="op">=</span><span class="op">=</span> <span class="string">b&#39;/&#39;</span> {
-                <span class="kw">let</span> <span class="ident">next</span><span class="op">=</span><span class="macro">try</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">rdr</span>.<span class="ident">peek_or_null</span>());
+                <span class="kw">let</span> <span class="ident">next</span><span class="op">=</span><span class="macro">try!</span>(<span class="self">self</span>.<span class="ident">rdr</span>.<span class="ident">peek_or_null</span>());
                 <span class="ident">next</span> <span class="op">=</span><span class="op">=</span> <span class="string">b&#39;/&#39;</span> <span class="op">|</span><span class="op">|</span> <span class="ident">next</span> <span class="op">=</span><span class="op">=</span> <span class="string">b&#39;*&#39;</span>
             } <span class="kw">else</span> { <span class="bool-val">false</span> };
             <span class="kw">if</span> <span class="ident">is_eol</span> <span class="op">|</span><span class="op">|</span> <span class="ident">is_comment</span> <span class="op">|</span><span class="op">|</span>
@@ -1059,22 +1059,22 @@
 
                 <span class="kw">let</span> <span class="ident">chf</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">str_buf</span>[<span class="number">0</span>];
                 <span class="kw">match</span> <span class="ident">chf</span> {
-                    <span class="string">b&#39;f&#39;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">if</span> <span class="ident">str</span>::<span class="ident">from_utf8</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">str_buf</span>).<span class="ident">unwrap</span>().<span class="ident">trim</span>() <span class="op">=</span><span class="op">=</span> <span class="string">&quot;false&quot;</span> { <span class="self">self</span>.<span class="ident">rdr</span>.<span class="ident">uneat_char</span>(<span class="ident">ch</span>); <span class="kw">return</span> <span class="ident">visitor</span>.<span class="ident">visit_bool</span>(<span class="bool-val">false</span>); },
-                    <span class="string">b&#39;n&#39;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">if</span> <span class="ident">str</span>::<span class="ident">from_utf8</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">str_buf</span>).<span class="ident">unwrap</span>().<span class="ident">trim</span>() <span class="op">=</span><span class="op">=</span> <span class="string">&quot;null&quot;</span> { <span class="self">self</span>.<span class="ident">rdr</span>.<span class="ident">uneat_char</span>(<span class="ident">ch</span>); <span class="kw">return</span> <span class="ident">visitor</span>.<span class="ident">visit_unit</span>(); },
-                    <span class="string">b&#39;t&#39;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">if</span> <span class="ident">str</span>::<span class="ident">from_utf8</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">str_buf</span>).<span class="ident">unwrap</span>().<span class="ident">trim</span>() <span class="op">=</span><span class="op">=</span> <span class="string">&quot;true&quot;</span> { <span class="self">self</span>.<span class="ident">rdr</span>.<span class="ident">uneat_char</span>(<span class="ident">ch</span>); <span class="kw">return</span> <span class="ident">visitor</span>.<span class="ident">visit_bool</span>(<span class="bool-val">true</span>); },
+                    <span class="string">b&#39;f&#39;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">if</span> <span class="ident">str::from_utf8</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">str_buf</span>).<span class="ident">unwrap</span>().<span class="ident">trim</span>() <span class="op">=</span><span class="op">=</span> <span class="string">&quot;false&quot;</span> { <span class="self">self</span>.<span class="ident">rdr</span>.<span class="ident">uneat_char</span>(<span class="ident">ch</span>); <span class="kw">return</span> <span class="ident">visitor</span>.<span class="ident">visit_bool</span>(<span class="bool-val">false</span>); },
+                    <span class="string">b&#39;n&#39;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">if</span> <span class="ident">str::from_utf8</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">str_buf</span>).<span class="ident">unwrap</span>().<span class="ident">trim</span>() <span class="op">=</span><span class="op">=</span> <span class="string">&quot;null&quot;</span> { <span class="self">self</span>.<span class="ident">rdr</span>.<span class="ident">uneat_char</span>(<span class="ident">ch</span>); <span class="kw">return</span> <span class="ident">visitor</span>.<span class="ident">visit_unit</span>(); },
+                    <span class="string">b&#39;t&#39;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">if</span> <span class="ident">str::from_utf8</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">str_buf</span>).<span class="ident">unwrap</span>().<span class="ident">trim</span>() <span class="op">=</span><span class="op">=</span> <span class="string">&quot;true&quot;</span> { <span class="self">self</span>.<span class="ident">rdr</span>.<span class="ident">uneat_char</span>(<span class="ident">ch</span>); <span class="kw">return</span> <span class="ident">visitor</span>.<span class="ident">visit_bool</span>(<span class="bool-val">true</span>); },
                     <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {
                         <span class="kw">if</span> <span class="ident">chf</span> <span class="op">=</span><span class="op">=</span> <span class="string">b&#39;-&#39;</span> <span class="op">|</span><span class="op">|</span> <span class="ident">chf</span> <span class="op">&gt;</span><span class="op">=</span> <span class="string">b&#39;0&#39;</span> <span class="op">&amp;&amp;</span> <span class="ident">chf</span> <span class="op">&lt;</span><span class="op">=</span> <span class="string">b&#39;9&#39;</span> {
-                            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pn</span> <span class="op">=</span> <span class="ident">ParseNumber</span>::<span class="ident">new</span>(<span class="self">self</span>.<span class="ident">str_buf</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">b</span><span class="op">|</span> <span class="kw-2">*</span><span class="ident">b</span>));
+                            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pn</span> <span class="op">=</span> <span class="ident">ParseNumber::new</span>(<span class="self">self</span>.<span class="ident">str_buf</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">b</span><span class="op">|</span> <span class="kw-2">*</span><span class="ident">b</span>));
                             <span class="kw">match</span> <span class="ident">pn</span>.<span class="ident">parse</span>(<span class="bool-val">false</span>) {
-                                <span class="prelude-val">Ok</span>(<span class="ident">Number</span>::<span class="ident">F64</span>(<span class="ident">v</span>)) <span class="op">=</span><span class="op">&gt;</span> {
+                                <span class="prelude-val">Ok</span>(<span class="ident">Number::F64</span>(<span class="ident">v</span>)) <span class="op">=</span><span class="op">&gt;</span> {
                                     <span class="self">self</span>.<span class="ident">rdr</span>.<span class="ident">uneat_char</span>(<span class="ident">ch</span>);
                                     <span class="kw">return</span> <span class="ident">visitor</span>.<span class="ident">visit_f64</span>(<span class="ident">v</span>);
                                 },
-                                <span class="prelude-val">Ok</span>(<span class="ident">Number</span>::<span class="ident">U64</span>(<span class="ident">v</span>)) <span class="op">=</span><span class="op">&gt;</span> {
+                                <span class="prelude-val">Ok</span>(<span class="ident">Number::U64</span>(<span class="ident">v</span>)) <span class="op">=</span><span class="op">&gt;</span> {
                                     <span class="self">self</span>.<span class="ident">rdr</span>.<span class="ident">uneat_char</span>(<span class="ident">ch</span>);
                                     <span class="kw">return</span> <span class="ident">visitor</span>.<span class="ident">visit_u64</span>(<span class="ident">v</span>);
                                 },
-                                <span class="prelude-val">Ok</span>(<span class="ident">Number</span>::<span class="ident">I64</span>(<span class="ident">v</span>)) <span class="op">=</span><span class="op">&gt;</span> {
+                                <span class="prelude-val">Ok</span>(<span class="ident">Number::I64</span>(<span class="ident">v</span>)) <span class="op">=</span><span class="op">&gt;</span> {
                                     <span class="self">self</span>.<span class="ident">rdr</span>.<span class="ident">uneat_char</span>(<span class="ident">ch</span>);
                                     <span class="kw">return</span> <span class="ident">visitor</span>.<span class="ident">visit_i64</span>(<span class="ident">v</span>);
                                 }
@@ -1085,12 +1085,12 @@
                 }
                 <span class="kw">if</span> <span class="ident">is_eol</span> {
                     <span class="comment">// remove any whitespace at the end (ignored in quoteless strings)</span>
-                    <span class="kw">return</span> <span class="ident">visitor</span>.<span class="ident">visit_str</span>(<span class="ident">str</span>::<span class="ident">from_utf8</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">str_buf</span>).<span class="ident">unwrap</span>().<span class="ident">trim</span>())
+                    <span class="kw">return</span> <span class="ident">visitor</span>.<span class="ident">visit_str</span>(<span class="ident">str::from_utf8</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">str_buf</span>).<span class="ident">unwrap</span>().<span class="ident">trim</span>())
                 }
             }
             <span class="self">self</span>.<span class="ident">str_buf</span>.<span class="ident">push</span>(<span class="ident">ch</span>);
 
-            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">str_buf</span> <span class="op">=</span><span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="string">b&#39;\&#39;&#39;</span>; <span class="number">3</span>] {
+            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">str_buf</span> <span class="op">=</span><span class="op">=</span> <span class="macro">vec!</span>[<span class="string">b&#39;\&#39;&#39;</span>; <span class="number">3</span>] {
                 <span class="kw">return</span> <span class="self">self</span>.<span class="ident">parse_ml_string</span>(<span class="ident">visitor</span>);
             }
         }
@@ -1099,8 +1099,8 @@
     <span class="kw">fn</span> <span class="ident">decode_hex_escape</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">u16</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">i</span> <span class="op">=</span> <span class="number">0</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">n</span> <span class="op">=</span> <span class="number">0u16</span>;
-        <span class="kw">while</span> <span class="ident">i</span> <span class="op">&lt;</span> <span class="number">4</span> <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="macro">try</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">rdr</span>.<span class="ident">eof</span>()) {
-            <span class="ident">n</span> <span class="op">=</span> <span class="kw">match</span> <span class="macro">try</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">rdr</span>.<span class="ident">next_char_or_null</span>()) {
+        <span class="kw">while</span> <span class="ident">i</span> <span class="op">&lt;</span> <span class="number">4</span> <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="macro">try!</span>(<span class="self">self</span>.<span class="ident">rdr</span>.<span class="ident">eof</span>()) {
+            <span class="ident">n</span> <span class="op">=</span> <span class="kw">match</span> <span class="macro">try!</span>(<span class="self">self</span>.<span class="ident">rdr</span>.<span class="ident">next_char_or_null</span>()) {
                 <span class="ident">c</span> @ <span class="string">b&#39;0&#39;</span> ... <span class="string">b&#39;9&#39;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">n</span> <span class="op">*</span> <span class="number">16_u16</span> <span class="op">+</span> ((<span class="ident">c</span> <span class="kw">as</span> <span class="ident">u16</span>) <span class="op">-</span> (<span class="string">b&#39;0&#39;</span> <span class="kw">as</span> <span class="ident">u16</span>)),
                 <span class="string">b&#39;a&#39;</span> <span class="op">|</span> <span class="string">b&#39;A&#39;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">n</span> <span class="op">*</span> <span class="number">16_u16</span> <span class="op">+</span> <span class="number">10_u16</span>,
                 <span class="string">b&#39;b&#39;</span> <span class="op">|</span> <span class="string">b&#39;B&#39;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">n</span> <span class="op">*</span> <span class="number">16_u16</span> <span class="op">+</span> <span class="number">11_u16</span>,
@@ -1108,7 +1108,7 @@
                 <span class="string">b&#39;d&#39;</span> <span class="op">|</span> <span class="string">b&#39;D&#39;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">n</span> <span class="op">*</span> <span class="number">16_u16</span> <span class="op">+</span> <span class="number">13_u16</span>,
                 <span class="string">b&#39;e&#39;</span> <span class="op">|</span> <span class="string">b&#39;E&#39;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">n</span> <span class="op">*</span> <span class="number">16_u16</span> <span class="op">+</span> <span class="number">14_u16</span>,
                 <span class="string">b&#39;f&#39;</span> <span class="op">|</span> <span class="string">b&#39;F&#39;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">n</span> <span class="op">*</span> <span class="number">16_u16</span> <span class="op">+</span> <span class="number">15_u16</span>,
-                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> { <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="self">self</span>.<span class="ident">rdr</span>.<span class="ident">error</span>(<span class="ident">ErrorCode</span>::<span class="ident">InvalidEscape</span>)); }
+                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> { <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="self">self</span>.<span class="ident">rdr</span>.<span class="ident">error</span>(<span class="ident">ErrorCode::InvalidEscape</span>)); }
             };
 
             <span class="ident">i</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
@@ -1116,14 +1116,14 @@
 
         <span class="comment">// Error out if we didn&#39;t parse 4 digits.</span>
         <span class="kw">if</span> <span class="ident">i</span> <span class="op">!</span><span class="op">=</span> <span class="number">4</span> {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="self">self</span>.<span class="ident">rdr</span>.<span class="ident">error</span>(<span class="ident">ErrorCode</span>::<span class="ident">InvalidEscape</span>));
+            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="self">self</span>.<span class="ident">rdr</span>.<span class="ident">error</span>(<span class="ident">ErrorCode::InvalidEscape</span>));
         }
 
         <span class="prelude-val">Ok</span>(<span class="ident">n</span>)
     }
 
     <span class="kw">fn</span> <span class="ident">ml_skip_white</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="macro">try</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">rdr</span>.<span class="ident">peek_or_null</span>()) {
+        <span class="kw">match</span> <span class="macro">try!</span>(<span class="self">self</span>.<span class="ident">rdr</span>.<span class="ident">peek_or_null</span>()) {
             <span class="string">b&#39; &#39;</span> <span class="op">|</span> <span class="string">b&#39;\t&#39;</span> <span class="op">|</span> <span class="string">b&#39;\r&#39;</span> <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="self">self</span>.<span class="ident">rdr</span>.<span class="ident">eat_char</span>();
                 <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="bool-val">true</span>);
@@ -1134,14 +1134,14 @@
 
     <span class="kw">fn</span> <span class="ident">ml_skip_indent</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">indent</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">skip</span> <span class="op">=</span> <span class="ident">indent</span>;
-        <span class="kw">while</span> <span class="macro">try</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">ml_skip_white</span>()) <span class="op">&amp;&amp;</span> <span class="ident">skip</span> <span class="op">&gt;</span> <span class="number">0</span> {
+        <span class="kw">while</span> <span class="macro">try!</span>(<span class="self">self</span>.<span class="ident">ml_skip_white</span>()) <span class="op">&amp;&amp;</span> <span class="ident">skip</span> <span class="op">&gt;</span> <span class="number">0</span> {
             <span class="ident">skip</span> <span class="op">-</span><span class="op">=</span> <span class="number">1</span>;
         }
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="kw">fn</span> <span class="ident">parse_ml_string</span><span class="op">&lt;</span><span class="ident">V</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="kw-2">mut</span> <span class="ident">visitor</span>: <span class="ident">V</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">V</span>::<span class="ident">Value</span><span class="op">&gt;</span>
-        <span class="kw">where</span> <span class="ident">V</span>: <span class="ident">de</span>::<span class="ident">Visitor</span> {
+    <span class="kw">fn</span> <span class="ident">parse_ml_string</span><span class="op">&lt;</span><span class="ident">V</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="kw-2">mut</span> <span class="ident">visitor</span>: <span class="ident">V</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">V::Value</span><span class="op">&gt;</span>
+        <span class="kw">where</span> <span class="ident">V</span>: <span class="ident">de::Visitor</span> {
         <span class="self">self</span>.<span class="ident">str_buf</span>.<span class="ident">clear</span>();
 
         <span class="comment">// Parse a multiline string value.</span>
@@ -1152,22 +1152,22 @@
         <span class="kw">let</span> <span class="ident">indent</span> <span class="op">=</span> <span class="ident">col</span> <span class="op">-</span> <span class="number">4</span>;
 
         <span class="comment">// skip white/to (newline)</span>
-        <span class="kw">while</span> <span class="macro">try</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">ml_skip_white</span>()) {}
-        <span class="kw">if</span> <span class="macro">try</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">rdr</span>.<span class="ident">peek_or_null</span>()) <span class="op">=</span><span class="op">=</span> <span class="string">b&#39;\n&#39;</span> {
+        <span class="kw">while</span> <span class="macro">try!</span>(<span class="self">self</span>.<span class="ident">ml_skip_white</span>()) {}
+        <span class="kw">if</span> <span class="macro">try!</span>(<span class="self">self</span>.<span class="ident">rdr</span>.<span class="ident">peek_or_null</span>()) <span class="op">=</span><span class="op">=</span> <span class="string">b&#39;\n&#39;</span> {
             <span class="self">self</span>.<span class="ident">rdr</span>.<span class="ident">eat_char</span>();
-            <span class="macro">try</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">ml_skip_indent</span>(<span class="ident">indent</span>));
+            <span class="macro">try!</span>(<span class="self">self</span>.<span class="ident">ml_skip_indent</span>(<span class="ident">indent</span>));
         }
 
         <span class="comment">// When parsing multiline string values, we must look for &#39; characters.</span>
         <span class="kw">loop</span> {
-            <span class="kw">if</span> <span class="macro">try</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">rdr</span>.<span class="ident">eof</span>()) { <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="self">self</span>.<span class="ident">rdr</span>.<span class="ident">error</span>(<span class="ident">ErrorCode</span>::<span class="ident">EOFWhileParsingString</span>)); } <span class="comment">// todo error(&quot;Bad multiline string&quot;);</span>
-            <span class="kw">let</span> <span class="ident">ch</span> <span class="op">=</span> <span class="macro">try</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">rdr</span>.<span class="ident">next_char_or_null</span>());
+            <span class="kw">if</span> <span class="macro">try!</span>(<span class="self">self</span>.<span class="ident">rdr</span>.<span class="ident">eof</span>()) { <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="self">self</span>.<span class="ident">rdr</span>.<span class="ident">error</span>(<span class="ident">ErrorCode::EOFWhileParsingString</span>)); } <span class="comment">// todo error(&quot;Bad multiline string&quot;);</span>
+            <span class="kw">let</span> <span class="ident">ch</span> <span class="op">=</span> <span class="macro">try!</span>(<span class="self">self</span>.<span class="ident">rdr</span>.<span class="ident">next_char_or_null</span>());
 
             <span class="kw">if</span> <span class="ident">ch</span> <span class="op">=</span><span class="op">=</span> <span class="string">b&#39;\&#39;&#39;</span> {
                 <span class="ident">triple</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
                 <span class="kw">if</span> <span class="ident">triple</span> <span class="op">=</span><span class="op">=</span> <span class="number">3</span> {
                     <span class="kw">if</span> <span class="self">self</span>.<span class="ident">str_buf</span>.<span class="ident">last</span>() <span class="op">=</span><span class="op">=</span> <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="string">b&#39;\n&#39;</span>) { <span class="self">self</span>.<span class="ident">str_buf</span>.<span class="ident">pop</span>(); }
-                    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">str</span>::<span class="ident">from_utf8</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">str_buf</span>).<span class="ident">unwrap</span>();
+                    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">str::from_utf8</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">str_buf</span>).<span class="ident">unwrap</span>();
                     <span class="comment">//todo if (self.str_buf.slice(-1) === &#39;\n&#39;) self.str_buf=self.str_buf.slice(0, -1); // remove last EOL</span>
                     <span class="kw">return</span> <span class="ident">visitor</span>.<span class="ident">visit_str</span>(<span class="ident">res</span>)
                 }
@@ -1180,7 +1180,7 @@
             }
 
             <span class="kw">if</span> <span class="ident">ch</span> <span class="op">!</span><span class="op">=</span> <span class="string">b&#39;\r&#39;</span> { <span class="self">self</span>.<span class="ident">str_buf</span>.<span class="ident">push</span>(<span class="ident">ch</span>); }
-            <span class="kw">if</span> <span class="ident">ch</span> <span class="op">=</span><span class="op">=</span> <span class="string">b&#39;\n&#39;</span> { <span class="macro">try</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">ml_skip_indent</span>(<span class="ident">indent</span>)); }
+            <span class="kw">if</span> <span class="ident">ch</span> <span class="op">=</span><span class="op">=</span> <span class="string">b&#39;\n&#39;</span> { <span class="macro">try!</span>(<span class="self">self</span>.<span class="ident">ml_skip_indent</span>(<span class="ident">indent</span>)); }
         }
     }
 
@@ -1189,9 +1189,9 @@
         <span class="self">self</span>.<span class="ident">str_buf</span>.<span class="ident">clear</span>();
 
         <span class="kw">loop</span> {
-            <span class="kw">let</span> <span class="ident">ch</span> <span class="op">=</span> <span class="kw">match</span> <span class="macro">try</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">rdr</span>.<span class="ident">next_char</span>()) {
+            <span class="kw">let</span> <span class="ident">ch</span> <span class="op">=</span> <span class="kw">match</span> <span class="macro">try!</span>(<span class="self">self</span>.<span class="ident">rdr</span>.<span class="ident">next_char</span>()) {
                 <span class="prelude-val">Some</span>(<span class="ident">ch</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ch</span>,
-                <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> { <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="self">self</span>.<span class="ident">rdr</span>.<span class="ident">error</span>(<span class="ident">ErrorCode</span>::<span class="ident">EOFWhileParsingString</span>)); }
+                <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> { <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="self">self</span>.<span class="ident">rdr</span>.<span class="ident">error</span>(<span class="ident">ErrorCode::EOFWhileParsingString</span>)); }
             };
 
             <span class="kw">match</span> <span class="ident">ch</span> {
@@ -1199,9 +1199,9 @@
                     <span class="kw">return</span> <span class="prelude-val">Ok</span>(());
                 }
                 <span class="string">b&#39;\\&#39;</span> <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="kw">let</span> <span class="ident">ch</span> <span class="op">=</span> <span class="kw">match</span> <span class="macro">try</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">rdr</span>.<span class="ident">next_char</span>()) {
+                    <span class="kw">let</span> <span class="ident">ch</span> <span class="op">=</span> <span class="kw">match</span> <span class="macro">try!</span>(<span class="self">self</span>.<span class="ident">rdr</span>.<span class="ident">next_char</span>()) {
                         <span class="prelude-val">Some</span>(<span class="ident">ch</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ch</span>,
-                        <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> { <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="self">self</span>.<span class="ident">rdr</span>.<span class="ident">error</span>(<span class="ident">ErrorCode</span>::<span class="ident">EOFWhileParsingString</span>)); }
+                        <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> { <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="self">self</span>.<span class="ident">rdr</span>.<span class="ident">error</span>(<span class="ident">ErrorCode::EOFWhileParsingString</span>)); }
                     };
 
                     <span class="kw">match</span> <span class="ident">ch</span> {
@@ -1214,43 +1214,43 @@
                         <span class="string">b&#39;r&#39;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">str_buf</span>.<span class="ident">push</span>(<span class="string">b&#39;\r&#39;</span>),
                         <span class="string">b&#39;t&#39;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">str_buf</span>.<span class="ident">push</span>(<span class="string">b&#39;\t&#39;</span>),
                         <span class="string">b&#39;u&#39;</span> <span class="op">=</span><span class="op">&gt;</span> {
-                            <span class="kw">let</span> <span class="ident">c</span> <span class="op">=</span> <span class="kw">match</span> <span class="macro">try</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">decode_hex_escape</span>()) {
+                            <span class="kw">let</span> <span class="ident">c</span> <span class="op">=</span> <span class="kw">match</span> <span class="macro">try!</span>(<span class="self">self</span>.<span class="ident">decode_hex_escape</span>()) {
                                 <span class="number">0xDC00</span> ... <span class="number">0xDFFF</span> <span class="op">=</span><span class="op">&gt;</span> {
-                                    <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="self">self</span>.<span class="ident">rdr</span>.<span class="ident">error</span>(<span class="ident">ErrorCode</span>::<span class="ident">LoneLeadingSurrogateInHexEscape</span>));
+                                    <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="self">self</span>.<span class="ident">rdr</span>.<span class="ident">error</span>(<span class="ident">ErrorCode::LoneLeadingSurrogateInHexEscape</span>));
                                 }
 
                                 <span class="comment">// Non-BMP characters are encoded as a sequence of</span>
                                 <span class="comment">// two hex escapes, representing UTF-16 surrogates.</span>
                                 <span class="ident">n1</span> @ <span class="number">0xD800</span> ... <span class="number">0xDBFF</span> <span class="op">=</span><span class="op">&gt;</span> {
-                                    <span class="kw">match</span> (<span class="macro">try</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">rdr</span>.<span class="ident">next_char</span>()), <span class="macro">try</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">rdr</span>.<span class="ident">next_char</span>())) {
+                                    <span class="kw">match</span> (<span class="macro">try!</span>(<span class="self">self</span>.<span class="ident">rdr</span>.<span class="ident">next_char</span>()), <span class="macro">try!</span>(<span class="self">self</span>.<span class="ident">rdr</span>.<span class="ident">next_char</span>())) {
                                         (<span class="prelude-val">Some</span>(<span class="string">b&#39;\\&#39;</span>), <span class="prelude-val">Some</span>(<span class="string">b&#39;u&#39;</span>)) <span class="op">=</span><span class="op">&gt;</span> (),
                                         <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {
-                                            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="self">self</span>.<span class="ident">rdr</span>.<span class="ident">error</span>(<span class="ident">ErrorCode</span>::<span class="ident">UnexpectedEndOfHexEscape</span>));
+                                            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="self">self</span>.<span class="ident">rdr</span>.<span class="ident">error</span>(<span class="ident">ErrorCode::UnexpectedEndOfHexEscape</span>));
                                         }
                                     }
 
-                                    <span class="kw">let</span> <span class="ident">n2</span> <span class="op">=</span> <span class="macro">try</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">decode_hex_escape</span>());
+                                    <span class="kw">let</span> <span class="ident">n2</span> <span class="op">=</span> <span class="macro">try!</span>(<span class="self">self</span>.<span class="ident">decode_hex_escape</span>());
 
                                     <span class="kw">if</span> <span class="ident">n2</span> <span class="op">&lt;</span> <span class="number">0xDC00</span> <span class="op">|</span><span class="op">|</span> <span class="ident">n2</span> <span class="op">&gt;</span> <span class="number">0xDFFF</span> {
-                                        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="self">self</span>.<span class="ident">rdr</span>.<span class="ident">error</span>(<span class="ident">ErrorCode</span>::<span class="ident">LoneLeadingSurrogateInHexEscape</span>));
+                                        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="self">self</span>.<span class="ident">rdr</span>.<span class="ident">error</span>(<span class="ident">ErrorCode::LoneLeadingSurrogateInHexEscape</span>));
                                     }
 
                                     <span class="kw">let</span> <span class="ident">n</span> <span class="op">=</span> (((<span class="ident">n1</span> <span class="op">-</span> <span class="number">0xD800</span>) <span class="kw">as</span> <span class="ident">u32</span>) <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">10</span> <span class="op">|</span>
                                               (<span class="ident">n2</span> <span class="op">-</span> <span class="number">0xDC00</span>) <span class="kw">as</span> <span class="ident">u32</span>) <span class="op">+</span> <span class="number">0x1_0000</span>;
 
-                                    <span class="kw">match</span> <span class="ident">char</span>::<span class="ident">from_u32</span>(<span class="ident">n</span> <span class="kw">as</span> <span class="ident">u32</span>) {
+                                    <span class="kw">match</span> <span class="ident">char::from_u32</span>(<span class="ident">n</span> <span class="kw">as</span> <span class="ident">u32</span>) {
                                         <span class="prelude-val">Some</span>(<span class="ident">c</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">c</span>,
                                         <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> {
-                                            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="self">self</span>.<span class="ident">rdr</span>.<span class="ident">error</span>(<span class="ident">ErrorCode</span>::<span class="ident">InvalidUnicodeCodePoint</span>));
+                                            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="self">self</span>.<span class="ident">rdr</span>.<span class="ident">error</span>(<span class="ident">ErrorCode::InvalidUnicodeCodePoint</span>));
                                         }
                                     }
                                 }
 
                                 <span class="ident">n</span> <span class="op">=</span><span class="op">&gt;</span> {
-                                    <span class="kw">match</span> <span class="ident">char</span>::<span class="ident">from_u32</span>(<span class="ident">n</span> <span class="kw">as</span> <span class="ident">u32</span>) {
+                                    <span class="kw">match</span> <span class="ident">char::from_u32</span>(<span class="ident">n</span> <span class="kw">as</span> <span class="ident">u32</span>) {
                                         <span class="prelude-val">Some</span>(<span class="ident">c</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">c</span>,
                                         <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> {
-                                            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="self">self</span>.<span class="ident">rdr</span>.<span class="ident">error</span>(<span class="ident">ErrorCode</span>::<span class="ident">InvalidUnicodeCodePoint</span>));
+                                            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="self">self</span>.<span class="ident">rdr</span>.<span class="ident">error</span>(<span class="ident">ErrorCode::InvalidUnicodeCodePoint</span>));
                                         }
                                     }
                                 }
@@ -1258,12 +1258,12 @@
 
                             <span class="comment">// FIXME: this allocation is required in order to be compatible with stable</span>
                             <span class="comment">// rust, which doesn&#39;t support encoding a `char` into a stack buffer.</span>
-                            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buf</span> <span class="op">=</span> <span class="ident">String</span>::<span class="ident">new</span>();
+                            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buf</span> <span class="op">=</span> <span class="ident">String::new</span>();
                             <span class="ident">buf</span>.<span class="ident">push</span>(<span class="ident">c</span>);
                             <span class="self">self</span>.<span class="ident">str_buf</span>.<span class="ident">extend</span>(<span class="ident">buf</span>.<span class="ident">bytes</span>());
                         }
                         <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {
-                            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="self">self</span>.<span class="ident">rdr</span>.<span class="ident">error</span>(<span class="ident">ErrorCode</span>::<span class="ident">InvalidEscape</span>));
+                            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="self">self</span>.<span class="ident">rdr</span>.<span class="ident">error</span>(<span class="ident">ErrorCode::InvalidEscape</span>));
                         }
                     }
                 }
@@ -1275,27 +1275,27 @@
     }
 
     <span class="kw">fn</span> <span class="ident">parse_object_colon</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="macro">try</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">rdr</span>.<span class="ident">parse_whitespace</span>());
+        <span class="macro">try!</span>(<span class="self">self</span>.<span class="ident">rdr</span>.<span class="ident">parse_whitespace</span>());
 
-        <span class="kw">match</span> <span class="macro">try</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">rdr</span>.<span class="ident">next_char</span>()) {
+        <span class="kw">match</span> <span class="macro">try!</span>(<span class="self">self</span>.<span class="ident">rdr</span>.<span class="ident">next_char</span>()) {
             <span class="prelude-val">Some</span>(<span class="string">b&#39;:&#39;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(()),
-            <span class="prelude-val">Some</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="self">self</span>.<span class="ident">rdr</span>.<span class="ident">error</span>(<span class="ident">ErrorCode</span>::<span class="ident">ExpectedColon</span>)),
-            <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="self">self</span>.<span class="ident">rdr</span>.<span class="ident">error</span>(<span class="ident">ErrorCode</span>::<span class="ident">EOFWhileParsingObject</span>)),
+            <span class="prelude-val">Some</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="self">self</span>.<span class="ident">rdr</span>.<span class="ident">error</span>(<span class="ident">ErrorCode::ExpectedColon</span>)),
+            <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="self">self</span>.<span class="ident">rdr</span>.<span class="ident">error</span>(<span class="ident">ErrorCode::EOFWhileParsingObject</span>)),
         }
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">Iter</span><span class="op">&gt;</span> <span class="ident">de</span>::<span class="ident">Deserializer</span> <span class="kw">for</span> <span class="ident">Deserializer</span><span class="op">&lt;</span><span class="ident">Iter</span><span class="op">&gt;</span>
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">Iter</span><span class="op">&gt;</span> <span class="ident">de::Deserializer</span> <span class="kw">for</span> <span class="ident">Deserializer</span><span class="op">&lt;</span><span class="ident">Iter</span><span class="op">&gt;</span>
     <span class="kw">where</span> <span class="ident">Iter</span>: <span class="ident">Iterator</span><span class="op">&lt;</span><span class="ident">Item</span><span class="op">=</span><span class="ident">u8</span><span class="op">&gt;</span>,
 {
     <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">Error</span>;
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">deserialize</span><span class="op">&lt;</span><span class="ident">V</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">visitor</span>: <span class="ident">V</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">V</span>::<span class="ident">Value</span><span class="op">&gt;</span>
-        <span class="kw">where</span> <span class="ident">V</span>: <span class="ident">de</span>::<span class="ident">Visitor</span> {
+    <span class="kw">fn</span> <span class="ident">deserialize</span><span class="op">&lt;</span><span class="ident">V</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">visitor</span>: <span class="ident">V</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">V::Value</span><span class="op">&gt;</span>
+        <span class="kw">where</span> <span class="ident">V</span>: <span class="ident">de::Visitor</span> {
 
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">state</span> {
-            <span class="ident">State</span>::<span class="ident">Root</span> <span class="op">=</span><span class="op">&gt;</span> {}
+            <span class="ident">State::Root</span> <span class="op">=</span><span class="op">&gt;</span> {}
             <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {}
         };
         <span class="self">self</span>.<span class="ident">parse_value</span>(<span class="ident">visitor</span>)
@@ -1303,14 +1303,14 @@
 
     <span class="doccomment">/// Parses a `null` as a None, and any other values as a `Some(...)`.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">deserialize_option</span><span class="op">&lt;</span><span class="ident">V</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="kw-2">mut</span> <span class="ident">visitor</span>: <span class="ident">V</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">V</span>::<span class="ident">Value</span><span class="op">&gt;</span>
-        <span class="kw">where</span> <span class="ident">V</span>: <span class="ident">de</span>::<span class="ident">Visitor</span> {
-        <span class="macro">try</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">rdr</span>.<span class="ident">parse_whitespace</span>());
+    <span class="kw">fn</span> <span class="ident">deserialize_option</span><span class="op">&lt;</span><span class="ident">V</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="kw-2">mut</span> <span class="ident">visitor</span>: <span class="ident">V</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">V::Value</span><span class="op">&gt;</span>
+        <span class="kw">where</span> <span class="ident">V</span>: <span class="ident">de::Visitor</span> {
+        <span class="macro">try!</span>(<span class="self">self</span>.<span class="ident">rdr</span>.<span class="ident">parse_whitespace</span>());
 
-        <span class="kw">match</span> <span class="macro">try</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">rdr</span>.<span class="ident">peek_or_null</span>()) {
+        <span class="kw">match</span> <span class="macro">try!</span>(<span class="self">self</span>.<span class="ident">rdr</span>.<span class="ident">peek_or_null</span>()) {
             <span class="string">b&#39;n&#39;</span> <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="self">self</span>.<span class="ident">rdr</span>.<span class="ident">eat_char</span>();
-                <span class="macro">try</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">parse_ident</span>(<span class="string">b&quot;ull&quot;</span>));
+                <span class="macro">try!</span>(<span class="self">self</span>.<span class="ident">parse_ident</span>(<span class="string">b&quot;ull&quot;</span>));
                 <span class="ident">visitor</span>.<span class="ident">visit_none</span>()
             }
             <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {
@@ -1323,12 +1323,12 @@
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">deserialize_newtype_struct</span><span class="op">&lt;</span><span class="ident">V</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
                                <span class="ident">_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-                               <span class="kw-2">mut</span> <span class="ident">visitor</span>: <span class="ident">V</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">V</span>::<span class="ident">Value</span><span class="op">&gt;</span>
-        <span class="kw">where</span> <span class="ident">V</span>: <span class="ident">de</span>::<span class="ident">Visitor</span> {
+                               <span class="kw-2">mut</span> <span class="ident">visitor</span>: <span class="ident">V</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">V::Value</span><span class="op">&gt;</span>
+        <span class="kw">where</span> <span class="ident">V</span>: <span class="ident">de::Visitor</span> {
         <span class="ident">visitor</span>.<span class="ident">visit_newtype_struct</span>(<span class="self">self</span>)
     }
 
-    <span class="macro">forward_to_deserialize</span><span class="macro">!</span>{
+    <span class="macro">forward_to_deserialize!</span>{
         <span class="ident">deserialize_bool</span>();
         <span class="ident">deserialize_usize</span>();
         <span class="ident">deserialize_u8</span>();
@@ -1372,48 +1372,48 @@
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">Iter</span><span class="op">&gt;</span> <span class="ident">de</span>::<span class="ident">SeqVisitor</span> <span class="kw">for</span> <span class="ident">SeqVisitor</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">Iter</span><span class="op">&gt;</span>
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">Iter</span><span class="op">&gt;</span> <span class="ident">de::SeqVisitor</span> <span class="kw">for</span> <span class="ident">SeqVisitor</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">Iter</span><span class="op">&gt;</span>
     <span class="kw">where</span> <span class="ident">Iter</span>: <span class="ident">Iterator</span><span class="op">&lt;</span><span class="ident">Item</span><span class="op">=</span><span class="ident">u8</span><span class="op">&gt;</span>,
 {
     <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">Error</span>;
 
     <span class="kw">fn</span> <span class="ident">visit</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>
-        <span class="kw">where</span> <span class="ident">T</span>: <span class="ident">de</span>::<span class="ident">Deserialize</span> {
-        <span class="macro">try</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">de</span>.<span class="ident">rdr</span>.<span class="ident">parse_whitespace</span>());
+        <span class="kw">where</span> <span class="ident">T</span>: <span class="ident">de::Deserialize</span> {
+        <span class="macro">try!</span>(<span class="self">self</span>.<span class="ident">de</span>.<span class="ident">rdr</span>.<span class="ident">parse_whitespace</span>());
 
-        <span class="kw">match</span> <span class="macro">try</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">de</span>.<span class="ident">rdr</span>.<span class="ident">peek</span>()) {
+        <span class="kw">match</span> <span class="macro">try!</span>(<span class="self">self</span>.<span class="ident">de</span>.<span class="ident">rdr</span>.<span class="ident">peek</span>()) {
             <span class="prelude-val">Some</span>(<span class="string">b&#39;]&#39;</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>);
             }
             <span class="prelude-val">Some</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
             }
             <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="self">self</span>.<span class="ident">de</span>.<span class="ident">rdr</span>.<span class="ident">error</span>(<span class="ident">ErrorCode</span>::<span class="ident">EOFWhileParsingList</span>));
+                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="self">self</span>.<span class="ident">de</span>.<span class="ident">rdr</span>.<span class="ident">error</span>(<span class="ident">ErrorCode::EOFWhileParsingList</span>));
             }
         }
 
-        <span class="kw">let</span> <span class="ident">value</span> <span class="op">=</span> <span class="macro">try</span><span class="macro">!</span>(<span class="ident">de</span>::<span class="ident">Deserialize</span>::<span class="ident">deserialize</span>(<span class="self">self</span>.<span class="ident">de</span>));
+        <span class="kw">let</span> <span class="ident">value</span> <span class="op">=</span> <span class="macro">try!</span>(<span class="ident">de::Deserialize::deserialize</span>(<span class="self">self</span>.<span class="ident">de</span>));
 
         <span class="comment">// in Hjson the comma is optional and trailing commas are allowed</span>
-        <span class="macro">try</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">de</span>.<span class="ident">rdr</span>.<span class="ident">parse_whitespace</span>());
-        <span class="kw">if</span> <span class="macro">try</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">de</span>.<span class="ident">rdr</span>.<span class="ident">peek</span>()) <span class="op">=</span><span class="op">=</span> <span class="prelude-val">Some</span>(<span class="string">b&#39;,&#39;</span>) {
+        <span class="macro">try!</span>(<span class="self">self</span>.<span class="ident">de</span>.<span class="ident">rdr</span>.<span class="ident">parse_whitespace</span>());
+        <span class="kw">if</span> <span class="macro">try!</span>(<span class="self">self</span>.<span class="ident">de</span>.<span class="ident">rdr</span>.<span class="ident">peek</span>()) <span class="op">=</span><span class="op">=</span> <span class="prelude-val">Some</span>(<span class="string">b&#39;,&#39;</span>) {
             <span class="self">self</span>.<span class="ident">de</span>.<span class="ident">rdr</span>.<span class="ident">eat_char</span>();
-            <span class="macro">try</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">de</span>.<span class="ident">rdr</span>.<span class="ident">parse_whitespace</span>());
+            <span class="macro">try!</span>(<span class="self">self</span>.<span class="ident">de</span>.<span class="ident">rdr</span>.<span class="ident">parse_whitespace</span>());
         }
 
         <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="ident">value</span>))
     }
 
     <span class="kw">fn</span> <span class="ident">end</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="macro">try</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">de</span>.<span class="ident">rdr</span>.<span class="ident">parse_whitespace</span>());
+        <span class="macro">try!</span>(<span class="self">self</span>.<span class="ident">de</span>.<span class="ident">rdr</span>.<span class="ident">parse_whitespace</span>());
 
-        <span class="kw">match</span> <span class="macro">try</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">de</span>.<span class="ident">rdr</span>.<span class="ident">next_char</span>()) {
+        <span class="kw">match</span> <span class="macro">try!</span>(<span class="self">self</span>.<span class="ident">de</span>.<span class="ident">rdr</span>.<span class="ident">next_char</span>()) {
             <span class="prelude-val">Some</span>(<span class="string">b&#39;]&#39;</span>) <span class="op">=</span><span class="op">&gt;</span> { <span class="prelude-val">Ok</span>(()) }
             <span class="prelude-val">Some</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="prelude-val">Err</span>(<span class="self">self</span>.<span class="ident">de</span>.<span class="ident">rdr</span>.<span class="ident">error</span>(<span class="ident">ErrorCode</span>::<span class="ident">TrailingCharacters</span>))
+                <span class="prelude-val">Err</span>(<span class="self">self</span>.<span class="ident">de</span>.<span class="ident">rdr</span>.<span class="ident">error</span>(<span class="ident">ErrorCode::TrailingCharacters</span>))
             }
             <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="prelude-val">Err</span>(<span class="self">self</span>.<span class="ident">de</span>.<span class="ident">rdr</span>.<span class="ident">error</span>(<span class="ident">ErrorCode</span>::<span class="ident">EOFWhileParsingList</span>))
+                <span class="prelude-val">Err</span>(<span class="self">self</span>.<span class="ident">de</span>.<span class="ident">rdr</span>.<span class="ident">error</span>(<span class="ident">ErrorCode::EOFWhileParsingList</span>))
             }
         }
     }
@@ -1435,89 +1435,89 @@
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">Iter</span><span class="op">&gt;</span> <span class="ident">de</span>::<span class="ident">MapVisitor</span> <span class="kw">for</span> <span class="ident">MapVisitor</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">Iter</span><span class="op">&gt;</span>
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">Iter</span><span class="op">&gt;</span> <span class="ident">de::MapVisitor</span> <span class="kw">for</span> <span class="ident">MapVisitor</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">Iter</span><span class="op">&gt;</span>
     <span class="kw">where</span> <span class="ident">Iter</span>: <span class="ident">Iterator</span><span class="op">&lt;</span><span class="ident">Item</span><span class="op">=</span><span class="ident">u8</span><span class="op">&gt;</span>
 {
     <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">Error</span>;
 
     <span class="kw">fn</span> <span class="ident">visit_key</span><span class="op">&lt;</span><span class="ident">K</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">K</span><span class="op">&gt;</span><span class="op">&gt;</span>
-        <span class="kw">where</span> <span class="ident">K</span>: <span class="ident">de</span>::<span class="ident">Deserialize</span> {
-        <span class="macro">try</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">de</span>.<span class="ident">rdr</span>.<span class="ident">parse_whitespace</span>());
+        <span class="kw">where</span> <span class="ident">K</span>: <span class="ident">de::Deserialize</span> {
+        <span class="macro">try!</span>(<span class="self">self</span>.<span class="ident">de</span>.<span class="ident">rdr</span>.<span class="ident">parse_whitespace</span>());
 
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">first</span> {
             <span class="self">self</span>.<span class="ident">first</span> <span class="op">=</span> <span class="bool-val">false</span>;
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="macro">try</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">de</span>.<span class="ident">rdr</span>.<span class="ident">peek</span>()) <span class="op">=</span><span class="op">=</span> <span class="prelude-val">Some</span>(<span class="string">b&#39;,&#39;</span>) {
+        } <span class="kw">else</span> <span class="kw">if</span> <span class="macro">try!</span>(<span class="self">self</span>.<span class="ident">de</span>.<span class="ident">rdr</span>.<span class="ident">peek</span>()) <span class="op">=</span><span class="op">=</span> <span class="prelude-val">Some</span>(<span class="string">b&#39;,&#39;</span>) {
             <span class="comment">// in Hjson the comma is optional and trailing commas are allowed</span>
             <span class="self">self</span>.<span class="ident">de</span>.<span class="ident">rdr</span>.<span class="ident">eat_char</span>();
-            <span class="macro">try</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">de</span>.<span class="ident">rdr</span>.<span class="ident">parse_whitespace</span>());
+            <span class="macro">try!</span>(<span class="self">self</span>.<span class="ident">de</span>.<span class="ident">rdr</span>.<span class="ident">parse_whitespace</span>());
         }
 
-        <span class="kw">match</span> <span class="macro">try</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">de</span>.<span class="ident">rdr</span>.<span class="ident">peek</span>()) {
+        <span class="kw">match</span> <span class="macro">try!</span>(<span class="self">self</span>.<span class="ident">de</span>.<span class="ident">rdr</span>.<span class="ident">peek</span>()) {
             <span class="prelude-val">Some</span>(<span class="string">b&#39;}&#39;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>), <span class="comment">// handled later for root</span>
             <span class="prelude-val">Some</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {},
             <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">if</span> <span class="self">self</span>.<span class="ident">root</span> { <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>); }
-                <span class="kw">else</span> { <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="self">self</span>.<span class="ident">de</span>.<span class="ident">rdr</span>.<span class="ident">error</span>(<span class="ident">ErrorCode</span>::<span class="ident">EOFWhileParsingObject</span>)); }
+                <span class="kw">else</span> { <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="self">self</span>.<span class="ident">de</span>.<span class="ident">rdr</span>.<span class="ident">error</span>(<span class="ident">ErrorCode::EOFWhileParsingObject</span>)); }
             },
         }
 
-        <span class="kw">match</span> <span class="macro">try</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">de</span>.<span class="ident">rdr</span>.<span class="ident">peek</span>()) {
+        <span class="kw">match</span> <span class="macro">try!</span>(<span class="self">self</span>.<span class="ident">de</span>.<span class="ident">rdr</span>.<span class="ident">peek</span>()) {
             <span class="prelude-val">Some</span>(<span class="ident">ch</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="self">self</span>.<span class="ident">de</span>.<span class="ident">state</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">ch</span> <span class="op">=</span><span class="op">=</span> <span class="string">b&#39;&quot;&#39;</span> { <span class="ident">State</span>::<span class="ident">Normal</span> } <span class="kw">else</span> { <span class="ident">State</span>::<span class="ident">Keyname</span> };
-                <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="macro">try</span><span class="macro">!</span>(<span class="ident">de</span>::<span class="ident">Deserialize</span>::<span class="ident">deserialize</span>(<span class="self">self</span>.<span class="ident">de</span>))))
+                <span class="self">self</span>.<span class="ident">de</span>.<span class="ident">state</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">ch</span> <span class="op">=</span><span class="op">=</span> <span class="string">b&#39;&quot;&#39;</span> { <span class="ident">State::Normal</span> } <span class="kw">else</span> { <span class="ident">State::Keyname</span> };
+                <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="macro">try!</span>(<span class="ident">de::Deserialize::deserialize</span>(<span class="self">self</span>.<span class="ident">de</span>))))
             }
             <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="prelude-val">Err</span>(<span class="self">self</span>.<span class="ident">de</span>.<span class="ident">rdr</span>.<span class="ident">error</span>(<span class="ident">ErrorCode</span>::<span class="ident">EOFWhileParsingValue</span>))
+                <span class="prelude-val">Err</span>(<span class="self">self</span>.<span class="ident">de</span>.<span class="ident">rdr</span>.<span class="ident">error</span>(<span class="ident">ErrorCode::EOFWhileParsingValue</span>))
             }
         }
     }
 
     <span class="kw">fn</span> <span class="ident">visit_value</span><span class="op">&lt;</span><span class="ident">V</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">V</span><span class="op">&gt;</span>
-        <span class="kw">where</span> <span class="ident">V</span>: <span class="ident">de</span>::<span class="ident">Deserialize</span> {
-        <span class="macro">try</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">de</span>.<span class="ident">parse_object_colon</span>());
+        <span class="kw">where</span> <span class="ident">V</span>: <span class="ident">de::Deserialize</span> {
+        <span class="macro">try!</span>(<span class="self">self</span>.<span class="ident">de</span>.<span class="ident">parse_object_colon</span>());
 
-        <span class="prelude-val">Ok</span>(<span class="macro">try</span><span class="macro">!</span>(<span class="ident">de</span>::<span class="ident">Deserialize</span>::<span class="ident">deserialize</span>(<span class="self">self</span>.<span class="ident">de</span>)))
+        <span class="prelude-val">Ok</span>(<span class="macro">try!</span>(<span class="ident">de::Deserialize::deserialize</span>(<span class="self">self</span>.<span class="ident">de</span>)))
     }
 
     <span class="kw">fn</span> <span class="ident">end</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="macro">try</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">de</span>.<span class="ident">rdr</span>.<span class="ident">parse_whitespace</span>());
+        <span class="macro">try!</span>(<span class="self">self</span>.<span class="ident">de</span>.<span class="ident">rdr</span>.<span class="ident">parse_whitespace</span>());
 
-        <span class="kw">match</span> <span class="macro">try</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">de</span>.<span class="ident">rdr</span>.<span class="ident">next_char</span>()) {
+        <span class="kw">match</span> <span class="macro">try!</span>(<span class="self">self</span>.<span class="ident">de</span>.<span class="ident">rdr</span>.<span class="ident">next_char</span>()) {
             <span class="prelude-val">Some</span>(<span class="string">b&#39;}&#39;</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">root</span> { <span class="prelude-val">Ok</span>(()) }
-                <span class="kw">else</span> { <span class="prelude-val">Err</span>(<span class="self">self</span>.<span class="ident">de</span>.<span class="ident">rdr</span>.<span class="ident">error</span>(<span class="ident">ErrorCode</span>::<span class="ident">TrailingCharacters</span>)) } <span class="comment">// todo</span>
+                <span class="kw">else</span> { <span class="prelude-val">Err</span>(<span class="self">self</span>.<span class="ident">de</span>.<span class="ident">rdr</span>.<span class="ident">error</span>(<span class="ident">ErrorCode::TrailingCharacters</span>)) } <span class="comment">// todo</span>
             }
             <span class="prelude-val">Some</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="prelude-val">Err</span>(<span class="self">self</span>.<span class="ident">de</span>.<span class="ident">rdr</span>.<span class="ident">error</span>(<span class="ident">ErrorCode</span>::<span class="ident">TrailingCharacters</span>))
+                <span class="prelude-val">Err</span>(<span class="self">self</span>.<span class="ident">de</span>.<span class="ident">rdr</span>.<span class="ident">error</span>(<span class="ident">ErrorCode::TrailingCharacters</span>))
             }
             <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">if</span> <span class="self">self</span>.<span class="ident">root</span> { <span class="prelude-val">Ok</span>(()) }
-                <span class="kw">else</span> { <span class="prelude-val">Err</span>(<span class="self">self</span>.<span class="ident">de</span>.<span class="ident">rdr</span>.<span class="ident">error</span>(<span class="ident">ErrorCode</span>::<span class="ident">EOFWhileParsingObject</span>)) }
+                <span class="kw">else</span> { <span class="prelude-val">Err</span>(<span class="self">self</span>.<span class="ident">de</span>.<span class="ident">rdr</span>.<span class="ident">error</span>(<span class="ident">ErrorCode::EOFWhileParsingObject</span>)) }
             }
         }
     }
 
     <span class="kw">fn</span> <span class="ident">missing_field</span><span class="op">&lt;</span><span class="ident">V</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">field</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">V</span><span class="op">&gt;</span>
-        <span class="kw">where</span> <span class="ident">V</span>: <span class="ident">de</span>::<span class="ident">Deserialize</span> {
+        <span class="kw">where</span> <span class="ident">V</span>: <span class="ident">de::Deserialize</span> {
 
         <span class="kw">struct</span> <span class="ident">MissingFieldDeserializer</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>);
 
-        <span class="kw">impl</span> <span class="ident">de</span>::<span class="ident">Deserializer</span> <span class="kw">for</span> <span class="ident">MissingFieldDeserializer</span> {
-            <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">de</span>::<span class="ident">value</span>::<span class="ident">Error</span>;
+        <span class="kw">impl</span> <span class="ident">de::Deserializer</span> <span class="kw">for</span> <span class="ident">MissingFieldDeserializer</span> {
+            <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">de::value::Error</span>;
 
-            <span class="kw">fn</span> <span class="ident">deserialize</span><span class="op">&lt;</span><span class="ident">V</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">_visitor</span>: <span class="ident">V</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">std</span>::<span class="ident">result</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">V</span>::<span class="ident">Value</span>, <span class="self">Self</span>::<span class="ident">Error</span><span class="op">&gt;</span>
-                <span class="kw">where</span> <span class="ident">V</span>: <span class="ident">de</span>::<span class="ident">Visitor</span> {
+            <span class="kw">fn</span> <span class="ident">deserialize</span><span class="op">&lt;</span><span class="ident">V</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">_visitor</span>: <span class="ident">V</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">std::result::Result</span><span class="op">&lt;</span><span class="ident">V::Value</span>, <span class="self">Self</span><span class="ident">::Error</span><span class="op">&gt;</span>
+                <span class="kw">where</span> <span class="ident">V</span>: <span class="ident">de::Visitor</span> {
                 <span class="kw">let</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">MissingFieldDeserializer</span>(<span class="ident">field</span>) <span class="op">=</span> <span class="self">self</span>;
-                <span class="prelude-val">Err</span>(<span class="ident">de</span>::<span class="ident">value</span>::<span class="ident">Error</span>::<span class="ident">MissingField</span>(<span class="ident">field</span>))
+                <span class="prelude-val">Err</span>(<span class="ident">de::value::Error::MissingField</span>(<span class="ident">field</span>))
             }
 
             <span class="kw">fn</span> <span class="ident">deserialize_option</span><span class="op">&lt;</span><span class="ident">V</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
-                                     <span class="kw-2">mut</span> <span class="ident">visitor</span>: <span class="ident">V</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">std</span>::<span class="ident">result</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">V</span>::<span class="ident">Value</span>, <span class="self">Self</span>::<span class="ident">Error</span><span class="op">&gt;</span>
-                <span class="kw">where</span> <span class="ident">V</span>: <span class="ident">de</span>::<span class="ident">Visitor</span> {
+                                     <span class="kw-2">mut</span> <span class="ident">visitor</span>: <span class="ident">V</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">std::result::Result</span><span class="op">&lt;</span><span class="ident">V::Value</span>, <span class="self">Self</span><span class="ident">::Error</span><span class="op">&gt;</span>
+                <span class="kw">where</span> <span class="ident">V</span>: <span class="ident">de::Visitor</span> {
                 <span class="ident">visitor</span>.<span class="ident">visit_none</span>()
             }
 
-            <span class="macro">forward_to_deserialize</span><span class="macro">!</span>{
+            <span class="macro">forward_to_deserialize!</span>{
                 <span class="ident">deserialize_bool</span>();
                 <span class="ident">deserialize_usize</span>();
                 <span class="ident">deserialize_u8</span>();
@@ -1551,43 +1551,43 @@
         }
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">de</span> <span class="op">=</span> <span class="ident">MissingFieldDeserializer</span>(<span class="ident">field</span>);
-        <span class="prelude-val">Ok</span>(<span class="macro">try</span><span class="macro">!</span>(<span class="ident">de</span>::<span class="ident">Deserialize</span>::<span class="ident">deserialize</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">de</span>)))
+        <span class="prelude-val">Ok</span>(<span class="macro">try!</span>(<span class="ident">de::Deserialize::deserialize</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">de</span>)))
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">Iter</span><span class="op">&gt;</span> <span class="ident">de</span>::<span class="ident">VariantVisitor</span> <span class="kw">for</span> <span class="ident">Deserializer</span><span class="op">&lt;</span><span class="ident">Iter</span><span class="op">&gt;</span>
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">Iter</span><span class="op">&gt;</span> <span class="ident">de::VariantVisitor</span> <span class="kw">for</span> <span class="ident">Deserializer</span><span class="op">&lt;</span><span class="ident">Iter</span><span class="op">&gt;</span>
     <span class="kw">where</span> <span class="ident">Iter</span>: <span class="ident">Iterator</span><span class="op">&lt;</span><span class="ident">Item</span><span class="op">=</span><span class="ident">u8</span><span class="op">&gt;</span>,
 {
     <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">Error</span>;
 
     <span class="kw">fn</span> <span class="ident">visit_variant</span><span class="op">&lt;</span><span class="ident">V</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">V</span><span class="op">&gt;</span>
-        <span class="kw">where</span> <span class="ident">V</span>: <span class="ident">de</span>::<span class="ident">Deserialize</span> {
-        <span class="kw">let</span> <span class="ident">val</span> <span class="op">=</span> <span class="macro">try</span><span class="macro">!</span>(<span class="ident">de</span>::<span class="ident">Deserialize</span>::<span class="ident">deserialize</span>(<span class="self">self</span>));
-        <span class="macro">try</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">parse_object_colon</span>());
+        <span class="kw">where</span> <span class="ident">V</span>: <span class="ident">de::Deserialize</span> {
+        <span class="kw">let</span> <span class="ident">val</span> <span class="op">=</span> <span class="macro">try!</span>(<span class="ident">de::Deserialize::deserialize</span>(<span class="self">self</span>));
+        <span class="macro">try!</span>(<span class="self">self</span>.<span class="ident">parse_object_colon</span>());
         <span class="prelude-val">Ok</span>(<span class="ident">val</span>)
     }
 
     <span class="kw">fn</span> <span class="ident">visit_unit</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="ident">de</span>::<span class="ident">Deserialize</span>::<span class="ident">deserialize</span>(<span class="self">self</span>)
+        <span class="ident">de::Deserialize::deserialize</span>(<span class="self">self</span>)
     }
 
     <span class="kw">fn</span> <span class="ident">visit_newtype</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
-        <span class="kw">where</span> <span class="ident">T</span>: <span class="ident">de</span>::<span class="ident">Deserialize</span> {
-        <span class="ident">de</span>::<span class="ident">Deserialize</span>::<span class="ident">deserialize</span>(<span class="self">self</span>)
+        <span class="kw">where</span> <span class="ident">T</span>: <span class="ident">de::Deserialize</span> {
+        <span class="ident">de::Deserialize::deserialize</span>(<span class="self">self</span>)
     }
 
     <span class="kw">fn</span> <span class="ident">visit_tuple</span><span class="op">&lt;</span><span class="ident">V</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
                       <span class="ident">_len</span>: <span class="ident">usize</span>,
-                      <span class="ident">visitor</span>: <span class="ident">V</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">V</span>::<span class="ident">Value</span><span class="op">&gt;</span>
-        <span class="kw">where</span> <span class="ident">V</span>: <span class="ident">de</span>::<span class="ident">Visitor</span> {
-        <span class="ident">de</span>::<span class="ident">Deserializer</span>::<span class="ident">deserialize</span>(<span class="self">self</span>, <span class="ident">visitor</span>)
+                      <span class="ident">visitor</span>: <span class="ident">V</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">V::Value</span><span class="op">&gt;</span>
+        <span class="kw">where</span> <span class="ident">V</span>: <span class="ident">de::Visitor</span> {
+        <span class="ident">de::Deserializer::deserialize</span>(<span class="self">self</span>, <span class="ident">visitor</span>)
     }
 
     <span class="kw">fn</span> <span class="ident">visit_struct</span><span class="op">&lt;</span><span class="ident">V</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
                        <span class="ident">_fields</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> [<span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>],
-                       <span class="ident">visitor</span>: <span class="ident">V</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">V</span>::<span class="ident">Value</span><span class="op">&gt;</span>
-        <span class="kw">where</span> <span class="ident">V</span>: <span class="ident">de</span>::<span class="ident">Visitor</span> {
-        <span class="ident">de</span>::<span class="ident">Deserializer</span>::<span class="ident">deserialize</span>(<span class="self">self</span>, <span class="ident">visitor</span>)
+                       <span class="ident">visitor</span>: <span class="ident">V</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">V::Value</span><span class="op">&gt;</span>
+        <span class="kw">where</span> <span class="ident">V</span>: <span class="ident">de::Visitor</span> {
+        <span class="ident">de::Deserializer::deserialize</span>(<span class="self">self</span>, <span class="ident">visitor</span>)
     }
 }
 
@@ -1596,7 +1596,7 @@
 <span class="doccomment">/// Iterator that deserializes a stream into multiple Hjson values.</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">StreamDeserializer</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">Iter</span><span class="op">&gt;</span>
     <span class="kw">where</span> <span class="ident">Iter</span>: <span class="ident">Iterator</span><span class="op">&lt;</span><span class="ident">Item</span><span class="op">=</span><span class="ident">u8</span><span class="op">&gt;</span>,
-          <span class="ident">T</span>: <span class="ident">de</span>::<span class="ident">Deserialize</span>
+          <span class="ident">T</span>: <span class="ident">de::Deserialize</span>
 {
     <span class="ident">deser</span>: <span class="ident">Deserializer</span><span class="op">&lt;</span><span class="ident">Iter</span><span class="op">&gt;</span>,
     <span class="ident">_marker</span>: <span class="ident">PhantomData</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
@@ -1604,13 +1604,13 @@
 
 <span class="kw">impl</span> <span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">Iter</span><span class="op">&gt;</span> <span class="ident">StreamDeserializer</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">Iter</span><span class="op">&gt;</span>
     <span class="kw">where</span> <span class="ident">Iter</span>:<span class="ident">Iterator</span><span class="op">&lt;</span><span class="ident">Item</span><span class="op">=</span><span class="ident">u8</span><span class="op">&gt;</span>,
-          <span class="ident">T</span>: <span class="ident">de</span>::<span class="ident">Deserialize</span>
+          <span class="ident">T</span>: <span class="ident">de::Deserialize</span>
 {
     <span class="doccomment">/// Returns an `Iterator` of decoded Hjson values from an iterator over</span>
     <span class="doccomment">/// `Iterator&lt;Item=u8&gt;`.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">iter</span>: <span class="ident">Iter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">StreamDeserializer</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">Iter</span><span class="op">&gt;</span> {
         <span class="ident">StreamDeserializer</span> {
-            <span class="ident">deser</span>: <span class="ident">Deserializer</span>::<span class="ident">new</span>(<span class="ident">iter</span>),
+            <span class="ident">deser</span>: <span class="ident">Deserializer::new</span>(<span class="ident">iter</span>),
             <span class="ident">_marker</span>: <span class="ident">PhantomData</span>
         }
     }
@@ -1618,7 +1618,7 @@
 
 <span class="kw">impl</span> <span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">Iter</span><span class="op">&gt;</span> <span class="ident">Iterator</span> <span class="kw">for</span> <span class="ident">StreamDeserializer</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">Iter</span><span class="op">&gt;</span>
     <span class="kw">where</span> <span class="ident">Iter</span>: <span class="ident">Iterator</span><span class="op">&lt;</span><span class="ident">Item</span><span class="op">=</span><span class="ident">u8</span><span class="op">&gt;</span>,
-          <span class="ident">T</span>: <span class="ident">de</span>::<span class="ident">Deserialize</span>
+          <span class="ident">T</span>: <span class="ident">de::Deserialize</span>
 {
     <span class="kw">type</span> <span class="ident">Item</span> <span class="op">=</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>;
 
@@ -1632,7 +1632,7 @@
 
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">deser</span>.<span class="ident">rdr</span>.<span class="ident">eof</span>() {
             <span class="prelude-val">Ok</span>(<span class="bool-val">true</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
-            <span class="prelude-val">Ok</span>(<span class="bool-val">false</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">de</span>::<span class="ident">Deserialize</span>::<span class="ident">deserialize</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">deser</span>) {
+            <span class="prelude-val">Ok</span>(<span class="bool-val">false</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">de::Deserialize::deserialize</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">deser</span>) {
                 <span class="prelude-val">Ok</span>(<span class="ident">v</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(<span class="ident">v</span>)),
                 <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="prelude-val">Err</span>(<span class="ident">e</span>))
             },
@@ -1646,12 +1646,12 @@
 <span class="doccomment">/// Decodes a Hjson value from an iterator over an iterator</span>
 <span class="doccomment">/// `Iterator&lt;Item=u8&gt;`.</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_iter</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">iter</span>: <span class="ident">I</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
-    <span class="kw">where</span> <span class="ident">I</span>: <span class="ident">Iterator</span><span class="op">&lt;</span><span class="ident">Item</span><span class="op">=</span><span class="ident">io</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-          <span class="ident">T</span>: <span class="ident">de</span>::<span class="ident">Deserialize</span>,
+    <span class="kw">where</span> <span class="ident">I</span>: <span class="ident">Iterator</span><span class="op">&lt;</span><span class="ident">Item</span><span class="op">=</span><span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+          <span class="ident">T</span>: <span class="ident">de::Deserialize</span>,
 {
-    <span class="kw">let</span> <span class="ident">fold</span>: <span class="ident">io</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">iter</span>.<span class="ident">collect</span>();
+    <span class="kw">let</span> <span class="ident">fold</span>: <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">iter</span>.<span class="ident">collect</span>();
     <span class="kw">if</span> <span class="ident">fold</span>.<span class="ident">is_err</span>() {
-        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">Io</span>(<span class="ident">fold</span>.<span class="ident">unwrap_err</span>()));
+        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Error::Io</span>(<span class="ident">fold</span>.<span class="ident">unwrap_err</span>()));
     }
 
     <span class="kw">let</span> <span class="ident">bytes</span> <span class="op">=</span> <span class="ident">fold</span>.<span class="ident">unwrap</span>();
@@ -1661,14 +1661,14 @@
     <span class="comment">// todo: add compile switch</span>
 
     <span class="comment">// deserialize and make sure the whole stream has been consumed</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">de</span> <span class="op">=</span> <span class="ident">Deserializer</span>::<span class="ident">new_for_root</span>(<span class="ident">bytes</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">b</span><span class="op">|</span> <span class="kw-2">*</span><span class="ident">b</span>));
-    <span class="kw">let</span> <span class="ident">value</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">de</span>::<span class="ident">Deserialize</span>::<span class="ident">deserialize</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">de</span>)
-        .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> { <span class="macro">try</span><span class="macro">!</span>(<span class="ident">de</span>.<span class="ident">end</span>()); <span class="prelude-val">Ok</span>(<span class="ident">x</span>) })
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">de</span> <span class="op">=</span> <span class="ident">Deserializer::new_for_root</span>(<span class="ident">bytes</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">b</span><span class="op">|</span> <span class="kw-2">*</span><span class="ident">b</span>));
+    <span class="kw">let</span> <span class="ident">value</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">de::Deserialize::deserialize</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">de</span>)
+        .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> { <span class="macro">try!</span>(<span class="ident">de</span>.<span class="ident">end</span>()); <span class="prelude-val">Ok</span>(<span class="ident">x</span>) })
     {
         <span class="prelude-val">Ok</span>(<span class="ident">v</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">v</span>),
         <span class="prelude-val">Err</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">de2</span> <span class="op">=</span> <span class="ident">Deserializer</span>::<span class="ident">new</span>(<span class="ident">bytes</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">b</span><span class="op">|</span> <span class="kw-2">*</span><span class="ident">b</span>));
-            <span class="kw">match</span> <span class="ident">de</span>::<span class="ident">Deserialize</span>::<span class="ident">deserialize</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">de2</span>).<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> { <span class="macro">try</span><span class="macro">!</span>(<span class="ident">de2</span>.<span class="ident">end</span>()); <span class="prelude-val">Ok</span>(<span class="ident">x</span>) }) {
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">de2</span> <span class="op">=</span> <span class="ident">Deserializer::new</span>(<span class="ident">bytes</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">b</span><span class="op">|</span> <span class="kw-2">*</span><span class="ident">b</span>));
+            <span class="kw">match</span> <span class="ident">de::Deserialize::deserialize</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">de2</span>).<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> { <span class="macro">try!</span>(<span class="ident">de2</span>.<span class="ident">end</span>()); <span class="prelude-val">Ok</span>(<span class="ident">x</span>) }) {
                 <span class="prelude-val">Ok</span>(<span class="ident">v</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">v</span>),
                 <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>),
             }
@@ -1691,25 +1691,25 @@
 
 <span class="doccomment">/// Decodes a Hjson value from a `std::io::Read`.</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_reader</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">rdr</span>: <span class="ident">R</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
-    <span class="kw">where</span> <span class="ident">R</span>: <span class="ident">io</span>::<span class="ident">Read</span>,
-          <span class="ident">T</span>: <span class="ident">de</span>::<span class="ident">Deserialize</span>,
+    <span class="kw">where</span> <span class="ident">R</span>: <span class="ident">io::Read</span>,
+          <span class="ident">T</span>: <span class="ident">de::Deserialize</span>,
 {
     <span class="ident">from_iter</span>(<span class="ident">rdr</span>.<span class="ident">bytes</span>())
 }
 
 <span class="doccomment">/// Decodes a Hjson value from a byte slice `&amp;[u8]`.</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_slice</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">v</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
-    <span class="kw">where</span> <span class="ident">T</span>: <span class="ident">de</span>::<span class="ident">Deserialize</span>
+    <span class="kw">where</span> <span class="ident">T</span>: <span class="ident">de::Deserialize</span>
 {
     <span class="ident">from_iter</span>(<span class="ident">v</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">byte</span><span class="op">|</span> <span class="prelude-val">Ok</span>(<span class="kw-2">*</span><span class="ident">byte</span>)))
 }
 
 <span class="doccomment">/// Decodes a Hjson value from a `&amp;str`.</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_str</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">s</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
-    <span class="kw">where</span> <span class="ident">T</span>: <span class="ident">de</span>::<span class="ident">Deserialize</span>
+    <span class="kw">where</span> <span class="ident">T</span>: <span class="ident">de::Deserialize</span>
 {
     <span class="ident">from_slice</span>(<span class="ident">s</span>.<span class="ident">as_bytes</span>())
 }
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="serde_hjson" data-search-js="../../search-index.js"></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="serde_hjson" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
     <script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script></body></html>
