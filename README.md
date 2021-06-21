@@ -1,5 +1,3 @@
-> NOTE: this repo is temporarily in read only mode for a migration
-
 # Merino
 
 A service to provide address bar suggestions to Firefox from a variety of sources.
