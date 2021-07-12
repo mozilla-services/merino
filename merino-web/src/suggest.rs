@@ -86,7 +86,7 @@ impl<'a> SuggestionProviderRef<'a> {
                         "Setting up suggestion providers"
                     );
 
-                    /// The number providers we expect to have, so we usually
+                    /// The number of providers we expect to have, so we usually
                     /// don't have to re-allocate the vec.
                     const NUM_PROVIDERS: usize = 2;
                     let mut providers: Vec<Box<dyn SuggestionProvider + Send + Sync>> =
