@@ -2,6 +2,7 @@
 
 //! Suggestion backends for [Merino](../merino/index.html).
 
+mod multi;
 mod wikifruit;
 
 use std::borrow::Cow;
@@ -13,6 +14,7 @@ use serde::Serialize;
 use serde_with::{serde_as, DisplayFromStr};
 use thiserror::Error;
 
+pub use crate::multi::Multi;
 pub use crate::wikifruit::WikiFruit;
 
 /// A suggestion to provide to a user.
