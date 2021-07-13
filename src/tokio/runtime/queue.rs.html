@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/usr/local/cargo/registry/src/github.com-1ecc6299db9ec823/tokio-1.5.0/src/runtime/queue.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>queue.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/usr/local/cargo/registry/src/github.com-1ecc6299db9ec823/tokio-1.8.1/src/runtime/queue.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>queue.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png">
 <link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../tokio/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../../settings.html"><img src="../../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
@@ -635,6 +635,18 @@
 <span id="632">632</span>
 <span id="633">633</span>
 <span id="634">634</span>
+<span id="635">635</span>
+<span id="636">636</span>
+<span id="637">637</span>
+<span id="638">638</span>
+<span id="639">639</span>
+<span id="640">640</span>
+<span id="641">641</span>
+<span id="642">642</span>
+<span id="643">643</span>
+<span id="644">644</span>
+<span id="645">645</span>
+<span id="646">646</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Run-queue structures to support a work-stealing scheduler</span>
 
@@ -747,7 +759,10 @@
     }
 
     <span class="doccomment">/// Pushes a task to the back of the local queue, skipping the LIFO slot.</span>
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">push_back</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="kw-2">mut</span> <span class="ident">task</span>: <span class="ident">task::Notified</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>, <span class="ident">inject</span>: <span class="kw-2">&amp;</span><span class="ident">Inject</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>) {
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">push_back</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="kw-2">mut</span> <span class="ident">task</span>: <span class="ident">task::Notified</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>, <span class="ident">inject</span>: <span class="kw-2">&amp;</span><span class="ident">Inject</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>)
+    <span class="kw">where</span>
+        <span class="ident">T</span>: <span class="kw">crate</span><span class="ident">::runtime::task::Schedule</span>,
+    {
         <span class="kw">let</span> <span class="ident">tail</span> <span class="op">=</span> <span class="kw">loop</span> {
             <span class="kw">let</span> <span class="ident">head</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">head</span>.<span class="ident">load</span>(<span class="ident">Acquire</span>);
             <span class="kw">let</span> (<span class="ident">steal</span>, <span class="ident">real</span>) <span class="op">=</span> <span class="ident">unpack</span>(<span class="ident">head</span>);
@@ -759,9 +774,14 @@
                 <span class="comment">// There is capacity for the task</span>
                 <span class="kw">break</span> <span class="ident">tail</span>;
             } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">steal</span> <span class="op">!</span><span class="op">=</span> <span class="ident">real</span> {
-                <span class="comment">// Concurrently stealing, this will free up capacity, so</span>
-                <span class="comment">// only push the new task onto the inject queue</span>
-                <span class="ident">inject</span>.<span class="ident">push</span>(<span class="ident">task</span>);
+                <span class="comment">// Concurrently stealing, this will free up capacity, so only</span>
+                <span class="comment">// push the new task onto the inject queue</span>
+                <span class="comment">//</span>
+                <span class="comment">// If the task fails to be pushed on the injection queue, there</span>
+                <span class="comment">// is nothing to be done at this point as the task cannot be a</span>
+                <span class="comment">// newly spawned task. Shutting down this task is handled by the</span>
+                <span class="comment">// worker shutdown process.</span>
+                <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">inject</span>.<span class="ident">push</span>(<span class="ident">task</span>);
                 <span class="kw">return</span>;
             } <span class="kw">else</span> {
                 <span class="comment">// Push the current task and half of the queue into the</span>
@@ -1142,16 +1162,19 @@
     }
 
     <span class="doccomment">/// Pushes a value into the queue.</span>
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">push</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">task</span>: <span class="ident">task::Notified</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>) {
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Returns `Err(task)` if pushing fails due to the queue being shutdown.</span>
+    <span class="doccomment">/// The caller is expected to call `shutdown()` on the task **if and only</span>
+    <span class="doccomment">/// if** it is a newly spawned task.</span>
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">push</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">task</span>: <span class="ident">task::Notified</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">task::Notified</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>
+    <span class="kw">where</span>
+        <span class="ident">T</span>: <span class="kw">crate</span><span class="ident">::runtime::task::Schedule</span>,
+    {
         <span class="comment">// Acquire queue lock</span>
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">p</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">pointers</span>.<span class="ident">lock</span>();
 
         <span class="kw">if</span> <span class="ident">p</span>.<span class="ident">is_closed</span> {
-            <span class="comment">// Drop the mutex to avoid a potential deadlock when</span>
-            <span class="comment">// re-entering.</span>
-            <span class="ident">drop</span>(<span class="ident">p</span>);
-            <span class="ident">drop</span>(<span class="ident">task</span>);
-            <span class="kw">return</span>;
+            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">task</span>);
         }
 
         <span class="comment">// safety: only mutated with the lock held</span>
@@ -1170,6 +1193,7 @@
         <span class="ident">p</span>.<span class="ident">tail</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">task</span>);
 
         <span class="self">self</span>.<span class="ident">len</span>.<span class="ident">store</span>(<span class="ident">len</span> <span class="op">+</span> <span class="number">1</span>, <span class="ident">Release</span>);
+        <span class="prelude-val">Ok</span>(())
     }
 
     <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">push_batch</span>(
@@ -1255,7 +1279,7 @@
 <span class="doccomment">/// Split the head value into the real head and the index a stealer is working</span>
 <span class="doccomment">/// on.</span>
 <span class="kw">fn</span> <span class="ident">unpack</span>(<span class="ident">n</span>: <span class="ident">u32</span>) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">u16</span>, <span class="ident">u16</span>) {
-    <span class="kw">let</span> <span class="ident">real</span> <span class="op">=</span> <span class="ident">n</span> <span class="op">&amp;</span> <span class="ident">u16::max_value</span>() <span class="kw">as</span> <span class="ident">u32</span>;
+    <span class="kw">let</span> <span class="ident">real</span> <span class="op">=</span> <span class="ident">n</span> <span class="op">&amp;</span> <span class="ident">u16::MAX</span> <span class="kw">as</span> <span class="ident">u32</span>;
     <span class="kw">let</span> <span class="ident">steal</span> <span class="op">=</span> <span class="ident">n</span> <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">16</span>;
 
     (<span class="ident">steal</span> <span class="kw">as</span> <span class="ident">u16</span>, <span class="ident">real</span> <span class="kw">as</span> <span class="ident">u16</span>)
@@ -1268,7 +1292,7 @@
 
 <span class="attribute">#[<span class="ident">test</span>]</span>
 <span class="kw">fn</span> <span class="ident">test_local_queue_capacity</span>() {
-    <span class="macro">assert!</span>(<span class="ident">LOCAL_QUEUE_CAPACITY</span> <span class="op">-</span> <span class="number">1</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident">u8::max_value</span>() <span class="kw">as</span> <span class="ident">usize</span>);
+    <span class="macro">assert!</span>(<span class="ident">LOCAL_QUEUE_CAPACITY</span> <span class="op">-</span> <span class="number">1</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident">u8::MAX</span> <span class="kw">as</span> <span class="ident">usize</span>);
 }
 </pre></div>
 </section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="tokio" data-search-index-js="../../../search-index.js" data-search-js="../../../search.js"></div>

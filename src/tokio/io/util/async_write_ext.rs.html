@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/usr/local/cargo/registry/src/github.com-1ecc6299db9ec823/tokio-1.5.0/src/io/util/async_write_ext.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>async_write_ext.rs - source</title><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../../storage.js"></script><script src="../../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/usr/local/cargo/registry/src/github.com-1ecc6299db9ec823/tokio-1.8.1/src/io/util/async_write_ext.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>async_write_ext.rs - source</title><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../../storage.js"></script><script src="../../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png">
 <link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../../tokio/index.html'><div class='logo-container rust-logo'><img src='../../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../../../settings.html"><img src="../../../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">   1</span>
@@ -1048,11 +1048,106 @@
 <span id="1045">1045</span>
 <span id="1046">1046</span>
 <span id="1047">1047</span>
+<span id="1048">1048</span>
+<span id="1049">1049</span>
+<span id="1050">1050</span>
+<span id="1051">1051</span>
+<span id="1052">1052</span>
+<span id="1053">1053</span>
+<span id="1054">1054</span>
+<span id="1055">1055</span>
+<span id="1056">1056</span>
+<span id="1057">1057</span>
+<span id="1058">1058</span>
+<span id="1059">1059</span>
+<span id="1060">1060</span>
+<span id="1061">1061</span>
+<span id="1062">1062</span>
+<span id="1063">1063</span>
+<span id="1064">1064</span>
+<span id="1065">1065</span>
+<span id="1066">1066</span>
+<span id="1067">1067</span>
+<span id="1068">1068</span>
+<span id="1069">1069</span>
+<span id="1070">1070</span>
+<span id="1071">1071</span>
+<span id="1072">1072</span>
+<span id="1073">1073</span>
+<span id="1074">1074</span>
+<span id="1075">1075</span>
+<span id="1076">1076</span>
+<span id="1077">1077</span>
+<span id="1078">1078</span>
+<span id="1079">1079</span>
+<span id="1080">1080</span>
+<span id="1081">1081</span>
+<span id="1082">1082</span>
+<span id="1083">1083</span>
+<span id="1084">1084</span>
+<span id="1085">1085</span>
+<span id="1086">1086</span>
+<span id="1087">1087</span>
+<span id="1088">1088</span>
+<span id="1089">1089</span>
+<span id="1090">1090</span>
+<span id="1091">1091</span>
+<span id="1092">1092</span>
+<span id="1093">1093</span>
+<span id="1094">1094</span>
+<span id="1095">1095</span>
+<span id="1096">1096</span>
+<span id="1097">1097</span>
+<span id="1098">1098</span>
+<span id="1099">1099</span>
+<span id="1100">1100</span>
+<span id="1101">1101</span>
+<span id="1102">1102</span>
+<span id="1103">1103</span>
+<span id="1104">1104</span>
+<span id="1105">1105</span>
+<span id="1106">1106</span>
+<span id="1107">1107</span>
+<span id="1108">1108</span>
+<span id="1109">1109</span>
+<span id="1110">1110</span>
+<span id="1111">1111</span>
+<span id="1112">1112</span>
+<span id="1113">1113</span>
+<span id="1114">1114</span>
+<span id="1115">1115</span>
+<span id="1116">1116</span>
+<span id="1117">1117</span>
+<span id="1118">1118</span>
+<span id="1119">1119</span>
+<span id="1120">1120</span>
+<span id="1121">1121</span>
+<span id="1122">1122</span>
+<span id="1123">1123</span>
+<span id="1124">1124</span>
+<span id="1125">1125</span>
+<span id="1126">1126</span>
+<span id="1127">1127</span>
+<span id="1128">1128</span>
+<span id="1129">1129</span>
+<span id="1130">1130</span>
+<span id="1131">1131</span>
+<span id="1132">1132</span>
+<span id="1133">1133</span>
+<span id="1134">1134</span>
+<span id="1135">1135</span>
+<span id="1136">1136</span>
+<span id="1137">1137</span>
+<span id="1138">1138</span>
+<span id="1139">1139</span>
+<span id="1140">1140</span>
+<span id="1141">1141</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::io::util::flush</span>::{<span class="ident">flush</span>, <span class="ident">Flush</span>};
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::io::util::shutdown</span>::{<span class="ident">shutdown</span>, <span class="ident">Shutdown</span>};
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::io::util::write</span>::{<span class="ident">write</span>, <span class="ident">Write</span>};
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::io::util::write_all</span>::{<span class="ident">write_all</span>, <span class="ident">WriteAll</span>};
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::io::util::write_all_buf</span>::{<span class="ident">write_all_buf</span>, <span class="ident">WriteAllBuf</span>};
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::io::util::write_buf</span>::{<span class="ident">write_buf</span>, <span class="ident">WriteBuf</span>};
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::io::util::write_int</span>::{
     <span class="ident">WriteI128</span>, <span class="ident">WriteI128Le</span>, <span class="ident">WriteI16</span>, <span class="ident">WriteI16Le</span>, <span class="ident">WriteI32</span>, <span class="ident">WriteI32Le</span>, <span class="ident">WriteI64</span>, <span class="ident">WriteI64Le</span>,
@@ -1147,6 +1242,13 @@
         <span class="doccomment">/// It is **not** considered an error if the entire buffer could not be</span>
         <span class="doccomment">/// written to this writer.</span>
         <span class="doccomment">///</span>
+        <span class="doccomment">/// # Cancel safety</span>
+        <span class="doccomment">///</span>
+        <span class="doccomment">/// This method is cancellation safe in the sense that if it is used as</span>
+        <span class="doccomment">/// the event in a [`tokio::select!`](crate::select) statement and some</span>
+        <span class="doccomment">/// other branch completes first, then it is guaranteed that no data was</span>
+        <span class="doccomment">/// written to this `AsyncWrite`.</span>
+        <span class="doccomment">///</span>
         <span class="doccomment">/// # Examples</span>
         <span class="doccomment">///</span>
         <span class="doccomment">/// ```no_run</span>
@@ -1179,6 +1281,13 @@
         <span class="doccomment">///</span>
         <span class="doccomment">/// See [`AsyncWrite::poll_write_vectored`] for more details.</span>
         <span class="doccomment">///</span>
+        <span class="doccomment">/// # Cancel safety</span>
+        <span class="doccomment">///</span>
+        <span class="doccomment">/// This method is cancellation safe in the sense that if it is used as</span>
+        <span class="doccomment">/// the event in a [`tokio::select!`](crate::select) statement and some</span>
+        <span class="doccomment">/// other branch completes first, then it is guaranteed that no data was</span>
+        <span class="doccomment">/// written to this `AsyncWrite`.</span>
+        <span class="doccomment">///</span>
         <span class="doccomment">/// # Examples</span>
         <span class="doccomment">///</span>
         <span class="doccomment">/// ```no_run</span>
@@ -1209,7 +1318,6 @@
         {
             <span class="ident">write_vectored</span>(<span class="self">self</span>, <span class="ident">bufs</span>)
         }
-
 
         <span class="doccomment">/// Writes a buffer into this writer, advancing the buffer&#39;s internal</span>
         <span class="doccomment">/// cursor.</span>
@@ -1246,12 +1354,20 @@
         <span class="doccomment">/// It is **not** considered an error if the entire buffer could not be</span>
         <span class="doccomment">/// written to this writer.</span>
         <span class="doccomment">///</span>
+        <span class="doccomment">/// # Cancel safety</span>
+        <span class="doccomment">///</span>
+        <span class="doccomment">/// This method is cancellation safe in the sense that if it is used as</span>
+        <span class="doccomment">/// the event in a [`tokio::select!`](crate::select) statement and some</span>
+        <span class="doccomment">/// other branch completes first, then it is guaranteed that no data was</span>
+        <span class="doccomment">/// written to this `AsyncWrite`.</span>
+        <span class="doccomment">///</span>
         <span class="doccomment">/// # Examples</span>
         <span class="doccomment">///</span>
-        <span class="doccomment">/// [`File`] implements `Read` and [`Cursor&lt;&amp;[u8]&gt;`] implements [`Buf`]:</span>
+        <span class="doccomment">/// [`File`] implements [`AsyncWrite`] and [`Cursor`]`&lt;&amp;[u8]&gt;` implements [`Buf`]:</span>
         <span class="doccomment">///</span>
         <span class="doccomment">/// [`File`]: crate::fs::File</span>
         <span class="doccomment">/// [`Buf`]: bytes::Buf</span>
+        <span class="doccomment">/// [`Cursor`]: std::io::Cursor</span>
         <span class="doccomment">///</span>
         <span class="doccomment">/// ```no_run</span>
         <span class="doccomment">/// use tokio::io::{self, AsyncWriteExt};</span>
@@ -1284,6 +1400,70 @@
             <span class="ident">write_buf</span>(<span class="self">self</span>, <span class="ident">src</span>)
         }
 
+        <span class="doccomment">/// Attempts to write an entire buffer into this writer</span>
+        <span class="doccomment">///</span>
+        <span class="doccomment">/// Equivalent to:</span>
+        <span class="doccomment">///</span>
+        <span class="doccomment">/// ```ignore</span>
+        <span class="doccomment">/// async fn write_all_buf(&amp;mut self, buf: impl Buf) -&gt; Result&lt;(), io::Error&gt; {</span>
+        <span class="doccomment">///     while buf.has_remaining() {</span>
+        <span class="doccomment">///         self.write_buf(&amp;mut buf).await?;</span>
+        <span class="doccomment">///     }</span>
+        <span class="doccomment">///     Ok(())</span>
+        <span class="doccomment">/// }</span>
+        <span class="doccomment">/// ```</span>
+        <span class="doccomment">///</span>
+        <span class="doccomment">/// This method will continuously call [`write`] until</span>
+        <span class="doccomment">/// [`buf.has_remaining()`](bytes::Buf::has_remaining) returns false. This method will not</span>
+        <span class="doccomment">/// return until the entire buffer has been successfully written or an error occurs. The</span>
+        <span class="doccomment">/// first error generated will be returned.</span>
+        <span class="doccomment">///</span>
+        <span class="doccomment">/// The buffer is advanced after each chunk is successfully written. After failure,</span>
+        <span class="doccomment">/// `src.chunk()` will return the chunk that failed to write.</span>
+        <span class="doccomment">///</span>
+        <span class="doccomment">/// # Cancel safety</span>
+        <span class="doccomment">///</span>
+        <span class="doccomment">/// If `write_all_buf` is used as the event in a</span>
+        <span class="doccomment">/// [`tokio::select!`](crate::select) statement and some other branch</span>
+        <span class="doccomment">/// completes first, then the data in the provided buffer may have been</span>
+        <span class="doccomment">/// partially written. However, it is guaranteed that the provided</span>
+        <span class="doccomment">/// buffer has been [advanced] by the amount of bytes that have been</span>
+        <span class="doccomment">/// partially written.</span>
+        <span class="doccomment">///</span>
+        <span class="doccomment">/// # Examples</span>
+        <span class="doccomment">///</span>
+        <span class="doccomment">/// [`File`] implements [`AsyncWrite`] and [`Cursor`]`&lt;&amp;[u8]&gt;` implements [`Buf`]:</span>
+        <span class="doccomment">///</span>
+        <span class="doccomment">/// [`File`]: crate::fs::File</span>
+        <span class="doccomment">/// [`Buf`]: bytes::Buf</span>
+        <span class="doccomment">/// [`Cursor`]: std::io::Cursor</span>
+        <span class="doccomment">/// [advanced]: bytes::Buf::advance</span>
+        <span class="doccomment">///</span>
+        <span class="doccomment">/// ```no_run</span>
+        <span class="doccomment">/// use tokio::io::{self, AsyncWriteExt};</span>
+        <span class="doccomment">/// use tokio::fs::File;</span>
+        <span class="doccomment">///</span>
+        <span class="doccomment">/// use std::io::Cursor;</span>
+        <span class="doccomment">///</span>
+        <span class="doccomment">/// #[tokio::main]</span>
+        <span class="doccomment">/// async fn main() -&gt; io::Result&lt;()&gt; {</span>
+        <span class="doccomment">///     let mut file = File::create(&quot;foo.txt&quot;).await?;</span>
+        <span class="doccomment">///     let mut buffer = Cursor::new(b&quot;data to write&quot;);</span>
+        <span class="doccomment">///</span>
+        <span class="doccomment">///     file.write_all_buf(&amp;mut buffer).await?;</span>
+        <span class="doccomment">///     Ok(())</span>
+        <span class="doccomment">/// }</span>
+        <span class="doccomment">/// ```</span>
+        <span class="doccomment">///</span>
+        <span class="doccomment">/// [`write`]: AsyncWriteExt::write</span>
+        <span class="kw">fn</span> <span class="ident">write_all_buf</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">B</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">src</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="ident">B</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">WriteAllBuf</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="self">Self</span>, <span class="ident">B</span><span class="op">&gt;</span>
+        <span class="kw">where</span>
+            <span class="self">Self</span>: <span class="ident">Sized</span> <span class="op">+</span> <span class="ident">Unpin</span>,
+            <span class="ident">B</span>: <span class="ident">Buf</span>,
+        {
+            <span class="ident">write_all_buf</span>(<span class="self">self</span>, <span class="ident">src</span>)
+        }
+
         <span class="doccomment">/// Attempts to write an entire buffer into this writer.</span>
         <span class="doccomment">///</span>
         <span class="doccomment">/// Equivalent to:</span>
@@ -1296,6 +1476,14 @@
         <span class="doccomment">/// to be written. This method will not return until the entire buffer</span>
         <span class="doccomment">/// has been successfully written or such an error occurs. The first</span>
         <span class="doccomment">/// error generated from this method will be returned.</span>
+        <span class="doccomment">///</span>
+        <span class="doccomment">/// # Cancel safety</span>
+        <span class="doccomment">///</span>
+        <span class="doccomment">/// This method is not cancellation safe. If it is used as the event</span>
+        <span class="doccomment">/// in a [`tokio::select!`](crate::select) statement and some other</span>
+        <span class="doccomment">/// branch completes first, then the provided buffer may have been</span>
+        <span class="doccomment">/// partially written, but future calls to `write_all` will start over</span>
+        <span class="doccomment">/// from the beginning of the buffer.</span>
         <span class="doccomment">///</span>
         <span class="doccomment">/// # Errors</span>
         <span class="doccomment">///</span>
@@ -1618,8 +1806,8 @@
             <span class="doccomment">/// async fn main() -&gt; io::Result&lt;()&gt; {</span>
             <span class="doccomment">///     let mut writer = Vec::new();</span>
             <span class="doccomment">///</span>
-            <span class="doccomment">///     writer.write_i64(i64::min_value()).await?;</span>
-            <span class="doccomment">///     writer.write_i64(i64::max_value()).await?;</span>
+            <span class="doccomment">///     writer.write_i64(i64::MIN).await?;</span>
+            <span class="doccomment">///     writer.write_i64(i64::MAX).await?;</span>
             <span class="doccomment">///</span>
             <span class="doccomment">///     assert_eq!(writer, b&quot;\x80\x00\x00\x00\x00\x00\x00\x00\x7f\xff\xff\xff\xff\xff\xff\xff&quot;);</span>
             <span class="doccomment">///     Ok(())</span>
@@ -1696,7 +1884,7 @@
             <span class="doccomment">/// async fn main() -&gt; io::Result&lt;()&gt; {</span>
             <span class="doccomment">///     let mut writer = Vec::new();</span>
             <span class="doccomment">///</span>
-            <span class="doccomment">///     writer.write_i128(i128::min_value()).await?;</span>
+            <span class="doccomment">///     writer.write_i128(i128::MIN).await?;</span>
             <span class="doccomment">///</span>
             <span class="doccomment">///     assert_eq!(writer, vec![</span>
             <span class="doccomment">///         0x80, 0, 0, 0, 0, 0, 0, 0,</span>
@@ -1927,8 +2115,8 @@
             <span class="doccomment">/// async fn main() -&gt; io::Result&lt;()&gt; {</span>
             <span class="doccomment">///     let mut writer = Vec::new();</span>
             <span class="doccomment">///</span>
-            <span class="doccomment">///     writer.write_i64_le(i64::min_value()).await?;</span>
-            <span class="doccomment">///     writer.write_i64_le(i64::max_value()).await?;</span>
+            <span class="doccomment">///     writer.write_i64_le(i64::MIN).await?;</span>
+            <span class="doccomment">///     writer.write_i64_le(i64::MAX).await?;</span>
             <span class="doccomment">///</span>
             <span class="doccomment">///     assert_eq!(writer, b&quot;\x00\x00\x00\x00\x00\x00\x00\x80\xff\xff\xff\xff\xff\xff\xff\x7f&quot;);</span>
             <span class="doccomment">///     Ok(())</span>
@@ -2005,7 +2193,7 @@
             <span class="doccomment">/// async fn main() -&gt; io::Result&lt;()&gt; {</span>
             <span class="doccomment">///     let mut writer = Vec::new();</span>
             <span class="doccomment">///</span>
-            <span class="doccomment">///     writer.write_i128_le(i128::min_value()).await?;</span>
+            <span class="doccomment">///     writer.write_i128_le(i128::MIN).await?;</span>
             <span class="doccomment">///</span>
             <span class="doccomment">///     assert_eq!(writer, vec![</span>
             <span class="doccomment">///          0, 0, 0, 0, 0, 0, 0,</span>

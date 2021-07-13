@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["Multi","A provider that aggregates suggestions from multiple suggesters."]],"type":[["ThreadSafeSuggestionProvider","Type alias for the contained suggestion type to save some typing."]]});
