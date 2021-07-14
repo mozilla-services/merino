@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["HexSlice","Wrapper for printing slice as hex data"],["HexU16","Wrapper for printing value as u16 hex data"],["HexU8","Wrapper for printing value as u8 hex data"]]});
