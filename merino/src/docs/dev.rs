@@ -1,14 +1,44 @@
 //! # Developer documentation for working on Merino
 //!
-//! Currently Merino has no external dependencies, so it is simple to set up.
+//! ## tl;dr
 //!
-//! ```shell
-//! git clone https://github.com/mozilla-services/merino
-//! cd merino
-//! cargo run
+//! Here are some useful commands when working on Merino.
+//!
+//! Run the main app
+//! ```
+//! $ cargo run -p merino
 //! ```
 //!
-//! Tests likewise are run with the standard `cargo test` command.
+//! Run specific tests for one crate
+//! ```
+//! $ cargo test -p merino-integration-tests -- cache
+//! ```
+//!
+//! Run dependency servers
+//! ```
+//! $ cd dev
+//! $ docker-compose up
+//! ```
+//!
+//! ## Dependencies
+//!
+//! Merino includes a Redis-based caching system.
+//!
+//! To make things simple, Redis (and any future service dependencies) can be
+//! started with Docker Compose, using the `docker-compose.yaml` file in the
+//! `dev/` directory. Notably, this does not run any Merino components that have
+//! source code in this repository.
+//!
+//! ```shell
+//! $ cd dev
+//! $ docker-compose up
+//! ```
+//!
+//! The docker-compose setup also includes Redis Commander, available on port
+//! 8081, pre-configured to examine the Dockerized Redis instance.
+//!
+//! This Dockerized set up is optional. Feel free to run the dependent services
+//! by any other means as well.
 //!
 //! ## Local configuration
 //!
@@ -21,11 +51,10 @@
 //!
 //! ### Update the defaults
 //!
-//! If the change you want to make definitely makes the system better for most
-//! development tasks, consider adding it to `config/development.yaml`, so that
-//! your fellow developers can take advantage of it. You can look at
-//! `config/base.yaml`, which defines all requires configuration, to see an
-//! example of the structure.
+//! If the change you want to make makes the system better for most development
+//! tasks, consider adding it to `config/development.yaml`, so that other
+//! developers can take advantage of it. You can look at `config/base.yaml`,
+//! which defines all requires configuration, to see an example of the structure.
 //!
 //! It is not suitable to put secrets in `config/development.yaml`.
 //!
@@ -54,7 +83,7 @@
 //! Since this file is meant to be checked into the repository, it is **not**
 //! suitable for secrets.
 //!
-//! > Note that none of the above overrides are uses in tests. If you need to
+//! > Note that none of the above overrides are used in tests. If you need to
 //! > configure the test environment, you can edit `config/test.yaml` or create
 //! > `config/local_test.yaml`.
 //!
