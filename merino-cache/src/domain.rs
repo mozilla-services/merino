@@ -41,8 +41,9 @@ mod tests {
     fn it_works() {
         let req = SuggestionRequest {
             query: "arbitrary".into(),
+            supports_english: true,
         };
-        assert_eq!(req.cache_key(), "req:v1:62932cfb1976ac51");
+        assert_eq!(req.cache_key(), "req:v1:d442cd90b1772ca1");
     }
 
     proptest! {
@@ -52,6 +53,7 @@ mod tests {
         fn key_format(s in "\\PC*") {
             let req = SuggestionRequest {
                 query: s.into(),
+                supports_english: true,
             };
             let hex_digits = "0123456789abcdef";
             let parts: Vec<String> = req.cache_key().split(':').map(ToString::to_string).collect();

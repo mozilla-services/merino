@@ -231,7 +231,7 @@ impl<'a> SuggestionProvider<'a> for RemoteSettingsSuggester {
     ) -> Result<SuggestionResponse, SuggestError> {
         let suggestions = {
             match self.suggestions.get(request.query.as_ref()) {
-                Some(suggestion) => vec![suggestion.as_ref().clone()],
+                Some(suggestion) if request.supports_english => vec![suggestion.as_ref().clone()],
                 _ => vec![],
             }
         };
@@ -347,7 +347,7 @@ mod tests {
     use merino_suggest::{Suggestion, SuggestionProvider};
 
     #[actix_rt::test]
-    async fn it_works() -> anyhow::Result<()> {
+    async fn english_is_supported_example() -> anyhow::Result<()> {
         let mut suggestions = HashMap::new();
         suggestions.insert(
             "sheep".to_string(),
@@ -367,6 +367,7 @@ mod tests {
 
         let request = SuggestionRequest {
             query: "sheep".into(),
+            supports_english: true,
         };
 
         assert_eq!(
@@ -379,6 +380,35 @@ mod tests {
                 .collect::<Vec<_>>(),
             vec!["Wikipedia - Sheep"]
         );
+
+        Ok(())
+    }
+
+    #[actix_rt::test]
+    async fn english_is_unsupported_example() -> anyhow::Result<()> {
+        let mut suggestions = HashMap::new();
+        suggestions.insert(
+            "sheep".to_string(),
+            Arc::new(Suggestion {
+                title: "Wikipedia - Sheep".to_string(),
+                url: Uri::from_static("https://en.wikipedia.org/wiki/Sheep"),
+                id: 1,
+                full_keyword: "sheep".to_string(),
+                impression_url: Uri::from_static("https://127.0.0.1"),
+                click_url: Uri::from_static("https://127.0.0.1"),
+                advertiser: "test".to_string(),
+                is_sponsored: false,
+                icon: Uri::from_static("https://en.wikipedia.org/favicon.ico"),
+            }),
+        );
+        let rs_suggester = RemoteSettingsSuggester { suggestions };
+
+        let request = SuggestionRequest {
+            query: "sheep".into(),
+            supports_english: false,
+        };
+
+        assert!(rs_suggester.suggest(request).await?.suggestions.is_empty());
 
         Ok(())
     }
