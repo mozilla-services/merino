@@ -110,29 +110,27 @@ impl<'a> SuggestionProviderRef<'a> {
                         Vec::with_capacity(NUM_PROVIDERS);
 
                     if settings.providers.wiki_fruit.enabled {
+                        let wikifruit = WikiFruit::new_boxed(settings)?;
                         providers.push(match settings.providers.wiki_fruit.cache {
-                            merino_settings::CacheType::None => Box::new(WikiFruit),
+                            merino_settings::CacheType::None => wikifruit,
                             merino_settings::CacheType::Redis => {
-                                Box::new(merino_cache::RedisSuggester::new(WikiFruit))
+                                merino_cache::RedisSuggester::new_boxed(settings, *wikifruit)
+                                    .await?
                             }
                         });
                     }
 
                     if settings.providers.adm_rs.enabled {
+                        let adm_rs = RemoteSettingsSuggester::new_boxed(settings).await?;
                         providers.push(match settings.providers.adm_rs.cache {
-                            merino_settings::CacheType::None => {
-                                Box::new(RemoteSettingsSuggester::default())
-                            }
+                            merino_settings::CacheType::None => adm_rs,
                             merino_settings::CacheType::Redis => {
-                                Box::new(merino_cache::RedisSuggester::new(
-                                    RemoteSettingsSuggester::default(),
-                                ))
+                                merino_cache::RedisSuggester::new_boxed(settings, *adm_rs).await?
                             }
                         });
                     }
 
-                    let mut multi = merino_suggest::Multi::new(providers);
-                    multi.setup(settings).await?;
+                    let multi = merino_suggest::Multi::new(providers);
                     Ok(multi)
                 }
                 .instrument(setup_span)

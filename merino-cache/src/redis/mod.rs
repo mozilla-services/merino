@@ -26,11 +26,11 @@ where
     inner: S,
 
     /// Connection to Redis.
-    redis_connection: Option<redis::aio::ConnectionManager>,
+    redis_connection: redis::aio::ConnectionManager,
 
     /// The default amount of time a cache entry is valid, unless overridden by
     /// `inner`.
-    default_ttl: Option<Duration>,
+    default_ttl: Duration,
 }
 
 #[derive(Debug)]
@@ -49,25 +49,25 @@ impl<S> Suggester<S>
 where
     for<'a> S: SuggestionProvider<'a>,
 {
-    /// Create an instance that will query `provider` on cache-miss.
-    pub fn new(provider: S) -> Self {
-        Self {
-            inner: provider,
-            redis_connection: None,
-            default_ttl: None,
-        }
-    }
+    /// Create a WikiFruit provider from settings.
+    pub async fn new_boxed(settings: &Settings, provider: S) -> Result<Box<Self>, SetupError> {
+        tracing::debug!(?settings.redis_cache.url, "Setting up redis connection");
+        let client = redis::Client::open(settings.redis_cache.url.clone().ok_or_else(|| {
+            SetupError::InvalidConfiguration(anyhow!("No Redis URL is configured for caching"))
+        })?)
+        .context("Setting up Redis client")
+        .map_err(SetupError::Network)?;
 
-    /// Get a clone of this suggester's [`ConnectionManager`].
-    ///
-    /// Clones all collaborate to send requests through the same asynchronously
-    /// multiplexed connection.
-    fn get_connection(&self) -> Result<redis::aio::ConnectionManager, SuggestError> {
-        // `[Connection manager will multiplex requests from multiple async
-        // sources through its clones.
-        self.redis_connection
-            .clone()
-            .ok_or(SuggestError::InvalidSetup)
+        let redis_connection = redis::aio::ConnectionManager::new(client)
+            .await
+            .context("Connecting to Redis")
+            .map_err(SetupError::Network)?;
+
+        Ok(Box::new(Self {
+            inner: provider,
+            redis_connection,
+            default_ttl: settings.redis_cache.default_ttl,
+        }))
     }
 
     /// Retrieve an item from the cache
@@ -75,7 +75,7 @@ where
     /// If the item retrieved cannot be deserialized, it will be deleted. If
     /// there is no TTL for the retrieved item, one will be added to it.
     async fn get_key(&self, key: &str) -> Result<CacheCheckResult, SuggestError> {
-        let mut connection = self.get_connection()?;
+        let mut connection = self.redis_connection.clone();
         let span = tracing::info_span!("getting-cache-entry", %key);
 
         let cache_result: Result<(Option<RedisSuggestions>, RedisTtl), RedisError> = redis::pipe()
@@ -85,20 +85,18 @@ where
             .instrument(span)
             .await;
 
-        let default_ttl = self.default_ttl.ok_or(SuggestError::InvalidSetup)?;
-
         match cache_result {
             Ok((Some(suggestions), ttl)) => {
                 let ttl = match ttl {
                     RedisTtl::KeyDoesNotExist => {
                         // This probably should never happen?
                         tracing::error!(%key, "Cache provided a suggestion but claims it doesn't exist for TTL determination");
-                        default_ttl
+                        self.default_ttl
                     }
                     RedisTtl::KeyHasNoTtl => {
-                        tracing::warn!(%key, ?default_ttl, "Value in cache without TTL, setting default TTL");
-                        self.queue_set_key_ttl(&key, default_ttl)?;
-                        default_ttl
+                        tracing::warn!(%key, default_ttl = ?self.default_ttl, "Value in cache without TTL, setting default TTL");
+                        self.queue_set_key_ttl(&key, self.default_ttl)?;
+                        self.default_ttl
                     }
                     RedisTtl::Ttl(t) => Duration::from_secs(t as u64),
                 };
@@ -135,17 +133,17 @@ where
     /// Returns an error if the command cannot be queued. Does *not* error if the
     /// command fails to run to completion.
     fn queue_store_key(&self, key: &str, suggestions: Vec<Suggestion>) -> Result<(), SuggestError> {
-        let mut connection = self.get_connection()?;
+        let mut connection = self.redis_connection.clone();
         let key = key.to_string();
         let span = tracing::info_span!("storing-cache-entry", %key);
-        let default_ttl = self.default_ttl.ok_or(SuggestError::InvalidSetup)?;
+        let ttl = self.default_ttl.as_secs() as usize;
 
         tokio::task::spawn(async move {
             let to_store = RedisSuggestions(suggestions);
             tracing::debug!(%key, "storing cache entry");
             match redis::pipe()
                 .add_command(redis::Cmd::set(&key, to_store))
-                .add_command(redis::Cmd::expire(&key, default_ttl.as_secs() as usize))
+                .add_command(redis::Cmd::expire(&key, ttl))
                 .query_async(&mut connection)
                 .await
             {
@@ -171,7 +169,7 @@ where
     /// Returns an error if the command cannot be queued. Does *not* error if the
     /// command fails to run to completion.
     fn queue_delete_key(&self, key: &str) -> Result<(), SuggestError> {
-        let mut connection = self.get_connection()?;
+        let mut connection = self.redis_connection.clone();
         let key = key.to_string();
         let span = tracing::info_span!("deleting-cache-entry", %key);
 
@@ -198,7 +196,7 @@ where
     /// Returns an error if the command cannot be queued. Does *not* error if the
     /// command fails to run to completion.
     fn queue_set_key_ttl(&self, key: &str, ttl: Duration) -> Result<(), SuggestError> {
-        let mut connection = self.get_connection()?;
+        let mut connection = self.redis_connection.clone();
         let key = key.to_string();
         let span = tracing::info_span!("setting-cache-ttl", %key);
 
@@ -228,32 +226,11 @@ where
         format!("RedisCache({})", self.inner.name()).into()
     }
 
-    async fn setup(&mut self, settings: &Settings) -> Result<(), SetupError> {
-        tracing::debug!(?settings.redis_cache.url, "Setting up redis connection");
-        let client = redis::Client::open(settings.redis_cache.url.clone().ok_or_else(|| {
-            SetupError::InvalidConfiguration(anyhow!("No Redis URL is configured for caching"))
-        })?)
-        .context("Setting up Redis client")
-        .map_err(SetupError::Network)?;
-
-        self.redis_connection = Some(
-            redis::aio::ConnectionManager::new(client)
-                .await
-                .context("Connecting to Redis")
-                .map_err(SetupError::Network)?,
-        );
-
-        self.default_ttl = Some(settings.redis_cache.default_ttl);
-
-        Ok(())
-    }
-
     async fn suggest(
         &self,
         request: SuggestionRequest<'a>,
     ) -> Result<SuggestionResponse, SuggestError> {
         let key = request.cache_key();
-        let default_ttl = self.default_ttl.ok_or(SuggestError::InvalidSetup)?;
 
         let cache_result = self.get_key(&key).await?;
 
@@ -265,7 +242,7 @@ where
                 .inner
                 .suggest(request)
                 .await?
-                .with_cache_ttl(default_ttl);
+                .with_cache_ttl(self.default_ttl);
 
             self.queue_store_key(&key, response.suggestions.clone())?;
 

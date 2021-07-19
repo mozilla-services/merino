@@ -32,6 +32,15 @@ pub struct RemoteSettingsSuggester {
 static REMOTE_SETTINGS_SERVER_INFO: OnceCell<RemoteSettingsServerInfo> = OnceCell::const_new();
 
 impl RemoteSettingsSuggester {
+    /// Make and sync a new suggester.
+    pub async fn new_boxed(settings: &Settings) -> Result<Box<Self>, SetupError> {
+        let mut provider = Self {
+            suggestions: HashMap::new(),
+        };
+        provider.sync(settings).await?;
+        Ok(Box::new(provider))
+    }
+
     /// Download suggestions from Remote Settings
     ///
     /// This must be called at least once before any suggestions will be provided
@@ -214,11 +223,6 @@ impl RemoteSettingsSuggester {
 impl<'a> SuggestionProvider<'a> for RemoteSettingsSuggester {
     fn name(&self) -> std::borrow::Cow<'a, str> {
         Cow::from("AdmRemoteSettings")
-    }
-
-    async fn setup(&mut self, settings: &Settings) -> Result<(), SetupError> {
-        self.sync(settings).await?;
-        Ok(())
     }
 
     async fn suggest(

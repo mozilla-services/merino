@@ -11,7 +11,6 @@ use std::time::Duration;
 
 use async_trait::async_trait;
 use http::Uri;
-use merino_settings::Settings;
 use serde::{Deserialize, Serialize};
 use serde_with::{serde_as, DisplayFromStr};
 use thiserror::Error;
@@ -138,9 +137,6 @@ pub trait SuggestionProvider<'a> {
     /// An operator-visible name for this suggestion provider.
     fn name(&self) -> Cow<'a, str>;
 
-    /// May spawn recurring tasks.
-    async fn setup(&mut self, settings: &Settings) -> Result<(), SetupError>;
-
     /// Provide suggested results for `query`.
     async fn suggest(
         &self,
@@ -169,9 +165,6 @@ pub enum SetupError {
 #[derive(Debug, Error)]
 #[allow(missing_docs, clippy::missing_docs_in_private_items)]
 pub enum SuggestError {
-    #[error("Setup was not performed correctly")]
-    InvalidSetup,
-
     #[error("There was a network error while providing suggestions")]
     Network(#[source] anyhow::Error),
 

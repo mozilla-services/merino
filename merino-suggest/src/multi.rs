@@ -32,22 +32,6 @@ impl<'a> SuggestionProvider<'a> for Multi<'a> {
         format!("{}({})", "Multi", provider_names).into()
     }
 
-    async fn setup(
-        &mut self,
-        settings: &merino_settings::Settings,
-    ) -> Result<(), crate::SetupError> {
-        join_all(
-            self.providers
-                .iter_mut()
-                .map(|provider| provider.setup(settings)),
-        )
-        .await
-        // Vec<Result<T, E>> -> Result<(), E>. `Ok` if all providers set up
-        // correctly. If any failed, returns the first error.
-        .into_iter()
-        .collect::<Result<(), _>>()
-    }
-
     async fn suggest(
         &self,
         request: SuggestionRequest<'a>,
