@@ -58,7 +58,7 @@ async fn suggest<'a>(
         })?;
 
     let suggestion_request = SuggestionRequest {
-        query: Cow::from(query.q.clone()),
+        query: Cow::from(query.into_inner().q),
     };
 
     let response = provider

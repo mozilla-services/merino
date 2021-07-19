@@ -26,7 +26,7 @@ impl<'a> CacheKey<'a> for SuggestionRequest<'a> {
         self.hash(&mut hasher);
         let hash = hasher.finish();
         // Print the hash as a padded hex number. `0>16x` -> use zeroes to right
-        // align to a width of 16 characters, in he*x*adecimal.
+        // align to a width of 16 characters, in hexadecimal.
         format!("req:v1:{:0>16x}", hash).into()
     }
 }

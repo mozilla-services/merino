@@ -37,13 +37,7 @@ async fn responses_are_stored_in_the_cache() {
 
             assert_eq!(response.status(), StatusCode::OK);
             let http_response: Value = response.json().await.expect("response was not json");
-            let http_suggestions = http_response
-                .as_object()
-                .unwrap()
-                .get("suggestions")
-                .unwrap()
-                .as_array()
-                .unwrap();
+            let http_suggestions = http_response["suggestions"].as_array();
 
             tokio::time::sleep(Duration::from_millis(2000)).await;
 
@@ -56,7 +50,7 @@ async fn responses_are_stored_in_the_cache() {
             assert_eq!(&encoded[0..2], "v0", "version tag is included");
             let cache_suggestions: Vec<Value> =
                 serde_json::from_str(&encoded[2..]).expect("Couldn't parse cached item");
-            assert_eq!(cache_suggestions, *http_suggestions);
+            assert_eq!(Some(&cache_suggestions), http_suggestions);
         },
     )
     .await
