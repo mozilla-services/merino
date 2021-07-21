@@ -1,0 +1,3 @@
+(function() {var implementors = {};
+implementors["merino_settings"] = [{"text":"impl <a class=\"trait\" href=\"serde_with/ser/trait.SerializeAs.html\" title=\"trait serde_with::ser::SerializeAs\">SerializeAs</a>&lt;<a class=\"struct\" href=\"redis/connection/struct.ConnectionInfo.html\" title=\"struct redis::connection::ConnectionInfo\">ConnectionInfo</a>&gt; for <a class=\"struct\" href=\"merino_settings/redis/struct.AsConnectionInfo.html\" title=\"struct merino_settings::redis::AsConnectionInfo\">AsConnectionInfo</a>","synthetic":false,"types":["merino_settings::redis::AsConnectionInfo"]}];
+if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()

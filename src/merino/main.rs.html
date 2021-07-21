@@ -70,6 +70,12 @@
 <span id="67">67</span>
 <span id="68">68</span>
 <span id="69">69</span>
+<span id="70">70</span>
+<span id="71">71</span>
+<span id="72">72</span>
+<span id="73">73</span>
+<span id="74">74</span>
+<span id="75">75</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Only overview documentation that is not relevant to one of the more specific</span>
 <span class="comment">// crates should go here.</span>
@@ -91,6 +97,7 @@
 <span class="kw">use</span> <span class="ident">anyhow</span>::{<span class="ident">Context</span>, <span class="prelude-ty">Result</span>};
 <span class="kw">use</span> <span class="ident">merino_settings</span>::{<span class="ident">LogFormat</span>, <span class="ident">Settings</span>};
 <span class="kw">use</span> <span class="ident">std::net::TcpListener</span>;
+<span class="kw">use</span> <span class="ident">tracing::Level</span>;
 <span class="kw">use</span> <span class="ident">tracing_actix_web_mozlog</span>::{<span class="ident">JsonStorageLayer</span>, <span class="ident">MozLogFormatLayer</span>};
 <span class="kw">use</span> <span class="ident">tracing_log::LogTracer</span>;
 <span class="kw">use</span> <span class="ident">tracing_subscriber</span>::{<span class="ident">layer::SubscriberExt</span>, <span class="ident">EnvFilter</span>};
@@ -121,19 +128,24 @@
         <span class="ident">LogFormat::Pretty</span> <span class="op">=</span><span class="op">&gt;</span> {
             <span class="kw">let</span> <span class="ident">subscriber</span> <span class="op">=</span> <span class="ident">tracing_subscriber::FmtSubscriber::builder</span>()
                 .<span class="ident">pretty</span>()
+                .<span class="ident">with_max_level</span>(<span class="ident">Level::TRACE</span>)
                 .<span class="ident">finish</span>()
                 .<span class="ident">with</span>(<span class="ident">env_filter</span>);
             <span class="ident">tracing::subscriber::set_global_default</span>(<span class="ident">subscriber</span>)<span class="question-mark">?</span>;
         }
         <span class="ident">LogFormat::Compact</span> <span class="op">=</span><span class="op">&gt;</span> {
-            <span class="kw">let</span> <span class="ident">subscriber</span> <span class="op">=</span> <span class="ident">tracing_subscriber::FmtSubscriber::default</span>().<span class="ident">with</span>(<span class="ident">env_filter</span>);
+            <span class="kw">let</span> <span class="ident">subscriber</span> <span class="op">=</span> <span class="ident">tracing_subscriber::FmtSubscriber::builder</span>()
+                .<span class="ident">with_level</span>(<span class="bool-val">true</span>)
+                .<span class="ident">with_max_level</span>(<span class="ident">Level::TRACE</span>)
+                .<span class="ident">finish</span>()
+                .<span class="ident">with</span>(<span class="ident">env_filter</span>);
             <span class="ident">tracing::subscriber::set_global_default</span>(<span class="ident">subscriber</span>)<span class="question-mark">?</span>;
         }
         <span class="ident">LogFormat::MozLog</span> <span class="op">=</span><span class="op">&gt;</span> {
             <span class="kw">let</span> <span class="ident">subscriber</span> <span class="op">=</span> <span class="ident">tracing_subscriber::registry</span>()
-                .<span class="ident">with</span>(<span class="ident">env_filter</span>)
                 .<span class="ident">with</span>(<span class="ident">JsonStorageLayer</span>)
-                .<span class="ident">with</span>(<span class="ident">MozLogFormatLayer::new</span>(<span class="string">&quot;merino&quot;</span>, <span class="ident">std::io::stdout</span>));
+                .<span class="ident">with</span>(<span class="ident">MozLogFormatLayer::new</span>(<span class="string">&quot;merino&quot;</span>, <span class="ident">std::io::stdout</span>))
+                .<span class="ident">with</span>(<span class="ident">env_filter</span>);
             <span class="ident">tracing::subscriber::set_global_default</span>(<span class="ident">subscriber</span>)<span class="question-mark">?</span>;
         }
     };

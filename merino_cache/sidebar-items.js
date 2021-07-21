@@ -1,0 +1,1 @@
+initSidebarItems({"mod":[["domain","Data types specific to caching."],["redis","Interactions with Redis."]],"struct":[["RedisSuggester","A suggester that uses Redis to cache previous results."]]});

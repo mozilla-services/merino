@@ -1,13 +1,34 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Developer documentation for working on Merino"><meta name="keywords" content="rust, rustlang, rust-lang, dev"><title>merino::docs::dev - Rust</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png">
 <link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc mod"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../merino/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a><p class="location">Module dev</p><div class="sidebar-elems"><p class="location"><a href="../../index.html">merino</a>::<wbr><a href="../index.html">docs</a></p><div id="sidebar-vars" data-name="dev" data-ty="mod" data-relpath="../"></div><script defer src="../sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
-                <a id="settings-menu" href="../../../settings.html"><img src="../../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Module <a href="../../index.html">merino</a>::<wbr><a href="../index.html">docs</a>::<wbr><a class="mod" href="">dev</a><button id="copy-path" onclick="copy_path(this)">⎘</button></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../../../src/merino/docs/dev.rs.html#1-80" title="goto source code">[src]</a></span></h1><div class="docblock"><h1 id="developer-documentation-for-working-on-merino" class="section-header"><a href="#developer-documentation-for-working-on-merino">Developer documentation for working on Merino</a></h1>
-<p>Currently Merino has no external dependencies, so it is simple to set up.</p>
-<pre><code class="language-shell">git clone https://github.com/mozilla-services/merino
-cd merino
-cargo run
+                <a id="settings-menu" href="../../../settings.html"><img src="../../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Module <a href="../../index.html">merino</a>::<wbr><a href="../index.html">docs</a>::<wbr><a class="mod" href="">dev</a><button id="copy-path" onclick="copy_path(this)">⎘</button></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../../../src/merino/docs/dev.rs.html#1-109" title="goto source code">[src]</a></span></h1><div class="docblock"><h1 id="developer-documentation-for-working-on-merino" class="section-header"><a href="#developer-documentation-for-working-on-merino">Developer documentation for working on Merino</a></h1><h2 id="tldr" class="section-header"><a href="#tldr">tl;dr</a></h2>
+<p>Here are some useful commands when working on Merino.</p>
+<p>Run the main app</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+$ <span class="ident">cargo</span> <span class="ident">run</span> <span class="op">-</span><span class="ident">p</span> <span class="ident">merino</span></pre></div>
+<p>Run specific tests for one crate</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+$ <span class="ident">cargo</span> <span class="ident">test</span> <span class="op">-</span><span class="ident">p</span> <span class="ident">merino</span><span class="op">-</span><span class="ident">integration</span><span class="op">-</span><span class="ident">tests</span> <span class="op">-</span><span class="op">-</span> <span class="ident">cache</span></pre></div>
+<p>Run dependency servers</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+$ <span class="ident">cd</span> <span class="ident">dev</span>
+$ <span class="ident">docker</span><span class="op">-</span><span class="ident">compose</span> <span class="ident">up</span></pre></div>
+<h2 id="dependencies" class="section-header"><a href="#dependencies">Dependencies</a></h2>
+<p>Merino includes a Redis-based caching system.</p>
+<p>To make things simple, Redis (and any future service dependencies) can be
+started with Docker Compose, using the <code>docker-compose.yaml</code> file in the
+<code>dev/</code> directory. Notably, this does not run any Merino components that have
+source code in this repository.</p>
+<pre><code class="language-shell">$ cd dev
+$ docker-compose up
 </code></pre>
-<p>Tests likewise are run with the standard <code>cargo test</code> command.</p>
+<p>The docker-compose setup also includes Redis Commander, available on port
+8081, pre-configured to examine the Dockerized Redis instance.</p>
+<p>This Dockerized set up is optional. Feel free to run the dependent services
+by any other means as well.</p>
 <h2 id="local-configuration" class="section-header"><a href="#local-configuration">Local configuration</a></h2>
 <p>The default configuration of Merino is development, which has
 human-oriented logging and debugging enabled. For settings that you wish to
@@ -17,11 +38,10 @@ change in the development configuration, you have three options.</p>
 <a href="../../../merino_settings/index.html" title="merino_settings"><code>merino_settings</code></a>.</p>
 </blockquote>
 <h3 id="update-the-defaults" class="section-header"><a href="#update-the-defaults">Update the defaults</a></h3>
-<p>If the change you want to make definitely makes the system better for most
-development tasks, consider adding it to <code>config/development.yaml</code>, so that
-your fellow developers can take advantage of it. You can look at
-<code>config/base.yaml</code>, which defines all requires configuration, to see an
-example of the structure.</p>
+<p>If the change you want to make makes the system better for most development
+tasks, consider adding it to <code>config/development.yaml</code>, so that other
+developers can take advantage of it. You can look at <code>config/base.yaml</code>,
+which defines all requires configuration, to see an example of the structure.</p>
 <p>It is not suitable to put secrets in <code>config/development.yaml</code>.</p>
 <h3 id="create-a-local-override" class="section-header"><a href="#create-a-local-override">Create a local override</a></h3>
 <p>For local changes to adapt to your machine or tastes, you can put the
@@ -42,7 +62,7 @@ environment variable, which are out of scope for this document.</p>
 <p>Since this file is meant to be checked into the repository, it is <strong>not</strong>
 suitable for secrets.</p>
 <blockquote>
-<p>Note that none of the above overrides are uses in tests. If you need to
+<p>Note that none of the above overrides are used in tests. If you need to
 configure the test environment, you can edit <code>config/test.yaml</code> or create
 <code>config/local_test.yaml</code>.</p>
 </blockquote>
