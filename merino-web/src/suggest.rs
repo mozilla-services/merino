@@ -1,5 +1,7 @@
 //! Web handlers for the suggestions API.
 
+use std::borrow::Cow;
+
 use crate::errors::HandlerError;
 use actix_web::{
     get,
@@ -7,8 +9,9 @@ use actix_web::{
     HttpResponse,
 };
 use anyhow::Result;
+use merino_adm::remote_settings::RemoteSettingsSuggester;
 use merino_settings::Settings;
-use merino_suggest::{Suggestion, SuggestionProvider, WikiFruit};
+use merino_suggest::{Suggestion, SuggestionProvider, SuggestionRequest, WikiFruit};
 use serde::{Deserialize, Serialize};
 use tokio::sync::OnceCell;
 use tracing_futures::Instrument;
@@ -29,9 +32,9 @@ struct SuggestQuery {
 
 /// The response the API generates.
 #[derive(Debug, Serialize)]
-struct SuggestResponse {
+struct SuggestResponse<'a> {
     /// A list of suggestions from the service.
-    suggestions: Vec<Suggestion>,
+    suggestions: &'a [Suggestion],
 }
 
 /// Suggest content in response to the queried text.
@@ -54,17 +57,31 @@ async fn suggest<'a>(
             HandlerError::Internal
         })?;
 
-    let suggestions: Vec<Suggestion> = provider.suggest(&query.q).await.map_err(|error| {
-        tracing::error!(%error, r#type="web.suggest.error", "Error providing suggestions");
-        HandlerError::Internal
-    })?;
+    let suggestion_request = SuggestionRequest {
+        query: Cow::from(query.into_inner().q),
+    };
+
+    let response = provider
+        .suggest(suggestion_request)
+        .await
+        .map_err(|error| {
+            tracing::error!(%error, r#type="web.suggest.error", "Error providing suggestions");
+            HandlerError::Internal
+        })?;
 
     tracing::debug!(
         r#type = "web.suggest.provided-count",
-        suggestion_count = suggestions.len(),
+        suggestion_count = response.suggestions.len(),
         "Providing suggestions"
     );
-    Ok(HttpResponse::Ok().json(SuggestResponse { suggestions }))
+
+    let res = HttpResponse::Ok()
+        .append_header(("X-Cache", response.cache_status.to_string()))
+        .json(SuggestResponse {
+            suggestions: &response.suggestions,
+        });
+
+    Ok(res)
 }
 
 /// The SuggestionProvider stored in Actix's app_data.
@@ -91,17 +108,29 @@ impl<'a> SuggestionProviderRef<'a> {
                     const NUM_PROVIDERS: usize = 2;
                     let mut providers: Vec<Box<dyn SuggestionProvider + Send + Sync>> =
                         Vec::with_capacity(NUM_PROVIDERS);
+
                     if settings.providers.wiki_fruit.enabled {
-                        providers.push(Box::new(WikiFruit));
-                    }
-                    if settings.providers.adm_rs.enabled {
-                        providers.push(Box::new(
-                            merino_adm::remote_settings::RemoteSettingsSuggester::default(),
-                        ));
+                        let wikifruit = WikiFruit::new_boxed(settings)?;
+                        providers.push(match settings.providers.wiki_fruit.cache {
+                            merino_settings::CacheType::None => wikifruit,
+                            merino_settings::CacheType::Redis => {
+                                merino_cache::RedisSuggester::new_boxed(settings, *wikifruit)
+                                    .await?
+                            }
+                        });
                     }
 
-                    let mut multi = merino_suggest::Multi::new(providers);
-                    multi.setup(settings).await?;
+                    if settings.providers.adm_rs.enabled {
+                        let adm_rs = RemoteSettingsSuggester::new_boxed(settings).await?;
+                        providers.push(match settings.providers.adm_rs.cache {
+                            merino_settings::CacheType::None => adm_rs,
+                            merino_settings::CacheType::Redis => {
+                                merino_cache::RedisSuggester::new_boxed(settings, *adm_rs).await?
+                            }
+                        });
+                    }
+
+                    let multi = merino_suggest::Multi::new(providers);
                     Ok(multi)
                 }
                 .instrument(setup_span)

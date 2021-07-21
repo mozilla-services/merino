@@ -27,7 +27,7 @@ async fn suggest_wikifruit_works() -> Result<()> {
             assert_eq!(response.status(), StatusCode::OK);
             let body: serde_json::Value = response.json().await?;
             assert_eq!(
-                body["suggestions"][0]["url"],
+                dbg!(body)["suggestions"][0]["url"],
                 json!("https://en.wikipedia.org/wiki/Apple")
             );
 

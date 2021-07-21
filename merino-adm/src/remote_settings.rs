@@ -6,7 +6,9 @@ use futures::StreamExt;
 use http::Uri;
 use lazy_static::lazy_static;
 use merino_settings::Settings;
-use merino_suggest::{SetupError, SuggestError, Suggestion, SuggestionProvider};
+use merino_suggest::{
+    SetupError, SuggestError, Suggestion, SuggestionProvider, SuggestionRequest, SuggestionResponse,
+};
 use remote_settings_client::client::FileStorage;
 use serde::Deserialize;
 use serde_json::Value;
@@ -30,6 +32,15 @@ pub struct RemoteSettingsSuggester {
 static REMOTE_SETTINGS_SERVER_INFO: OnceCell<RemoteSettingsServerInfo> = OnceCell::const_new();
 
 impl RemoteSettingsSuggester {
+    /// Make and sync a new suggester.
+    pub async fn new_boxed(settings: &Settings) -> Result<Box<Self>, SetupError> {
+        let mut provider = Self {
+            suggestions: HashMap::new(),
+        };
+        provider.sync(settings).await?;
+        Ok(Box::new(provider))
+    }
+
     /// Download suggestions from Remote Settings
     ///
     /// This must be called at least once before any suggestions will be provided
@@ -214,19 +225,17 @@ impl<'a> SuggestionProvider<'a> for RemoteSettingsSuggester {
         Cow::from("AdmRemoteSettings")
     }
 
-    async fn setup(&mut self, settings: &Settings) -> Result<(), SetupError> {
-        self.sync(settings).await?;
-        Ok(())
-    }
-
-    async fn suggest(&self, query: &str) -> Result<Vec<Suggestion>, SuggestError> {
+    async fn suggest(
+        &self,
+        request: SuggestionRequest<'a>,
+    ) -> Result<SuggestionResponse, SuggestError> {
         let suggestions = {
-            match self.suggestions.get(query) {
+            match self.suggestions.get(request.query.as_ref()) {
                 Some(suggestion) => vec![suggestion.as_ref().clone()],
                 _ => vec![],
             }
         };
-        Ok(suggestions)
+        Ok(SuggestionResponse::new(suggestions))
     }
 }
 
@@ -356,10 +365,15 @@ mod tests {
         );
         let rs_suggester = RemoteSettingsSuggester { suggestions };
 
+        let request = SuggestionRequest {
+            query: "sheep".into(),
+        };
+
         assert_eq!(
             rs_suggester
-                .suggest("sheep")
+                .suggest(request)
                 .await?
+                .suggestions
                 .iter()
                 .map(|s| &s.title)
                 .collect::<Vec<_>>(),
