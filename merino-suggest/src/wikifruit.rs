@@ -11,8 +11,7 @@ use http::Uri;
 use merino_settings::Settings;
 
 use crate::{
-    SetupError, SuggestError, Suggestion, SuggestionProvider, SuggestionRequest,
-    SuggestionResponse, 
+    SetupError, SuggestError, Suggestion, SuggestionProvider, SuggestionRequest, SuggestionResponse,
 };
 
 /// A toy suggester to test the system.

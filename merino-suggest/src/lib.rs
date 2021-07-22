@@ -226,9 +226,11 @@ pub struct Language {
 /// An enum used to signify whether a `Language` refers to a specific language or a wildcard.
 #[derive(Debug, PartialEq)]
 pub enum LanguageIdentifier {
-    /// A specific language (usually a string of the form `<language>`-`<region>`).
+    /// A specific language (usually a string of the form `language`-`region`).
     Locale {
+        /// An ISO-639 language code.
         language: String,
+        /// An ISO 3166-1 alpha-2 country code.
         region: Option<String>,
     },
 
@@ -251,15 +253,15 @@ mod tests {
                 quality_value: None,
             };
 
-            let fr_ch = Language {
+            let fr = Language {
                 language_identifier: LanguageIdentifier::Locale {
                     language: "fr".to_owned(),
-                    region: Some("ch".to_owned()),
+                    region: None,
                 },
                 quality_value: None,
             };
 
-            SupportedLanguages(vec![en_ca, fr_ch])
+            SupportedLanguages(vec![en_ca, fr])
         };
 
         // Includes en-CA
@@ -270,6 +272,12 @@ mod tests {
 
         // Does not include en-GB
         assert!(!supported_languages.includes("en", Some("gb")));
+
+        // Includes fr
+        assert!(supported_languages.includes("fr", None));
+
+        // Does not include fr-CH
+        assert!(!supported_languages.includes("fr", Some("ch")));
 
         let supported_languages = {
             let wildcard = Language {
@@ -286,7 +294,7 @@ mod tests {
         // Includes en
         assert!(supported_languages.includes("en", None));
 
-        // Includes en-GB
-        assert!(supported_languages.includes("en", Some("gb")));
+        // Includes fr-CH
+        assert!(supported_languages.includes("fr", Some("ch")));
     }
 }

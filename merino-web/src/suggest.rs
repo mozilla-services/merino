@@ -10,7 +10,7 @@ use actix_web::{
     web::{Data, Query, ServiceConfig},
     Error, FromRequest, HttpRequest, HttpResponse,
 };
-use anyhow::{Context, Result};
+use anyhow::Result;
 use futures_util::future::{self, Ready};
 use merino_adm::remote_settings::RemoteSettingsSuggester;
 use merino_settings::Settings;
@@ -21,11 +21,7 @@ use merino_suggest::{
 
 use serde::{Deserialize, Serialize};
 use tokio::sync::OnceCell;
-use tracing::instrument;
-use tracing_futures::{Instrument, WithSubscriber};
-
-/// A set of suggesters stored in Actix's app_data.
-type SuggesterSet<'a> = OnceCell<Vec<Box<dyn SuggestionProvider<'a>>>>;
+use tracing_futures::Instrument;
 
 /// Configure a route to use the Suggest service.
 pub fn configure(config: &mut ServiceConfig) {
@@ -152,11 +148,6 @@ impl<'a> SuggestionProviderRef<'a> {
     }
 }
 
-/// Return a new HandlerError::MalformedHeader error.
-fn malformed_header_error(message: &'static str) -> HandlerError {
-    HandlerError::MalformedHeader(message)
-}
-
 /// A wrapper around `SupportedLanguages`.
 #[derive(Debug, PartialEq)]
 struct SupportedLanguagesWrapper(SupportedLanguages);
@@ -168,19 +159,23 @@ impl FromRequest for SupportedLanguagesWrapper {
 
     fn from_request(req: &HttpRequest, _payload: &mut Payload) -> Self::Future {
         /// Parse the quality value from a string of the form q=`<quality value>`.
-        #[inline(always)]
         fn parse_quality_value(quality_value: &str) -> Result<f64, HandlerError> {
-            let (_, weight) = quality_value
+            let (_, weight_as_string) = quality_value
                 .split_once('=')
-                .ok_or_else(|| malformed_header_error("Accept-Language"))?;
+                .ok_or(HandlerError::MalformedHeader("Accept-Language"))?;
 
-            weight
+            let weight = weight_as_string
                 .parse::<f64>()
-                .map_err(|_| malformed_header_error("Accept-Language"))
+                .map_err(|_| HandlerError::MalformedHeader("Accept-Language"))?;
+
+            if (0.0..=1.0).contains(&weight) {
+                Ok(weight)
+            } else {
+                Err(HandlerError::MalformedHeader("Accept-Language"))
+            }
         }
 
         /// Parse the Accept-Language HTTP header.
-        #[inline(always)]
         fn parse_language(raw_language: &str) -> Result<Language, Error> {
             let (locale_or_wildcard, quality_value) =
                 if let Some((language, quality_value)) = raw_language.split_once(';') {
@@ -221,7 +216,7 @@ impl FromRequest for SupportedLanguagesWrapper {
             let headers = req.headers();
             let header = match headers.get("Accept-Language") {
                 Some(header) => header.to_str().map_err::<Self::Error, _>(|_| {
-                    malformed_header_error("Accept-Language").into()
+                    HandlerError::MalformedHeader("Accept-Language").into()
                 }),
                 None => return Ok(Self(SupportedLanguages::wildcard())),
             }?;
@@ -371,8 +366,8 @@ mod tests {
             result.unwrap_err().to_string()
         );
 
-        // Header with non-visible ASCII characters (0xE2808B is the zero-width space character)
-        let accept_language = str::from_utf8(&[0xE2, 0x80, 0x8B]).unwrap();
+        // Header with non-visible ASCII characters (\u{200B} is the zero-width space character)
+        let accept_language = "\u{200B}";
         let req = test_request_with_accept_language(accept_language);
         let result = SupportedLanguagesWrapper::from_request(&req, &mut payload).await;
 

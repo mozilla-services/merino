@@ -46,6 +46,23 @@ mod tests {
         assert_eq!(req.cache_key(), "req:v1:d442cd90b1772ca1");
     }
 
+    #[test]
+    fn key_format_supports_english_example() {
+        let req = SuggestionRequest {
+            query: "arbitrary".into(),
+            supports_english: true,
+        };
+
+        assert_eq!(req.cache_key(),"req:v1:d442cd90b1772ca1");
+
+        let req = SuggestionRequest {
+            query: "arbitrary".into(),
+            supports_english: false,
+        };
+
+        assert_eq!(req.cache_key(),"req:v1:13de429412a7998d");
+    }
+
     proptest! {
         /// Test that the cache key format is correct regardless of the input query.
         #[test]
