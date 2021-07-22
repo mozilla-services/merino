@@ -316,7 +316,7 @@ mod tests {
             let fr_ch = Language {
                 language_identifier: LanguageIdentifier::Locale {
                     language: "fr".to_owned(),
-                    region: Some("ch".to_owned())
+                    region: Some("ch".to_owned()),
                 },
                 quality_value: None,
             };

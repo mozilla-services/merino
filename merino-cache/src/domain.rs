@@ -53,14 +53,14 @@ mod tests {
             supports_english: true,
         };
 
-        assert_eq!(req.cache_key(),"req:v1:d442cd90b1772ca1");
+        assert_eq!(req.cache_key(), "req:v1:d442cd90b1772ca1");
 
         let req = SuggestionRequest {
             query: "arbitrary".into(),
             supports_english: false,
         };
 
-        assert_eq!(req.cache_key(),"req:v1:13de429412a7998d");
+        assert_eq!(req.cache_key(), "req:v1:13de429412a7998d");
     }
 
     proptest! {
