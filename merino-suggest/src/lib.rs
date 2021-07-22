@@ -189,7 +189,7 @@ impl SupportedLanguages {
         Self(vec![language])
     }
 
-    /// Specify whether `self` includes the language specified by the given regular expression.
+    /// Specify whether `self` includes the language specified by the given language and region.
     pub fn includes(&self, language_query: &str, region_query: Option<&str>) -> bool {
         let region_matches = |supported_region| {
             match (supported_region, region_query) {
@@ -226,7 +226,7 @@ pub struct Language {
 /// An enum used to signify whether a `Language` refers to a specific language or a wildcard.
 #[derive(Debug, PartialEq)]
 pub enum LanguageIdentifier {
-    /// A specific language (usually a string of the form `language`-`region`).
+    /// A specific locale, consisting of a language code and optional country code.
     Locale {
         /// An ISO-639 language code.
         language: String,
