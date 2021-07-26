@@ -1,44 +1,36 @@
 //! Tests Merino's ability to make basic suggestions.
 #![cfg(test)]
 
-use crate::{merino_test, TestingTools};
+use crate::{merino_test_macro, TestingTools};
 use anyhow::Result;
 use reqwest::{header::HeaderValue, StatusCode};
 
-#[actix_rt::test]
-async fn root_of_services_provides_public_docs() -> Result<()> {
-    merino_test(
-        |settings| settings.public_documentation = Some("https://example.com/".parse().unwrap()),
-        |TestingTools { test_client, .. }| async move {
-            let response = test_client.get("/").send().await?;
+#[merino_test_macro(|settings| settings.public_documentation = Some("https://example.com/".parse().unwrap()))]
+async fn root_of_services_provides_public_docs(
+    TestingTools { test_client, .. }: TestingTools,
+) -> Result<()> {
+    let response = test_client.get("/").send().await?;
 
-            assert_eq!(response.status(), StatusCode::FOUND);
-            assert_eq!(
-                response.headers().get("location"),
-                Some(&HeaderValue::from_static("https://example.com/"))
-            );
+    assert_eq!(response.status(), StatusCode::FOUND);
+    assert_eq!(
+        response.headers().get("location"),
+        Some(&HeaderValue::from_static("https://example.com/"))
+    );
 
-            Ok(())
-        },
-    )
-    .await
+    Ok(())
 }
 
-#[actix_rt::test]
-async fn root_of_services_has_a_fallback_message() -> Result<()> {
-    merino_test(
-        |settings| settings.public_documentation = None,
-        |TestingTools { test_client, .. }| async move {
-            let response = test_client.get("/").send().await?;
+#[merino_test_macro(|settings| settings.public_documentation = None)]
+async fn root_of_services_has_a_fallback_message(
+    TestingTools { test_client, .. }: TestingTools,
+) -> Result<()> {
+    let response = test_client.get("/").send().await?;
 
-            assert_eq!(response.status(), StatusCode::OK);
-            assert_eq!(
-                response.text().await?,
-                "Merino is a Mozilla service providing information to the Firefox Suggest feature."
-            );
+    assert_eq!(response.status(), StatusCode::OK);
+    assert_eq!(
+        response.text().await?,
+        "Merino is a Mozilla service providing information to the Firefox Suggest feature."
+    );
 
-            Ok(())
-        },
-    )
-    .await
+    Ok(())
 }
