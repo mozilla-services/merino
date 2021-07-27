@@ -166,6 +166,10 @@ pub struct MemoryCacheSettings {
     #[serde_as(as = "DurationSeconds")]
     #[serde(rename = "default_ttl_sec")]
     pub default_ttl: Duration,
+
+    #[serde_as(as = "DurationSeconds")]
+    #[serde(rename = "cleanup_interval_sec")]
+    pub cleanup_interval: Duration,
 }
 
 impl Settings {

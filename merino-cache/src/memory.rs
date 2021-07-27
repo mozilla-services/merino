@@ -1,39 +1,31 @@
 //! A cache system that uses local in-memory storage to store a limited number of items.
+//!
+//! The cache system here is actually two tiered. The first tier maps from
+//! suggestion requests to the hash of the response they should use. The second
+//! tier maps from those hashes to the responses. In this way, duplicate
+//! responses can be stored only once, even if they are used for many requests.
 
-use crate::domain::CacheKey;
+use crate::{deduped_map::DedupedMap, domain::CacheKey};
 use async_trait::async_trait;
-use dashmap::{mapref::entry::Entry, DashMap};
 use merino_settings::Settings;
 use merino_suggest::{
     CacheStatus, Suggestion, SuggestionProvider, SuggestionRequest, SuggestionResponse,
 };
 use std::{
     borrow::Cow,
+    hash::Hash,
+    sync::Arc,
     time::{Duration, Instant},
 };
 use tracing::Instrument;
-
-/// An entry in the in-memory store, that includes an expiration time.
-#[derive(Debug)]
-struct CacheEntry {
-    /// The suggestions to provide with the cache. This differs from
-    /// [`SuggestionResponse`] because we store expiration date as an explicit
-    /// expiration date instead of a TTL, and convert to and from
-    /// `SuggestionResponse`.
-    suggestions: Vec<Suggestion>,
-
-    /// After this time, the cache entry should no longer be considered valid,
-    /// and should be removed.
-    expiration: Instant,
-}
 
 /// A in-memory cache for suggestions.
 pub struct Suggester<S> {
     /// The suggester to query on cache-miss.
     inner: S,
 
-    /// The items stored in the cache.
-    items: DashMap<String, CacheEntry>,
+    /// The cached items.
+    items: Arc<DedupedMap<String, Instant, Vec<Suggestion>>>,
 
     /// TTL to apply to items if the underlying provider does not give one.
     default_ttl: Duration,
@@ -42,11 +34,53 @@ pub struct Suggester<S> {
 impl<S> Suggester<S> {
     /// Create a in-memory suggestion cache from settings that wraps `provider`.
     pub fn new_boxed(settings: &Settings, provider: S) -> Box<Self> {
+        let items = Arc::new(DedupedMap::new());
+
+        {
+            let task_items = items.clone();
+            let task_interval = settings.memory_cache.cleanup_interval;
+            tokio::spawn(async move {
+                let mut timer = tokio::time::interval(task_interval);
+                // The timer fires immediately, but we don't want to run the
+                // cleanup function immediately, so wait one tick before
+                // starting the loop.
+                timer.tick().await;
+                loop {
+                    timer.tick().await;
+                    Self::remove_expired_entries(&task_items);
+                }
+            });
+        }
+
         Box::new(Self {
             inner: provider,
-            items: DashMap::new(),
+            items,
             default_ttl: settings.memory_cache.default_ttl,
         })
+    }
+
+    /// Remove expired entries from `items`
+    ///
+    /// This is a selfless method so that it can be called from a spawned Tokio task.
+    #[tracing::instrument(level = "debug", skip(items))]
+    fn remove_expired_entries<K: Eq + Hash>(items: &Arc<DedupedMap<K, Instant, Vec<Suggestion>>>) {
+        let start = Instant::now();
+        let count_before_storage = items.len_storage();
+        let count_before_pointers = items.len_pointers();
+
+        // Retain all cache entries that have not yet expired.
+        items.retain(|_key, expiration, _suggestions| *expiration > start);
+
+        // Report finishing.
+        let duration = Instant::now() - start;
+        let removed_storage = count_before_storage - items.len_storage();
+        let removed_pointers = count_before_pointers - items.len_pointers();
+        tracing::info!(
+            ?duration,
+            ?removed_pointers,
+            ?removed_storage,
+            "finished removing expired entries from cache"
+        );
     }
 }
 
@@ -71,31 +105,25 @@ where
         async move {
             tracing::debug!("suggesting with memory cache");
 
-            // Put the cache-check in a block so that `entry` drops before we
-            // try and write back to the cache. If `entry` is not dropped by the
-            // time we write cache misses into `self.items`, we may deadlock!
-            {
-                let entry = self.items.entry(key.clone());
-
-                if let Entry::Occupied(occupied_entry) = entry {
-                    let cache_entry = occupied_entry.get();
-                    if now >= cache_entry.expiration {
-                        tracing::debug!("cache expired");
-                        occupied_entry.remove();
-                    } else {
-                        tracing::debug!("cache hit");
-                        return Ok(SuggestionResponse {
-                            cache_status: merino_suggest::CacheStatus::Hit,
-                            cache_ttl: Some(cache_entry.expiration - now),
-                            suggestions: cache_entry.suggestions.clone(),
-                        });
-                    }
-                } else {
+            match self.items.get(&key) {
+                Some((expiration, _)) if expiration <= now => {
+                    tracing::debug!("cache expired");
+                    self.items.remove(key.clone());
+                }
+                Some((expiration, suggestions)) => {
+                    tracing::debug!("cache hit");
+                    return Ok(SuggestionResponse {
+                        cache_status: CacheStatus::Hit,
+                        cache_ttl: Some(expiration - now),
+                        suggestions,
+                    });
+                }
+                None => {
                     tracing::debug!("cache miss");
                 }
             }
 
-            // handle cache miss
+            // handle cache miss or stale cache
             let mut response = self
                 .inner
                 .suggest(query)
@@ -103,23 +131,57 @@ where
                 // Todo, cache status should be a vec.
                 .with_cache_status(CacheStatus::Miss);
 
-            if response.cache_ttl.is_none() {
-                response = response.with_cache_ttl(self.default_ttl);
-            }
+            let cache_ttl = response.cache_ttl.get_or_insert(self.default_ttl);
+            let expiration = now + *cache_ttl;
 
-            let expiration = now + response.cache_ttl.unwrap_or(self.default_ttl);
             tracing::debug!(?now, ?expiration, "inserting into cache");
-            self.items.insert(
-                key,
-                CacheEntry {
-                    suggestions: response.suggestions.clone(),
-                    expiration,
-                },
-            );
+            self.items
+                .insert(key, expiration, response.suggestions.clone());
 
             Ok(response)
         }
         .instrument(span)
         .await
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::Suggester;
+    use crate::deduped_map::DedupedMap;
+    use fake::{Fake, Faker};
+    use merino_suggest::{Suggestion, WikiFruit};
+    use std::{
+        sync::Arc,
+        time::{Duration, Instant},
+    };
+
+    #[test]
+    fn cache_maintainer_removes_expired_entries() {
+        let cache: Arc<DedupedMap<String, Instant, Vec<Suggestion>>> = Arc::new(DedupedMap::new());
+
+        let suggestions = vec![Faker.fake()];
+        cache.insert(
+            "expired".to_string(),
+            Instant::now() - Duration::from_secs(300),
+            suggestions.clone(),
+        );
+        cache.insert(
+            "current".to_string(),
+            Instant::now() + Duration::from_secs(300),
+            suggestions,
+        );
+        assert_eq!(cache.len_storage(), 1);
+        assert_eq!(cache.len_pointers(), 2);
+        assert!(cache.contains_key(&"current".to_owned()));
+        assert!(cache.contains_key(&"expired".to_owned()));
+
+        // `WikiFruit` here is simply to fulfill the generic argument. It isn't used.
+        Suggester::<WikiFruit>::remove_expired_entries(&cache);
+
+        assert_eq!(cache.len_storage(), 1);
+        assert_eq!(cache.len_pointers(), 1);
+        assert!(cache.contains_key(&"current".to_owned()));
+        assert!(!cache.contains_key(&"expired".to_owned()));
     }
 }
