@@ -57,42 +57,6 @@ async fn responses_are_stored_in_the_cache(
     settings.providers.wiki_fruit.cache = CacheType::Redis;
     settings.redis_cache.default_ttl = Duration::from_secs(600);
 })]
-async fn cache_status_is_reported(TestingTools { test_client, .. }: TestingTools) {
-    let url = "/api/v1/suggest?q=apple";
-
-    // one request to prime the cache
-    let response = test_client
-        .get(url)
-        .send()
-        .await
-        .expect("failed to execute request");
-
-    assert_eq!(response.status(), StatusCode::OK);
-    assert_eq!(
-        response.headers().get("x-cache"),
-        Some(&HeaderValue::from_static("miss")),
-    );
-
-    // And another request which should come from the cache
-    let response = test_client
-        .get(url)
-        .send()
-        .await
-        .expect("failed to execute request");
-
-    assert_eq!(response.status(), StatusCode::OK);
-    assert_eq!(
-        response.headers().get("x-cache"),
-        Some(&HeaderValue::from_static("hit")),
-    );
-}
-
-#[merino_test_macro(|settings| {
-    settings.debug = true;
-    settings.providers.wiki_fruit.enabled = true;
-    settings.providers.wiki_fruit.cache = CacheType::Redis;
-    settings.redis_cache.default_ttl = Duration::from_secs(600);
-})]
 async fn bad_cache_data_is_handled(
     TestingTools {
         test_client,

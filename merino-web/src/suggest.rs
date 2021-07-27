@@ -8,9 +8,9 @@ use actix_web::{
 };
 use anyhow::Result;
 use merino_adm::remote_settings::RemoteSettingsSuggester;
-use merino_settings::Settings;
+use merino_cache::{MemoryCacheSuggester, RedisCacheSuggester};
+use merino_settings::{CacheType, Settings};
 use merino_suggest::{DebugProvider, Suggestion, SuggestionProvider, WikiFruit};
-
 use serde::Serialize;
 use tokio::sync::OnceCell;
 use tracing_futures::Instrument;
@@ -100,10 +100,12 @@ impl<'a> SuggestionProviderRef<'a> {
                     if settings.providers.wiki_fruit.enabled {
                         let wikifruit = WikiFruit::new_boxed(settings)?;
                         providers.push(match settings.providers.wiki_fruit.cache {
-                            merino_settings::CacheType::None => wikifruit,
-                            merino_settings::CacheType::Redis => {
-                                merino_cache::RedisSuggester::new_boxed(settings, *wikifruit)
-                                    .await?
+                            CacheType::None => wikifruit,
+                            CacheType::Redis => {
+                                RedisCacheSuggester::new_boxed(settings, *wikifruit).await?
+                            }
+                            CacheType::Memory => {
+                                MemoryCacheSuggester::new_boxed(settings, *wikifruit)
                             }
                         });
                     }
@@ -111,10 +113,11 @@ impl<'a> SuggestionProviderRef<'a> {
                     if settings.providers.adm_rs.enabled {
                         let adm_rs = RemoteSettingsSuggester::new_boxed(settings).await?;
                         providers.push(match settings.providers.adm_rs.cache {
-                            merino_settings::CacheType::None => adm_rs,
-                            merino_settings::CacheType::Redis => {
-                                merino_cache::RedisSuggester::new_boxed(settings, *adm_rs).await?
+                            CacheType::None => adm_rs,
+                            CacheType::Redis => {
+                                RedisCacheSuggester::new_boxed(settings, *adm_rs).await?
                             }
+                            CacheType::Memory => MemoryCacheSuggester::new_boxed(settings, *adm_rs),
                         });
                     }
 

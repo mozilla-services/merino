@@ -69,7 +69,7 @@ impl<'a, F> fake::Dummy<F> for SuggestionRequest<'a> {
 }
 
 /// A response of suggestions, along with related metadata.
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct SuggestionResponse {
     /// The relation of this response to the cache it came from, if any.
     pub cache_status: CacheStatus,

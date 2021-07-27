@@ -73,6 +73,10 @@ pub struct Settings {
 
     /// Settings to use when determining the location associated with requests.
     pub location: LocationSettings,
+
+    /// Settings for the in-memory suggestion cache. This can be used by any
+    /// provider by setting the provider's cache type to "memory".
+    pub memory_cache: MemoryCacheSettings,
 }
 
 /// Settings for the HTTP server.
@@ -106,6 +110,7 @@ pub struct SuggestionProviderSettings {
 pub enum CacheType {
     None,
     Redis,
+    Memory,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -153,6 +158,14 @@ pub struct LocationSettings {
     /// The location of the maxmind database to use to determine IP location. If
     /// not specified, location information will not be calculated.
     pub maxmind_database: Option<PathBuf>,
+}
+
+#[serde_as]
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct MemoryCacheSettings {
+    #[serde_as(as = "DurationSeconds")]
+    #[serde(rename = "default_ttl_sec")]
+    pub default_ttl: Duration,
 }
 
 impl Settings {
