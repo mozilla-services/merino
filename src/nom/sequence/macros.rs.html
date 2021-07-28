@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/usr/local/cargo/registry/src/github.com-1ecc6299db9ec823/nom-6.2.1/src/sequence/macros.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>macros.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/usr/local/cargo/registry/src/github.com-1ecc6299db9ec823/nom-5.1.2/src/sequence/macros.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>macros.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png">
 <link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../nom/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../../settings.html"><img src="../../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
@@ -861,66 +861,6 @@
 <span id="858">858</span>
 <span id="859">859</span>
 <span id="860">860</span>
-<span id="861">861</span>
-<span id="862">862</span>
-<span id="863">863</span>
-<span id="864">864</span>
-<span id="865">865</span>
-<span id="866">866</span>
-<span id="867">867</span>
-<span id="868">868</span>
-<span id="869">869</span>
-<span id="870">870</span>
-<span id="871">871</span>
-<span id="872">872</span>
-<span id="873">873</span>
-<span id="874">874</span>
-<span id="875">875</span>
-<span id="876">876</span>
-<span id="877">877</span>
-<span id="878">878</span>
-<span id="879">879</span>
-<span id="880">880</span>
-<span id="881">881</span>
-<span id="882">882</span>
-<span id="883">883</span>
-<span id="884">884</span>
-<span id="885">885</span>
-<span id="886">886</span>
-<span id="887">887</span>
-<span id="888">888</span>
-<span id="889">889</span>
-<span id="890">890</span>
-<span id="891">891</span>
-<span id="892">892</span>
-<span id="893">893</span>
-<span id="894">894</span>
-<span id="895">895</span>
-<span id="896">896</span>
-<span id="897">897</span>
-<span id="898">898</span>
-<span id="899">899</span>
-<span id="900">900</span>
-<span id="901">901</span>
-<span id="902">902</span>
-<span id="903">903</span>
-<span id="904">904</span>
-<span id="905">905</span>
-<span id="906">906</span>
-<span id="907">907</span>
-<span id="908">908</span>
-<span id="909">909</span>
-<span id="910">910</span>
-<span id="911">911</span>
-<span id="912">912</span>
-<span id="913">913</span>
-<span id="914">914</span>
-<span id="915">915</span>
-<span id="916">916</span>
-<span id="917">917</span>
-<span id="918">918</span>
-<span id="919">919</span>
-<span id="920">920</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">/// `tuple!(I-&gt;IResult&lt;I,A&gt;, I-&gt;IResult&lt;I,B&gt;, ... I-&gt;IResult&lt;I,X&gt;) =&gt; I -&gt; IResult&lt;I, (A, B, ..., X)&gt;`</span>
 <span class="doccomment">/// chains parsers and assemble the sub results in a tuple.</span>
@@ -928,7 +868,7 @@
 <span class="doccomment">/// The input type `I` must implement `nom::InputLength`.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// This combinator will count how much data is consumed by every child parser</span>
-<span class="doccomment">/// and take it into account if there is not enough data.</span>
+<span class="doccomment">/// and take it into account if there is not enough data</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// ```</span>
 <span class="doccomment">/// # #[macro_use] extern crate nom;</span>
@@ -962,7 +902,7 @@
   );
 );
 
-<span class="doccomment">/// Internal parser, do not use directly.</span>
+<span class="doccomment">/// Internal parser, do not use directly</span>
 <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
 <span class="attribute">#[<span class="ident">macro_export</span>(<span class="ident">local_inner_macros</span>)]</span>
 <span class="macro">macro_rules!</span> <span class="ident">tuple_parser</span> (
@@ -1012,19 +952,19 @@
 );
 
 <span class="doccomment">/// `pair!(I -&gt; IResult&lt;I,O&gt;, I -&gt; IResult&lt;I,P&gt;) =&gt; I -&gt; IResult&lt;I, (O,P)&gt;`</span>
-<span class="doccomment">/// `pair` returns a tuple of the results of its two child parsers if both succeed.</span>
+<span class="doccomment">/// pair returns a tuple of the results of its two child parsers of both succeed</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// ```</span>
 <span class="doccomment">/// # #[macro_use] extern crate nom;</span>
 <span class="doccomment">/// # use nom::Err;</span>
-<span class="doccomment">/// # use nom::error::{Error, ErrorKind};</span>
+<span class="doccomment">/// # use nom::error::ErrorKind;</span>
 <span class="doccomment">/// # use nom::character::complete::{alpha1, digit1};</span>
 <span class="doccomment">/// named!(parser&lt;&amp;str, (&amp;str, &amp;str)&gt;, pair!(alpha1, digit1));</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// # fn main() {</span>
 <span class="doccomment">/// assert_eq!(parser(&quot;abc123&quot;), Ok((&quot;&quot;, (&quot;abc&quot;, &quot;123&quot;))));</span>
-<span class="doccomment">/// assert_eq!(parser(&quot;123abc&quot;), Err(Err::Error(Error::new(&quot;123abc&quot;, ErrorKind::Alpha))));</span>
-<span class="doccomment">/// assert_eq!(parser(&quot;abc;123&quot;), Err(Err::Error(Error::new(&quot;;123&quot;, ErrorKind::Digit))));</span>
+<span class="doccomment">/// assert_eq!(parser(&quot;123abc&quot;), Err(Err::Error((&quot;123abc&quot;, ErrorKind::Alpha))));</span>
+<span class="doccomment">/// assert_eq!(parser(&quot;abc;123&quot;), Err(Err::Error((&quot;;123&quot;, ErrorKind::Digit))));</span>
 <span class="doccomment">/// # }</span>
 <span class="doccomment">/// ```</span>
 <span class="attribute">#[<span class="ident">macro_export</span>(<span class="ident">local_inner_macros</span>)]</span>
@@ -1047,20 +987,20 @@
 );
 
 <span class="doccomment">/// `separated_pair!(I -&gt; IResult&lt;I,O&gt;, I -&gt; IResult&lt;I, T&gt;, I -&gt; IResult&lt;I,P&gt;) =&gt; I -&gt; IResult&lt;I, (O,P)&gt;`</span>
-<span class="doccomment">/// `separated_pair(X,sep,Y)` returns a tuple of its first and third child parsers</span>
-<span class="doccomment">/// if all 3 succeed.</span>
+<span class="doccomment">/// separated_pair(X,sep,Y) returns a tuple of its first and third child parsers</span>
+<span class="doccomment">/// if all 3 succeed</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// ```</span>
 <span class="doccomment">/// # #[macro_use] extern crate nom;</span>
 <span class="doccomment">/// # use nom::Err;</span>
-<span class="doccomment">/// # use nom::error::{Error, ErrorKind};</span>
+<span class="doccomment">/// # use nom::error::ErrorKind;</span>
 <span class="doccomment">/// # use nom::character::complete::{alpha1, digit1};</span>
 <span class="doccomment">/// named!(parser&lt;&amp;str, (&amp;str, &amp;str)&gt;, separated_pair!(alpha1, char!(&#39;,&#39;), digit1));</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// # fn main() {</span>
 <span class="doccomment">/// assert_eq!(parser(&quot;abc,123&quot;), Ok((&quot;&quot;, (&quot;abc&quot;, &quot;123&quot;))));</span>
-<span class="doccomment">/// assert_eq!(parser(&quot;123,abc&quot;), Err(Err::Error(Error::new(&quot;123,abc&quot;, ErrorKind::Alpha))));</span>
-<span class="doccomment">/// assert_eq!(parser(&quot;abc;123&quot;), Err(Err::Error(Error::new(&quot;;123&quot;, ErrorKind::Char))));</span>
+<span class="doccomment">/// assert_eq!(parser(&quot;123,abc&quot;), Err(Err::Error((&quot;123,abc&quot;, ErrorKind::Alpha))));</span>
+<span class="doccomment">/// assert_eq!(parser(&quot;abc;123&quot;), Err(Err::Error((&quot;;123&quot;, ErrorKind::Char))));</span>
 <span class="doccomment">/// # }</span>
 <span class="doccomment">/// ```</span>
 <span class="attribute">#[<span class="ident">macro_export</span>(<span class="ident">local_inner_macros</span>)]</span>
@@ -1080,19 +1020,19 @@
 );
 
 <span class="doccomment">/// `preceded!(I -&gt; IResult&lt;I,T&gt;, I -&gt; IResult&lt;I,O&gt;) =&gt; I -&gt; IResult&lt;I, O&gt;`</span>
-<span class="doccomment">/// `preceded` returns the result of its second parser if both succeed.</span>
+<span class="doccomment">/// preceded returns the result of its second parser if both succeed</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// ```</span>
 <span class="doccomment">/// # #[macro_use] extern crate nom;</span>
 <span class="doccomment">/// # use nom::Err;</span>
-<span class="doccomment">/// # use nom::error::{Error, ErrorKind};</span>
+<span class="doccomment">/// # use nom::error::ErrorKind;</span>
 <span class="doccomment">/// # use nom::character::complete::{alpha1};</span>
 <span class="doccomment">/// named!(parser&lt;&amp;str, &amp;str&gt;, preceded!(char!(&#39;-&#39;), alpha1));</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// # fn main() {</span>
 <span class="doccomment">/// assert_eq!(parser(&quot;-abc&quot;), Ok((&quot;&quot;, &quot;abc&quot;)));</span>
-<span class="doccomment">/// assert_eq!(parser(&quot;abc&quot;), Err(Err::Error(Error::new(&quot;abc&quot;, ErrorKind::Char))));</span>
-<span class="doccomment">/// assert_eq!(parser(&quot;-123&quot;), Err(Err::Error(Error::new(&quot;123&quot;, ErrorKind::Alpha))));</span>
+<span class="doccomment">/// assert_eq!(parser(&quot;abc&quot;), Err(Err::Error((&quot;abc&quot;, ErrorKind::Char))));</span>
+<span class="doccomment">/// assert_eq!(parser(&quot;-123&quot;), Err(Err::Error((&quot;123&quot;, ErrorKind::Alpha))));</span>
 <span class="doccomment">/// # }</span>
 <span class="doccomment">/// ```</span>
 <span class="attribute">#[<span class="ident">macro_export</span>(<span class="ident">local_inner_macros</span>)]</span>
@@ -1115,19 +1055,19 @@
 );
 
 <span class="doccomment">/// `terminated!(I -&gt; IResult&lt;I,O&gt;, I -&gt; IResult&lt;I,T&gt;) =&gt; I -&gt; IResult&lt;I, O&gt;`</span>
-<span class="doccomment">/// `terminated` returns the result of its first parser if both succeed.</span>
+<span class="doccomment">/// terminated returns the result of its first parser if both succeed</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// ```</span>
 <span class="doccomment">/// # #[macro_use] extern crate nom;</span>
 <span class="doccomment">/// # use nom::Err;</span>
-<span class="doccomment">/// # use nom::error::{Error, ErrorKind};</span>
+<span class="doccomment">/// # use nom::error::ErrorKind;</span>
 <span class="doccomment">/// # use nom::character::complete::{alpha1};</span>
 <span class="doccomment">/// named!(parser&lt;&amp;str, &amp;str&gt;, terminated!(alpha1, char!(&#39;;&#39;)));</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// # fn main() {</span>
 <span class="doccomment">/// assert_eq!(parser(&quot;abc;&quot;), Ok((&quot;&quot;, &quot;abc&quot;)));</span>
-<span class="doccomment">/// assert_eq!(parser(&quot;abc,&quot;), Err(Err::Error(Error::new(&quot;,&quot;, ErrorKind::Char))));</span>
-<span class="doccomment">/// assert_eq!(parser(&quot;123;&quot;), Err(Err::Error(Error::new(&quot;123;&quot;, ErrorKind::Alpha))));</span>
+<span class="doccomment">/// assert_eq!(parser(&quot;abc,&quot;), Err(Err::Error((&quot;,&quot;, ErrorKind::Char))));</span>
+<span class="doccomment">/// assert_eq!(parser(&quot;123;&quot;), Err(Err::Error((&quot;123;&quot;, ErrorKind::Alpha))));</span>
 <span class="doccomment">/// # }</span>
 <span class="doccomment">/// ```</span>
 <span class="attribute">#[<span class="ident">macro_export</span>(<span class="ident">local_inner_macros</span>)]</span>
@@ -1150,7 +1090,7 @@
 );
 
 <span class="doccomment">/// `delimited!(I -&gt; IResult&lt;I,T&gt;, I -&gt; IResult&lt;I,O&gt;, I -&gt; IResult&lt;I,U&gt;) =&gt; I -&gt; IResult&lt;I, O&gt;`</span>
-<span class="doccomment">/// `delimited(opening, X, closing)` returns X.</span>
+<span class="doccomment">/// delimited(opening, X, closing) returns X</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// ```</span>
 <span class="doccomment">/// # #[macro_use] extern crate nom;</span>
@@ -1185,14 +1125,14 @@
 );
 
 <span class="doccomment">/// `do_parse!(I-&gt;IResult&lt;I,A&gt; &gt;&gt; I-&gt;IResult&lt;I,B&gt; &gt;&gt; ... I-&gt;IResult&lt;I,X&gt; , ( O ) ) =&gt; I -&gt; IResult&lt;I, O&gt;`</span>
-<span class="doccomment">/// `do_parse` applies sub parsers in a sequence.</span>
-<span class="doccomment">/// It can store intermediary results and make them available</span>
-<span class="doccomment">/// for later parsers.</span>
+<span class="doccomment">/// do_parse applies sub parsers in a sequence.</span>
+<span class="doccomment">/// it can store intermediary results and make them available</span>
+<span class="doccomment">/// for later parsers</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// The input type `I` must implement `nom::InputLength`.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// This combinator will count how much data is consumed by every child parser</span>
-<span class="doccomment">/// and take it into account if there is not enough data.</span>
+<span class="doccomment">/// and take it into account if there is not enough data</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// ```</span>
 <span class="doccomment">/// # #[macro_use] extern crate nom;</span>
@@ -1230,7 +1170,7 @@
 <span class="doccomment">/// // so the parser will tell you that you need 7 bytes: one for the tag,</span>
 <span class="doccomment">/// // one for the length, then 5 bytes</span>
 <span class="doccomment">/// let b: Vec&lt;u8&gt;     = vec!(42, 5, 3, 4, 5);</span>
-<span class="doccomment">/// assert_eq!(tag_length_value(&amp;b[..]), Err(Err::Incomplete(Needed::new(2))));</span>
+<span class="doccomment">/// assert_eq!(tag_length_value(&amp;b[..]), Err(Err::Incomplete(Needed::Size(5))));</span>
 <span class="doccomment">/// # }</span>
 <span class="doccomment">/// ```</span>
 <span class="doccomment">///</span>
@@ -1397,9 +1337,9 @@
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
 <span class="kw">mod</span> <span class="ident">tests</span> {
-  <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::error::ErrorKind</span>;
   <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::internal</span>::{<span class="prelude-val">Err</span>, <span class="ident">IResult</span>, <span class="ident">Needed</span>};
   <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::number::streaming::be_u16</span>;
+  <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::error::ErrorKind</span>;
 
   <span class="comment">// reproduce the tag and take macros, because of module import order</span>
   <span class="macro">macro_rules!</span> <span class="ident">tag</span> (
@@ -1432,7 +1372,7 @@
         <span class="kw">let</span> <span class="ident">res</span>: <span class="ident">IResult</span><span class="op">&lt;</span><span class="kw">_</span>,<span class="kw">_</span>,<span class="kw">_</span><span class="op">&gt;</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">reduced</span> <span class="op">!</span><span class="op">=</span> <span class="ident">b</span> {
           <span class="prelude-val">Err</span>(<span class="macro-nonterminal">$</span><span class="kw">crate</span><span class="macro-nonterminal">::Err::Error</span>(<span class="macro">error_position!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">i</span>, <span class="macro-nonterminal">$</span><span class="kw">crate</span><span class="macro-nonterminal">::error::ErrorKind::Tag</span>)))
         } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">m</span> <span class="op">&lt;</span> <span class="ident">blen</span> {
-          <span class="prelude-val">Err</span>(<span class="macro-nonterminal">$</span><span class="kw">crate</span><span class="macro-nonterminal">::Err::Incomplete</span>(<span class="ident">Needed::new</span>(<span class="ident">blen</span>)))
+          <span class="prelude-val">Err</span>(<span class="macro-nonterminal">$</span><span class="kw">crate</span><span class="macro-nonterminal">::Err::Incomplete</span>(<span class="ident">Needed::Size</span>(<span class="ident">blen</span>)))
         } <span class="kw">else</span> {
           <span class="prelude-val">Ok</span>((<span class="kw-2">&amp;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">i</span>[<span class="ident">blen</span>..], <span class="ident">reduced</span>))
         };
@@ -1446,7 +1386,7 @@
       {
         <span class="kw">let</span> <span class="ident">cnt</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">count</span> <span class="kw">as</span> <span class="ident">usize</span>;
         <span class="kw">let</span> <span class="ident">res</span>:<span class="ident">IResult</span><span class="op">&lt;</span><span class="kw-2">&amp;</span>[<span class="ident">u8</span>],<span class="kw-2">&amp;</span>[<span class="ident">u8</span>],<span class="kw">_</span><span class="op">&gt;</span> <span class="op">=</span> <span class="kw">if</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">i</span>.<span class="ident">len</span>() <span class="op">&lt;</span> <span class="ident">cnt</span> {
-          <span class="prelude-val">Err</span>(<span class="macro-nonterminal">$</span><span class="kw">crate</span><span class="macro-nonterminal">::Err::Incomplete</span>(<span class="ident">Needed::new</span>(<span class="ident">cnt</span>)))
+          <span class="prelude-val">Err</span>(<span class="macro-nonterminal">$</span><span class="kw">crate</span><span class="macro-nonterminal">::Err::Incomplete</span>(<span class="ident">Needed::Size</span>(<span class="ident">cnt</span>)))
         } <span class="kw">else</span> {
           <span class="prelude-val">Ok</span>((<span class="kw-2">&amp;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">i</span>[<span class="ident">cnt</span>..],<span class="kw-2">&amp;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">i</span>[<span class="number">0</span>..<span class="ident">cnt</span>]))
         };
@@ -1471,7 +1411,7 @@
   use util::{add_error_pattern, error_to_list, print_error};
 
   #[cfg(feature = &quot;std&quot;)]
-  #[rustfmt::skip]
+  #[cfg_attr(rustfmt, rustfmt_skip)]
   fn error_to_string&lt;P: Clone + PartialEq&gt;(e: &amp;Context&lt;P, u32&gt;) -&gt; &amp;&#39;static str {
     let v: Vec&lt;(P, ErrorKind&lt;u32&gt;)&gt; = error_to_list(e);
     // do it this way if you can use slice patterns
@@ -1506,7 +1446,7 @@
   //}
   */</span>
 
-  <span class="attribute">#[<span class="ident">rustfmt::skip</span>]</span>
+  <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">rustfmt</span>, <span class="ident">rustfmt_skip</span>)]</span>
   <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unused_variables</span>)]</span>
   <span class="attribute">#[<span class="ident">test</span>]</span>
   <span class="kw">fn</span> <span class="ident">add_err</span>() {
@@ -1546,7 +1486,7 @@
     <span class="macro">assert_eq!</span>(<span class="ident">res_c</span>, <span class="prelude-val">Ok</span>((<span class="kw-2">&amp;</span><span class="string">b&quot;&quot;</span>[..], <span class="kw-2">&amp;</span><span class="string">b&quot;mnop&quot;</span>[..])));
   }
 
-  <span class="attribute">#[<span class="ident">rustfmt::skip</span>]</span>
+  <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">rustfmt</span>, <span class="ident">rustfmt_skip</span>)]</span>
   <span class="attribute">#[<span class="ident">test</span>]</span>
   <span class="kw">fn</span> <span class="ident">complete</span>() {
     <span class="macro">named!</span>(<span class="ident">err_test</span>,
@@ -1569,18 +1509,9 @@
     <span class="macro">named!</span>(<span class="ident">tag_def</span>, <span class="macro">tag!</span>(<span class="string">&quot;def&quot;</span>));
     <span class="macro">named!</span>( <span class="ident">pair_abc_def</span><span class="op">&lt;</span><span class="kw-2">&amp;</span>[<span class="ident">u8</span>],(<span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="kw-2">&amp;</span>[<span class="ident">u8</span>])<span class="op">&gt;</span>, <span class="macro">pair!</span>(<span class="ident">tag_abc</span>, <span class="ident">tag_def</span>) );
 
-    <span class="macro">assert_eq!</span>(
-      <span class="ident">pair_abc_def</span>(<span class="kw-2">&amp;</span><span class="string">b&quot;abcdefghijkl&quot;</span>[..]),
-      <span class="prelude-val">Ok</span>((<span class="kw-2">&amp;</span><span class="string">b&quot;ghijkl&quot;</span>[..], (<span class="kw-2">&amp;</span><span class="string">b&quot;abc&quot;</span>[..], <span class="kw-2">&amp;</span><span class="string">b&quot;def&quot;</span>[..])))
-    );
-    <span class="macro">assert_eq!</span>(
-      <span class="ident">pair_abc_def</span>(<span class="kw-2">&amp;</span><span class="string">b&quot;ab&quot;</span>[..]),
-      <span class="prelude-val">Err</span>(<span class="ident">Err::Incomplete</span>(<span class="ident">Needed::new</span>(<span class="number">3</span>)))
-    );
-    <span class="macro">assert_eq!</span>(
-      <span class="ident">pair_abc_def</span>(<span class="kw-2">&amp;</span><span class="string">b&quot;abcd&quot;</span>[..]),
-      <span class="prelude-val">Err</span>(<span class="ident">Err::Incomplete</span>(<span class="ident">Needed::new</span>(<span class="number">3</span>)))
-    );
+    <span class="macro">assert_eq!</span>(<span class="ident">pair_abc_def</span>(<span class="kw-2">&amp;</span><span class="string">b&quot;abcdefghijkl&quot;</span>[..]), <span class="prelude-val">Ok</span>((<span class="kw-2">&amp;</span><span class="string">b&quot;ghijkl&quot;</span>[..], (<span class="kw-2">&amp;</span><span class="string">b&quot;abc&quot;</span>[..], <span class="kw-2">&amp;</span><span class="string">b&quot;def&quot;</span>[..]))));
+    <span class="macro">assert_eq!</span>(<span class="ident">pair_abc_def</span>(<span class="kw-2">&amp;</span><span class="string">b&quot;ab&quot;</span>[..]), <span class="prelude-val">Err</span>(<span class="ident">Err::Incomplete</span>(<span class="ident">Needed::Size</span>(<span class="number">3</span>))));
+    <span class="macro">assert_eq!</span>(<span class="ident">pair_abc_def</span>(<span class="kw-2">&amp;</span><span class="string">b&quot;abcd&quot;</span>[..]), <span class="prelude-val">Err</span>(<span class="ident">Err::Incomplete</span>(<span class="ident">Needed::Size</span>(<span class="number">3</span>))));
     <span class="macro">assert_eq!</span>(
       <span class="ident">pair_abc_def</span>(<span class="kw-2">&amp;</span><span class="string">b&quot;xxx&quot;</span>[..]),
       <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>(<span class="macro">error_position!</span>(<span class="kw-2">&amp;</span><span class="string">b&quot;xxx&quot;</span>[..], <span class="ident">ErrorKind::Tag</span>)))
@@ -1606,14 +1537,8 @@
       <span class="ident">sep_pair_abc_def</span>(<span class="kw-2">&amp;</span><span class="string">b&quot;abc,defghijkl&quot;</span>[..]),
       <span class="prelude-val">Ok</span>((<span class="kw-2">&amp;</span><span class="string">b&quot;ghijkl&quot;</span>[..], (<span class="kw-2">&amp;</span><span class="string">b&quot;abc&quot;</span>[..], <span class="kw-2">&amp;</span><span class="string">b&quot;def&quot;</span>[..])))
     );
-    <span class="macro">assert_eq!</span>(
-      <span class="ident">sep_pair_abc_def</span>(<span class="kw-2">&amp;</span><span class="string">b&quot;ab&quot;</span>[..]),
-      <span class="prelude-val">Err</span>(<span class="ident">Err::Incomplete</span>(<span class="ident">Needed::new</span>(<span class="number">3</span>)))
-    );
-    <span class="macro">assert_eq!</span>(
-      <span class="ident">sep_pair_abc_def</span>(<span class="kw-2">&amp;</span><span class="string">b&quot;abc,d&quot;</span>[..]),
-      <span class="prelude-val">Err</span>(<span class="ident">Err::Incomplete</span>(<span class="ident">Needed::new</span>(<span class="number">3</span>)))
-    );
+    <span class="macro">assert_eq!</span>(<span class="ident">sep_pair_abc_def</span>(<span class="kw-2">&amp;</span><span class="string">b&quot;ab&quot;</span>[..]), <span class="prelude-val">Err</span>(<span class="ident">Err::Incomplete</span>(<span class="ident">Needed::Size</span>(<span class="number">3</span>))));
+    <span class="macro">assert_eq!</span>(<span class="ident">sep_pair_abc_def</span>(<span class="kw-2">&amp;</span><span class="string">b&quot;abc,d&quot;</span>[..]), <span class="prelude-val">Err</span>(<span class="ident">Err::Incomplete</span>(<span class="ident">Needed::Size</span>(<span class="number">3</span>))));
     <span class="macro">assert_eq!</span>(
       <span class="ident">sep_pair_abc_def</span>(<span class="kw-2">&amp;</span><span class="string">b&quot;xxx&quot;</span>[..]),
       <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>(<span class="macro">error_position!</span>(<span class="kw-2">&amp;</span><span class="string">b&quot;xxx&quot;</span>[..], <span class="ident">ErrorKind::Tag</span>)))
@@ -1634,18 +1559,9 @@
     <span class="macro">named!</span>(<span class="ident">tag_efgh</span>, <span class="macro">tag!</span>(<span class="string">&quot;efgh&quot;</span>));
     <span class="macro">named!</span>( <span class="ident">preceded_abcd_efgh</span><span class="op">&lt;</span><span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]<span class="op">&gt;</span>, <span class="macro">preceded!</span>(<span class="ident">tag_abcd</span>, <span class="ident">tag_efgh</span>) );
 
-    <span class="macro">assert_eq!</span>(
-      <span class="ident">preceded_abcd_efgh</span>(<span class="kw-2">&amp;</span><span class="string">b&quot;abcdefghijkl&quot;</span>[..]),
-      <span class="prelude-val">Ok</span>((<span class="kw-2">&amp;</span><span class="string">b&quot;ijkl&quot;</span>[..], <span class="kw-2">&amp;</span><span class="string">b&quot;efgh&quot;</span>[..]))
-    );
-    <span class="macro">assert_eq!</span>(
-      <span class="ident">preceded_abcd_efgh</span>(<span class="kw-2">&amp;</span><span class="string">b&quot;ab&quot;</span>[..]),
-      <span class="prelude-val">Err</span>(<span class="ident">Err::Incomplete</span>(<span class="ident">Needed::new</span>(<span class="number">4</span>)))
-    );
-    <span class="macro">assert_eq!</span>(
-      <span class="ident">preceded_abcd_efgh</span>(<span class="kw-2">&amp;</span><span class="string">b&quot;abcde&quot;</span>[..]),
-      <span class="prelude-val">Err</span>(<span class="ident">Err::Incomplete</span>(<span class="ident">Needed::new</span>(<span class="number">4</span>)))
-    );
+    <span class="macro">assert_eq!</span>(<span class="ident">preceded_abcd_efgh</span>(<span class="kw-2">&amp;</span><span class="string">b&quot;abcdefghijkl&quot;</span>[..]), <span class="prelude-val">Ok</span>((<span class="kw-2">&amp;</span><span class="string">b&quot;ijkl&quot;</span>[..], <span class="kw-2">&amp;</span><span class="string">b&quot;efgh&quot;</span>[..])));
+    <span class="macro">assert_eq!</span>(<span class="ident">preceded_abcd_efgh</span>(<span class="kw-2">&amp;</span><span class="string">b&quot;ab&quot;</span>[..]), <span class="prelude-val">Err</span>(<span class="ident">Err::Incomplete</span>(<span class="ident">Needed::Size</span>(<span class="number">4</span>))));
+    <span class="macro">assert_eq!</span>(<span class="ident">preceded_abcd_efgh</span>(<span class="kw-2">&amp;</span><span class="string">b&quot;abcde&quot;</span>[..]), <span class="prelude-val">Err</span>(<span class="ident">Err::Incomplete</span>(<span class="ident">Needed::Size</span>(<span class="number">4</span>))));
     <span class="macro">assert_eq!</span>(
       <span class="ident">preceded_abcd_efgh</span>(<span class="kw-2">&amp;</span><span class="string">b&quot;xxx&quot;</span>[..]),
       <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>(<span class="macro">error_position!</span>(<span class="kw-2">&amp;</span><span class="string">b&quot;xxx&quot;</span>[..], <span class="ident">ErrorKind::Tag</span>)))
@@ -1666,18 +1582,9 @@
     <span class="macro">named!</span>(<span class="ident">tag_efgh</span>, <span class="macro">tag!</span>(<span class="string">&quot;efgh&quot;</span>));
     <span class="macro">named!</span>( <span class="ident">terminated_abcd_efgh</span><span class="op">&lt;</span><span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]<span class="op">&gt;</span>, <span class="macro">terminated!</span>(<span class="ident">tag_abcd</span>, <span class="ident">tag_efgh</span>) );
 
-    <span class="macro">assert_eq!</span>(
-      <span class="ident">terminated_abcd_efgh</span>(<span class="kw-2">&amp;</span><span class="string">b&quot;abcdefghijkl&quot;</span>[..]),
-      <span class="prelude-val">Ok</span>((<span class="kw-2">&amp;</span><span class="string">b&quot;ijkl&quot;</span>[..], <span class="kw-2">&amp;</span><span class="string">b&quot;abcd&quot;</span>[..]))
-    );
-    <span class="macro">assert_eq!</span>(
-      <span class="ident">terminated_abcd_efgh</span>(<span class="kw-2">&amp;</span><span class="string">b&quot;ab&quot;</span>[..]),
-      <span class="prelude-val">Err</span>(<span class="ident">Err::Incomplete</span>(<span class="ident">Needed::new</span>(<span class="number">4</span>)))
-    );
-    <span class="macro">assert_eq!</span>(
-      <span class="ident">terminated_abcd_efgh</span>(<span class="kw-2">&amp;</span><span class="string">b&quot;abcde&quot;</span>[..]),
-      <span class="prelude-val">Err</span>(<span class="ident">Err::Incomplete</span>(<span class="ident">Needed::new</span>(<span class="number">4</span>)))
-    );
+    <span class="macro">assert_eq!</span>(<span class="ident">terminated_abcd_efgh</span>(<span class="kw-2">&amp;</span><span class="string">b&quot;abcdefghijkl&quot;</span>[..]), <span class="prelude-val">Ok</span>((<span class="kw-2">&amp;</span><span class="string">b&quot;ijkl&quot;</span>[..], <span class="kw-2">&amp;</span><span class="string">b&quot;abcd&quot;</span>[..])));
+    <span class="macro">assert_eq!</span>(<span class="ident">terminated_abcd_efgh</span>(<span class="kw-2">&amp;</span><span class="string">b&quot;ab&quot;</span>[..]), <span class="prelude-val">Err</span>(<span class="ident">Err::Incomplete</span>(<span class="ident">Needed::Size</span>(<span class="number">4</span>))));
+    <span class="macro">assert_eq!</span>(<span class="ident">terminated_abcd_efgh</span>(<span class="kw-2">&amp;</span><span class="string">b&quot;abcde&quot;</span>[..]), <span class="prelude-val">Err</span>(<span class="ident">Err::Incomplete</span>(<span class="ident">Needed::Size</span>(<span class="number">4</span>))));
     <span class="macro">assert_eq!</span>(
       <span class="ident">terminated_abcd_efgh</span>(<span class="kw-2">&amp;</span><span class="string">b&quot;xxx&quot;</span>[..]),
       <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>(<span class="macro">error_position!</span>(<span class="kw-2">&amp;</span><span class="string">b&quot;xxx&quot;</span>[..], <span class="ident">ErrorKind::Tag</span>)))
@@ -1699,32 +1606,17 @@
     <span class="macro">named!</span>(<span class="ident">tag_ghi</span>, <span class="macro">tag!</span>(<span class="string">&quot;ghi&quot;</span>));
     <span class="macro">named!</span>( <span class="ident">delimited_abc_def_ghi</span><span class="op">&lt;</span><span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]<span class="op">&gt;</span>, <span class="macro">delimited!</span>(<span class="ident">tag_abc</span>, <span class="ident">tag_def</span>, <span class="ident">tag_ghi</span>) );
 
-    <span class="macro">assert_eq!</span>(
-      <span class="ident">delimited_abc_def_ghi</span>(<span class="kw-2">&amp;</span><span class="string">b&quot;abcdefghijkl&quot;</span>[..]),
-      <span class="prelude-val">Ok</span>((<span class="kw-2">&amp;</span><span class="string">b&quot;jkl&quot;</span>[..], <span class="kw-2">&amp;</span><span class="string">b&quot;def&quot;</span>[..]))
-    );
-    <span class="macro">assert_eq!</span>(
-      <span class="ident">delimited_abc_def_ghi</span>(<span class="kw-2">&amp;</span><span class="string">b&quot;ab&quot;</span>[..]),
-      <span class="prelude-val">Err</span>(<span class="ident">Err::Incomplete</span>(<span class="ident">Needed::new</span>(<span class="number">3</span>)))
-    );
-    <span class="macro">assert_eq!</span>(
-      <span class="ident">delimited_abc_def_ghi</span>(<span class="kw-2">&amp;</span><span class="string">b&quot;abcde&quot;</span>[..]),
-      <span class="prelude-val">Err</span>(<span class="ident">Err::Incomplete</span>(<span class="ident">Needed::new</span>(<span class="number">3</span>)))
-    );
-    <span class="macro">assert_eq!</span>(
-      <span class="ident">delimited_abc_def_ghi</span>(<span class="kw-2">&amp;</span><span class="string">b&quot;abcdefgh&quot;</span>[..]),
-      <span class="prelude-val">Err</span>(<span class="ident">Err::Incomplete</span>(<span class="ident">Needed::new</span>(<span class="number">3</span>)))
-    );
+    <span class="macro">assert_eq!</span>(<span class="ident">delimited_abc_def_ghi</span>(<span class="kw-2">&amp;</span><span class="string">b&quot;abcdefghijkl&quot;</span>[..]), <span class="prelude-val">Ok</span>((<span class="kw-2">&amp;</span><span class="string">b&quot;jkl&quot;</span>[..], <span class="kw-2">&amp;</span><span class="string">b&quot;def&quot;</span>[..])));
+    <span class="macro">assert_eq!</span>(<span class="ident">delimited_abc_def_ghi</span>(<span class="kw-2">&amp;</span><span class="string">b&quot;ab&quot;</span>[..]), <span class="prelude-val">Err</span>(<span class="ident">Err::Incomplete</span>(<span class="ident">Needed::Size</span>(<span class="number">3</span>))));
+    <span class="macro">assert_eq!</span>(<span class="ident">delimited_abc_def_ghi</span>(<span class="kw-2">&amp;</span><span class="string">b&quot;abcde&quot;</span>[..]), <span class="prelude-val">Err</span>(<span class="ident">Err::Incomplete</span>(<span class="ident">Needed::Size</span>(<span class="number">3</span>))));
+    <span class="macro">assert_eq!</span>(<span class="ident">delimited_abc_def_ghi</span>(<span class="kw-2">&amp;</span><span class="string">b&quot;abcdefgh&quot;</span>[..]), <span class="prelude-val">Err</span>(<span class="ident">Err::Incomplete</span>(<span class="ident">Needed::Size</span>(<span class="number">3</span>))));
     <span class="macro">assert_eq!</span>(
       <span class="ident">delimited_abc_def_ghi</span>(<span class="kw-2">&amp;</span><span class="string">b&quot;xxx&quot;</span>[..]),
       <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>(<span class="macro">error_position!</span>(<span class="kw-2">&amp;</span><span class="string">b&quot;xxx&quot;</span>[..], <span class="ident">ErrorKind::Tag</span>)))
     );
     <span class="macro">assert_eq!</span>(
       <span class="ident">delimited_abc_def_ghi</span>(<span class="kw-2">&amp;</span><span class="string">b&quot;xxxdefghi&quot;</span>[..]),
-      <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>(<span class="macro">error_position!</span>(
-        <span class="kw-2">&amp;</span><span class="string">b&quot;xxxdefghi&quot;</span>[..],
-        <span class="ident">ErrorKind::Tag</span>
-      ),))
+      <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>(<span class="macro">error_position!</span>(<span class="kw-2">&amp;</span><span class="string">b&quot;xxxdefghi&quot;</span>[..], <span class="ident">ErrorKind::Tag</span>),))
     );
     <span class="macro">assert_eq!</span>(
       <span class="ident">delimited_abc_def_ghi</span>(<span class="kw-2">&amp;</span><span class="string">b&quot;abcxxxghi&quot;</span>[..]),
@@ -1741,12 +1633,9 @@
     <span class="macro">named!</span>(<span class="ident">tuple_3</span><span class="op">&lt;</span><span class="kw-2">&amp;</span>[<span class="ident">u8</span>], (<span class="ident">u16</span>, <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">&gt;</span>,
     <span class="macro">tuple!</span>( <span class="ident">be_u16</span> , <span class="macro">take!</span>(<span class="number">3</span>), <span class="macro">tag!</span>(<span class="string">&quot;fg&quot;</span>) ) );
 
-    <span class="macro">assert_eq!</span>(
-      <span class="ident">tuple_3</span>(<span class="kw-2">&amp;</span><span class="string">b&quot;abcdefgh&quot;</span>[..]),
-      <span class="prelude-val">Ok</span>((<span class="kw-2">&amp;</span><span class="string">b&quot;h&quot;</span>[..], (<span class="number">0x6162u16</span>, <span class="kw-2">&amp;</span><span class="string">b&quot;cde&quot;</span>[..], <span class="kw-2">&amp;</span><span class="string">b&quot;fg&quot;</span>[..])))
-    );
-    <span class="macro">assert_eq!</span>(<span class="ident">tuple_3</span>(<span class="kw-2">&amp;</span><span class="string">b&quot;abcd&quot;</span>[..]), <span class="prelude-val">Err</span>(<span class="ident">Err::Incomplete</span>(<span class="ident">Needed::new</span>(<span class="number">3</span>))));
-    <span class="macro">assert_eq!</span>(<span class="ident">tuple_3</span>(<span class="kw-2">&amp;</span><span class="string">b&quot;abcde&quot;</span>[..]), <span class="prelude-val">Err</span>(<span class="ident">Err::Incomplete</span>(<span class="ident">Needed::new</span>(<span class="number">2</span>))));
+    <span class="macro">assert_eq!</span>(<span class="ident">tuple_3</span>(<span class="kw-2">&amp;</span><span class="string">b&quot;abcdefgh&quot;</span>[..]), <span class="prelude-val">Ok</span>((<span class="kw-2">&amp;</span><span class="string">b&quot;h&quot;</span>[..], (<span class="number">0x6162u16</span>, <span class="kw-2">&amp;</span><span class="string">b&quot;cde&quot;</span>[..], <span class="kw-2">&amp;</span><span class="string">b&quot;fg&quot;</span>[..]))));
+    <span class="macro">assert_eq!</span>(<span class="ident">tuple_3</span>(<span class="kw-2">&amp;</span><span class="string">b&quot;abcd&quot;</span>[..]), <span class="prelude-val">Err</span>(<span class="ident">Err::Incomplete</span>(<span class="ident">Needed::Size</span>(<span class="number">3</span>))));
+    <span class="macro">assert_eq!</span>(<span class="ident">tuple_3</span>(<span class="kw-2">&amp;</span><span class="string">b&quot;abcde&quot;</span>[..]), <span class="prelude-val">Err</span>(<span class="ident">Err::Incomplete</span>(<span class="ident">Needed::Size</span>(<span class="number">2</span>))));
     <span class="macro">assert_eq!</span>(
       <span class="ident">tuple_3</span>(<span class="kw-2">&amp;</span><span class="string">b&quot;abcdejk&quot;</span>[..]),
       <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>(<span class="macro">error_position!</span>(<span class="kw-2">&amp;</span><span class="string">b&quot;jk&quot;</span>[..], <span class="ident">ErrorKind::Tag</span>)))
@@ -1757,10 +1646,10 @@
   <span class="kw">fn</span> <span class="ident">do_parse</span>() {
     <span class="kw">fn</span> <span class="ident">ret_int1</span>(<span class="ident">i</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">IResult</span><span class="op">&lt;</span><span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">u8</span><span class="op">&gt;</span> {
       <span class="prelude-val">Ok</span>((<span class="ident">i</span>, <span class="number">1</span>))
-    }
+    };
     <span class="kw">fn</span> <span class="ident">ret_int2</span>(<span class="ident">i</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">IResult</span><span class="op">&lt;</span><span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">u8</span><span class="op">&gt;</span> {
       <span class="prelude-val">Ok</span>((<span class="ident">i</span>, <span class="number">2</span>))
-    }
+    };
 
     <span class="comment">//trace_macros!(true);</span>
     <span class="macro">named!</span>(<span class="ident">do_parser</span><span class="op">&lt;</span><span class="kw-2">&amp;</span>[<span class="ident">u8</span>], (<span class="ident">u8</span>, <span class="ident">u8</span>)<span class="op">&gt;</span>,
@@ -1782,22 +1671,13 @@
 
     <span class="comment">//trace_macros!(false);</span>
 
-    <span class="macro">assert_eq!</span>(
-      <span class="ident">do_parser</span>(<span class="kw-2">&amp;</span><span class="string">b&quot;abcdabcdefghefghX&quot;</span>[..]),
-      <span class="prelude-val">Ok</span>((<span class="kw-2">&amp;</span><span class="string">b&quot;X&quot;</span>[..], (<span class="number">1</span>, <span class="number">2</span>)))
-    );
+    <span class="macro">assert_eq!</span>(<span class="ident">do_parser</span>(<span class="kw-2">&amp;</span><span class="string">b&quot;abcdabcdefghefghX&quot;</span>[..]), <span class="prelude-val">Ok</span>((<span class="kw-2">&amp;</span><span class="string">b&quot;X&quot;</span>[..], (<span class="number">1</span>, <span class="number">2</span>))));
     <span class="macro">assert_eq!</span>(<span class="ident">do_parser</span>(<span class="kw-2">&amp;</span><span class="string">b&quot;abcdefghefghX&quot;</span>[..]), <span class="prelude-val">Ok</span>((<span class="kw-2">&amp;</span><span class="string">b&quot;X&quot;</span>[..], (<span class="number">1</span>, <span class="number">2</span>))));
-    <span class="macro">assert_eq!</span>(
-      <span class="ident">do_parser</span>(<span class="kw-2">&amp;</span><span class="string">b&quot;abcdab&quot;</span>[..]),
-      <span class="prelude-val">Err</span>(<span class="ident">Err::Incomplete</span>(<span class="ident">Needed::new</span>(<span class="number">4</span>)))
-    );
-    <span class="macro">assert_eq!</span>(
-      <span class="ident">do_parser</span>(<span class="kw-2">&amp;</span><span class="string">b&quot;abcdefghef&quot;</span>[..]),
-      <span class="prelude-val">Err</span>(<span class="ident">Err::Incomplete</span>(<span class="ident">Needed::new</span>(<span class="number">4</span>)))
-    );
+    <span class="macro">assert_eq!</span>(<span class="ident">do_parser</span>(<span class="kw-2">&amp;</span><span class="string">b&quot;abcdab&quot;</span>[..]), <span class="prelude-val">Err</span>(<span class="ident">Err::Incomplete</span>(<span class="ident">Needed::Size</span>(<span class="number">4</span>))));
+    <span class="macro">assert_eq!</span>(<span class="ident">do_parser</span>(<span class="kw-2">&amp;</span><span class="string">b&quot;abcdefghef&quot;</span>[..]), <span class="prelude-val">Err</span>(<span class="ident">Err::Incomplete</span>(<span class="ident">Needed::Size</span>(<span class="number">4</span>))));
   }
 
-  <span class="attribute">#[<span class="ident">rustfmt::skip</span>]</span>
+  <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">rustfmt</span>, <span class="ident">rustfmt_skip</span>)]</span>
   <span class="attribute">#[<span class="ident">test</span>]</span>
   <span class="kw">fn</span> <span class="ident">do_parse_dependency</span>() {
     <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::number::streaming::be_u8</span>;
@@ -1814,7 +1694,7 @@
     <span class="kw">let</span> <span class="ident">res_a</span> <span class="op">=</span> [<span class="number">3u8</span>, <span class="number">4</span>];
     <span class="macro">assert_eq!</span>(<span class="ident">length_value</span>(<span class="kw-2">&amp;</span><span class="ident">a</span>[..]), <span class="prelude-val">Ok</span>((<span class="kw-2">&amp;</span><span class="ident">a</span>[<span class="number">3</span>..], <span class="kw-2">&amp;</span><span class="ident">res_a</span>[..])));
     <span class="kw">let</span> <span class="ident">b</span> <span class="op">=</span> [<span class="number">5u8</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>];
-    <span class="macro">assert_eq!</span>(<span class="ident">length_value</span>(<span class="kw-2">&amp;</span><span class="ident">b</span>[..]), <span class="prelude-val">Err</span>(<span class="ident">Err::Incomplete</span>(<span class="ident">Needed::new</span>(<span class="number">5</span>))));
+    <span class="macro">assert_eq!</span>(<span class="ident">length_value</span>(<span class="kw-2">&amp;</span><span class="ident">b</span>[..]), <span class="prelude-val">Err</span>(<span class="ident">Err::Incomplete</span>(<span class="ident">Needed::Size</span>(<span class="number">5</span>))));
   }
 
   <span class="comment">/*

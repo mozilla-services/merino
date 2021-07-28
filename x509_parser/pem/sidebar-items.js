@@ -1,1 +1,0 @@
-initSidebarItems({"fn":[["parse_x509_pem","Read a PEM-encoded structure, and decode the base64 data"],["pem_to_der",""]],"struct":[["Pem","Representation of PEM data"],["PemIterator","Iterator over PEM-encapsulated blocks"]]});

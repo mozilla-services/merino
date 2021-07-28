@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/usr/local/cargo/git/checkouts/remote-settings-client-5532556251d46388/a489fa2/src/client/signatures.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>signatures.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/usr/local/cargo/git/checkouts/remote-settings-client-5532556251d46388/06fbe92/src/client/signatures.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>signatures.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png">
 <link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../remote_settings_client/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../../settings.html"><img src="../../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
@@ -355,213 +355,6 @@
 <span id="352">352</span>
 <span id="353">353</span>
 <span id="354">354</span>
-<span id="355">355</span>
-<span id="356">356</span>
-<span id="357">357</span>
-<span id="358">358</span>
-<span id="359">359</span>
-<span id="360">360</span>
-<span id="361">361</span>
-<span id="362">362</span>
-<span id="363">363</span>
-<span id="364">364</span>
-<span id="365">365</span>
-<span id="366">366</span>
-<span id="367">367</span>
-<span id="368">368</span>
-<span id="369">369</span>
-<span id="370">370</span>
-<span id="371">371</span>
-<span id="372">372</span>
-<span id="373">373</span>
-<span id="374">374</span>
-<span id="375">375</span>
-<span id="376">376</span>
-<span id="377">377</span>
-<span id="378">378</span>
-<span id="379">379</span>
-<span id="380">380</span>
-<span id="381">381</span>
-<span id="382">382</span>
-<span id="383">383</span>
-<span id="384">384</span>
-<span id="385">385</span>
-<span id="386">386</span>
-<span id="387">387</span>
-<span id="388">388</span>
-<span id="389">389</span>
-<span id="390">390</span>
-<span id="391">391</span>
-<span id="392">392</span>
-<span id="393">393</span>
-<span id="394">394</span>
-<span id="395">395</span>
-<span id="396">396</span>
-<span id="397">397</span>
-<span id="398">398</span>
-<span id="399">399</span>
-<span id="400">400</span>
-<span id="401">401</span>
-<span id="402">402</span>
-<span id="403">403</span>
-<span id="404">404</span>
-<span id="405">405</span>
-<span id="406">406</span>
-<span id="407">407</span>
-<span id="408">408</span>
-<span id="409">409</span>
-<span id="410">410</span>
-<span id="411">411</span>
-<span id="412">412</span>
-<span id="413">413</span>
-<span id="414">414</span>
-<span id="415">415</span>
-<span id="416">416</span>
-<span id="417">417</span>
-<span id="418">418</span>
-<span id="419">419</span>
-<span id="420">420</span>
-<span id="421">421</span>
-<span id="422">422</span>
-<span id="423">423</span>
-<span id="424">424</span>
-<span id="425">425</span>
-<span id="426">426</span>
-<span id="427">427</span>
-<span id="428">428</span>
-<span id="429">429</span>
-<span id="430">430</span>
-<span id="431">431</span>
-<span id="432">432</span>
-<span id="433">433</span>
-<span id="434">434</span>
-<span id="435">435</span>
-<span id="436">436</span>
-<span id="437">437</span>
-<span id="438">438</span>
-<span id="439">439</span>
-<span id="440">440</span>
-<span id="441">441</span>
-<span id="442">442</span>
-<span id="443">443</span>
-<span id="444">444</span>
-<span id="445">445</span>
-<span id="446">446</span>
-<span id="447">447</span>
-<span id="448">448</span>
-<span id="449">449</span>
-<span id="450">450</span>
-<span id="451">451</span>
-<span id="452">452</span>
-<span id="453">453</span>
-<span id="454">454</span>
-<span id="455">455</span>
-<span id="456">456</span>
-<span id="457">457</span>
-<span id="458">458</span>
-<span id="459">459</span>
-<span id="460">460</span>
-<span id="461">461</span>
-<span id="462">462</span>
-<span id="463">463</span>
-<span id="464">464</span>
-<span id="465">465</span>
-<span id="466">466</span>
-<span id="467">467</span>
-<span id="468">468</span>
-<span id="469">469</span>
-<span id="470">470</span>
-<span id="471">471</span>
-<span id="472">472</span>
-<span id="473">473</span>
-<span id="474">474</span>
-<span id="475">475</span>
-<span id="476">476</span>
-<span id="477">477</span>
-<span id="478">478</span>
-<span id="479">479</span>
-<span id="480">480</span>
-<span id="481">481</span>
-<span id="482">482</span>
-<span id="483">483</span>
-<span id="484">484</span>
-<span id="485">485</span>
-<span id="486">486</span>
-<span id="487">487</span>
-<span id="488">488</span>
-<span id="489">489</span>
-<span id="490">490</span>
-<span id="491">491</span>
-<span id="492">492</span>
-<span id="493">493</span>
-<span id="494">494</span>
-<span id="495">495</span>
-<span id="496">496</span>
-<span id="497">497</span>
-<span id="498">498</span>
-<span id="499">499</span>
-<span id="500">500</span>
-<span id="501">501</span>
-<span id="502">502</span>
-<span id="503">503</span>
-<span id="504">504</span>
-<span id="505">505</span>
-<span id="506">506</span>
-<span id="507">507</span>
-<span id="508">508</span>
-<span id="509">509</span>
-<span id="510">510</span>
-<span id="511">511</span>
-<span id="512">512</span>
-<span id="513">513</span>
-<span id="514">514</span>
-<span id="515">515</span>
-<span id="516">516</span>
-<span id="517">517</span>
-<span id="518">518</span>
-<span id="519">519</span>
-<span id="520">520</span>
-<span id="521">521</span>
-<span id="522">522</span>
-<span id="523">523</span>
-<span id="524">524</span>
-<span id="525">525</span>
-<span id="526">526</span>
-<span id="527">527</span>
-<span id="528">528</span>
-<span id="529">529</span>
-<span id="530">530</span>
-<span id="531">531</span>
-<span id="532">532</span>
-<span id="533">533</span>
-<span id="534">534</span>
-<span id="535">535</span>
-<span id="536">536</span>
-<span id="537">537</span>
-<span id="538">538</span>
-<span id="539">539</span>
-<span id="540">540</span>
-<span id="541">541</span>
-<span id="542">542</span>
-<span id="543">543</span>
-<span id="544">544</span>
-<span id="545">545</span>
-<span id="546">546</span>
-<span id="547">547</span>
-<span id="548">548</span>
-<span id="549">549</span>
-<span id="550">550</span>
-<span id="551">551</span>
-<span id="552">552</span>
-<span id="553">553</span>
-<span id="554">554</span>
-<span id="555">555</span>
-<span id="556">556</span>
-<span id="557">557</span>
-<span id="558">558</span>
-<span id="559">559</span>
-<span id="560">560</span>
-<span id="561">561</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">/* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -575,34 +368,16 @@
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rc_crypto_verifier&quot;</span>)]</span>
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">rc_crypto_verifier</span>;
 
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ring_verifier&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rc_crypto_verifier&quot;</span>))]</span>
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">x509</span>;
 
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::client::Collection</span>;
-<span class="kw">use</span> <span class="ident">hex</span>;
 <span class="kw">use</span> <span class="ident">log::debug</span>;
 <span class="kw">use</span> <span class="ident">serde_json::json</span>;
-<span class="kw">use</span> <span class="ident">thiserror::Error</span>;
 <span class="kw">use</span> <span class="ident">url</span>::{<span class="ident">ParseError</span> <span class="kw">as</span> <span class="ident">URLParseError</span>, <span class="ident">Url</span>};
 <span class="kw">use</span> <span class="ident">viaduct</span>::{<span class="ident">Error</span> <span class="kw">as</span> <span class="ident">ViaductError</span>, <span class="ident">Request</span>, <span class="ident">Response</span>};
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">test</span>))]</span>
-<span class="kw">use</span> <span class="ident">std::time</span>::{<span class="ident">SystemTime</span>, <span class="ident">UNIX_EPOCH</span>};
-
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">test</span>))]</span>
-<span class="kw">fn</span> <span class="ident">epoch_seconds</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u64</span> {
-    <span class="ident">SystemTime::now</span>()
-        .<span class="ident">duration_since</span>(<span class="ident">UNIX_EPOCH</span>)
-        .<span class="ident">unwrap</span>() <span class="comment">// Time won&#39;t go backwards.</span>
-        .<span class="ident">as_secs</span>()
-}
-
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">use</span> <span class="ident">mock_instant</span>;
-
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">fn</span> <span class="ident">epoch_seconds</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u64</span> {
-    <span class="ident">mock_instant::MockClock::time</span>().<span class="ident">as_secs</span>()
-}
+<span class="kw">use</span> <span class="ident">thiserror::Error</span>;
 
 <span class="doccomment">/// A trait for signature verification of collection data.</span>
 <span class="doccomment">///</span>
@@ -610,21 +385,14 @@
 <span class="doccomment">///</span>
 <span class="doccomment">/// # How can I implement ```Verification```?</span>
 <span class="doccomment">/// ```rust</span>
-<span class="doccomment">/// # use remote_settings_client::client::{Client, Collection, SignatureError, Verification};</span>
+<span class="doccomment">/// # use remote_settings_client::{SignatureError, Verification};</span>
+<span class="doccomment">/// # use remote_settings_client::{Client, Collection};</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// struct SignatureVerifier {}</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// impl Verification for SignatureVerifier {</span>
-<span class="doccomment">///     fn verify_nist384p_chain(</span>
-<span class="doccomment">///         &amp;self,</span>
-<span class="doccomment">///         epoch_seconds: u64,</span>
-<span class="doccomment">///         pem_bytes: &amp;[u8],</span>
-<span class="doccomment">///         root_hash: &amp;[u8],</span>
-<span class="doccomment">///         subject_cn: &amp;str,</span>
-<span class="doccomment">///         message: &amp;[u8],</span>
-<span class="doccomment">///         signature: &amp;[u8],</span>
-<span class="doccomment">///     ) -&gt; Result&lt;(), SignatureError&gt; {</span>
-<span class="doccomment">///         Ok(()) // unreachable.</span>
+<span class="doccomment">///     fn verify(&amp;self, collection: &amp;Collection) -&gt; Result&lt;(), SignatureError&gt; {</span>
+<span class="doccomment">///         Ok(())</span>
 <span class="doccomment">///     }</span>
 <span class="doccomment">/// }</span>
 <span class="doccomment">///</span>
@@ -637,17 +405,17 @@
 <span class="doccomment">/// ```</span>
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Verification</span>: <span class="ident">Send</span> {
     <span class="kw">fn</span> <span class="ident">fetch_certificate_chain</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">collection</span>: <span class="kw-2">&amp;</span><span class="ident">Collection</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>, <span class="ident">SignatureError</span><span class="op">&gt;</span> {
-        <span class="comment">// Get public key from collection metadata (PEM URL is `x5u` field).</span>
+        <span class="comment">// Fetch certificate PEM (public key).</span>
         <span class="kw">let</span> <span class="ident">x5u</span> <span class="op">=</span> <span class="ident">collection</span>.<span class="ident">metadata</span>[<span class="string">&quot;signature&quot;</span>][<span class="string">&quot;x5u&quot;</span>]
             .<span class="ident">as_str</span>()
             .<span class="ident">ok_or</span>(<span class="ident">SignatureError::MissingSignatureField</span>())<span class="question-mark">?</span>;
-        <span class="comment">// Fetch certificate from URL (certificate chain).</span>
+
         <span class="macro">debug!</span>(<span class="string">&quot;Fetching certificate {}&quot;</span>, <span class="ident">x5u</span>);
         <span class="kw">let</span> <span class="ident">response</span> <span class="op">=</span> <span class="ident">Request::get</span>(<span class="ident">Url::parse</span>(<span class="kw-2">&amp;</span><span class="ident">x5u</span>)<span class="question-mark">?</span>).<span class="ident">send</span>()<span class="question-mark">?</span>;
         <span class="kw">if</span> <span class="op">!</span><span class="ident">response</span>.<span class="ident">is_success</span>() {
             <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">SignatureError::CertificateDownloadError</span> { <span class="ident">response</span> });
         }
-        <span class="comment">// TODO: read server time from headers to compute clock skew and return along</span>
+
         <span class="prelude-val">Ok</span>(<span class="ident">response</span>.<span class="ident">body</span>)
     }
 
@@ -667,54 +435,19 @@
             <span class="string">&quot;last_modified&quot;</span>: <span class="ident">collection</span>.<span class="ident">timestamp</span>.<span class="ident">to_string</span>()
         }))<span class="question-mark">?</span>;
         <span class="kw">let</span> <span class="ident">data</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;Content-Signature:\x00{}&quot;</span>, <span class="ident">serialized</span>);
+
         <span class="prelude-val">Ok</span>(<span class="ident">data</span>.<span class="ident">as_bytes</span>().<span class="ident">to_vec</span>())
     }
 
-    <span class="doccomment">/// Verifies signature for a given ```Collection``` struct.</span>
-    <span class="doccomment">/// 1. Fetch and parse the chain of PEM-format certificates linked to in the &quot;x5u&quot; property.</span>
-    <span class="doccomment">/// 2. Serialize the collection data in canonical JSON format.</span>
-    <span class="doccomment">/// 3. Verify the certificates chain of trust using root_hash and signer name, and that the ECDSA P384 SHA384 signature matches the data.</span>
+    <span class="doccomment">/// Verifies signature for a given ```Collection``` struct</span>
+    <span class="doccomment">///</span>
     <span class="doccomment">/// # Errors</span>
     <span class="doccomment">/// If all the steps are performed without errors, but the specified collection data</span>
     <span class="doccomment">/// does not match its signature, then a [`SignatureError::MismatchError`] is returned.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// If errors occur during certificate download, parsing, or data serialization, then</span>
     <span class="doccomment">/// the corresponding error is returned.</span>
-    <span class="kw">fn</span> <span class="ident">verify</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">collection</span>: <span class="kw-2">&amp;</span><span class="ident">Collection</span>, <span class="ident">root_hash</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">SignatureError</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">pem_bytes</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">fetch_certificate_chain</span>(<span class="kw-2">&amp;</span><span class="ident">collection</span>)<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">signature_bytes</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">decode_signature</span>(<span class="kw-2">&amp;</span><span class="ident">collection</span>)<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">data_bytes</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">serialize_data</span>(<span class="kw-2">&amp;</span><span class="ident">collection</span>)<span class="question-mark">?</span>;
-
-        <span class="kw">let</span> <span class="ident">root_hash_bytes</span> <span class="op">=</span> <span class="ident">hex::decode</span>(<span class="kw-2">&amp;</span><span class="ident">root_hash</span>.<span class="ident">replace</span>(<span class="string">&quot;:&quot;</span>, <span class="string">&quot;&quot;</span>))
-            .<span class="ident">or_else</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> <span class="prelude-val">Err</span>(<span class="ident">SignatureError::RootFormatError</span>(<span class="ident">err</span>.<span class="ident">to_string</span>())))<span class="question-mark">?</span>;
-
-        <span class="kw">let</span> <span class="ident">now</span> <span class="op">=</span> <span class="ident">epoch_seconds</span>();
-        <span class="self">self</span>.<span class="ident">verify_nist384p_chain</span>(
-            <span class="ident">now</span>,
-            <span class="kw-2">&amp;</span><span class="ident">pem_bytes</span>,
-            <span class="kw-2">&amp;</span><span class="ident">root_hash_bytes</span>,
-            <span class="kw-2">&amp;</span><span class="ident">collection</span>.<span class="ident">signer</span>,
-            <span class="kw-2">&amp;</span><span class="ident">data_bytes</span>,
-            <span class="kw-2">&amp;</span><span class="ident">signature_bytes</span>,
-        )
-    }
-
-    <span class="doccomment">/// Verify chain of trust.</span>
-    <span class="doccomment">/// 1. Parse the PEM bytes as DER-encoded X.509 Certificate.</span>
-    <span class="doccomment">/// 2. Verify that root hash matches the SHA256 fingerprint of the root certificate (DER content)</span>
-    <span class="doccomment">/// 3. Verify that each certificate of the chain is currently valid (revocation support is optional)</span>
-    <span class="doccomment">/// 4. Verify that each child signature matches its parent&#39;s public key for each pair in the chain</span>
-    <span class="doccomment">/// 5. Verify that the subject alternate name of the end-entity certificate matches the collection signer name.</span>
-    <span class="doccomment">/// 6. Use the chain&#39;s end-entity (leaf) certificate to verify that the &quot;signature&quot; property matches the contents of the data.</span>
-    <span class="kw">fn</span> <span class="ident">verify_nist384p_chain</span>(
-        <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">epoch_seconds</span>: <span class="ident">u64</span>,
-        <span class="ident">pem_bytes</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
-        <span class="ident">root_hash</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
-        <span class="ident">subject_cn</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-        <span class="ident">message</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
-        <span class="ident">signature</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">SignatureError</span><span class="op">&gt;</span>;
+    <span class="kw">fn</span> <span class="ident">verify</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">collection</span>: <span class="kw-2">&amp;</span><span class="ident">Collection</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">SignatureError</span><span class="op">&gt;</span>;
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Error</span>)]</span>
@@ -723,22 +456,9 @@
     <span class="ident">MismatchError</span>(<span class="ident">String</span>),
     <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;certificate could not be downloaded from {}: HTTP {}&quot;</span>, <span class="ident">response</span>.<span class="ident">url</span>, <span class="ident">response</span>.<span class="ident">status</span>)]</span>
     <span class="ident">CertificateDownloadError</span> { <span class="ident">response</span>: <span class="ident">Response</span> },
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ring_verifier&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rc_crypto_verifier&quot;</span>))]</span>
     <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;certificate content could not be parsed: {0}&quot;</span>)]</span>
     <span class="ident">CertificateContentError</span>(<span class="attribute">#[<span class="ident">from</span>]</span> <span class="ident">x509::X509Error</span>),
-    <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;root certificate fingerprint has bad format: {0}&quot;</span>)]</span>
-    <span class="ident">RootFormatError</span>(<span class="ident">String</span>),
-    <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;root certificate fingerprint does not match: {0}&quot;</span>)]</span>
-    <span class="ident">CertificateHasWrongRoot</span>(<span class="ident">String</span>),
-    <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;certificate alternate subject does not match: {0}&quot;</span>)]</span>
-    <span class="ident">WrongSignerName</span>(<span class="ident">String</span>),
-    <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;certificate expired&quot;</span>)]</span>
-    <span class="ident">CertificateExpired</span>,
-    <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;certificate chain could not be verified&quot;</span>)]</span>
-    <span class="ident">CertificateTrustError</span>,
-    <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;certificate chain was signed with unsupported algorithm&quot;</span>)]</span>
-    <span class="ident">UnsupportedSignatureAlgorithm</span>,
-    <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;could not hash message: {0}&quot;</span>)]</span>
-    <span class="ident">HashingError</span>(<span class="ident">String</span>),
     <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;signature contains invalid base64: {0}&quot;</span>)]</span>
     <span class="ident">BadSignatureContent</span>(<span class="attribute">#[<span class="ident">from</span>]</span> <span class="ident">base64::DecodeError</span>),
     <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;signature payload has no x5u field&quot;</span>)]</span>
@@ -753,20 +473,18 @@
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
 <span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="kw">use</span> <span class="kw">super</span><span class="ident">::dummy_verifier::DummyVerifier</span>;
-    <span class="kw">use</span> <span class="kw">super</span><span class="ident">::x509</span>;
     <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Collection</span>, <span class="ident">Record</span>, <span class="ident">SignatureError</span>, <span class="ident">Verification</span>};
     <span class="kw">use</span> <span class="ident">env_logger</span>;
     <span class="kw">use</span> <span class="ident">httpmock::MockServer</span>;
-    <span class="kw">use</span> <span class="ident">mock_instant::MockClock</span>;
     <span class="kw">use</span> <span class="ident">serde_json::json</span>;
-    <span class="kw">use</span> <span class="ident">std::time::Duration</span>;
     <span class="kw">use</span> <span class="ident">viaduct::set_backend</span>;
     <span class="kw">use</span> <span class="ident">viaduct_reqwest::ReqwestBackend</span>;
 
-    <span class="kw">impl</span> <span class="ident">PartialEq</span> <span class="kw">for</span> <span class="ident">SignatureError</span> {
-        <span class="kw">fn</span> <span class="ident">eq</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="self">Self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-            <span class="ident">std::mem::discriminant</span>(<span class="self">self</span>) <span class="op">=</span><span class="op">=</span> <span class="ident">std::mem::discriminant</span>(<span class="ident">other</span>)
+    <span class="kw">struct</span> <span class="ident">BasicVerifier</span> {}
+
+    <span class="kw">impl</span> <span class="ident">Verification</span> <span class="kw">for</span> <span class="ident">BasicVerifier</span> {
+        <span class="kw">fn</span> <span class="ident">verify</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">_collection</span>: <span class="kw-2">&amp;</span><span class="ident">Collection</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">SignatureError</span><span class="op">&gt;</span> {
+            <span class="prelude-val">Ok</span>(())
         }
     }
 
@@ -774,7 +492,7 @@
         <span class="ident">mock_server</span>: <span class="kw-2">&amp;</span><span class="ident">MockServer</span>,
         <span class="ident">collection</span>: <span class="ident">Collection</span>,
         <span class="ident">certificate</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-        <span class="ident">expected_result</span>: <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">SignatureError</span><span class="op">&gt;</span>,
+        <span class="ident">should_fail</span>: <span class="ident">bool</span>,
     ) {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">get_pem_certificate</span> <span class="op">=</span> <span class="ident">mock_server</span>.<span class="ident">mock</span>(<span class="op">|</span><span class="ident">when</span>, <span class="ident">then</span><span class="op">|</span> {
             <span class="ident">when</span>.<span class="ident">path</span>(
@@ -791,10 +509,12 @@
         <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rc_crypto_verifier&quot;</span>)]</span>
         <span class="ident">verifiers</span>.<span class="ident">push</span>(<span class="ident">Box::new</span>(<span class="kw">super</span><span class="ident">::rc_crypto_verifier::RcCryptoVerifier</span> {}));
 
-        <span class="kw">let</span> <span class="ident">root_hash</span> <span class="op">=</span> <span class="string">&quot;3C:01:44:6A:BE:90:36:CE:A9:A0:9A:CA:A3:A5:20:AC:62:8F:20:A7:AE:32:CE:86:1C:B2:EF:B7:0F:A0:C7:45&quot;</span>;
-
         <span class="kw">for</span> <span class="ident">verifier</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">verifiers</span> {
-            <span class="macro">assert_eq!</span>(<span class="ident">verifier</span>.<span class="ident">verify</span>(<span class="kw-2">&amp;</span><span class="ident">collection</span>, <span class="ident">root_hash</span>), <span class="ident">expected_result</span>);
+            <span class="kw">if</span> <span class="ident">should_fail</span> {
+                <span class="macro">assert!</span>(<span class="ident">verifier</span>.<span class="ident">verify</span>(<span class="kw-2">&amp;</span><span class="ident">collection</span>).<span class="ident">is_err</span>())
+            } <span class="kw">else</span> {
+                <span class="macro">assert!</span>(<span class="ident">verifier</span>.<span class="ident">verify</span>(<span class="kw-2">&amp;</span><span class="ident">collection</span>).<span class="ident">is_ok</span>());
+            }
         }
 
         <span class="ident">get_pem_certificate</span>.<span class="ident">assert_hits</span>(<span class="ident">verifiers</span>.<span class="ident">len</span>());
@@ -803,19 +523,17 @@
 
     <span class="kw">fn</span> <span class="ident">init</span>() {
         <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">env_logger::builder</span>().<span class="ident">is_test</span>(<span class="bool-val">true</span>).<span class="ident">try_init</span>();
-        <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">set_backend</span>(<span class="kw-2">&amp;</span><span class="ident">ReqwestBackend</span>);
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_missing_x5u</span>() {
-        <span class="kw">let</span> <span class="ident">verifier</span> <span class="op">=</span> <span class="ident">DummyVerifier</span> {};
+        <span class="kw">let</span> <span class="ident">verifier</span> <span class="op">=</span> <span class="ident">BasicVerifier</span> {};
         <span class="kw">let</span> <span class="ident">collection</span> <span class="op">=</span> <span class="ident">Collection</span> {
             <span class="ident">bid</span>: <span class="string">&quot;&quot;</span>.<span class="ident">to_string</span>(),
             <span class="ident">cid</span>: <span class="string">&quot;&quot;</span>.<span class="ident">to_string</span>(),
             <span class="ident">metadata</span>: <span class="macro">json!</span>({}),
             <span class="ident">records</span>: <span class="macro">vec!</span>[],
             <span class="ident">timestamp</span>: <span class="number">0</span>,
-            <span class="ident">signer</span>: <span class="string">&quot;&quot;</span>.<span class="ident">to_string</span>(),
         };
         <span class="kw">let</span> <span class="ident">err</span> <span class="op">=</span> <span class="ident">verifier</span>.<span class="ident">fetch_certificate_chain</span>(<span class="kw-2">&amp;</span><span class="ident">collection</span>).<span class="ident">unwrap_err</span>();
         <span class="kw">match</span> <span class="ident">err</span> {
@@ -826,7 +544,7 @@
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_bad_x5u_urls</span>() {
-        <span class="kw">let</span> <span class="ident">verifier</span> <span class="op">=</span> <span class="ident">DummyVerifier</span> {};
+        <span class="kw">let</span> <span class="ident">verifier</span> <span class="op">=</span> <span class="ident">BasicVerifier</span> {};
 
         <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">set_backend</span>(<span class="kw-2">&amp;</span><span class="ident">ReqwestBackend</span>);
         <span class="kw">let</span> <span class="ident">mock_server</span> <span class="op">=</span> <span class="ident">MockServer::start</span>();
@@ -856,7 +574,6 @@
                 }),
                 <span class="ident">records</span>: <span class="macro">vec!</span>[],
                 <span class="ident">timestamp</span>: <span class="number">0</span>,
-                <span class="ident">signer</span>: <span class="string">&quot;&quot;</span>.<span class="ident">to_string</span>(),
             };
             <span class="kw">let</span> <span class="ident">err</span> <span class="op">=</span> <span class="ident">verifier</span>.<span class="ident">fetch_certificate_chain</span>(<span class="kw-2">&amp;</span><span class="ident">collection</span>).<span class="ident">unwrap_err</span>();
             <span class="macro">assert!</span>(<span class="ident">err</span>.<span class="ident">to_string</span>().<span class="ident">contains</span>(<span class="ident">error</span>), <span class="string">&quot;{}&quot;</span>, <span class="ident">err</span>.<span class="ident">to_string</span>());
@@ -871,104 +588,28 @@
 
         <span class="kw">let</span> <span class="ident">mock_server</span>: <span class="ident">MockServer</span> <span class="op">=</span> <span class="ident">MockServer::start</span>();
 
-        <span class="kw">const</span> <span class="ident">VALID_CERTIFICATE</span>: <span class="kw-2">&amp;</span><span class="ident">str</span> <span class="op">=</span> <span class="string">&quot;\
+        <span class="kw">const</span> <span class="ident">VALID_CERTIFICATE</span>: <span class="kw-2">&amp;</span><span class="ident">str</span> <span class="op">=</span> <span class="string">r#&quot;\
 -----BEGIN CERTIFICATE-----
-MIIDBjCCAougAwIBAgIIFml6g0ldRGowCgYIKoZIzj0EAwMwgaMxCzAJBgNVBAYT
+MIIDBjCCAougAwIBAgIIFiJLFfdxFlYwCgYIKoZIzj0EAwMwgaMxCzAJBgNVBAYT
 AlVTMRwwGgYDVQQKExNNb3ppbGxhIENvcnBvcmF0aW9uMS8wLQYDVQQLEyZNb3pp
 bGxhIEFNTyBQcm9kdWN0aW9uIFNpZ25pbmcgU2VydmljZTFFMEMGA1UEAww8Q29u
 dGVudCBTaWduaW5nIEludGVybWVkaWF0ZS9lbWFpbEFkZHJlc3M9Zm94c2VjQG1v
-emlsbGEuY29tMB4XDTIxMDIwMzE1MDQwNVoXDTIxMDQyNDE1MDQwNVowgakxCzAJ
+emlsbGEuY29tMB4XDTIwMDYxNjE3MTYxNVoXDTIwMDkwNDE3MTYxNVowgakxCzAJ
 BgNVBAYTAlVTMRMwEQYDVQQIEwpDYWxpZm9ybmlhMRYwFAYDVQQHEw1Nb3VudGFp
 biBWaWV3MRwwGgYDVQQKExNNb3ppbGxhIENvcnBvcmF0aW9uMRcwFQYDVQQLEw5D
 bG91ZCBTZXJ2aWNlczE2MDQGA1UEAxMtcmVtb3RlLXNldHRpbmdzLmNvbnRlbnQt
-c2lnbmF0dXJlLm1vemlsbGEub3JnMHYwEAYHKoZIzj0CAQYFK4EEACIDYgAE8pKb
-HX4IiD0SCy+NO7gwKqRRZ8IhGd8PTaIHIBgM6RDLRyDeswXgV+2kGUoHyzkbNKZt
-zlrS3AhqeUCtl1g6ECqSmZBbRTjCpn/UCpCnMLL0T0goxtAB8Rmi3CdM0cBUo4GD
+c2lnbmF0dXJlLm1vemlsbGEub3JnMHYwEAYHKoZIzj0CAQYFK4EEACIDYgAEDmOX
+N5IGlUqCvu6xkOKr020Eo3kY2uPdJO0ZihVUoglk1ktQPss184OajFOMKm/BJX4W
+IsZUzQoRL8NgGfZDwBjT95Q87lhOWEWs5AU/nMXIYwDp7rpUPaUqw0QLMikdo4GD
 MIGAMA4GA1UdDwEB/wQEAwIHgDATBgNVHSUEDDAKBggrBgEFBQcDAzAfBgNVHSME
-GDAWgBQlZawrqt0eUz/t6OdN45oKfmzy6DA4BgNVHREEMTAvgi1yZW1vdGUtc2V0
+GDAWgBSgHUoXT4zCKzVF8WPx2nBwp8744TA4BgNVHREEMTAvgi1yZW1vdGUtc2V0
 dGluZ3MuY29udGVudC1zaWduYXR1cmUubW96aWxsYS5vcmcwCgYIKoZIzj0EAwMD
-aQAwZgIxAPh43Bxl4MxPT6Ra1XvboN5O2OvIn2r8rHvZPWR/jJ9vcTwH9X3F0aLJ
-9FiresnsLAIxAOoAcREYB24gFBeWxbiiXaG7TR/yM1/MXw4qxbN965FFUaoB+5Bc
-fS8//SQGTlCqKQ==
------END CERTIFICATE-----
------BEGIN CERTIFICATE-----
-MIIF2jCCA8KgAwIBAgIEAQAAADANBgkqhkiG9w0BAQsFADCBqTELMAkGA1UEBhMC
-VVMxCzAJBgNVBAgTAkNBMRYwFAYDVQQHEw1Nb3VudGFpbiBWaWV3MRwwGgYDVQQK
-ExNBZGRvbnMgVGVzdCBTaWduaW5nMSQwIgYDVQQDExt0ZXN0LmFkZG9ucy5zaWdu
-aW5nLnJvb3QuY2ExMTAvBgkqhkiG9w0BCQEWInNlY29wcytzdGFnZXJvb3RhZGRv
-bnNAbW96aWxsYS5jb20wHhcNMjEwMTExMDAwMDAwWhcNMjQxMTE0MjA0ODU5WjCB
-ozELMAkGA1UEBhMCVVMxHDAaBgNVBAoTE01vemlsbGEgQ29ycG9yYXRpb24xLzAt
-BgNVBAsTJk1vemlsbGEgQU1PIFByb2R1Y3Rpb24gU2lnbmluZyBTZXJ2aWNlMUUw
-QwYDVQQDDDxDb250ZW50IFNpZ25pbmcgSW50ZXJtZWRpYXRlL2VtYWlsQWRkcmVz
-cz1mb3hzZWNAbW96aWxsYS5jb20wdjAQBgcqhkjOPQIBBgUrgQQAIgNiAARw1dyE
-xV5aNiHJPa/fVHO6kxJn3oZLVotJ0DzFZA9r1sQf8i0+v78Pg0/c3nTAyZWfkULz
-vOpKYK/GEGBtisxCkDJ+F3NuLPpSIg3fX25pH0LE15fvASBVcr8tKLVHeOmjggG6
-MIIBtjAMBgNVHRMEBTADAQH/MA4GA1UdDwEB/wQEAwIBBjAWBgNVHSUBAf8EDDAK
-BggrBgEFBQcDAzAdBgNVHQ4EFgQUJWWsK6rdHlM/7ejnTeOaCn5s8ugwgdkGA1Ud
-IwSB0TCBzoAUhtg0HE5Y0RNcmV/YQpjtFA8Z8l2hga+kgawwgakxCzAJBgNVBAYT
-AlVTMQswCQYDVQQIEwJDQTEWMBQGA1UEBxMNTW91bnRhaW4gVmlldzEcMBoGA1UE
-ChMTQWRkb25zIFRlc3QgU2lnbmluZzEkMCIGA1UEAxMbdGVzdC5hZGRvbnMuc2ln
-bmluZy5yb290LmNhMTEwLwYJKoZIhvcNAQkBFiJzZWNvcHMrc3RhZ2Vyb290YWRk
-b25zQG1vemlsbGEuY29tggRgJZg7MDMGCWCGSAGG+EIBBAQmFiRodHRwOi8vYWRk
-b25zLmFsbGl6b20ub3JnL2NhL2NybC5wZW0wTgYDVR0eBEcwRaBDMCCCHi5jb250
-ZW50LXNpZ25hdHVyZS5tb3ppbGxhLm9yZzAfgh1jb250ZW50LXNpZ25hdHVyZS5t
-b3ppbGxhLm9yZzANBgkqhkiG9w0BAQsFAAOCAgEAtGTTzcPzpcdf07kIeRs9vPMx
-qiF8ylW5L/IQ2NzT3sFFAvPW1vW1wZC0xAHMsuVyo+BTGrv+4mlD0AUR9acRfiTZ
-9qyZ3sJbyhQwJAXLKU4YpnzuFOf58T/yOnOdwpH2ky/0FuHskMyfXaAz2Az4JXJH
-TCgggqfdZNvsZ5eOnQlKoC5NadMa8oTI5sd4SyR5ANUPAtYok931MvVSz3IMbwTr
-v4PPWXdl9SGXuOknSqdY6/bS1LGvC2KprsT+PBlvVtS6YgZOH0uCgTTLpnrco87O
-ErzC2PJBA1Ftn3Mbaou6xy7O+YX+reJ6soNUV+0JHOuKj0aTXv0c+lXEAh4Y8nea
-UGhW6+MRGYMOP2NuKv8s2+CtNH7asPq3KuTQpM5RerjdouHMIedX7wpNlNk0CYbg
-VMJLxZfAdwcingLWda/H3j7PxMoAm0N+eA24TGDQPC652ZakYk4MQL/45lm0A5f0
-xLGKEe6JMZcTBQyO7ANWcrpVjKMiwot6bY6S2xU17mf/h7J32JXZJ23OPOKpMS8d
-mljj4nkdoYDT35zFuS1z+5q6R5flLca35vRHzC3XA0H/XJvgOKUNLEW/IiJIqLNi
-ab3Ao0RubuX+CAdFML5HaJmkyuJvL3YtwIOwe93RGcGRZSKZsnMS+uY5QN8+qKQz
-LC4GzWQGSCGDyD+JCVw=
------END CERTIFICATE-----
------BEGIN CERTIFICATE-----
-MIIHbDCCBVSgAwIBAgIEYCWYOzANBgkqhkiG9w0BAQwFADCBqTELMAkGA1UEBhMC
-VVMxCzAJBgNVBAgTAkNBMRYwFAYDVQQHEw1Nb3VudGFpbiBWaWV3MRwwGgYDVQQK
-ExNBZGRvbnMgVGVzdCBTaWduaW5nMSQwIgYDVQQDExt0ZXN0LmFkZG9ucy5zaWdu
-aW5nLnJvb3QuY2ExMTAvBgkqhkiG9w0BCQEWInNlY29wcytzdGFnZXJvb3RhZGRv
-bnNAbW96aWxsYS5jb20wHhcNMjEwMjExMjA0ODU5WhcNMjQxMTE0MjA0ODU5WjCB
-qTELMAkGA1UEBhMCVVMxCzAJBgNVBAgTAkNBMRYwFAYDVQQHEw1Nb3VudGFpbiBW
-aWV3MRwwGgYDVQQKExNBZGRvbnMgVGVzdCBTaWduaW5nMSQwIgYDVQQDExt0ZXN0
-LmFkZG9ucy5zaWduaW5nLnJvb3QuY2ExMTAvBgkqhkiG9w0BCQEWInNlY29wcytz
-dGFnZXJvb3RhZGRvbnNAbW96aWxsYS5jb20wggIiMA0GCSqGSIb3DQEBAQUAA4IC
-DwAwggIKAoICAQDKRVty/FRsO4Ech6EYleyaKgAueaLYfMSsAIyPC/N8n/P8QcH8
-rjoiMJrKHRlqiJmMBSmjUZVzZAP0XJku0orLKWPKq7cATt+xhGY/RJtOzenMMsr5
-eN02V3GzUd1jOShUpERjzXdaO3pnfZqhdqNYqP9ocqQpyno7bZ3FZQ2vei+bF52k
-51uPioTZo+1zduoR/rT01twGtZm3QpcwU4mO74ysyxxgqEy3kpojq8Nt6haDwzrj
-khV9M6DGPLHZD71QaUiz5lOhD9CS8x0uqXhBhwMUBBkHsUDSxbN4ZhjDDWpCmwaD
-OtbJMUJxDGPCr9qj49QESccb367OeXLrfZ2Ntu/US2Bw9EDfhyNsXr9dg9NHj5yf
-4sDUqBHG0W8zaUvJx5T2Ivwtno1YZLyJwQW5pWeWn8bEmpQKD2KS/3y2UjlDg+YM
-NdNASjFe0fh6I5NCFYmFWA73DpDGlUx0BtQQU/eZQJ+oLOTLzp8d3dvenTBVnKF+
-uwEmoNfZwc4TTWJOhLgwxA4uK+Paaqo4Ap2RGS2ZmVkPxmroB3gL5n3k3QEXvULh
-7v8Psk4+MuNWnxudrPkN38MGJo7ju7gDOO8h1jLD4tdfuAqbtQLduLXzT4DJPA4y
-JBTFIRMIpMqP9CovaS8VPtMFLTrYlFh9UnEGpCeLPanJr+VEj7ae5sc8YwIDAQAB
-o4IBmDCCAZQwDAYDVR0TBAUwAwEB/zAOBgNVHQ8BAf8EBAMCAQYwFgYDVR0lAQH/
-BAwwCgYIKwYBBQUHAwMwLAYJYIZIAYb4QgENBB8WHU9wZW5TU0wgR2VuZXJhdGVk
-IENlcnRpZmljYXRlMDMGCWCGSAGG+EIBBAQmFiRodHRwOi8vYWRkb25zLm1vemls
-bGEub3JnL2NhL2NybC5wZW0wHQYDVR0OBBYEFIbYNBxOWNETXJlf2EKY7RQPGfJd
-MIHZBgNVHSMEgdEwgc6AFIbYNBxOWNETXJlf2EKY7RQPGfJdoYGvpIGsMIGpMQsw
-CQYDVQQGEwJVUzELMAkGA1UECBMCQ0ExFjAUBgNVBAcTDU1vdW50YWluIFZpZXcx
-HDAaBgNVBAoTE0FkZG9ucyBUZXN0IFNpZ25pbmcxJDAiBgNVBAMTG3Rlc3QuYWRk
-b25zLnNpZ25pbmcucm9vdC5jYTExMC8GCSqGSIb3DQEJARYic2Vjb3BzK3N0YWdl
-cm9vdGFkZG9uc0Btb3ppbGxhLmNvbYIEYCWYOzANBgkqhkiG9w0BAQwFAAOCAgEA
-nowyJv8UaIV7NA0B3wkWratq6FgA1s/PzetG/ZKZDIW5YtfUvvyy72HDAwgKbtap
-Eog6zGI4L86K0UGUAC32fBjE5lWYEgsxNM5VWlQjbgTG0dc3dYiufxfDFeMbAPmD
-DzpIgN3jHW2uRqa/MJ+egHhv7kGFL68uVLboqk/qHr+SOCc1LNeSMCuQqvHwwM0+
-AU1GxhzBWDkealTS34FpVxF4sT5sKLODdIS5HXJr2COHHfYkw2SW/Sfpt6fsOwaF
-2iiDaK4LPWHWhhIYa6yaynJ+6O6KPlpvKYCChaTOVdc+ikyeiSO6AakJykr5Gy7d
-PkkK7MDCxuY6psHj7iJQ59YK7ujQB8QYdzuXBuLLo5hc5gBcq3PJs0fLT2YFcQHA
-dj+olGaDn38T0WI8ycWaFhQfKwATeLWfiQepr8JfoNlC2vvSDzGUGfdAfZfsJJZ8
-5xZxahHoTFGS0mDRfXqzKH5uD578GgjOZp0fULmzkcjWsgzdpDhadGjExRZFKlAy
-iKv8cXTONrGY0fyBDKennuX0uAca3V0Qm6v2VRp+7wG/pywWwc5n+04qgxTQPxgO
-6pPB9UUsNbaLMDR5QPYAWrNhqJ7B07XqIYJZSwGP5xB9NqUZLF4z+AOMYgWtDpmg
-IKdcFKAt3fFrpyMhlfIKkLfmm0iDjmfmIXbDGBJw9SE=
------END CERTIFICATE-----&quot;</span>;
+aQAwZgIxAJvyynyPqRmRMqf95FPH5xfcoT3jb/2LOkUifGDtjtZ338ScpT2glUK8
+HszKVANqXQIxAIygMaeTiD9figEusmHMthBdFoIoHk31x4MHukAy+TWZ863X6/V2
+6/ZrZMp6Wq/0ow==
+-----END CERTIFICATE-----&quot;#</span>;
 
-        <span class="kw">const</span> <span class="ident">INVALID_CERTIFICATE</span>: <span class="kw-2">&amp;</span><span class="ident">str</span> <span class="op">=</span> <span class="string">&quot;\
+        <span class="kw">const</span> <span class="ident">INVALID_CERTIFICATE</span>: <span class="kw-2">&amp;</span><span class="ident">str</span> <span class="op">=</span> <span class="string">r#&quot;\
 -----BEGIN CERTIFICATE-----
 invalidCertificategIFiJLFfdxFlYwCgYIKoZIzj0EAwMwgaMxCzAJBgNVBAYT
 AlVTMRwwGgYDVQQKExNNb3ppbGxhIENvcnBvcmF0aW9uMS8wLQYDVQQLEyZNb3pp
@@ -987,15 +628,11 @@ dGluZ3MuY29udGVudC1zaWduYXR1cmUubW96aWxsYS5vcmcwCgYIKoZIzj0EAwMD
 aQAwZgIxAJvyynyPqRmRMqf95FPH5xfcoT3jb/2LOkUifGDtjtZ338ScpT2glUK8
 HszKVANqXQIxAIygMaeTiD9figEusmHMthBdFoIoHk31x4MHukAy+TWZ863X6/V2
 6/ZrZMpinvalid==
------END CERTIFICATE-----&quot;</span>;
+-----END CERTIFICATE-----&quot;#</span>;
 
-        <span class="kw">const</span> <span class="ident">VALID_SIGNATURE</span>: <span class="kw-2">&amp;</span><span class="ident">str</span> <span class="op">=</span> <span class="string">r#&quot;fJJcOpwdnkjEWFeHXfdOJN6GaGLuDTPGzQOxA2jn6ldIleIk6KqMhZcy2GZv2uYiGwl6DERWwpaoUfQFLyCAOcVjck1qlaaEFZGY1BQba9p99xEc9FNQ3YPPfvSSZqsw&quot;#</span>;
+        <span class="kw">const</span> <span class="ident">VALID_SIGNATURE</span>: <span class="kw-2">&amp;</span><span class="ident">str</span> <span class="op">=</span> <span class="string">r#&quot;oPRadsg_5wnnUXlRIjamXKPWyyGe4VLt-KR4-PJTK2hq4hF196L3nbvne1_7-HfpoVRR4BLsHWtnnt6700CTt5kNgwvrE8aJ3nXFa0vJBoOvIRco-vCt-rJ7acEu0IFG&quot;#</span>;
 
         <span class="kw">const</span> <span class="ident">INVALID_SIGNATURE</span>: <span class="kw-2">&amp;</span><span class="ident">str</span> <span class="op">=</span> <span class="string">r#&quot;invalid-signature: oPRadsg_5wnnUXlRIjamXKPWyyGe4VLt-KR4-PJTK2hq4hF196L3nbvne1_7-HfpoVRR4BLsHWtnnt6700CTt5kNgwvrE8aJ3nXFa0vJBoOvIRco-vCt-rJ7acEu0IFG&quot;#</span>;
-
-        <span class="comment">// Adjust current time, since the above certificate has expired.</span>
-        <span class="kw">let</span> <span class="ident">march_12_2021</span> <span class="op">=</span> <span class="ident">Duration::from_secs</span>(<span class="number">1615559719</span>);
-        <span class="ident">MockClock::set_time</span>(<span class="ident">march_12_2021</span>);
 
         <span class="ident">verify_signature</span>(
             <span class="kw-2">&amp;</span><span class="ident">mock_server</span>,
@@ -1008,12 +645,11 @@ HszKVANqXQIxAIygMaeTiD9figEusmHMthBdFoIoHk31x4MHukAy+TWZ863X6/V2
                         <span class="string">&quot;signature&quot;</span>: <span class="ident">VALID_SIGNATURE</span>
                     })
                 }),
-                <span class="ident">timestamp</span>: <span class="number">1603992731957</span>,
+                <span class="ident">timestamp</span>: <span class="number">1594998798350</span>,
                 <span class="ident">records</span>: <span class="macro">vec!</span>[],
-                <span class="ident">signer</span>: <span class="string">&quot;remote-settings.content-signature.mozilla.org&quot;</span>.<span class="ident">to_string</span>(),
             },
             <span class="ident">VALID_CERTIFICATE</span>,
-            <span class="prelude-val">Ok</span>(()),
+            <span class="bool-val">false</span>,
         );
 
         <span class="comment">// signature verification should fail with invalid message</span>
@@ -1030,10 +666,9 @@ HszKVANqXQIxAIygMaeTiD9figEusmHMthBdFoIoHk31x4MHukAy+TWZ863X6/V2
                 }),
                 <span class="ident">timestamp</span>: <span class="number">1594998798350</span>,
                 <span class="ident">records</span>: <span class="macro">vec!</span>[<span class="ident">Record::new</span>(<span class="macro">json!</span>({<span class="string">&quot;id&quot;</span>: <span class="string">&quot;bad-record&quot;</span>}))],
-                <span class="ident">signer</span>: <span class="string">&quot;remote-settings.content-signature.mozilla.org&quot;</span>.<span class="ident">to_string</span>(),
             },
             <span class="ident">VALID_CERTIFICATE</span>,
-            <span class="prelude-val">Err</span>(<span class="ident">SignatureError::MismatchError</span>(<span class="string">&quot;&quot;</span>.<span class="ident">to_string</span>())),
+            <span class="bool-val">true</span>,
         );
 
         <span class="comment">// signature verification should fail with invalid signature</span>
@@ -1050,12 +685,9 @@ HszKVANqXQIxAIygMaeTiD9figEusmHMthBdFoIoHk31x4MHukAy+TWZ863X6/V2
                 }),
                 <span class="ident">timestamp</span>: <span class="number">1594998798350</span>,
                 <span class="ident">records</span>: <span class="macro">vec!</span>[],
-                <span class="ident">signer</span>: <span class="string">&quot;remote-settings.content-signature.mozilla.org&quot;</span>.<span class="ident">to_string</span>(),
             },
             <span class="ident">VALID_CERTIFICATE</span>,
-            <span class="prelude-val">Err</span>(<span class="ident">SignatureError::BadSignatureContent</span>(
-                <span class="ident">base64::DecodeError::InvalidByte</span>(<span class="number">17</span>, <span class="number">58</span>),
-            )),
+            <span class="bool-val">true</span>,
         );
 
         <span class="comment">// signature verification should fail with invalid certificate</span>
@@ -1072,55 +704,9 @@ HszKVANqXQIxAIygMaeTiD9figEusmHMthBdFoIoHk31x4MHukAy+TWZ863X6/V2
                 }),
                 <span class="ident">timestamp</span>: <span class="number">1594998798350</span>,
                 <span class="ident">records</span>: <span class="macro">vec!</span>[],
-                <span class="ident">signer</span>: <span class="string">&quot;remote-settings.content-signature.mozilla.org&quot;</span>.<span class="ident">to_string</span>(),
             },
             <span class="ident">INVALID_CERTIFICATE</span>,
-            <span class="prelude-val">Err</span>(<span class="ident">SignatureError::CertificateContentError</span>(
-                <span class="ident">x509::X509Error::WrongPEMType</span>(<span class="string">&quot;&quot;</span>.<span class="ident">to_string</span>()),
-            )),
-        );
-
-        <span class="comment">// signature verification should fail if signer name is wrong</span>
-        <span class="ident">verify_signature</span>(
-            <span class="kw-2">&amp;</span><span class="ident">mock_server</span>,
-            <span class="ident">Collection</span> {
-                <span class="ident">bid</span>: <span class="string">&quot;main&quot;</span>.<span class="ident">to_owned</span>(),
-                <span class="ident">cid</span>: <span class="string">&quot;pioneer-study-addons&quot;</span>.<span class="ident">to_owned</span>(),
-                <span class="ident">metadata</span>: <span class="macro">json!</span>({
-                    <span class="string">&quot;signature&quot;</span>: <span class="macro">json!</span>({
-                        <span class="string">&quot;x5u&quot;</span>: <span class="ident">mock_server</span>.<span class="ident">url</span>(<span class="string">&quot;/chains/remote-settings.content-signature.mozilla.org-2020-09-04-17-16-15.chain&quot;</span>),
-                        <span class="string">&quot;signature&quot;</span>: <span class="ident">VALID_SIGNATURE</span>
-                    })
-                }),
-                <span class="ident">timestamp</span>: <span class="number">1594998798350</span>,
-                <span class="ident">records</span>: <span class="macro">vec!</span>[],
-                <span class="ident">signer</span>: <span class="string">&quot;normandy.content-signature.mozilla.org&quot;</span>.<span class="ident">to_string</span>(),
-            },
-            <span class="ident">VALID_CERTIFICATE</span>,
-            <span class="prelude-val">Err</span>(<span class="ident">SignatureError::WrongSignerName</span>(
-                <span class="string">&quot;normandy.content-signature.mozilla.org&quot;</span>.<span class="ident">to_string</span>(),
-            )),
-        );
-
-        <span class="comment">// signature verification should fail if certificate has expired.</span>
-        <span class="ident">MockClock::set_time</span>(<span class="ident">Duration::default</span>());
-        <span class="ident">verify_signature</span>(
-            <span class="kw-2">&amp;</span><span class="ident">mock_server</span>,
-            <span class="ident">Collection</span> {
-                <span class="ident">bid</span>: <span class="string">&quot;main&quot;</span>.<span class="ident">to_owned</span>(),
-                <span class="ident">cid</span>: <span class="string">&quot;pioneer-study-addons&quot;</span>.<span class="ident">to_owned</span>(),
-                <span class="ident">metadata</span>: <span class="macro">json!</span>({
-                    <span class="string">&quot;signature&quot;</span>: <span class="macro">json!</span>({
-                        <span class="string">&quot;x5u&quot;</span>: <span class="ident">mock_server</span>.<span class="ident">url</span>(<span class="string">&quot;/chains/remote-settings.content-signature.mozilla.org-2020-09-04-17-16-15.chain&quot;</span>),
-                        <span class="string">&quot;signature&quot;</span>: <span class="ident">VALID_SIGNATURE</span>
-                    })
-                }),
-                <span class="ident">timestamp</span>: <span class="number">1603992731957</span>,
-                <span class="ident">records</span>: <span class="macro">vec!</span>[],
-                <span class="ident">signer</span>: <span class="string">&quot;remote-settings.content-signature.mozilla.org&quot;</span>.<span class="ident">to_string</span>(),
-            },
-            <span class="ident">VALID_CERTIFICATE</span>,
-            <span class="prelude-val">Err</span>(<span class="ident">SignatureError::CertificateExpired</span>),
+            <span class="bool-val">true</span>,
         );
     }
 }

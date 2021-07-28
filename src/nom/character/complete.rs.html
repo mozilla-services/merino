@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/usr/local/cargo/registry/src/github.com-1ecc6299db9ec823/nom-6.2.1/src/character/complete.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>complete.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/usr/local/cargo/registry/src/github.com-1ecc6299db9ec823/nom-5.1.2/src/character/complete.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>complete.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png">
 <link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../nom/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../../settings.html"><img src="../../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">   1</span>
@@ -1024,33 +1024,91 @@
 <span id="1021">1021</span>
 <span id="1022">1022</span>
 <span id="1023">1023</span>
+<span id="1024">1024</span>
+<span id="1025">1025</span>
+<span id="1026">1026</span>
+<span id="1027">1027</span>
+<span id="1028">1028</span>
+<span id="1029">1029</span>
+<span id="1030">1030</span>
+<span id="1031">1031</span>
+<span id="1032">1032</span>
+<span id="1033">1033</span>
+<span id="1034">1034</span>
+<span id="1035">1035</span>
+<span id="1036">1036</span>
+<span id="1037">1037</span>
+<span id="1038">1038</span>
+<span id="1039">1039</span>
+<span id="1040">1040</span>
+<span id="1041">1041</span>
+<span id="1042">1042</span>
+<span id="1043">1043</span>
+<span id="1044">1044</span>
+<span id="1045">1045</span>
+<span id="1046">1046</span>
+<span id="1047">1047</span>
+<span id="1048">1048</span>
+<span id="1049">1049</span>
+<span id="1050">1050</span>
+<span id="1051">1051</span>
+<span id="1052">1052</span>
+<span id="1053">1053</span>
+<span id="1054">1054</span>
+<span id="1055">1055</span>
+<span id="1056">1056</span>
+<span id="1057">1057</span>
+<span id="1058">1058</span>
+<span id="1059">1059</span>
+<span id="1060">1060</span>
+<span id="1061">1061</span>
+<span id="1062">1062</span>
+<span id="1063">1063</span>
+<span id="1064">1064</span>
+<span id="1065">1065</span>
+<span id="1066">1066</span>
+<span id="1067">1067</span>
+<span id="1068">1068</span>
+<span id="1069">1069</span>
+<span id="1070">1070</span>
+<span id="1071">1071</span>
+<span id="1072">1072</span>
+<span id="1073">1073</span>
+<span id="1074">1074</span>
+<span id="1075">1075</span>
+<span id="1076">1076</span>
+<span id="1077">1077</span>
+<span id="1078">1078</span>
+<span id="1079">1079</span>
+<span id="1080">1080</span>
+<span id="1081">1081</span>
+<span id="1082">1082</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Character specific parsers and combinators, complete input version.</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! Functions recognizing specific characters.</span>
 
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::error::ErrorKind</span>;
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::error::ParseError</span>;
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::internal</span>::{<span class="prelude-val">Err</span>, <span class="ident">IResult</span>};
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::error::ParseError</span>;
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::lib::std::ops</span>::{<span class="ident">Range</span>, <span class="ident">RangeFrom</span>, <span class="ident">RangeTo</span>};
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::traits</span>::{<span class="ident">AsChar</span>, <span class="ident">FindToken</span>, <span class="ident">InputIter</span>, <span class="ident">InputLength</span>, <span class="ident">InputTakeAtPosition</span>, <span class="ident">Slice</span>};
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::traits</span>::{<span class="ident">Compare</span>, <span class="ident">CompareResult</span>};
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::error::ErrorKind</span>;
 
 <span class="doccomment">/// Recognizes one character.</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// *Complete version*: Will return an error if there&#39;s not enough input data.</span>
+<span class="doccomment">/// *complete version*: Will return an error if there&#39;s not enough input data.</span>
+<span class="doccomment">///</span>
 <span class="doccomment">/// # Example</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// ```</span>
-<span class="doccomment">/// # use nom::{Err, error::{ErrorKind, Error}, IResult};</span>
+<span class="doccomment">/// # use nom::{Err, error::ErrorKind};</span>
 <span class="doccomment">/// # use nom::character::complete::char;</span>
-<span class="doccomment">/// fn parser(i: &amp;str) -&gt; IResult&lt;&amp;str, char&gt; {</span>
-<span class="doccomment">///     char(&#39;a&#39;)(i)</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">/// assert_eq!(parser(&quot;abc&quot;), Ok((&quot;bc&quot;, &#39;a&#39;)));</span>
-<span class="doccomment">/// assert_eq!(parser(&quot; abc&quot;), Err(Err::Error(Error::new(&quot; abc&quot;, ErrorKind::Char))));</span>
-<span class="doccomment">/// assert_eq!(parser(&quot;bc&quot;), Err(Err::Error(Error::new(&quot;bc&quot;, ErrorKind::Char))));</span>
-<span class="doccomment">/// assert_eq!(parser(&quot;&quot;), Err(Err::Error(Error::new(&quot;&quot;, ErrorKind::Char))));</span>
+<span class="doccomment">/// # fn main() {</span>
+<span class="doccomment">/// assert_eq!(char::&lt;_, (&amp;str, ErrorKind)&gt;(&#39;a&#39;)(&quot;abc&quot;), Ok((&quot;bc&quot;, &#39;a&#39;)));</span>
+<span class="doccomment">/// assert_eq!(char::&lt;_, (&amp;str, ErrorKind)&gt;(&#39;a&#39;)(&quot;bc&quot;), Err(Err::Error((&quot;bc&quot;, ErrorKind::Char))));</span>
+<span class="doccomment">/// assert_eq!(char::&lt;_, (&amp;str, ErrorKind)&gt;(&#39;a&#39;)(&quot;&quot;), Err(Err::Error((&quot;&quot;, ErrorKind::Char))));</span>
+<span class="doccomment">/// # }</span>
 <span class="doccomment">/// ```</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">char</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">Error</span>: <span class="ident">ParseError</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">c</span>: <span class="ident">char</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">impl</span> <span class="ident">Fn</span>(<span class="ident">I</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">IResult</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">char</span>, <span class="ident">Error</span><span class="op">&gt;</span>
 <span class="kw">where</span>
@@ -1066,48 +1124,20 @@
   }
 }
 
-<span class="doccomment">/// Recognizes one character and checks that it satisfies a predicate</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// *Complete version*: Will return an error if there&#39;s not enough input data.</span>
-<span class="doccomment">/// # Example</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">/// # use nom::{Err, error::{ErrorKind, Error}, Needed, IResult};</span>
-<span class="doccomment">/// # use nom::character::complete::satisfy;</span>
-<span class="doccomment">/// fn parser(i: &amp;str) -&gt; IResult&lt;&amp;str, char&gt; {</span>
-<span class="doccomment">///     satisfy(|c| c == &#39;a&#39; || c == &#39;b&#39;)(i)</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">/// assert_eq!(parser(&quot;abc&quot;), Ok((&quot;bc&quot;, &#39;a&#39;)));</span>
-<span class="doccomment">/// assert_eq!(parser(&quot;cd&quot;), Err(Err::Error(Error::new(&quot;cd&quot;, ErrorKind::Satisfy))));</span>
-<span class="doccomment">/// assert_eq!(parser(&quot;&quot;), Err(Err::Error(Error::new(&quot;&quot;, ErrorKind::Satisfy))));</span>
-<span class="doccomment">/// ```</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">satisfy</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">I</span>, <span class="ident">Error</span>: <span class="ident">ParseError</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">cond</span>: <span class="ident">F</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">impl</span> <span class="ident">Fn</span>(<span class="ident">I</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">IResult</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">char</span>, <span class="ident">Error</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-  <span class="ident">I</span>: <span class="ident">Slice</span><span class="op">&lt;</span><span class="ident">RangeFrom</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">InputIter</span>,
-  <span class="op">&lt;</span><span class="ident">I</span> <span class="kw">as</span> <span class="ident">InputIter</span><span class="op">&gt;</span><span class="ident">::Item</span>: <span class="ident">AsChar</span>,
-  <span class="ident">F</span>: <span class="ident">Fn</span>(<span class="ident">char</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span>,
-{
-  <span class="kw">move</span> <span class="op">|</span><span class="ident">i</span>: <span class="ident">I</span><span class="op">|</span> <span class="kw">match</span> (<span class="ident">i</span>).<span class="ident">iter_elements</span>().<span class="ident">next</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">t</span><span class="op">|</span> {
-    <span class="kw">let</span> <span class="ident">c</span> <span class="op">=</span> <span class="ident">t</span>.<span class="ident">as_char</span>();
-    <span class="kw">let</span> <span class="ident">b</span> <span class="op">=</span> <span class="ident">cond</span>(<span class="ident">c</span>);
-    (<span class="ident">c</span>, <span class="ident">b</span>)
-  }) {
-    <span class="prelude-val">Some</span>((<span class="ident">c</span>, <span class="bool-val">true</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>((<span class="ident">i</span>.<span class="ident">slice</span>(<span class="ident">c</span>.<span class="ident">len</span>()..), <span class="ident">c</span>)),
-    <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>(<span class="ident">Error::from_error_kind</span>(<span class="ident">i</span>, <span class="ident">ErrorKind::Satisfy</span>))),
-  }
-}
-
 <span class="doccomment">/// Recognizes one of the provided characters.</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// *Complete version*: Will return an error if there&#39;s not enough input data.</span>
+<span class="doccomment">/// *complete version*: Will return an error if there&#39;s not enough input data.</span>
+<span class="doccomment">///</span>
 <span class="doccomment">/// # Example</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// ```</span>
 <span class="doccomment">/// # use nom::{Err, error::ErrorKind};</span>
 <span class="doccomment">/// # use nom::character::complete::one_of;</span>
+<span class="doccomment">/// # fn main() {</span>
 <span class="doccomment">/// assert_eq!(one_of::&lt;_, _, (&amp;str, ErrorKind)&gt;(&quot;abc&quot;)(&quot;b&quot;), Ok((&quot;&quot;, &#39;b&#39;)));</span>
 <span class="doccomment">/// assert_eq!(one_of::&lt;_, _, (&amp;str, ErrorKind)&gt;(&quot;a&quot;)(&quot;bc&quot;), Err(Err::Error((&quot;bc&quot;, ErrorKind::OneOf))));</span>
 <span class="doccomment">/// assert_eq!(one_of::&lt;_, _, (&amp;str, ErrorKind)&gt;(&quot;a&quot;)(&quot;&quot;), Err(Err::Error((&quot;&quot;, ErrorKind::OneOf))));</span>
+<span class="doccomment">/// # }</span>
 <span class="doccomment">/// ```</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">one_of</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">T</span>, <span class="ident">Error</span>: <span class="ident">ParseError</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">list</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">impl</span> <span class="ident">Fn</span>(<span class="ident">I</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">IResult</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">char</span>, <span class="ident">Error</span><span class="op">&gt;</span>
 <span class="kw">where</span>
@@ -1123,15 +1153,18 @@
 
 <span class="doccomment">/// Recognizes a character that is not in the provided characters.</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// *Complete version*: Will return an error if there&#39;s not enough input data.</span>
+<span class="doccomment">/// *complete version*: Will return an error if there&#39;s not enough input data.</span>
+<span class="doccomment">///</span>
 <span class="doccomment">/// # Example</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// ```</span>
 <span class="doccomment">/// # use nom::{Err, error::ErrorKind};</span>
 <span class="doccomment">/// # use nom::character::complete::none_of;</span>
+<span class="doccomment">/// # fn main() {</span>
 <span class="doccomment">/// assert_eq!(none_of::&lt;_, _, (&amp;str, ErrorKind)&gt;(&quot;abc&quot;)(&quot;z&quot;), Ok((&quot;&quot;, &#39;z&#39;)));</span>
 <span class="doccomment">/// assert_eq!(none_of::&lt;_, _, (&amp;str, ErrorKind)&gt;(&quot;ab&quot;)(&quot;a&quot;), Err(Err::Error((&quot;a&quot;, ErrorKind::NoneOf))));</span>
 <span class="doccomment">/// assert_eq!(none_of::&lt;_, _, (&amp;str, ErrorKind)&gt;(&quot;a&quot;)(&quot;&quot;), Err(Err::Error((&quot;&quot;, ErrorKind::NoneOf))));</span>
+<span class="doccomment">/// # }</span>
 <span class="doccomment">/// ```</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">none_of</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">T</span>, <span class="ident">Error</span>: <span class="ident">ParseError</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">list</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">impl</span> <span class="ident">Fn</span>(<span class="ident">I</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">IResult</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">char</span>, <span class="ident">Error</span><span class="op">&gt;</span>
 <span class="kw">where</span>
@@ -1147,23 +1180,26 @@
 
 <span class="doccomment">/// Recognizes the string &quot;\r\n&quot;.</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// *Complete version*: Will return an error if there&#39;s not enough input data.</span>
+<span class="doccomment">/// *complete version*: Will return an error if there&#39;s not enough input data.</span>
+<span class="doccomment">///</span>
 <span class="doccomment">/// # Example</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// ```</span>
-<span class="doccomment">/// # use nom::{Err, error::{Error, ErrorKind}, IResult};</span>
+<span class="doccomment">/// # use nom::{Err, error::ErrorKind, IResult};</span>
 <span class="doccomment">/// # use nom::character::complete::crlf;</span>
+<span class="doccomment">/// # fn main() {</span>
 <span class="doccomment">/// fn parser(input: &amp;str) -&gt; IResult&lt;&amp;str, &amp;str&gt; {</span>
 <span class="doccomment">///     crlf(input)</span>
 <span class="doccomment">/// }</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// assert_eq!(parser(&quot;\r\nc&quot;), Ok((&quot;c&quot;, &quot;\r\n&quot;)));</span>
-<span class="doccomment">/// assert_eq!(parser(&quot;ab\r\nc&quot;), Err(Err::Error(Error::new(&quot;ab\r\nc&quot;, ErrorKind::CrLf))));</span>
-<span class="doccomment">/// assert_eq!(parser(&quot;&quot;), Err(Err::Error(Error::new(&quot;&quot;, ErrorKind::CrLf))));</span>
+<span class="doccomment">/// assert_eq!(parser(&quot;ab\r\nc&quot;), Err(Err::Error((&quot;ab\r\nc&quot;, ErrorKind::CrLf))));</span>
+<span class="doccomment">/// assert_eq!(parser(&quot;&quot;), Err(Err::Error((&quot;&quot;, ErrorKind::CrLf))));</span>
+<span class="doccomment">/// # }</span>
 <span class="doccomment">/// ```</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">crlf</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">E</span>: <span class="ident">ParseError</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">input</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">IResult</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">T</span>, <span class="ident">E</span><span class="op">&gt;</span>
 <span class="kw">where</span>
-  <span class="ident">T</span>: <span class="ident">Slice</span><span class="op">&lt;</span><span class="ident">Range</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Slice</span><span class="op">&lt;</span><span class="ident">RangeFrom</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+  <span class="ident">T</span>: <span class="ident">Slice</span><span class="op">&lt;</span><span class="ident">Range</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Slice</span><span class="op">&lt;</span><span class="ident">RangeFrom</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Slice</span><span class="op">&lt;</span><span class="ident">RangeTo</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span><span class="op">&gt;</span>,
   <span class="ident">T</span>: <span class="ident">InputIter</span>,
   <span class="ident">T</span>: <span class="ident">Compare</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span><span class="op">&gt;</span>,
 {
@@ -1178,24 +1214,24 @@
 }
 
 <span class="comment">//FIXME: there&#39;s still an incomplete</span>
-<span class="doccomment">/// Recognizes a string of any char except &#39;\r\n&#39; or &#39;\n&#39;.</span>
+<span class="doccomment">/// Recognizes a string of any char except &#39;\r&#39; or &#39;\n&#39;.</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// *Complete version*: Will return an error if there&#39;s not enough input data.</span>
+<span class="doccomment">/// *complete version*: Will return an error if there&#39;s not enough input data.</span>
+<span class="doccomment">///</span>
 <span class="doccomment">/// # Example</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// ```</span>
-<span class="doccomment">/// # use nom::{Err, error::{Error, ErrorKind}, IResult, Needed};</span>
+<span class="doccomment">/// # use nom::{Err, error::ErrorKind, IResult, Needed};</span>
 <span class="doccomment">/// # use nom::character::complete::not_line_ending;</span>
+<span class="doccomment">/// # fn main() {</span>
 <span class="doccomment">/// fn parser(input: &amp;str) -&gt; IResult&lt;&amp;str, &amp;str&gt; {</span>
 <span class="doccomment">///     not_line_ending(input)</span>
 <span class="doccomment">/// }</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// assert_eq!(parser(&quot;ab\r\nc&quot;), Ok((&quot;\r\nc&quot;, &quot;ab&quot;)));</span>
-<span class="doccomment">/// assert_eq!(parser(&quot;ab\nc&quot;), Ok((&quot;\nc&quot;, &quot;ab&quot;)));</span>
 <span class="doccomment">/// assert_eq!(parser(&quot;abc&quot;), Ok((&quot;&quot;, &quot;abc&quot;)));</span>
 <span class="doccomment">/// assert_eq!(parser(&quot;&quot;), Ok((&quot;&quot;, &quot;&quot;)));</span>
-<span class="doccomment">/// assert_eq!(parser(&quot;a\rb\nc&quot;), Err(Err::Error(Error { input: &quot;a\rb\nc&quot;, code: ErrorKind::Tag })));</span>
-<span class="doccomment">/// assert_eq!(parser(&quot;a\rbc&quot;), Err(Err::Error(Error { input: &quot;a\rbc&quot;, code: ErrorKind::Tag })));</span>
+<span class="doccomment">/// # }</span>
 <span class="doccomment">/// ```</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">not_line_ending</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">E</span>: <span class="ident">ParseError</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">input</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">IResult</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">T</span>, <span class="ident">E</span><span class="op">&gt;</span>
 <span class="kw">where</span>
@@ -1209,7 +1245,9 @@
     <span class="kw">let</span> <span class="ident">c</span> <span class="op">=</span> <span class="ident">item</span>.<span class="ident">as_char</span>();
     <span class="ident">c</span> <span class="op">=</span><span class="op">=</span> <span class="string">&#39;\r&#39;</span> <span class="op">|</span><span class="op">|</span> <span class="ident">c</span> <span class="op">=</span><span class="op">=</span> <span class="string">&#39;\n&#39;</span>
   }) {
-    <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>((<span class="ident">input</span>.<span class="ident">slice</span>(<span class="ident">input</span>.<span class="ident">input_len</span>()..), <span class="ident">input</span>)),
+    <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> {
+      <span class="prelude-val">Ok</span>((<span class="ident">input</span>.<span class="ident">slice</span>(<span class="ident">input</span>.<span class="ident">input_len</span>()..), <span class="ident">input</span>))
+    }
     <span class="prelude-val">Some</span>(<span class="ident">index</span>) <span class="op">=</span><span class="op">&gt;</span> {
       <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">it</span> <span class="op">=</span> <span class="ident">input</span>.<span class="ident">slice</span>(<span class="ident">index</span>..).<span class="ident">iter_elements</span>();
       <span class="kw">let</span> <span class="ident">nth</span> <span class="op">=</span> <span class="ident">it</span>.<span class="ident">next</span>().<span class="ident">unwrap</span>().<span class="ident">as_char</span>();
@@ -1233,19 +1271,22 @@
 
 <span class="doccomment">/// Recognizes an end of line (both &#39;\n&#39; and &#39;\r\n&#39;).</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// *Complete version*: Will return an error if there&#39;s not enough input data.</span>
+<span class="doccomment">/// *complete version*: Will return an error if there&#39;s not enough input data.</span>
+<span class="doccomment">///</span>
 <span class="doccomment">/// # Example</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// ```</span>
-<span class="doccomment">/// # use nom::{Err, error::{Error, ErrorKind}, IResult, Needed};</span>
+<span class="doccomment">/// # use nom::{Err, error::ErrorKind, IResult, Needed};</span>
 <span class="doccomment">/// # use nom::character::complete::line_ending;</span>
+<span class="doccomment">/// # fn main() {</span>
 <span class="doccomment">/// fn parser(input: &amp;str) -&gt; IResult&lt;&amp;str, &amp;str&gt; {</span>
 <span class="doccomment">///     line_ending(input)</span>
 <span class="doccomment">/// }</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// assert_eq!(parser(&quot;\r\nc&quot;), Ok((&quot;c&quot;, &quot;\r\n&quot;)));</span>
-<span class="doccomment">/// assert_eq!(parser(&quot;ab\r\nc&quot;), Err(Err::Error(Error::new(&quot;ab\r\nc&quot;, ErrorKind::CrLf))));</span>
-<span class="doccomment">/// assert_eq!(parser(&quot;&quot;), Err(Err::Error(Error::new(&quot;&quot;, ErrorKind::CrLf))));</span>
+<span class="doccomment">/// assert_eq!(parser(&quot;ab\r\nc&quot;), Err(Err::Error((&quot;ab\r\nc&quot;, ErrorKind::CrLf))));</span>
+<span class="doccomment">/// assert_eq!(parser(&quot;&quot;), Err(Err::Error((&quot;&quot;, ErrorKind::CrLf))));</span>
+<span class="doccomment">/// # }</span>
 <span class="doccomment">/// ```</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">line_ending</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">E</span>: <span class="ident">ParseError</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">input</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">IResult</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">T</span>, <span class="ident">E</span><span class="op">&gt;</span>
 <span class="kw">where</span>
@@ -1268,19 +1309,22 @@
 
 <span class="doccomment">/// Matches a newline character &#39;\n&#39;.</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// *Complete version*: Will return an error if there&#39;s not enough input data.</span>
+<span class="doccomment">/// *complete version*: Will return an error if there&#39;s not enough input data.</span>
+<span class="doccomment">///</span>
 <span class="doccomment">/// # Example</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// ```</span>
-<span class="doccomment">/// # use nom::{Err, error::{Error, ErrorKind}, IResult, Needed};</span>
+<span class="doccomment">/// # use nom::{Err, error::ErrorKind, IResult, Needed};</span>
 <span class="doccomment">/// # use nom::character::complete::newline;</span>
+<span class="doccomment">/// # fn main() {</span>
 <span class="doccomment">/// fn parser(input: &amp;str) -&gt; IResult&lt;&amp;str, char&gt; {</span>
 <span class="doccomment">///     newline(input)</span>
 <span class="doccomment">/// }</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// assert_eq!(parser(&quot;\nc&quot;), Ok((&quot;c&quot;, &#39;\n&#39;)));</span>
-<span class="doccomment">/// assert_eq!(parser(&quot;\r\nc&quot;), Err(Err::Error(Error::new(&quot;\r\nc&quot;, ErrorKind::Char))));</span>
-<span class="doccomment">/// assert_eq!(parser(&quot;&quot;), Err(Err::Error(Error::new(&quot;&quot;, ErrorKind::Char))));</span>
+<span class="doccomment">/// assert_eq!(parser(&quot;\r\nc&quot;), Err(Err::Error((&quot;\r\nc&quot;, ErrorKind::Char))));</span>
+<span class="doccomment">/// assert_eq!(parser(&quot;&quot;), Err(Err::Error((&quot;&quot;, ErrorKind::Char))));</span>
+<span class="doccomment">/// # }</span>
 <span class="doccomment">/// ```</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">newline</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">Error</span>: <span class="ident">ParseError</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">input</span>: <span class="ident">I</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">IResult</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">char</span>, <span class="ident">Error</span><span class="op">&gt;</span>
 <span class="kw">where</span>
@@ -1292,19 +1336,22 @@
 
 <span class="doccomment">/// Matches a tab character &#39;\t&#39;.</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// *Complete version*: Will return an error if there&#39;s not enough input data.</span>
+<span class="doccomment">/// *complete version*: Will return an error if there&#39;s not enough input data.</span>
+<span class="doccomment">///</span>
 <span class="doccomment">/// # Example</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// ```</span>
-<span class="doccomment">/// # use nom::{Err, error::{Error, ErrorKind}, IResult, Needed};</span>
+<span class="doccomment">/// # use nom::{Err, error::ErrorKind, IResult, Needed};</span>
 <span class="doccomment">/// # use nom::character::complete::tab;</span>
+<span class="doccomment">/// # fn main() {</span>
 <span class="doccomment">/// fn parser(input: &amp;str) -&gt; IResult&lt;&amp;str, char&gt; {</span>
 <span class="doccomment">///     tab(input)</span>
 <span class="doccomment">/// }</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// assert_eq!(parser(&quot;\tc&quot;), Ok((&quot;c&quot;, &#39;\t&#39;)));</span>
-<span class="doccomment">/// assert_eq!(parser(&quot;\r\nc&quot;), Err(Err::Error(Error::new(&quot;\r\nc&quot;, ErrorKind::Char))));</span>
-<span class="doccomment">/// assert_eq!(parser(&quot;&quot;), Err(Err::Error(Error::new(&quot;&quot;, ErrorKind::Char))));</span>
+<span class="doccomment">/// assert_eq!(parser(&quot;\r\nc&quot;), Err(Err::Error((&quot;\r\nc&quot;, ErrorKind::Char))));</span>
+<span class="doccomment">/// assert_eq!(parser(&quot;&quot;), Err(Err::Error((&quot;&quot;, ErrorKind::Char))));</span>
+<span class="doccomment">/// # }</span>
 <span class="doccomment">/// ```</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">tab</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">Error</span>: <span class="ident">ParseError</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">input</span>: <span class="ident">I</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">IResult</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">char</span>, <span class="ident">Error</span><span class="op">&gt;</span>
 <span class="kw">where</span>
@@ -1317,17 +1364,20 @@
 <span class="doccomment">/// Matches one byte as a character. Note that the input type will</span>
 <span class="doccomment">/// accept a `str`, but not a `&amp;[u8]`, unlike many other nom parsers.</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// *Complete version*: Will return an error if there&#39;s not enough input data.</span>
+<span class="doccomment">/// *complete version*: Will return an error if there&#39;s not enough input data.</span>
+<span class="doccomment">///</span>
 <span class="doccomment">/// # Example</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// ```</span>
-<span class="doccomment">/// # use nom::{character::complete::anychar, Err, error::{Error, ErrorKind}, IResult};</span>
+<span class="doccomment">/// # use nom::{character::complete::anychar, Err, error::ErrorKind, IResult};</span>
+<span class="doccomment">/// # fn main() {</span>
 <span class="doccomment">/// fn parser(input: &amp;str) -&gt; IResult&lt;&amp;str, char&gt; {</span>
 <span class="doccomment">///     anychar(input)</span>
 <span class="doccomment">/// }</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// assert_eq!(parser(&quot;abc&quot;), Ok((&quot;bc&quot;,&#39;a&#39;)));</span>
-<span class="doccomment">/// assert_eq!(parser(&quot;&quot;), Err(Err::Error(Error::new(&quot;&quot;, ErrorKind::Eof))));</span>
+<span class="doccomment">/// assert_eq!(parser(&quot;&quot;), Err(Err::Error((&quot;&quot;, ErrorKind::Eof))));</span>
+<span class="doccomment">/// # }</span>
 <span class="doccomment">/// ```</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">anychar</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">E</span>: <span class="ident">ParseError</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">input</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">IResult</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">char</span>, <span class="ident">E</span><span class="op">&gt;</span>
 <span class="kw">where</span>
@@ -1346,13 +1396,15 @@
 
 <span class="doccomment">/// Recognizes zero or more lowercase and uppercase ASCII alphabetic characters: a-z, A-Z</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// *Complete version*: Will return the whole input if no terminating token is found (a non</span>
+<span class="doccomment">/// *complete version*: Will return the whole input if no terminating token is found (a non</span>
 <span class="doccomment">/// alphabetic character).</span>
+<span class="doccomment">///</span>
 <span class="doccomment">/// # Example</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// ```</span>
 <span class="doccomment">/// # use nom::{Err, error::ErrorKind, IResult, Needed};</span>
 <span class="doccomment">/// # use nom::character::complete::alpha0;</span>
+<span class="doccomment">/// # fn main() {</span>
 <span class="doccomment">/// fn parser(input: &amp;str) -&gt; IResult&lt;&amp;str, &amp;str&gt; {</span>
 <span class="doccomment">///     alpha0(input)</span>
 <span class="doccomment">/// }</span>
@@ -1360,6 +1412,7 @@
 <span class="doccomment">/// assert_eq!(parser(&quot;ab1c&quot;), Ok((&quot;1c&quot;, &quot;ab&quot;)));</span>
 <span class="doccomment">/// assert_eq!(parser(&quot;1c&quot;), Ok((&quot;1c&quot;, &quot;&quot;)));</span>
 <span class="doccomment">/// assert_eq!(parser(&quot;&quot;), Ok((&quot;&quot;, &quot;&quot;)));</span>
+<span class="doccomment">/// # }</span>
 <span class="doccomment">/// ```</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">alpha0</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">E</span>: <span class="ident">ParseError</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">input</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">IResult</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">T</span>, <span class="ident">E</span><span class="op">&gt;</span>
 <span class="kw">where</span>
@@ -1371,20 +1424,23 @@
 
 <span class="doccomment">/// Recognizes one or more lowercase and uppercase ASCII alphabetic characters: a-z, A-Z</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// *Complete version*: Will return an error if there&#39;s not enough input data,</span>
+<span class="doccomment">/// *complete version*: Will return an error if there&#39;s not enough input data,</span>
 <span class="doccomment">/// or the whole input if no terminating token is found  (a non alphabetic character).</span>
+<span class="doccomment">///</span>
 <span class="doccomment">/// # Example</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// ```</span>
-<span class="doccomment">/// # use nom::{Err, error::{Error, ErrorKind}, IResult, Needed};</span>
+<span class="doccomment">/// # use nom::{Err, error::ErrorKind, IResult, Needed};</span>
 <span class="doccomment">/// # use nom::character::complete::alpha1;</span>
+<span class="doccomment">/// # fn main() {</span>
 <span class="doccomment">/// fn parser(input: &amp;str) -&gt; IResult&lt;&amp;str, &amp;str&gt; {</span>
 <span class="doccomment">///     alpha1(input)</span>
 <span class="doccomment">/// }</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// assert_eq!(parser(&quot;aB1c&quot;), Ok((&quot;1c&quot;, &quot;aB&quot;)));</span>
-<span class="doccomment">/// assert_eq!(parser(&quot;1c&quot;), Err(Err::Error(Error::new(&quot;1c&quot;, ErrorKind::Alpha))));</span>
-<span class="doccomment">/// assert_eq!(parser(&quot;&quot;), Err(Err::Error(Error::new(&quot;&quot;, ErrorKind::Alpha))));</span>
+<span class="doccomment">/// assert_eq!(parser(&quot;1c&quot;), Err(Err::Error((&quot;1c&quot;, ErrorKind::Alpha))));</span>
+<span class="doccomment">/// assert_eq!(parser(&quot;&quot;), Err(Err::Error((&quot;&quot;, ErrorKind::Alpha))));</span>
+<span class="doccomment">/// # }</span>
 <span class="doccomment">/// ```</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">alpha1</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">E</span>: <span class="ident">ParseError</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">input</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">IResult</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">T</span>, <span class="ident">E</span><span class="op">&gt;</span>
 <span class="kw">where</span>
@@ -1396,13 +1452,15 @@
 
 <span class="doccomment">/// Recognizes zero or more ASCII numerical characters: 0-9</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// *Complete version*: Will return an error if there&#39;s not enough input data,</span>
+<span class="doccomment">/// *complete version*: Will return an error if there&#39;s not enough input data,</span>
 <span class="doccomment">/// or the whole input if no terminating token is found (a non digit character).</span>
+<span class="doccomment">///</span>
 <span class="doccomment">/// # Example</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// ```</span>
 <span class="doccomment">/// # use nom::{Err, error::ErrorKind, IResult, Needed};</span>
 <span class="doccomment">/// # use nom::character::complete::digit0;</span>
+<span class="doccomment">/// # fn main() {</span>
 <span class="doccomment">/// fn parser(input: &amp;str) -&gt; IResult&lt;&amp;str, &amp;str&gt; {</span>
 <span class="doccomment">///     digit0(input)</span>
 <span class="doccomment">/// }</span>
@@ -1411,6 +1469,7 @@
 <span class="doccomment">/// assert_eq!(parser(&quot;21&quot;), Ok((&quot;&quot;, &quot;21&quot;)));</span>
 <span class="doccomment">/// assert_eq!(parser(&quot;a21c&quot;), Ok((&quot;a21c&quot;, &quot;&quot;)));</span>
 <span class="doccomment">/// assert_eq!(parser(&quot;&quot;), Ok((&quot;&quot;, &quot;&quot;)));</span>
+<span class="doccomment">/// # }</span>
 <span class="doccomment">/// ```</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">digit0</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">E</span>: <span class="ident">ParseError</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">input</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">IResult</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">T</span>, <span class="ident">E</span><span class="op">&gt;</span>
 <span class="kw">where</span>
@@ -1422,20 +1481,23 @@
 
 <span class="doccomment">/// Recognizes one or more ASCII numerical characters: 0-9</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// *Complete version*: Will return an error if there&#39;s not enough input data,</span>
+<span class="doccomment">/// *complete version*: Will return an error if there&#39;s not enough input data,</span>
 <span class="doccomment">/// or the whole input if no terminating token is found (a non digit character).</span>
+<span class="doccomment">///</span>
 <span class="doccomment">/// # Example</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// ```</span>
-<span class="doccomment">/// # use nom::{Err, error::{Error, ErrorKind}, IResult, Needed};</span>
+<span class="doccomment">/// # use nom::{Err, error::ErrorKind, IResult, Needed};</span>
 <span class="doccomment">/// # use nom::character::complete::digit1;</span>
+<span class="doccomment">/// # fn main() {</span>
 <span class="doccomment">/// fn parser(input: &amp;str) -&gt; IResult&lt;&amp;str, &amp;str&gt; {</span>
 <span class="doccomment">///     digit1(input)</span>
 <span class="doccomment">/// }</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// assert_eq!(parser(&quot;21c&quot;), Ok((&quot;c&quot;, &quot;21&quot;)));</span>
-<span class="doccomment">/// assert_eq!(parser(&quot;c1&quot;), Err(Err::Error(Error::new(&quot;c1&quot;, ErrorKind::Digit))));</span>
-<span class="doccomment">/// assert_eq!(parser(&quot;&quot;), Err(Err::Error(Error::new(&quot;&quot;, ErrorKind::Digit))));</span>
+<span class="doccomment">/// assert_eq!(parser(&quot;c1&quot;), Err(Err::Error((&quot;c1&quot;, ErrorKind::Digit))));</span>
+<span class="doccomment">/// assert_eq!(parser(&quot;&quot;), Err(Err::Error((&quot;&quot;, ErrorKind::Digit))));</span>
+<span class="doccomment">/// # }</span>
 <span class="doccomment">/// ```</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">digit1</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">E</span>: <span class="ident">ParseError</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">input</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">IResult</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">T</span>, <span class="ident">E</span><span class="op">&gt;</span>
 <span class="kw">where</span>
@@ -1447,12 +1509,14 @@
 
 <span class="doccomment">/// Recognizes zero or more ASCII hexadecimal numerical characters: 0-9, A-F, a-f</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// *Complete version*: Will return the whole input if no terminating token is found (a non hexadecimal digit character).</span>
+<span class="doccomment">/// *complete version*: Will return the whole input if no terminating token is found (a non hexadecimal digit character).</span>
+<span class="doccomment">///</span>
 <span class="doccomment">/// # Example</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// ```</span>
 <span class="doccomment">/// # use nom::{Err, error::ErrorKind, IResult, Needed};</span>
 <span class="doccomment">/// # use nom::character::complete::hex_digit0;</span>
+<span class="doccomment">/// # fn main() {</span>
 <span class="doccomment">/// fn parser(input: &amp;str) -&gt; IResult&lt;&amp;str, &amp;str&gt; {</span>
 <span class="doccomment">///     hex_digit0(input)</span>
 <span class="doccomment">/// }</span>
@@ -1460,6 +1524,7 @@
 <span class="doccomment">/// assert_eq!(parser(&quot;21cZ&quot;), Ok((&quot;Z&quot;, &quot;21c&quot;)));</span>
 <span class="doccomment">/// assert_eq!(parser(&quot;Z21c&quot;), Ok((&quot;Z21c&quot;, &quot;&quot;)));</span>
 <span class="doccomment">/// assert_eq!(parser(&quot;&quot;), Ok((&quot;&quot;, &quot;&quot;)));</span>
+<span class="doccomment">/// # }</span>
 <span class="doccomment">/// ```</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">hex_digit0</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">E</span>: <span class="ident">ParseError</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">input</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">IResult</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">T</span>, <span class="ident">E</span><span class="op">&gt;</span>
 <span class="kw">where</span>
@@ -1470,20 +1535,23 @@
 }
 <span class="doccomment">/// Recognizes one or more ASCII hexadecimal numerical characters: 0-9, A-F, a-f</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// *Complete version*: Will return an error if there&#39;s not enough input data,</span>
+<span class="doccomment">/// *complete version*: Will return an error if there&#39;s not enough input data,</span>
 <span class="doccomment">/// or the whole input if no terminating token is found (a non hexadecimal digit character).</span>
+<span class="doccomment">///</span>
 <span class="doccomment">/// # Example</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// ```</span>
-<span class="doccomment">/// # use nom::{Err, error::{Error, ErrorKind}, IResult, Needed};</span>
+<span class="doccomment">/// # use nom::{Err, error::ErrorKind, IResult, Needed};</span>
 <span class="doccomment">/// # use nom::character::complete::hex_digit1;</span>
+<span class="doccomment">/// # fn main() {</span>
 <span class="doccomment">/// fn parser(input: &amp;str) -&gt; IResult&lt;&amp;str, &amp;str&gt; {</span>
 <span class="doccomment">///     hex_digit1(input)</span>
 <span class="doccomment">/// }</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// assert_eq!(parser(&quot;21cZ&quot;), Ok((&quot;Z&quot;, &quot;21c&quot;)));</span>
-<span class="doccomment">/// assert_eq!(parser(&quot;H2&quot;), Err(Err::Error(Error::new(&quot;H2&quot;, ErrorKind::HexDigit))));</span>
-<span class="doccomment">/// assert_eq!(parser(&quot;&quot;), Err(Err::Error(Error::new(&quot;&quot;, ErrorKind::HexDigit))));</span>
+<span class="doccomment">/// assert_eq!(parser(&quot;H2&quot;), Err(Err::Error((&quot;H2&quot;, ErrorKind::HexDigit))));</span>
+<span class="doccomment">/// assert_eq!(parser(&quot;&quot;), Err(Err::Error((&quot;&quot;, ErrorKind::HexDigit))));</span>
+<span class="doccomment">/// # }</span>
 <span class="doccomment">/// ```</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">hex_digit1</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">E</span>: <span class="ident">ParseError</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">input</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">IResult</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">T</span>, <span class="ident">E</span><span class="op">&gt;</span>
 <span class="kw">where</span>
@@ -1495,13 +1563,15 @@
 
 <span class="doccomment">/// Recognizes zero or more octal characters: 0-7</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// *Complete version*: Will return the whole input if no terminating token is found (a non octal</span>
+<span class="doccomment">/// *complete version*: Will return the whole input if no terminating token is found (a non octal</span>
 <span class="doccomment">/// digit character).</span>
+<span class="doccomment">///</span>
 <span class="doccomment">/// # Example</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// ```</span>
 <span class="doccomment">/// # use nom::{Err, error::ErrorKind, IResult, Needed};</span>
 <span class="doccomment">/// # use nom::character::complete::oct_digit0;</span>
+<span class="doccomment">/// # fn main() {</span>
 <span class="doccomment">/// fn parser(input: &amp;str) -&gt; IResult&lt;&amp;str, &amp;str&gt; {</span>
 <span class="doccomment">///     oct_digit0(input)</span>
 <span class="doccomment">/// }</span>
@@ -1509,6 +1579,7 @@
 <span class="doccomment">/// assert_eq!(parser(&quot;21cZ&quot;), Ok((&quot;cZ&quot;, &quot;21&quot;)));</span>
 <span class="doccomment">/// assert_eq!(parser(&quot;Z21c&quot;), Ok((&quot;Z21c&quot;, &quot;&quot;)));</span>
 <span class="doccomment">/// assert_eq!(parser(&quot;&quot;), Ok((&quot;&quot;, &quot;&quot;)));</span>
+<span class="doccomment">/// # }</span>
 <span class="doccomment">/// ```</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">oct_digit0</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">E</span>: <span class="ident">ParseError</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">input</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">IResult</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">T</span>, <span class="ident">E</span><span class="op">&gt;</span>
 <span class="kw">where</span>
@@ -1520,20 +1591,23 @@
 
 <span class="doccomment">/// Recognizes one or more octal characters: 0-7</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// *Complete version*: Will return an error if there&#39;s not enough input data,</span>
+<span class="doccomment">/// *complete version*: Will return an error if there&#39;s not enough input data,</span>
 <span class="doccomment">/// or the whole input if no terminating token is found (a non octal digit character).</span>
+<span class="doccomment">///</span>
 <span class="doccomment">/// # Example</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// ```</span>
-<span class="doccomment">/// # use nom::{Err, error::{Error, ErrorKind}, IResult, Needed};</span>
+<span class="doccomment">/// # use nom::{Err, error::ErrorKind, IResult, Needed};</span>
 <span class="doccomment">/// # use nom::character::complete::oct_digit1;</span>
+<span class="doccomment">/// # fn main() {</span>
 <span class="doccomment">/// fn parser(input: &amp;str) -&gt; IResult&lt;&amp;str, &amp;str&gt; {</span>
 <span class="doccomment">///     oct_digit1(input)</span>
 <span class="doccomment">/// }</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// assert_eq!(parser(&quot;21cZ&quot;), Ok((&quot;cZ&quot;, &quot;21&quot;)));</span>
-<span class="doccomment">/// assert_eq!(parser(&quot;H2&quot;), Err(Err::Error(Error::new(&quot;H2&quot;, ErrorKind::OctDigit))));</span>
-<span class="doccomment">/// assert_eq!(parser(&quot;&quot;), Err(Err::Error(Error::new(&quot;&quot;, ErrorKind::OctDigit))));</span>
+<span class="doccomment">/// assert_eq!(parser(&quot;H2&quot;), Err(Err::Error((&quot;H2&quot;, ErrorKind::OctDigit))));</span>
+<span class="doccomment">/// assert_eq!(parser(&quot;&quot;), Err(Err::Error((&quot;&quot;, ErrorKind::OctDigit))));</span>
+<span class="doccomment">/// # }</span>
 <span class="doccomment">/// ```</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">oct_digit1</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">E</span>: <span class="ident">ParseError</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">input</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">IResult</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">T</span>, <span class="ident">E</span><span class="op">&gt;</span>
 <span class="kw">where</span>
@@ -1545,13 +1619,15 @@
 
 <span class="doccomment">/// Recognizes zero or more ASCII numerical and alphabetic characters: 0-9, a-z, A-Z</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// *Complete version*: Will return the whole input if no terminating token is found (a non</span>
+<span class="doccomment">/// *complete version*: Will return the whole input if no terminating token is found (a non</span>
 <span class="doccomment">/// alphanumerical character).</span>
+<span class="doccomment">///</span>
 <span class="doccomment">/// # Example</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// ```</span>
 <span class="doccomment">/// # use nom::{Err, error::ErrorKind, IResult, Needed};</span>
 <span class="doccomment">/// # use nom::character::complete::alphanumeric0;</span>
+<span class="doccomment">/// # fn main() {</span>
 <span class="doccomment">/// fn parser(input: &amp;str) -&gt; IResult&lt;&amp;str, &amp;str&gt; {</span>
 <span class="doccomment">///     alphanumeric0(input)</span>
 <span class="doccomment">/// }</span>
@@ -1559,6 +1635,7 @@
 <span class="doccomment">/// assert_eq!(parser(&quot;21cZ%1&quot;), Ok((&quot;%1&quot;, &quot;21cZ&quot;)));</span>
 <span class="doccomment">/// assert_eq!(parser(&quot;&amp;Z21c&quot;), Ok((&quot;&amp;Z21c&quot;, &quot;&quot;)));</span>
 <span class="doccomment">/// assert_eq!(parser(&quot;&quot;), Ok((&quot;&quot;, &quot;&quot;)));</span>
+<span class="doccomment">/// # }</span>
 <span class="doccomment">/// ```</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">alphanumeric0</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">E</span>: <span class="ident">ParseError</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">input</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">IResult</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">T</span>, <span class="ident">E</span><span class="op">&gt;</span>
 <span class="kw">where</span>
@@ -1570,20 +1647,23 @@
 
 <span class="doccomment">/// Recognizes one or more ASCII numerical and alphabetic characters: 0-9, a-z, A-Z</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// *Complete version*: Will return an error if there&#39;s not enough input data,</span>
+<span class="doccomment">/// *complete version*: Will return an error if there&#39;s not enough input data,</span>
 <span class="doccomment">/// or the whole input if no terminating token is found (a non alphanumerical character).</span>
+<span class="doccomment">///</span>
 <span class="doccomment">/// # Example</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// ```</span>
-<span class="doccomment">/// # use nom::{Err, error::{Error, ErrorKind}, IResult, Needed};</span>
+<span class="doccomment">/// # use nom::{Err, error::ErrorKind, IResult, Needed};</span>
 <span class="doccomment">/// # use nom::character::complete::alphanumeric1;</span>
+<span class="doccomment">/// # fn main() {</span>
 <span class="doccomment">/// fn parser(input: &amp;str) -&gt; IResult&lt;&amp;str, &amp;str&gt; {</span>
 <span class="doccomment">///     alphanumeric1(input)</span>
 <span class="doccomment">/// }</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// assert_eq!(parser(&quot;21cZ%1&quot;), Ok((&quot;%1&quot;, &quot;21cZ&quot;)));</span>
-<span class="doccomment">/// assert_eq!(parser(&quot;&amp;H2&quot;), Err(Err::Error(Error::new(&quot;&amp;H2&quot;, ErrorKind::AlphaNumeric))));</span>
-<span class="doccomment">/// assert_eq!(parser(&quot;&quot;), Err(Err::Error(Error::new(&quot;&quot;, ErrorKind::AlphaNumeric))));</span>
+<span class="doccomment">/// assert_eq!(parser(&quot;&amp;H2&quot;), Err(Err::Error((&quot;&amp;H2&quot;, ErrorKind::AlphaNumeric))));</span>
+<span class="doccomment">/// assert_eq!(parser(&quot;&quot;), Err(Err::Error((&quot;&quot;, ErrorKind::AlphaNumeric))));</span>
+<span class="doccomment">/// # }</span>
 <span class="doccomment">/// ```</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">alphanumeric1</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">E</span>: <span class="ident">ParseError</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">input</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">IResult</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">T</span>, <span class="ident">E</span><span class="op">&gt;</span>
 <span class="kw">where</span>
@@ -1595,13 +1675,15 @@
 
 <span class="doccomment">/// Recognizes zero or more spaces and tabs.</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// *Complete version*: Will return the whole input if no terminating token is found (a non space</span>
+<span class="doccomment">/// *complete version*: Will return the whole input if no terminating token is found (a non space</span>
 <span class="doccomment">/// character).</span>
+<span class="doccomment">///</span>
 <span class="doccomment">/// # Example</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// ```</span>
 <span class="doccomment">/// # use nom::{Err, error::ErrorKind, IResult, Needed};</span>
 <span class="doccomment">/// # use nom::character::complete::space0;</span>
+<span class="doccomment">/// # fn main() {</span>
 <span class="doccomment">/// fn parser(input: &amp;str) -&gt; IResult&lt;&amp;str, &amp;str&gt; {</span>
 <span class="doccomment">///     space0(input)</span>
 <span class="doccomment">/// }</span>
@@ -1609,6 +1691,7 @@
 <span class="doccomment">/// assert_eq!(parser(&quot; \t21c&quot;), Ok((&quot;21c&quot;, &quot; \t&quot;)));</span>
 <span class="doccomment">/// assert_eq!(parser(&quot;Z21c&quot;), Ok((&quot;Z21c&quot;, &quot;&quot;)));</span>
 <span class="doccomment">/// assert_eq!(parser(&quot;&quot;), Ok((&quot;&quot;, &quot;&quot;)));</span>
+<span class="doccomment">/// # }</span>
 <span class="doccomment">/// ```</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">space0</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">E</span>: <span class="ident">ParseError</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">input</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">IResult</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">T</span>, <span class="ident">E</span><span class="op">&gt;</span>
 <span class="kw">where</span>
@@ -1616,27 +1699,30 @@
   <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">InputTakeAtPosition</span><span class="op">&gt;</span><span class="ident">::Item</span>: <span class="ident">AsChar</span> <span class="op">+</span> <span class="ident">Clone</span>,
 {
   <span class="ident">input</span>.<span class="ident">split_at_position_complete</span>(<span class="op">|</span><span class="ident">item</span><span class="op">|</span> {
-    <span class="kw">let</span> <span class="ident">c</span> <span class="op">=</span> <span class="ident">item</span>.<span class="ident">as_char</span>();
+    <span class="kw">let</span> <span class="ident">c</span> <span class="op">=</span> <span class="ident">item</span>.<span class="ident">clone</span>().<span class="ident">as_char</span>();
     <span class="op">!</span>(<span class="ident">c</span> <span class="op">=</span><span class="op">=</span> <span class="string">&#39; &#39;</span> <span class="op">|</span><span class="op">|</span> <span class="ident">c</span> <span class="op">=</span><span class="op">=</span> <span class="string">&#39;\t&#39;</span>)
   })
 }
 
 <span class="doccomment">/// Recognizes one or more spaces and tabs.</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// *Complete version*: Will return an error if there&#39;s not enough input data,</span>
+<span class="doccomment">/// *complete version*: Will return an error if there&#39;s not enough input data,</span>
 <span class="doccomment">/// or the whole input if no terminating token is found (a non space character).</span>
+<span class="doccomment">///</span>
 <span class="doccomment">/// # Example</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// ```</span>
-<span class="doccomment">/// # use nom::{Err, error::{Error, ErrorKind}, IResult, Needed};</span>
+<span class="doccomment">/// # use nom::{Err, error::ErrorKind, IResult, Needed};</span>
 <span class="doccomment">/// # use nom::character::complete::space1;</span>
+<span class="doccomment">/// # fn main() {</span>
 <span class="doccomment">/// fn parser(input: &amp;str) -&gt; IResult&lt;&amp;str, &amp;str&gt; {</span>
 <span class="doccomment">///     space1(input)</span>
 <span class="doccomment">/// }</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// assert_eq!(parser(&quot; \t21c&quot;), Ok((&quot;21c&quot;, &quot; \t&quot;)));</span>
-<span class="doccomment">/// assert_eq!(parser(&quot;H2&quot;), Err(Err::Error(Error::new(&quot;H2&quot;, ErrorKind::Space))));</span>
-<span class="doccomment">/// assert_eq!(parser(&quot;&quot;), Err(Err::Error(Error::new(&quot;&quot;, ErrorKind::Space))));</span>
+<span class="doccomment">/// assert_eq!(parser(&quot;H2&quot;), Err(Err::Error((&quot;H2&quot;, ErrorKind::Space))));</span>
+<span class="doccomment">/// assert_eq!(parser(&quot;&quot;), Err(Err::Error((&quot;&quot;, ErrorKind::Space))));</span>
+<span class="doccomment">/// # }</span>
 <span class="doccomment">/// ```</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">space1</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">E</span>: <span class="ident">ParseError</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">input</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">IResult</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">T</span>, <span class="ident">E</span><span class="op">&gt;</span>
 <span class="kw">where</span>
@@ -1645,7 +1731,7 @@
 {
   <span class="ident">input</span>.<span class="ident">split_at_position1_complete</span>(
     <span class="op">|</span><span class="ident">item</span><span class="op">|</span> {
-      <span class="kw">let</span> <span class="ident">c</span> <span class="op">=</span> <span class="ident">item</span>.<span class="ident">as_char</span>();
+      <span class="kw">let</span> <span class="ident">c</span> <span class="op">=</span> <span class="ident">item</span>.<span class="ident">clone</span>().<span class="ident">as_char</span>();
       <span class="op">!</span>(<span class="ident">c</span> <span class="op">=</span><span class="op">=</span> <span class="string">&#39; &#39;</span> <span class="op">|</span><span class="op">|</span> <span class="ident">c</span> <span class="op">=</span><span class="op">=</span> <span class="string">&#39;\t&#39;</span>)
     },
     <span class="ident">ErrorKind::Space</span>,
@@ -1654,13 +1740,15 @@
 
 <span class="doccomment">/// Recognizes zero or more spaces, tabs, carriage returns and line feeds.</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// *Complete version*: will return the whole input if no terminating token is found (a non space</span>
+<span class="doccomment">/// *complete version*: will return the whole input if no terminating token is found (a non space</span>
 <span class="doccomment">/// character).</span>
+<span class="doccomment">///</span>
 <span class="doccomment">/// # Example</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// ```</span>
 <span class="doccomment">/// # use nom::{Err, error::ErrorKind, IResult, Needed};</span>
 <span class="doccomment">/// # use nom::character::complete::multispace0;</span>
+<span class="doccomment">/// # fn main() {</span>
 <span class="doccomment">/// fn parser(input: &amp;str) -&gt; IResult&lt;&amp;str, &amp;str&gt; {</span>
 <span class="doccomment">///     multispace0(input)</span>
 <span class="doccomment">/// }</span>
@@ -1668,6 +1756,7 @@
 <span class="doccomment">/// assert_eq!(parser(&quot; \t\n\r21c&quot;), Ok((&quot;21c&quot;, &quot; \t\n\r&quot;)));</span>
 <span class="doccomment">/// assert_eq!(parser(&quot;Z21c&quot;), Ok((&quot;Z21c&quot;, &quot;&quot;)));</span>
 <span class="doccomment">/// assert_eq!(parser(&quot;&quot;), Ok((&quot;&quot;, &quot;&quot;)));</span>
+<span class="doccomment">/// # }</span>
 <span class="doccomment">/// ```</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">multispace0</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">E</span>: <span class="ident">ParseError</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">input</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">IResult</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">T</span>, <span class="ident">E</span><span class="op">&gt;</span>
 <span class="kw">where</span>
@@ -1675,27 +1764,30 @@
   <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">InputTakeAtPosition</span><span class="op">&gt;</span><span class="ident">::Item</span>: <span class="ident">AsChar</span> <span class="op">+</span> <span class="ident">Clone</span>,
 {
   <span class="ident">input</span>.<span class="ident">split_at_position_complete</span>(<span class="op">|</span><span class="ident">item</span><span class="op">|</span> {
-    <span class="kw">let</span> <span class="ident">c</span> <span class="op">=</span> <span class="ident">item</span>.<span class="ident">as_char</span>();
+    <span class="kw">let</span> <span class="ident">c</span> <span class="op">=</span> <span class="ident">item</span>.<span class="ident">clone</span>().<span class="ident">as_char</span>();
     <span class="op">!</span>(<span class="ident">c</span> <span class="op">=</span><span class="op">=</span> <span class="string">&#39; &#39;</span> <span class="op">|</span><span class="op">|</span> <span class="ident">c</span> <span class="op">=</span><span class="op">=</span> <span class="string">&#39;\t&#39;</span> <span class="op">|</span><span class="op">|</span> <span class="ident">c</span> <span class="op">=</span><span class="op">=</span> <span class="string">&#39;\r&#39;</span> <span class="op">|</span><span class="op">|</span> <span class="ident">c</span> <span class="op">=</span><span class="op">=</span> <span class="string">&#39;\n&#39;</span>)
   })
 }
 
 <span class="doccomment">/// Recognizes one or more spaces, tabs, carriage returns and line feeds.</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// *Complete version*: will return an error if there&#39;s not enough input data,</span>
+<span class="doccomment">/// *complete version*: will return an error if there&#39;s not enough input data,</span>
 <span class="doccomment">/// or the whole input if no terminating token is found (a non space character).</span>
+<span class="doccomment">///</span>
 <span class="doccomment">/// # Example</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// ```</span>
-<span class="doccomment">/// # use nom::{Err, error::{Error, ErrorKind}, IResult, Needed};</span>
+<span class="doccomment">/// # use nom::{Err, error::ErrorKind, IResult, Needed};</span>
 <span class="doccomment">/// # use nom::character::complete::multispace1;</span>
+<span class="doccomment">/// # fn main() {</span>
 <span class="doccomment">/// fn parser(input: &amp;str) -&gt; IResult&lt;&amp;str, &amp;str&gt; {</span>
 <span class="doccomment">///     multispace1(input)</span>
 <span class="doccomment">/// }</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// assert_eq!(parser(&quot; \t\n\r21c&quot;), Ok((&quot;21c&quot;, &quot; \t\n\r&quot;)));</span>
-<span class="doccomment">/// assert_eq!(parser(&quot;H2&quot;), Err(Err::Error(Error::new(&quot;H2&quot;, ErrorKind::MultiSpace))));</span>
-<span class="doccomment">/// assert_eq!(parser(&quot;&quot;), Err(Err::Error(Error::new(&quot;&quot;, ErrorKind::MultiSpace))));</span>
+<span class="doccomment">/// assert_eq!(parser(&quot;H2&quot;), Err(Err::Error((&quot;H2&quot;, ErrorKind::MultiSpace))));</span>
+<span class="doccomment">/// assert_eq!(parser(&quot;&quot;), Err(Err::Error((&quot;&quot;, ErrorKind::MultiSpace))));</span>
+<span class="doccomment">/// # }</span>
 <span class="doccomment">/// ```</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">multispace1</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">E</span>: <span class="ident">ParseError</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">input</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">IResult</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">T</span>, <span class="ident">E</span><span class="op">&gt;</span>
 <span class="kw">where</span>
@@ -1704,7 +1796,7 @@
 {
   <span class="ident">input</span>.<span class="ident">split_at_position1_complete</span>(
     <span class="op">|</span><span class="ident">item</span><span class="op">|</span> {
-      <span class="kw">let</span> <span class="ident">c</span> <span class="op">=</span> <span class="ident">item</span>.<span class="ident">as_char</span>();
+      <span class="kw">let</span> <span class="ident">c</span> <span class="op">=</span> <span class="ident">item</span>.<span class="ident">clone</span>().<span class="ident">as_char</span>();
       <span class="op">!</span>(<span class="ident">c</span> <span class="op">=</span><span class="op">=</span> <span class="string">&#39; &#39;</span> <span class="op">|</span><span class="op">|</span> <span class="ident">c</span> <span class="op">=</span><span class="op">=</span> <span class="string">&#39;\t&#39;</span> <span class="op">|</span><span class="op">|</span> <span class="ident">c</span> <span class="op">=</span><span class="op">=</span> <span class="string">&#39;\r&#39;</span> <span class="op">|</span><span class="op">|</span> <span class="ident">c</span> <span class="op">=</span><span class="op">=</span> <span class="string">&#39;\n&#39;</span>)
     },
     <span class="ident">ErrorKind::MultiSpace</span>,
@@ -1723,6 +1815,7 @@
     };
   );
 
+
   <span class="attribute">#[<span class="ident">test</span>]</span>
   <span class="kw">fn</span> <span class="ident">character</span>() {
     <span class="kw">let</span> <span class="ident">empty</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>] <span class="op">=</span> <span class="string">b&quot;&quot;</span>;
@@ -1734,35 +1827,50 @@
     <span class="kw">let</span> <span class="ident">f</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>] <span class="op">=</span> <span class="string">b&quot; ;&quot;</span>;
     <span class="comment">//assert_eq!(alpha1::&lt;_, (_, ErrorKind)&gt;(a), Err(Err::Incomplete(Needed::Size(1))));</span>
     <span class="macro">assert_parse!</span>(<span class="ident">alpha1</span>(<span class="ident">a</span>), <span class="prelude-val">Ok</span>((<span class="ident">empty</span>, <span class="ident">a</span>)));
-    <span class="macro">assert_eq!</span>(<span class="ident">alpha1</span>(<span class="ident">b</span>), <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>((<span class="ident">b</span>, <span class="ident">ErrorKind::Alpha</span>))));
-    <span class="macro">assert_eq!</span>(<span class="ident">alpha1</span>::<span class="op">&lt;</span><span class="kw">_</span>, (<span class="kw">_</span>, <span class="ident">ErrorKind</span>)<span class="op">&gt;</span>(<span class="ident">c</span>), <span class="prelude-val">Ok</span>((<span class="kw-2">&amp;</span><span class="ident">c</span>[<span class="number">1</span>..], <span class="kw-2">&amp;</span><span class="string">b&quot;a&quot;</span>[..])));
     <span class="macro">assert_eq!</span>(
-      <span class="ident">alpha1</span>::<span class="op">&lt;</span><span class="kw">_</span>, (<span class="kw">_</span>, <span class="ident">ErrorKind</span>)<span class="op">&gt;</span>(<span class="ident">d</span>),
-      <span class="prelude-val">Ok</span>((<span class="string">&quot;é12&quot;</span>.<span class="ident">as_bytes</span>(), <span class="kw-2">&amp;</span><span class="string">b&quot;az&quot;</span>[..]))
+      <span class="ident">alpha1</span>(<span class="ident">b</span>),
+      <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>((<span class="ident">b</span>, <span class="ident">ErrorKind::Alpha</span>)))
     );
-    <span class="macro">assert_eq!</span>(<span class="ident">digit1</span>(<span class="ident">a</span>), <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>((<span class="ident">a</span>, <span class="ident">ErrorKind::Digit</span>))));
+    <span class="macro">assert_eq!</span>(<span class="ident">alpha1</span>::<span class="op">&lt;</span><span class="kw">_</span>, (<span class="kw">_</span>, <span class="ident">ErrorKind</span>)<span class="op">&gt;</span>(<span class="ident">c</span>), <span class="prelude-val">Ok</span>((<span class="kw-2">&amp;</span><span class="ident">c</span>[<span class="number">1</span>..], <span class="kw-2">&amp;</span><span class="string">b&quot;a&quot;</span>[..])));
+    <span class="macro">assert_eq!</span>(<span class="ident">alpha1</span>::<span class="op">&lt;</span><span class="kw">_</span>, (<span class="kw">_</span>, <span class="ident">ErrorKind</span>)<span class="op">&gt;</span>(<span class="ident">d</span>), <span class="prelude-val">Ok</span>((<span class="string">&quot;é12&quot;</span>.<span class="ident">as_bytes</span>(), <span class="kw-2">&amp;</span><span class="string">b&quot;az&quot;</span>[..])));
+    <span class="macro">assert_eq!</span>(
+      <span class="ident">digit1</span>(<span class="ident">a</span>),
+      <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>((<span class="ident">a</span>, <span class="ident">ErrorKind::Digit</span>)))
+    );
     <span class="macro">assert_eq!</span>(<span class="ident">digit1</span>::<span class="op">&lt;</span><span class="kw">_</span>, (<span class="kw">_</span>, <span class="ident">ErrorKind</span>)<span class="op">&gt;</span>(<span class="ident">b</span>), <span class="prelude-val">Ok</span>((<span class="ident">empty</span>, <span class="ident">b</span>)));
-    <span class="macro">assert_eq!</span>(<span class="ident">digit1</span>(<span class="ident">c</span>), <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>((<span class="ident">c</span>, <span class="ident">ErrorKind::Digit</span>))));
-    <span class="macro">assert_eq!</span>(<span class="ident">digit1</span>(<span class="ident">d</span>), <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>((<span class="ident">d</span>, <span class="ident">ErrorKind::Digit</span>))));
+    <span class="macro">assert_eq!</span>(
+      <span class="ident">digit1</span>(<span class="ident">c</span>),
+      <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>((<span class="ident">c</span>, <span class="ident">ErrorKind::Digit</span>)))
+    );
+    <span class="macro">assert_eq!</span>(
+      <span class="ident">digit1</span>(<span class="ident">d</span>),
+      <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>((<span class="ident">d</span>, <span class="ident">ErrorKind::Digit</span>)))
+    );
     <span class="macro">assert_eq!</span>(<span class="ident">hex_digit1</span>::<span class="op">&lt;</span><span class="kw">_</span>, (<span class="kw">_</span>, <span class="ident">ErrorKind</span>)<span class="op">&gt;</span>(<span class="ident">a</span>), <span class="prelude-val">Ok</span>((<span class="ident">empty</span>, <span class="ident">a</span>)));
     <span class="macro">assert_eq!</span>(<span class="ident">hex_digit1</span>::<span class="op">&lt;</span><span class="kw">_</span>, (<span class="kw">_</span>, <span class="ident">ErrorKind</span>)<span class="op">&gt;</span>(<span class="ident">b</span>), <span class="prelude-val">Ok</span>((<span class="ident">empty</span>, <span class="ident">b</span>)));
     <span class="macro">assert_eq!</span>(<span class="ident">hex_digit1</span>::<span class="op">&lt;</span><span class="kw">_</span>, (<span class="kw">_</span>, <span class="ident">ErrorKind</span>)<span class="op">&gt;</span>(<span class="ident">c</span>), <span class="prelude-val">Ok</span>((<span class="ident">empty</span>, <span class="ident">c</span>)));
+    <span class="macro">assert_eq!</span>(<span class="ident">hex_digit1</span>::<span class="op">&lt;</span><span class="kw">_</span>, (<span class="kw">_</span>, <span class="ident">ErrorKind</span>)<span class="op">&gt;</span>(<span class="ident">d</span>), <span class="prelude-val">Ok</span>((<span class="string">&quot;zé12&quot;</span>.<span class="ident">as_bytes</span>(), <span class="kw-2">&amp;</span><span class="string">b&quot;a&quot;</span>[..])));
     <span class="macro">assert_eq!</span>(
-      <span class="ident">hex_digit1</span>::<span class="op">&lt;</span><span class="kw">_</span>, (<span class="kw">_</span>, <span class="ident">ErrorKind</span>)<span class="op">&gt;</span>(<span class="ident">d</span>),
-      <span class="prelude-val">Ok</span>((<span class="string">&quot;zé12&quot;</span>.<span class="ident">as_bytes</span>(), <span class="kw-2">&amp;</span><span class="string">b&quot;a&quot;</span>[..]))
+      <span class="ident">hex_digit1</span>(<span class="ident">e</span>),
+      <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>((<span class="ident">e</span>, <span class="ident">ErrorKind::HexDigit</span>)))
     );
-    <span class="macro">assert_eq!</span>(<span class="ident">hex_digit1</span>(<span class="ident">e</span>), <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>((<span class="ident">e</span>, <span class="ident">ErrorKind::HexDigit</span>))));
-    <span class="macro">assert_eq!</span>(<span class="ident">oct_digit1</span>(<span class="ident">a</span>), <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>((<span class="ident">a</span>, <span class="ident">ErrorKind::OctDigit</span>))));
+    <span class="macro">assert_eq!</span>(
+      <span class="ident">oct_digit1</span>(<span class="ident">a</span>),
+      <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>((<span class="ident">a</span>, <span class="ident">ErrorKind::OctDigit</span>)))
+    );
     <span class="macro">assert_eq!</span>(<span class="ident">oct_digit1</span>::<span class="op">&lt;</span><span class="kw">_</span>, (<span class="kw">_</span>, <span class="ident">ErrorKind</span>)<span class="op">&gt;</span>(<span class="ident">b</span>), <span class="prelude-val">Ok</span>((<span class="ident">empty</span>, <span class="ident">b</span>)));
-    <span class="macro">assert_eq!</span>(<span class="ident">oct_digit1</span>(<span class="ident">c</span>), <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>((<span class="ident">c</span>, <span class="ident">ErrorKind::OctDigit</span>))));
-    <span class="macro">assert_eq!</span>(<span class="ident">oct_digit1</span>(<span class="ident">d</span>), <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>((<span class="ident">d</span>, <span class="ident">ErrorKind::OctDigit</span>))));
+    <span class="macro">assert_eq!</span>(
+      <span class="ident">oct_digit1</span>(<span class="ident">c</span>),
+      <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>((<span class="ident">c</span>, <span class="ident">ErrorKind::OctDigit</span>)))
+    );
+    <span class="macro">assert_eq!</span>(
+      <span class="ident">oct_digit1</span>(<span class="ident">d</span>),
+      <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>((<span class="ident">d</span>, <span class="ident">ErrorKind::OctDigit</span>)))
+    );
     <span class="macro">assert_eq!</span>(<span class="ident">alphanumeric1</span>::<span class="op">&lt;</span><span class="kw">_</span>, (<span class="kw">_</span>, <span class="ident">ErrorKind</span>)<span class="op">&gt;</span>(<span class="ident">a</span>), <span class="prelude-val">Ok</span>((<span class="ident">empty</span>, <span class="ident">a</span>)));
     <span class="comment">//assert_eq!(fix_error!(b,(), alphanumeric), Ok((empty, b)));</span>
     <span class="macro">assert_eq!</span>(<span class="ident">alphanumeric1</span>::<span class="op">&lt;</span><span class="kw">_</span>, (<span class="kw">_</span>, <span class="ident">ErrorKind</span>)<span class="op">&gt;</span>(<span class="ident">c</span>), <span class="prelude-val">Ok</span>((<span class="ident">empty</span>, <span class="ident">c</span>)));
-    <span class="macro">assert_eq!</span>(
-      <span class="ident">alphanumeric1</span>::<span class="op">&lt;</span><span class="kw">_</span>, (<span class="kw">_</span>, <span class="ident">ErrorKind</span>)<span class="op">&gt;</span>(<span class="ident">d</span>),
-      <span class="prelude-val">Ok</span>((<span class="string">&quot;é12&quot;</span>.<span class="ident">as_bytes</span>(), <span class="kw-2">&amp;</span><span class="string">b&quot;az&quot;</span>[..]))
-    );
+    <span class="macro">assert_eq!</span>(<span class="ident">alphanumeric1</span>::<span class="op">&lt;</span><span class="kw">_</span>, (<span class="kw">_</span>, <span class="ident">ErrorKind</span>)<span class="op">&gt;</span>(<span class="ident">d</span>), <span class="prelude-val">Ok</span>((<span class="string">&quot;é12&quot;</span>.<span class="ident">as_bytes</span>(), <span class="kw-2">&amp;</span><span class="string">b&quot;az&quot;</span>[..])));
     <span class="macro">assert_eq!</span>(<span class="ident">space1</span>::<span class="op">&lt;</span><span class="kw">_</span>, (<span class="kw">_</span>, <span class="ident">ErrorKind</span>)<span class="op">&gt;</span>(<span class="ident">e</span>), <span class="prelude-val">Ok</span>((<span class="ident">empty</span>, <span class="ident">e</span>)));
     <span class="macro">assert_eq!</span>(<span class="ident">space1</span>::<span class="op">&lt;</span><span class="kw">_</span>, (<span class="kw">_</span>, <span class="ident">ErrorKind</span>)<span class="op">&gt;</span>(<span class="ident">f</span>), <span class="prelude-val">Ok</span>((<span class="kw-2">&amp;</span><span class="string">b&quot;;&quot;</span>[..], <span class="kw-2">&amp;</span><span class="string">b&quot; &quot;</span>[..])));
   }
@@ -1777,22 +1885,46 @@
     <span class="kw">let</span> <span class="ident">d</span> <span class="op">=</span> <span class="string">&quot;azé12&quot;</span>;
     <span class="kw">let</span> <span class="ident">e</span> <span class="op">=</span> <span class="string">&quot; &quot;</span>;
     <span class="macro">assert_eq!</span>(<span class="ident">alpha1</span>::<span class="op">&lt;</span><span class="kw">_</span>, (<span class="kw">_</span>, <span class="ident">ErrorKind</span>)<span class="op">&gt;</span>(<span class="ident">a</span>), <span class="prelude-val">Ok</span>((<span class="ident">empty</span>, <span class="ident">a</span>)));
-    <span class="macro">assert_eq!</span>(<span class="ident">alpha1</span>(<span class="ident">b</span>), <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>((<span class="ident">b</span>, <span class="ident">ErrorKind::Alpha</span>))));
+    <span class="macro">assert_eq!</span>(
+      <span class="ident">alpha1</span>(<span class="ident">b</span>),
+      <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>((<span class="ident">b</span>, <span class="ident">ErrorKind::Alpha</span>)))
+    );
     <span class="macro">assert_eq!</span>(<span class="ident">alpha1</span>::<span class="op">&lt;</span><span class="kw">_</span>, (<span class="kw">_</span>, <span class="ident">ErrorKind</span>)<span class="op">&gt;</span>(<span class="ident">c</span>), <span class="prelude-val">Ok</span>((<span class="kw-2">&amp;</span><span class="ident">c</span>[<span class="number">1</span>..], <span class="kw-2">&amp;</span><span class="string">&quot;a&quot;</span>[..])));
     <span class="macro">assert_eq!</span>(<span class="ident">alpha1</span>::<span class="op">&lt;</span><span class="kw">_</span>, (<span class="kw">_</span>, <span class="ident">ErrorKind</span>)<span class="op">&gt;</span>(<span class="ident">d</span>), <span class="prelude-val">Ok</span>((<span class="string">&quot;é12&quot;</span>, <span class="kw-2">&amp;</span><span class="string">&quot;az&quot;</span>[..])));
-    <span class="macro">assert_eq!</span>(<span class="ident">digit1</span>(<span class="ident">a</span>), <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>((<span class="ident">a</span>, <span class="ident">ErrorKind::Digit</span>))));
+    <span class="macro">assert_eq!</span>(
+      <span class="ident">digit1</span>(<span class="ident">a</span>),
+      <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>((<span class="ident">a</span>, <span class="ident">ErrorKind::Digit</span>)))
+    );
     <span class="macro">assert_eq!</span>(<span class="ident">digit1</span>::<span class="op">&lt;</span><span class="kw">_</span>, (<span class="kw">_</span>, <span class="ident">ErrorKind</span>)<span class="op">&gt;</span>(<span class="ident">b</span>), <span class="prelude-val">Ok</span>((<span class="ident">empty</span>, <span class="ident">b</span>)));
-    <span class="macro">assert_eq!</span>(<span class="ident">digit1</span>(<span class="ident">c</span>), <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>((<span class="ident">c</span>, <span class="ident">ErrorKind::Digit</span>))));
-    <span class="macro">assert_eq!</span>(<span class="ident">digit1</span>(<span class="ident">d</span>), <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>((<span class="ident">d</span>, <span class="ident">ErrorKind::Digit</span>))));
+    <span class="macro">assert_eq!</span>(
+      <span class="ident">digit1</span>(<span class="ident">c</span>),
+      <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>((<span class="ident">c</span>, <span class="ident">ErrorKind::Digit</span>)))
+    );
+    <span class="macro">assert_eq!</span>(
+      <span class="ident">digit1</span>(<span class="ident">d</span>),
+      <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>((<span class="ident">d</span>, <span class="ident">ErrorKind::Digit</span>)))
+    );
     <span class="macro">assert_eq!</span>(<span class="ident">hex_digit1</span>::<span class="op">&lt;</span><span class="kw">_</span>, (<span class="kw">_</span>, <span class="ident">ErrorKind</span>)<span class="op">&gt;</span>(<span class="ident">a</span>), <span class="prelude-val">Ok</span>((<span class="ident">empty</span>, <span class="ident">a</span>)));
     <span class="macro">assert_eq!</span>(<span class="ident">hex_digit1</span>::<span class="op">&lt;</span><span class="kw">_</span>, (<span class="kw">_</span>, <span class="ident">ErrorKind</span>)<span class="op">&gt;</span>(<span class="ident">b</span>), <span class="prelude-val">Ok</span>((<span class="ident">empty</span>, <span class="ident">b</span>)));
     <span class="macro">assert_eq!</span>(<span class="ident">hex_digit1</span>::<span class="op">&lt;</span><span class="kw">_</span>, (<span class="kw">_</span>, <span class="ident">ErrorKind</span>)<span class="op">&gt;</span>(<span class="ident">c</span>), <span class="prelude-val">Ok</span>((<span class="ident">empty</span>, <span class="ident">c</span>)));
     <span class="macro">assert_eq!</span>(<span class="ident">hex_digit1</span>::<span class="op">&lt;</span><span class="kw">_</span>, (<span class="kw">_</span>, <span class="ident">ErrorKind</span>)<span class="op">&gt;</span>(<span class="ident">d</span>), <span class="prelude-val">Ok</span>((<span class="string">&quot;zé12&quot;</span>, <span class="kw-2">&amp;</span><span class="string">&quot;a&quot;</span>[..])));
-    <span class="macro">assert_eq!</span>(<span class="ident">hex_digit1</span>(<span class="ident">e</span>), <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>((<span class="ident">e</span>, <span class="ident">ErrorKind::HexDigit</span>))));
-    <span class="macro">assert_eq!</span>(<span class="ident">oct_digit1</span>(<span class="ident">a</span>), <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>((<span class="ident">a</span>, <span class="ident">ErrorKind::OctDigit</span>))));
+    <span class="macro">assert_eq!</span>(
+      <span class="ident">hex_digit1</span>(<span class="ident">e</span>),
+      <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>((<span class="ident">e</span>, <span class="ident">ErrorKind::HexDigit</span>)))
+    );
+    <span class="macro">assert_eq!</span>(
+      <span class="ident">oct_digit1</span>(<span class="ident">a</span>),
+      <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>((<span class="ident">a</span>, <span class="ident">ErrorKind::OctDigit</span>)))
+    );
     <span class="macro">assert_eq!</span>(<span class="ident">oct_digit1</span>::<span class="op">&lt;</span><span class="kw">_</span>, (<span class="kw">_</span>, <span class="ident">ErrorKind</span>)<span class="op">&gt;</span>(<span class="ident">b</span>), <span class="prelude-val">Ok</span>((<span class="ident">empty</span>, <span class="ident">b</span>)));
-    <span class="macro">assert_eq!</span>(<span class="ident">oct_digit1</span>(<span class="ident">c</span>), <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>((<span class="ident">c</span>, <span class="ident">ErrorKind::OctDigit</span>))));
-    <span class="macro">assert_eq!</span>(<span class="ident">oct_digit1</span>(<span class="ident">d</span>), <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>((<span class="ident">d</span>, <span class="ident">ErrorKind::OctDigit</span>))));
+    <span class="macro">assert_eq!</span>(
+      <span class="ident">oct_digit1</span>(<span class="ident">c</span>),
+      <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>((<span class="ident">c</span>, <span class="ident">ErrorKind::OctDigit</span>)))
+    );
+    <span class="macro">assert_eq!</span>(
+      <span class="ident">oct_digit1</span>(<span class="ident">d</span>),
+      <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>((<span class="ident">d</span>, <span class="ident">ErrorKind::OctDigit</span>)))
+    );
     <span class="macro">assert_eq!</span>(<span class="ident">alphanumeric1</span>::<span class="op">&lt;</span><span class="kw">_</span>, (<span class="kw">_</span>, <span class="ident">ErrorKind</span>)<span class="op">&gt;</span>(<span class="ident">a</span>), <span class="prelude-val">Ok</span>((<span class="ident">empty</span>, <span class="ident">a</span>)));
     <span class="comment">//assert_eq!(fix_error!(b,(), alphanumeric), Ok((empty, b)));</span>
     <span class="macro">assert_eq!</span>(<span class="ident">alphanumeric1</span>::<span class="op">&lt;</span><span class="kw">_</span>, (<span class="kw">_</span>, <span class="ident">ErrorKind</span>)<span class="op">&gt;</span>(<span class="ident">c</span>), <span class="prelude-val">Ok</span>((<span class="ident">empty</span>, <span class="ident">c</span>)));
@@ -1857,10 +1989,7 @@
   <span class="attribute">#[<span class="ident">test</span>]</span>
   <span class="kw">fn</span> <span class="ident">is_not_line_ending_bytes</span>() {
     <span class="kw">let</span> <span class="ident">a</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>] <span class="op">=</span> <span class="string">b&quot;ab12cd\nefgh&quot;</span>;
-    <span class="macro">assert_eq!</span>(
-      <span class="ident">not_line_ending</span>::<span class="op">&lt;</span><span class="kw">_</span>, (<span class="kw">_</span>, <span class="ident">ErrorKind</span>)<span class="op">&gt;</span>(<span class="ident">a</span>),
-      <span class="prelude-val">Ok</span>((<span class="kw-2">&amp;</span><span class="string">b&quot;\nefgh&quot;</span>[..], <span class="kw-2">&amp;</span><span class="string">b&quot;ab12cd&quot;</span>[..]))
-    );
+    <span class="macro">assert_eq!</span>(<span class="ident">not_line_ending</span>::<span class="op">&lt;</span><span class="kw">_</span>, (<span class="kw">_</span>, <span class="ident">ErrorKind</span>)<span class="op">&gt;</span>(<span class="ident">a</span>), <span class="prelude-val">Ok</span>((<span class="kw-2">&amp;</span><span class="string">b&quot;\nefgh&quot;</span>[..], <span class="kw-2">&amp;</span><span class="string">b&quot;ab12cd&quot;</span>[..])));
 
     <span class="kw">let</span> <span class="ident">b</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>] <span class="op">=</span> <span class="string">b&quot;ab12cd\nefgh\nijkl&quot;</span>;
     <span class="macro">assert_eq!</span>(
@@ -1875,14 +2004,12 @@
     );
 
     <span class="kw">let</span> <span class="ident">d</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>] <span class="op">=</span> <span class="string">b&quot;ab12cd&quot;</span>;
-    <span class="macro">assert_eq!</span>(
-      <span class="ident">not_line_ending</span>::<span class="op">&lt;</span><span class="kw">_</span>, (<span class="kw">_</span>, <span class="ident">ErrorKind</span>)<span class="op">&gt;</span>(<span class="ident">d</span>),
-      <span class="prelude-val">Ok</span>((<span class="kw-2">&amp;</span>[][..], <span class="kw-2">&amp;</span><span class="ident">d</span>[..]))
-    );
+    <span class="macro">assert_eq!</span>(<span class="ident">not_line_ending</span>::<span class="op">&lt;</span><span class="kw">_</span>, (<span class="kw">_</span>, <span class="ident">ErrorKind</span>)<span class="op">&gt;</span>(<span class="ident">d</span>), <span class="prelude-val">Ok</span>((<span class="kw-2">&amp;</span>[][..], <span class="kw-2">&amp;</span><span class="ident">d</span>[..])));
   }
 
   <span class="attribute">#[<span class="ident">test</span>]</span>
   <span class="kw">fn</span> <span class="ident">is_not_line_ending_str</span>() {
+
     <span class="comment">/*
     let a: &amp;str = &quot;ab12cd\nefgh&quot;;
     assert_eq!(not_line_ending(a), Ok((&amp;&quot;\nefgh&quot;[..], &amp;&quot;ab12cd&quot;[..])));
@@ -1901,7 +2028,10 @@
     */</span>
 
     <span class="kw">let</span> <span class="ident">f</span> <span class="op">=</span> <span class="string">&quot;βèƒôřè\rÂßÇáƒƭèř&quot;</span>;
-    <span class="macro">assert_eq!</span>(<span class="ident">not_line_ending</span>(<span class="ident">f</span>), <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>((<span class="ident">f</span>, <span class="ident">ErrorKind::Tag</span>))));
+    <span class="macro">assert_eq!</span>(
+      <span class="ident">not_line_ending</span>(<span class="ident">f</span>),
+      <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>((<span class="ident">f</span>, <span class="ident">ErrorKind::Tag</span>)))
+    );
 
     <span class="kw">let</span> <span class="ident">g2</span>: <span class="kw-2">&amp;</span><span class="ident">str</span> <span class="op">=</span> <span class="string">&quot;ab12cd&quot;</span>;
     <span class="macro">assert_eq!</span>(<span class="ident">not_line_ending</span>::<span class="op">&lt;</span><span class="kw">_</span>, (<span class="kw">_</span>, <span class="ident">ErrorKind</span>)<span class="op">&gt;</span>(<span class="ident">g2</span>), <span class="prelude-val">Ok</span>((<span class="string">&quot;&quot;</span>, <span class="ident">g2</span>)));
@@ -2003,20 +2133,14 @@
   <span class="attribute">#[<span class="ident">test</span>]</span>
   <span class="kw">fn</span> <span class="ident">cr_lf</span>() {
     <span class="macro">assert_parse!</span>(<span class="ident">crlf</span>(<span class="kw-2">&amp;</span><span class="string">b&quot;\r\na&quot;</span>[..]), <span class="prelude-val">Ok</span>((<span class="kw-2">&amp;</span><span class="string">b&quot;a&quot;</span>[..], <span class="kw-2">&amp;</span><span class="string">b&quot;\r\n&quot;</span>[..])));
-    <span class="macro">assert_parse!</span>(
-      <span class="ident">crlf</span>(<span class="kw-2">&amp;</span><span class="string">b&quot;\r&quot;</span>[..]),
-      <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>(<span class="macro">error_position!</span>(<span class="kw-2">&amp;</span><span class="string">b&quot;\r&quot;</span>[..], <span class="ident">ErrorKind::CrLf</span>)))
-    );
+    <span class="macro">assert_parse!</span>(<span class="ident">crlf</span>(<span class="kw-2">&amp;</span><span class="string">b&quot;\r&quot;</span>[..]), <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>(<span class="macro">error_position!</span>(<span class="kw-2">&amp;</span><span class="string">b&quot;\r&quot;</span>[..], <span class="ident">ErrorKind::CrLf</span>))));
     <span class="macro">assert_parse!</span>(
       <span class="ident">crlf</span>(<span class="kw-2">&amp;</span><span class="string">b&quot;\ra&quot;</span>[..]),
       <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>(<span class="macro">error_position!</span>(<span class="kw-2">&amp;</span><span class="string">b&quot;\ra&quot;</span>[..], <span class="ident">ErrorKind::CrLf</span>)))
     );
 
     <span class="macro">assert_parse!</span>(<span class="ident">crlf</span>(<span class="string">&quot;\r\na&quot;</span>), <span class="prelude-val">Ok</span>((<span class="string">&quot;a&quot;</span>, <span class="string">&quot;\r\n&quot;</span>)));
-    <span class="macro">assert_parse!</span>(
-      <span class="ident">crlf</span>(<span class="string">&quot;\r&quot;</span>),
-      <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>(<span class="macro">error_position!</span>(<span class="kw-2">&amp;</span><span class="string">&quot;\r&quot;</span>[..], <span class="ident">ErrorKind::CrLf</span>)))
-    );
+    <span class="macro">assert_parse!</span>(<span class="ident">crlf</span>(<span class="string">&quot;\r&quot;</span>), <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>(<span class="macro">error_position!</span>(<span class="kw-2">&amp;</span><span class="string">&quot;\r&quot;</span>[..], <span class="ident">ErrorKind::CrLf</span>))));
     <span class="macro">assert_parse!</span>(
       <span class="ident">crlf</span>(<span class="string">&quot;\ra&quot;</span>),
       <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>(<span class="macro">error_position!</span>(<span class="string">&quot;\ra&quot;</span>, <span class="ident">ErrorKind::CrLf</span>)))
@@ -2027,10 +2151,7 @@
   <span class="kw">fn</span> <span class="ident">end_of_line</span>() {
     <span class="macro">assert_parse!</span>(<span class="ident">line_ending</span>(<span class="kw-2">&amp;</span><span class="string">b&quot;\na&quot;</span>[..]), <span class="prelude-val">Ok</span>((<span class="kw-2">&amp;</span><span class="string">b&quot;a&quot;</span>[..], <span class="kw-2">&amp;</span><span class="string">b&quot;\n&quot;</span>[..])));
     <span class="macro">assert_parse!</span>(<span class="ident">line_ending</span>(<span class="kw-2">&amp;</span><span class="string">b&quot;\r\na&quot;</span>[..]), <span class="prelude-val">Ok</span>((<span class="kw-2">&amp;</span><span class="string">b&quot;a&quot;</span>[..], <span class="kw-2">&amp;</span><span class="string">b&quot;\r\n&quot;</span>[..])));
-    <span class="macro">assert_parse!</span>(
-      <span class="ident">line_ending</span>(<span class="kw-2">&amp;</span><span class="string">b&quot;\r&quot;</span>[..]),
-      <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>(<span class="macro">error_position!</span>(<span class="kw-2">&amp;</span><span class="string">b&quot;\r&quot;</span>[..], <span class="ident">ErrorKind::CrLf</span>)))
-    );
+    <span class="macro">assert_parse!</span>(<span class="ident">line_ending</span>(<span class="kw-2">&amp;</span><span class="string">b&quot;\r&quot;</span>[..]), <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>(<span class="macro">error_position!</span>(<span class="kw-2">&amp;</span><span class="string">b&quot;\r&quot;</span>[..], <span class="ident">ErrorKind::CrLf</span>))));
     <span class="macro">assert_parse!</span>(
       <span class="ident">line_ending</span>(<span class="kw-2">&amp;</span><span class="string">b&quot;\ra&quot;</span>[..]),
       <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>(<span class="macro">error_position!</span>(<span class="kw-2">&amp;</span><span class="string">b&quot;\ra&quot;</span>[..], <span class="ident">ErrorKind::CrLf</span>)))
@@ -2038,10 +2159,7 @@
 
     <span class="macro">assert_parse!</span>(<span class="ident">line_ending</span>(<span class="string">&quot;\na&quot;</span>), <span class="prelude-val">Ok</span>((<span class="string">&quot;a&quot;</span>, <span class="string">&quot;\n&quot;</span>)));
     <span class="macro">assert_parse!</span>(<span class="ident">line_ending</span>(<span class="string">&quot;\r\na&quot;</span>), <span class="prelude-val">Ok</span>((<span class="string">&quot;a&quot;</span>, <span class="string">&quot;\r\n&quot;</span>)));
-    <span class="macro">assert_parse!</span>(
-      <span class="ident">line_ending</span>(<span class="string">&quot;\r&quot;</span>),
-      <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>(<span class="macro">error_position!</span>(<span class="kw-2">&amp;</span><span class="string">&quot;\r&quot;</span>[..], <span class="ident">ErrorKind::CrLf</span>)))
-    );
+    <span class="macro">assert_parse!</span>(<span class="ident">line_ending</span>(<span class="string">&quot;\r&quot;</span>), <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>(<span class="macro">error_position!</span>(<span class="kw-2">&amp;</span><span class="string">&quot;\r&quot;</span>[..], <span class="ident">ErrorKind::CrLf</span>))));
     <span class="macro">assert_parse!</span>(
       <span class="ident">line_ending</span>(<span class="string">&quot;\ra&quot;</span>),
       <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>(<span class="macro">error_position!</span>(<span class="string">&quot;\ra&quot;</span>, <span class="ident">ErrorKind::CrLf</span>)))

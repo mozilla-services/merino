@@ -1,1 +1,0 @@
-initSidebarItems({"struct":[["CertificateRevocationList","An X.509 v2 Certificate Revocation List (CRL)."],["RevokedCertificate",""],["TbsCertList","The sequence TBSCertList contains information about the certificates that have been revoked by the CA that issued the CRL."]]});
