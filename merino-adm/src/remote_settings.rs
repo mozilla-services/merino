@@ -229,12 +229,15 @@ impl<'a> SuggestionProvider<'a> for RemoteSettingsSuggester {
         &self,
         request: SuggestionRequest<'a>,
     ) -> Result<SuggestionResponse, SuggestError> {
-        let suggestions = {
+        let suggestions = if request.accepts_english {
             match self.suggestions.get(request.query.as_ref()) {
-                Some(suggestion) if request.accepts_english => vec![suggestion.as_ref().clone()],
+                Some(suggestion) => vec![suggestion.as_ref().clone()],
                 _ => vec![],
             }
+        } else {
+            vec![]
         };
+
         Ok(SuggestionResponse::new(suggestions))
     }
 }
