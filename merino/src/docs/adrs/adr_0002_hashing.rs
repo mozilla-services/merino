@@ -30,13 +30,13 @@ Merino use?
 3. [rustc-hash (aka FxHasher)](https://crates.io/crates/rustc-hash)
 4. [HighwayHash](https://crates.io/crates/highway)
 5. sha256 or similar
+6. [Blake3](https://github.com/BLAKE3-team/BLAKE3)
 
 ## Decision Outcome
 
-Chosen option: option 4, HighwayHash, because it is network-safe, fast, and well
-recommended.
+Chosen option: option 6, Blake3, because it is network-safe, and very fast.
 
-## Pros and Cons of the Options <!-- optional -->
+## Pros and Cons of the Options
 
 ### Option 1 - SipHash
 
@@ -78,7 +78,7 @@ such as for Redis keys.
 
 ### Option 3 - rustc-hash aka FxHash
 
- [https://crates.io/crates/rustc-hash]()
+[https://crates.io/crates/rustc-hash]()
 
 This is the hashing algorithm used internally by the Rust compiler, and is used
 in some places in Firefox. It is also not designed to be network safe, though it
@@ -132,7 +132,22 @@ tested algorithms that should be considered.
 - Bad, because it is slow
 - Bad, because we pay for unneeded features
 
-## Links <!-- optional -->
+### Option 6 - Blake3
+
+- [https://github.com/BLAKE3-team/BLAKE3]()
+
+Blake3 is a cryptographic hash function designed to be highly parallizable and
+extremely fast. Being a cryptographic hash, it is network-safe, and Hash-DoS
+resistant. It is however much faster than most cryptographic algorithms,
+competing with the other fast algorithms considered here. It is a relatively new
+hash, first published in January of 2020.
+
+- Good, because it is ver safe
+- Good, because it very fast
+- Good, because it can be parallizable for large payloads
+- Bad, because it is relatively young
+
+## Other resources
 
 - [The Rust Performance Book :: Hashing](https://nnethercote.github.io/perf-book/hashing.html)
 - [aHash's hash comparison suite](https://github.com/tkaitchuck/aHash/tree/master/compare)
@@ -140,5 +155,9 @@ tested algorithms that should be considered.
 - [aHash](https://crates.io/crates/ahash)
 - [rustc-hash (aka FxHasher)](https://crates.io/crates/rustc-hash)
 - [HighwayHash](https://crates.io/crates/highway)
+
+### Benchmarking results for hashing 128 byte values
+
+![Chart of the performance of various hashing libraries](./images/hash-benchmarks.png)
 
 */

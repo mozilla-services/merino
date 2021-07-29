@@ -1,8 +1,7 @@
 //! Data types specific to caching.
 
-use highway::{HighwayHash, HighwayHasher};
 use merino_suggest::SuggestionRequest;
-use std::{borrow::Cow, hash::Hash};
+use std::borrow::Cow;
 
 /// An object that can generate a cache key for itself.
 pub trait CacheKey<'a> {
@@ -18,19 +17,10 @@ pub trait CacheKey<'a> {
 
 impl<'a> CacheKey<'a> for SuggestionRequest<'a> {
     fn cache_key(&self) -> Cow<'a, str> {
-        // Notably, this uses a default key of all zeroes. This is not hash-DoS
-        // resistant. Consider making this a setting in the future.
-        let mut hasher = HighwayHasher::default();
-        self.hash(&mut hasher);
-        let hash = hasher.finalize256();
-
-        // Print the hash as a padded hex number. `0>16x` reads as: use zeroes
-        // to right align to a width of 16 characters, in hexadecimal.
-        format!(
-            "req:v2:{:0>16x}{:0>16x}{:0>16x}{:0>16x}",
-            hash[0], hash[1], hash[2], hash[3]
-        )
-        .into()
+        let mut hasher = blake3::Hasher::new();
+        hasher.update(self.query.as_bytes());
+        let hash = hasher.finalize().to_hex();
+        format!("req:v2:{}", hash).into()
     }
 }
 
@@ -51,7 +41,7 @@ mod tests {
         };
         assert_eq!(
             req.cache_key(),
-            "req:v2:0f7d741a1a8c92b576e5af170f35761fa7670e4fa5b0861ee5f760a056c7d62b"
+            "req:v2:7e14eb9602ba5ff4fc248968fe7d58636ba701e9567b0abacbc399cca8909127"
         );
     }
 
