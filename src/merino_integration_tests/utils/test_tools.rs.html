@@ -251,7 +251,7 @@
     <span class="ident">settings</span>.<span class="ident">providers</span>.<span class="ident">adm_rs</span>.<span class="ident">server</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">remote_settings_mock</span>.<span class="ident">url</span>(<span class="string">&quot;&quot;</span>));
 
     <span class="kw">let</span> <span class="ident">_connection_guard</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">original_connection_info</span>) <span class="op">=</span> <span class="ident">settings</span>.<span class="ident">redis_cache</span>.<span class="ident">url</span> {
-        <span class="kw">match</span> <span class="ident">get_temp_db</span>(<span class="kw-2">&amp;</span><span class="ident">original_connection_info</span>).<span class="kw">await</span> {
+        <span class="kw">match</span> <span class="ident">get_temp_db</span>(<span class="ident">original_connection_info</span>).<span class="kw">await</span> {
             <span class="prelude-val">Ok</span>((<span class="ident">connection_info</span>, <span class="ident">connection_guard</span>)) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="macro">tracing::debug!</span>(<span class="question-mark">?</span><span class="ident">connection_info</span>, <span class="string">&quot;Configuring temporary Redis database&quot;</span>);
                 <span class="ident">settings</span>.<span class="ident">redis_cache</span>.<span class="ident">url</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">connection_info</span>);
