@@ -19,7 +19,7 @@ use tracing_futures::Instrument;
 /// Configure a route to use the Suggest service.
 pub fn configure(config: &mut ServiceConfig) {
     config
-        .data(SuggestionProviderRef(OnceCell::new()))
+        .app_data(Data::new(SuggestionProviderRef(OnceCell::new())))
         .service(suggest);
 }
 
