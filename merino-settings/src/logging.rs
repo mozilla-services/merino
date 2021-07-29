@@ -132,7 +132,7 @@ impl<'de> Deserialize<'de> for DirectiveWrapper {
         // Add settings from RUST_LOG env var, which should always be respected
         if let Some(rust_log) = std::option_env!("RUST_LOG") {
             let from_env: DirectiveWrapper = rust_log.parse().map_err(|_err| {
-                de::Error::invalid_value(de::Unexpected::Str(&rust_log), &"valid directive")
+                de::Error::invalid_value(de::Unexpected::Str(rust_log), &"valid directive")
             })?;
             rv += from_env;
         }

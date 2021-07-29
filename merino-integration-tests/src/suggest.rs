@@ -15,6 +15,30 @@ async fn suggest_wikifruit_works() -> Result<()> {
             settings.debug = true;
             settings.providers.wiki_fruit.enabled = true;
         },
+        |TestingTools { test_client, .. }| async move {
+            let response = test_client.get("/api/v1/suggest?q=apple").send().await?;
+
+            assert_eq!(response.status(), StatusCode::OK);
+            let body: serde_json::Value = response.json().await?;
+            assert_eq!(
+                body["suggestions"][0]["url"],
+                json!("https://en.wikipedia.org/wiki/Apple")
+            );
+
+            Ok(())
+        },
+    )
+    .await
+}
+
+#[actix_rt::test]
+async fn suggest_adm_rs_works() -> Result<()> {
+    merino_test(
+        |settings| {
+            // Wiki fruit is only enabled when debug is true.
+            settings.debug = true;
+            settings.providers.adm_rs.enabled = true;
+        },
         |TestingTools {
              test_client,
              remote_settings_mock,
@@ -24,12 +48,12 @@ async fn suggest_wikifruit_works() -> Result<()> {
 
             let response = test_client.get("/api/v1/suggest?q=apple").send().await?;
 
+            // Check that the status is 200 OK, and that the body is JSON. The
+            // collection is empty so there shouldn't be any suggestion
+            // response.
             assert_eq!(response.status(), StatusCode::OK);
             let body: serde_json::Value = response.json().await?;
-            assert_eq!(
-                dbg!(body)["suggestions"][0]["url"],
-                json!("https://en.wikipedia.org/wiki/Apple")
-            );
+            assert_eq!(body["suggestions"].as_array().unwrap().len(), 0);
 
             Ok(())
         },

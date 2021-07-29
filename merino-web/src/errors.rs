@@ -12,12 +12,17 @@ pub enum HandlerError {
     /// A generic error, when there is nothing more specific to say.
     #[error("Internal error")]
     Internal,
+
+    /// An error that indicates that one of the request headers is malformed.
+    #[error("Malformed header: {0}")]
+    MalformedHeader(&'static str),
 }
 
 impl ResponseError for HandlerError {
     fn status_code(&self) -> StatusCode {
         match self {
             HandlerError::Internal => StatusCode::INTERNAL_SERVER_ERROR,
+            HandlerError::MalformedHeader(_) => StatusCode::BAD_REQUEST,
         }
     }
 

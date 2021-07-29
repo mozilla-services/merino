@@ -69,7 +69,7 @@ where
     settings.providers.adm_rs.server = Some(remote_settings_mock.url(""));
 
     let _connection_guard = if let Some(ref original_connection_info) = settings.redis_cache.url {
-        match get_temp_db(&original_connection_info).await {
+        match get_temp_db(original_connection_info).await {
             Ok((connection_info, connection_guard)) => {
                 tracing::debug!(?connection_info, "Configuring temporary Redis database");
                 settings.redis_cache.url = Some(connection_info);

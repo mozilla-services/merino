@@ -75,7 +75,7 @@ pub fn run(listener: TcpListener, settings: Settings) -> Result<Server, std::io:
 
     let mut server = HttpServer::new(move || {
         App::new()
-            .data::<Settings>((&settings).clone())
+            .app_data(Data::new((&settings).clone()))
             .wrap(moz_log.clone())
             .wrap(Cors::permissive())
             // The core functionality of Merino
