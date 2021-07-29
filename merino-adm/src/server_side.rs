@@ -254,7 +254,7 @@ mod tests {
             }
         "#;
         let actual: SuggestionEndpointResponse =
-            serde_json::from_str(&json).expect("Could not parse test data");
+            serde_json::from_str(json).expect("Could not parse test data");
         assert_eq!(
             actual,
             SuggestionEndpointResponse {
