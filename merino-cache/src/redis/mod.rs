@@ -95,7 +95,7 @@ where
                     }
                     RedisTtl::KeyHasNoTtl => {
                         tracing::warn!(%key, default_ttl = ?self.default_ttl, "Value in cache without TTL, setting default TTL");
-                        self.queue_set_key_ttl(&key, self.default_ttl)?;
+                        self.queue_set_key_ttl(key, self.default_ttl)?;
                         self.default_ttl
                     }
                     RedisTtl::Ttl(t) => Duration::from_secs(t as u64),
@@ -113,7 +113,7 @@ where
                 match error.kind() {
                     redis::ErrorKind::TypeError => {
                         tracing::warn!(%error, %key, "Cached value not of expected type, deleting and treating as cache miss");
-                        self.queue_delete_key(&key)?;
+                        self.queue_delete_key(key)?;
                     }
                     _ => {
                         tracing::error!(%error, "Error reading suggestion from cache, treating as cache miss");
