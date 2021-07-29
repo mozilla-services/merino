@@ -71,7 +71,7 @@ mod tests {
                 query: query.into(),
                 accepts_english,
             };
-            static HEX_DIGITS: &str = "0123456789abcdef";
+            const HEX_DIGITS: &str = "0123456789abcdef";
             let parts: Vec<String> = req.cache_key().split(':').map(ToString::to_string).collect();
             prop_assert_eq!(parts.len(), 3);
             prop_assert_eq!(&parts[0], "req");

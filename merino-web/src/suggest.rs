@@ -244,7 +244,7 @@ mod tests {
     const SUGGEST_URI: &str = "/api/v1/suggest";
 
     fn test_request_with_accept_language(accept_language: &str) -> HttpRequest {
-        TestRequest::with_uri(&SUGGEST_URI)
+        TestRequest::with_uri(SUGGEST_URI)
             .insert_header(("Accept-Language", accept_language))
             .method(Method::GET)
             .param("q", "asdf")
