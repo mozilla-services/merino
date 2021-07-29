@@ -30,6 +30,11 @@
 <span id="27">27</span>
 <span id="28">28</span>
 <span id="29">29</span>
+<span id="30">30</span>
+<span id="31">31</span>
+<span id="32">32</span>
+<span id="33">33</span>
+<span id="34">34</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Any errors that merino-web might generate, and supporting implementations.</span>
 
@@ -45,12 +50,17 @@
     <span class="doccomment">/// A generic error, when there is nothing more specific to say.</span>
     <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;Internal error&quot;</span>)]</span>
     <span class="ident">Internal</span>,
+
+    <span class="doccomment">/// An error that indicates that one of the request headers is malformed.</span>
+    <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;Malformed header: {0}&quot;</span>)]</span>
+    <span class="ident">MalformedHeader</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>),
 }
 
 <span class="kw">impl</span> <span class="ident">ResponseError</span> <span class="kw">for</span> <span class="ident">HandlerError</span> {
     <span class="kw">fn</span> <span class="ident">status_code</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">StatusCode</span> {
         <span class="kw">match</span> <span class="self">self</span> {
             <span class="ident">HandlerError::Internal</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">StatusCode::INTERNAL_SERVER_ERROR</span>,
+            <span class="ident">HandlerError::MalformedHeader</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">StatusCode::BAD_REQUEST</span>,
         }
     }
 
