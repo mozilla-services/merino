@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/usr/local/cargo/registry/src/github.com-1ecc6299db9ec823/curl-0.4.35/src/easy/handler.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>handler.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/usr/local/cargo/registry/src/github.com-1ecc6299db9ec823/curl-0.4.38/src/easy/handler.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>handler.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png">
 <link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../curl/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../../settings.html"><img src="../../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">   1</span>
@@ -3401,6 +3401,76 @@
 <span id="3398">3398</span>
 <span id="3399">3399</span>
 <span id="3400">3400</span>
+<span id="3401">3401</span>
+<span id="3402">3402</span>
+<span id="3403">3403</span>
+<span id="3404">3404</span>
+<span id="3405">3405</span>
+<span id="3406">3406</span>
+<span id="3407">3407</span>
+<span id="3408">3408</span>
+<span id="3409">3409</span>
+<span id="3410">3410</span>
+<span id="3411">3411</span>
+<span id="3412">3412</span>
+<span id="3413">3413</span>
+<span id="3414">3414</span>
+<span id="3415">3415</span>
+<span id="3416">3416</span>
+<span id="3417">3417</span>
+<span id="3418">3418</span>
+<span id="3419">3419</span>
+<span id="3420">3420</span>
+<span id="3421">3421</span>
+<span id="3422">3422</span>
+<span id="3423">3423</span>
+<span id="3424">3424</span>
+<span id="3425">3425</span>
+<span id="3426">3426</span>
+<span id="3427">3427</span>
+<span id="3428">3428</span>
+<span id="3429">3429</span>
+<span id="3430">3430</span>
+<span id="3431">3431</span>
+<span id="3432">3432</span>
+<span id="3433">3433</span>
+<span id="3434">3434</span>
+<span id="3435">3435</span>
+<span id="3436">3436</span>
+<span id="3437">3437</span>
+<span id="3438">3438</span>
+<span id="3439">3439</span>
+<span id="3440">3440</span>
+<span id="3441">3441</span>
+<span id="3442">3442</span>
+<span id="3443">3443</span>
+<span id="3444">3444</span>
+<span id="3445">3445</span>
+<span id="3446">3446</span>
+<span id="3447">3447</span>
+<span id="3448">3448</span>
+<span id="3449">3449</span>
+<span id="3450">3450</span>
+<span id="3451">3451</span>
+<span id="3452">3452</span>
+<span id="3453">3453</span>
+<span id="3454">3454</span>
+<span id="3455">3455</span>
+<span id="3456">3456</span>
+<span id="3457">3457</span>
+<span id="3458">3458</span>
+<span id="3459">3459</span>
+<span id="3460">3460</span>
+<span id="3461">3461</span>
+<span id="3462">3462</span>
+<span id="3463">3463</span>
+<span id="3464">3464</span>
+<span id="3465">3465</span>
+<span id="3466">3466</span>
+<span id="3467">3467</span>
+<span id="3468">3468</span>
+<span id="3469">3469</span>
+<span id="3470">3470</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std::cell::RefCell</span>;
 <span class="kw">use</span> <span class="ident">std::ffi</span>::{<span class="ident">CStr</span>, <span class="ident">CString</span>};
@@ -3416,12 +3486,12 @@
 <span class="kw">use</span> <span class="ident">libc</span>::{<span class="self">self</span>, <span class="ident">c_char</span>, <span class="ident">c_double</span>, <span class="ident">c_int</span>, <span class="ident">c_long</span>, <span class="ident">c_ulong</span>, <span class="ident">c_void</span>, <span class="ident">size_t</span>};
 <span class="kw">use</span> <span class="ident">socket2::Socket</span>;
 
-<span class="kw">use</span> <span class="ident">easy::form</span>;
-<span class="kw">use</span> <span class="ident">easy::list</span>;
-<span class="kw">use</span> <span class="ident">easy::windows</span>;
-<span class="kw">use</span> <span class="ident">easy</span>::{<span class="ident">Form</span>, <span class="ident">List</span>};
-<span class="kw">use</span> <span class="ident">panic</span>;
-<span class="kw">use</span> <span class="ident">Error</span>;
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::easy::form</span>;
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::easy::list</span>;
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::easy::windows</span>;
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::easy</span>::{<span class="ident">Form</span>, <span class="ident">List</span>};
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::panic</span>;
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::Error</span>;
 
 <span class="doccomment">/// A trait for the various callbacks used by libcurl to invoke user code.</span>
 <span class="doccomment">///</span>
@@ -3985,7 +4055,7 @@
     <span class="doccomment">/// `perform` and need to be reset manually (or via the `reset` method) if</span>
     <span class="doccomment">/// this is not desired.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">handler</span>: <span class="ident">H</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Easy2</span><span class="op">&lt;</span><span class="ident">H</span><span class="op">&gt;</span> {
-        <span class="ident">::init</span>();
+        <span class="kw">crate</span><span class="ident">::init</span>();
         <span class="kw">unsafe</span> {
             <span class="kw">let</span> <span class="ident">handle</span> <span class="op">=</span> <span class="ident">curl_sys::curl_easy_init</span>();
             <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">handle</span>.<span class="ident">is_null</span>());
@@ -4284,12 +4354,13 @@
         <span class="self">self</span>.<span class="ident">setopt_ptr</span>(<span class="ident">curl_sys::CURLOPT_CONNECT_TO</span>, <span class="ident">ptr</span> <span class="kw">as</span> <span class="kw-2">*</span><span class="kw">const</span> <span class="kw">_</span>)
     }
 
-    <span class="comment">// /// Indicates whether sequences of `/../` and `/./` will be squashed or not.</span>
-    <span class="comment">// ///</span>
-    <span class="comment">// /// By default this option is `false` and corresponds to</span>
-    <span class="comment">// /// `CURLOPT_PATH_AS_IS`.</span>
-    <span class="comment">// pub fn path_as_is(&amp;mut self, as_is: bool) -&gt; Result&lt;(), Error&gt; {</span>
-    <span class="comment">// }</span>
+    <span class="doccomment">/// Indicates whether sequences of `/../` and `/./` will be squashed or not.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// By default this option is `false` and corresponds to</span>
+    <span class="doccomment">/// `CURLOPT_PATH_AS_IS`.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">path_as_is</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">as_is</span>: <span class="ident">bool</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Error</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">setopt_long</span>(<span class="ident">curl_sys::CURLOPT_PATH_AS_IS</span>, <span class="ident">as_is</span> <span class="kw">as</span> <span class="ident">c_long</span>)
+    }
 
     <span class="doccomment">/// Provide the URL of a proxy to use.</span>
     <span class="doccomment">///</span>
@@ -4338,6 +4409,17 @@
         <span class="self">self</span>.<span class="ident">setopt_str</span>(<span class="ident">curl_sys::CURLOPT_PROXY_SSLCERT</span>, <span class="kw-2">&amp;</span><span class="ident">sslcert</span>)
     }
 
+    <span class="doccomment">/// Set the client certificate for the proxy using an in-memory blob.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// The specified byte buffer should contain the binary content of the</span>
+    <span class="doccomment">/// certificate, which will be copied into the handle.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// By default this option is not set and corresponds to</span>
+    <span class="doccomment">/// `CURLOPT_PROXY_SSLCERT_BLOB`.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">proxy_sslcert_blob</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">blob</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Error</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">setopt_blob</span>(<span class="ident">curl_sys::CURLOPT_PROXY_SSLCERT_BLOB</span>, <span class="ident">blob</span>)
+    }
+
     <span class="doccomment">/// Set private key for HTTPS proxy.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// By default this value is not set and corresponds to</span>
@@ -4345,6 +4427,17 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">proxy_sslkey</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">sslkey</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Error</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">sslkey</span> <span class="op">=</span> <span class="ident">CString::new</span>(<span class="ident">sslkey</span>)<span class="question-mark">?</span>;
         <span class="self">self</span>.<span class="ident">setopt_str</span>(<span class="ident">curl_sys::CURLOPT_PROXY_SSLKEY</span>, <span class="kw-2">&amp;</span><span class="ident">sslkey</span>)
+    }
+
+    <span class="doccomment">/// Set the pricate key for the proxy using an in-memory blob.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// The specified byte buffer should contain the binary content of the</span>
+    <span class="doccomment">/// private key, which will be copied into the handle.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// By default this option is not set and corresponds to</span>
+    <span class="doccomment">/// `CURLOPT_PROXY_SSLKEY_BLOB`.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">proxy_sslkey_blob</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">blob</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Error</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">setopt_blob</span>(<span class="ident">curl_sys::CURLOPT_PROXY_SSLKEY_BLOB</span>, <span class="ident">blob</span>)
     }
 
     <span class="doccomment">/// Indicates the type of proxy being used.</span>
@@ -5333,6 +5426,18 @@
         <span class="self">self</span>.<span class="ident">setopt_path</span>(<span class="ident">curl_sys::CURLOPT_SSLCERT</span>, <span class="ident">cert</span>.<span class="ident">as_ref</span>())
     }
 
+    <span class="doccomment">/// Set the SSL client certificate using an in-memory blob.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// The specified byte buffer should contain the binary content of your</span>
+    <span class="doccomment">/// client certificate, which will be copied into the handle. The format of</span>
+    <span class="doccomment">/// the certificate can be specified with `ssl_cert_type`.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// By default this option is not set and corresponds to</span>
+    <span class="doccomment">/// `CURLOPT_SSLCERT_BLOB`.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ssl_cert_blob</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">blob</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Error</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">setopt_blob</span>(<span class="ident">curl_sys::CURLOPT_SSLCERT_BLOB</span>, <span class="ident">blob</span>)
+    }
+
     <span class="doccomment">/// Specify type of the client SSL certificate.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// The string should be the format of your certificate. Supported formats</span>
@@ -5359,6 +5464,18 @@
     <span class="doccomment">/// By default this option is not set and corresponds to `CURLOPT_SSLKEY`.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ssl_key</span><span class="op">&lt;</span><span class="ident">P</span>: <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">Path</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">key</span>: <span class="ident">P</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Error</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">setopt_path</span>(<span class="ident">curl_sys::CURLOPT_SSLKEY</span>, <span class="ident">key</span>.<span class="ident">as_ref</span>())
+    }
+
+    <span class="doccomment">/// Specify an SSL private key using an in-memory blob.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// The specified byte buffer should contain the binary content of your</span>
+    <span class="doccomment">/// private key, which will be copied into the handle. The format of</span>
+    <span class="doccomment">/// the private key can be specified with `ssl_key_type`.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// By default this option is not set and corresponds to</span>
+    <span class="doccomment">/// `CURLOPT_SSLKEY_BLOB`.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ssl_key_blob</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">blob</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Error</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">setopt_blob</span>(<span class="ident">curl_sys::CURLOPT_SSLKEY_BLOB</span>, <span class="ident">blob</span>)
     }
 
     <span class="doccomment">/// Set type of the private key file.</span>
@@ -5525,6 +5642,18 @@
         <span class="self">self</span>.<span class="ident">setopt_path</span>(<span class="ident">curl_sys::CURLOPT_ISSUERCERT</span>, <span class="ident">path</span>.<span class="ident">as_ref</span>())
     }
 
+    <span class="doccomment">/// Set the issuer SSL certificate using an in-memory blob.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// The specified byte buffer should contain the binary content of a CA</span>
+    <span class="doccomment">/// certificate in the PEM format. The certificate will be copied into the</span>
+    <span class="doccomment">/// handle.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// By default this option is not set and corresponds to</span>
+    <span class="doccomment">/// `CURLOPT_ISSUERCERT_BLOB`.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">issuer_cert_blob</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">blob</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Error</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">setopt_blob</span>(<span class="ident">curl_sys::CURLOPT_ISSUERCERT_BLOB</span>, <span class="ident">blob</span>)
+    }
+
     <span class="doccomment">/// Specify directory holding CA certificates</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// Names a directory holding multiple CA certificates to verify the peer</span>
@@ -5574,23 +5703,24 @@
         <span class="self">self</span>.<span class="ident">setopt_long</span>(<span class="ident">curl_sys::CURLOPT_CERTINFO</span>, <span class="ident">enable</span> <span class="kw">as</span> <span class="ident">c_long</span>)
     }
 
-    <span class="comment">// /// Set pinned public key.</span>
-    <span class="comment">// ///</span>
-    <span class="comment">// /// Pass a pointer to a zero terminated string as parameter. The string can</span>
-    <span class="comment">// /// be the file name of your pinned public key. The file format expected is</span>
-    <span class="comment">// /// &quot;PEM&quot; or &quot;DER&quot;. The string can also be any number of base64 encoded</span>
-    <span class="comment">// /// sha256 hashes preceded by &quot;sha256//&quot; and separated by &quot;;&quot;</span>
-    <span class="comment">// ///</span>
-    <span class="comment">// /// When negotiating a TLS or SSL connection, the server sends a certificate</span>
-    <span class="comment">// /// indicating its identity. A public key is extracted from this certificate</span>
-    <span class="comment">// /// and if it does not exactly match the public key provided to this option,</span>
-    <span class="comment">// /// curl will abort the connection before sending or receiving any data.</span>
-    <span class="comment">// ///</span>
-    <span class="comment">// /// By default this option is not set and corresponds to</span>
-    <span class="comment">// /// `CURLOPT_PINNEDPUBLICKEY`.</span>
-    <span class="comment">// pub fn pinned_public_key(&amp;mut self, enable: bool) -&gt; Result&lt;(), Error&gt; {</span>
-    <span class="comment">//     self.setopt_long(curl_sys::CURLOPT_CERTINFO, enable as c_long)</span>
-    <span class="comment">// }</span>
+    <span class="doccomment">/// Set pinned public key.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Pass a pointer to a zero terminated string as parameter. The string can</span>
+    <span class="doccomment">/// be the file name of your pinned public key. The file format expected is</span>
+    <span class="doccomment">/// &quot;PEM&quot; or &quot;DER&quot;. The string can also be any number of base64 encoded</span>
+    <span class="doccomment">/// sha256 hashes preceded by &quot;sha256//&quot; and separated by &quot;;&quot;</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// When negotiating a TLS or SSL connection, the server sends a certificate</span>
+    <span class="doccomment">/// indicating its identity. A public key is extracted from this certificate</span>
+    <span class="doccomment">/// and if it does not exactly match the public key provided to this option,</span>
+    <span class="doccomment">/// curl will abort the connection before sending or receiving any data.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// By default this option is not set and corresponds to</span>
+    <span class="doccomment">/// `CURLOPT_PINNEDPUBLICKEY`.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">pinned_public_key</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">pubkey</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Error</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">key</span> <span class="op">=</span> <span class="ident">CString::new</span>(<span class="ident">pubkey</span>)<span class="question-mark">?</span>;
+        <span class="self">self</span>.<span class="ident">setopt_str</span>(<span class="ident">curl_sys::CURLOPT_PINNEDPUBLICKEY</span>, <span class="kw-2">&amp;</span><span class="ident">key</span>)
+    }
 
     <span class="doccomment">/// Specify a source for random data</span>
     <span class="doccomment">///</span>
@@ -6359,6 +6489,16 @@
             <span class="kw">let</span> <span class="ident">rc</span> <span class="op">=</span> <span class="ident">curl_sys::curl_easy_setopt</span>(<span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">handle</span>, <span class="ident">opt</span>, <span class="ident">val</span>);
             <span class="self">self</span>.<span class="ident">cvt</span>(<span class="ident">rc</span>)
         }
+    }
+
+    <span class="kw">fn</span> <span class="ident">setopt_blob</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">opt</span>: <span class="ident">curl_sys::CURLoption</span>, <span class="ident">val</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Error</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">blob</span> <span class="op">=</span> <span class="ident">curl_sys::curl_blob</span> {
+            <span class="ident">data</span>: <span class="ident">val</span>.<span class="ident">as_ptr</span>() <span class="kw">as</span> <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">c_void</span> <span class="kw">as</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">c_void</span>,
+            <span class="ident">len</span>: <span class="ident">val</span>.<span class="ident">len</span>(),
+            <span class="ident">flags</span>: <span class="ident">curl_sys::CURL_BLOB_COPY</span>,
+        };
+        <span class="kw">let</span> <span class="ident">blob_ptr</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">blob</span> <span class="kw">as</span> <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">curl_sys::curl_blob</span>;
+        <span class="kw">unsafe</span> { <span class="self">self</span>.<span class="ident">cvt</span>(<span class="ident">curl_sys::curl_easy_setopt</span>(<span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">handle</span>, <span class="ident">opt</span>, <span class="ident">blob_ptr</span>)) }
     }
 
     <span class="kw">fn</span> <span class="ident">getopt_bytes</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">opt</span>: <span class="ident">curl_sys::CURLINFO</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span>[<span class="ident">u8</span>]<span class="op">&gt;</span>, <span class="ident">Error</span><span class="op">&gt;</span> {

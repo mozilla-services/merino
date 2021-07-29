@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/usr/local/cargo/registry/src/github.com-1ecc6299db9ec823/ffi-support-0.4.2/src/macros.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>macros.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/usr/local/cargo/registry/src/github.com-1ecc6299db9ec823/ffi-support-0.4.3/src/macros.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>macros.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../favicon-16x16.png">
 <link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../ffi_support/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
@@ -359,6 +359,10 @@
 <span id="356">356</span>
 <span id="357">357</span>
 <span id="358">358</span>
+<span id="359">359</span>
+<span id="360">360</span>
+<span id="361">361</span>
+<span id="362">362</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">/* Copyright 2018-2019 Mozilla Foundation
  *
@@ -376,17 +380,19 @@
  * See the Licenses for the specific language governing permissions and
  * limitations under the Licenses. */</span>
 
-<span class="doccomment">/// Implements [`IntoFfi`] for the provided types (more than one may be passed in) by allocating</span>
-<span class="doccomment">/// `$T` on the heap as an opaque pointer.</span>
+<span class="doccomment">/// Implements [`IntoFfi`][crate::IntoFfi] for the provided types (more than one</span>
+<span class="doccomment">/// may be passed in) by allocating `$T` on the heap as an opaque pointer.</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// This is typically going to be used from the &quot;Rust component&quot;, and not the &quot;FFI component&quot; (see</span>
-<span class="doccomment">/// the top level crate documentation for more information), however you will still need to</span>
-<span class="doccomment">/// implement a destructor in the FFI component using [`define_box_destructor!`].</span>
+<span class="doccomment">/// This is typically going to be used from the &quot;Rust component&quot;, and not the</span>
+<span class="doccomment">/// &quot;FFI component&quot; (see the top level crate documentation for more</span>
+<span class="doccomment">/// information), however you will still need to implement a destructor in the</span>
+<span class="doccomment">/// FFI component using [`define_box_destructor!`][crate::define_box_destructor].</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// In general, is only safe to do for `send` types (even this is dodgy, but it&#39;s often necessary</span>
-<span class="doccomment">/// to keep the locking on the other side of the FFI, so Sync is too harsh), so we enforce this in</span>
-<span class="doccomment">/// this macro. (You&#39;re still free to implement this manually, if this restriction is too harsh</span>
-<span class="doccomment">/// for your use case and you&#39;re certain you know what you&#39;re doing).</span>
+<span class="doccomment">/// In general, is only safe to do for `send` types (even this is dodgy, but</span>
+<span class="doccomment">/// it&#39;s often necessary to keep the locking on the other side of the FFI, so</span>
+<span class="doccomment">/// Sync is too harsh), so we enforce this in this macro. (You&#39;re still free to</span>
+<span class="doccomment">/// implement this manually, if this restriction is too harsh for your use case</span>
+<span class="doccomment">/// and you&#39;re certain you know what you&#39;re doing).</span>
 <span class="attribute">#[<span class="ident">macro_export</span>]</span>
 <span class="macro">macro_rules!</span> <span class="ident">implement_into_ffi_by_pointer</span> {
     ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">T</span>:<span class="ident">ty</span>),<span class="op">*</span> $(,)<span class="kw-2">*</span>) <span class="op">=</span><span class="op">&gt;</span> {$(
@@ -406,8 +412,8 @@
     )<span class="kw-2">*</span>}
 }
 
-<span class="doccomment">/// Implements [`IntoFfi`] for the provided types (more than one may be passed</span>
-<span class="doccomment">/// in) by converting to the type to a JSON string.</span>
+<span class="doccomment">/// Implements [`IntoFfi`][crate::IntoFfi] for the provided types (more than one</span>
+<span class="doccomment">/// may be passed in) by converting to the type to a JSON string.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// Additionally, most of the time we recomment using this crate&#39;s protobuf</span>
 <span class="doccomment">/// support, instead of JSON.</span>
@@ -423,8 +429,8 @@
 <span class="doccomment">///</span>
 <span class="doccomment">/// ## Panics</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// The [`IntoFfi`] implementation this macro generates may panic in the</span>
-<span class="doccomment">/// following cases:</span>
+<span class="doccomment">/// The [`IntoFfi`][crate::IntoFfi] implementation this macro generates may</span>
+<span class="doccomment">/// panic in the following cases:</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// - You&#39;ve passed a type that contains a Map that has non-string keys (which</span>
 <span class="doccomment">///   can&#39;t be represented in JSON).</span>
@@ -459,9 +465,10 @@
     )<span class="kw-2">*</span>}
 }
 
-<span class="doccomment">/// Implements [`IntoFfi`] for the provided types (more than one may be passed in) implementing</span>
-<span class="doccomment">/// `prost::Message` (protobuf auto-generated type) by converting to the type to a [`ByteBuffer`].</span>
-<span class="doccomment">/// This [`ByteBuffer`] should later be passed by value.</span>
+<span class="doccomment">/// Implements [`IntoFfi`][crate::IntoFfi] for the provided types (more than one</span>
+<span class="doccomment">/// may be passed in) implementing `prost::Message` (protobuf auto-generated</span>
+<span class="doccomment">/// type) by converting to the type to a [`ByteBuffer`][crate::ByteBuffer]. This</span>
+<span class="doccomment">/// [`ByteBuffer`][crate::ByteBuffer] should later be passed by value.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// Note: for this to works, the crate it&#39;s called in must depend on `prost`.</span>
 <span class="doccomment">///</span>
@@ -489,14 +496,15 @@
     )<span class="kw-2">*</span>}
 }
 
-<span class="doccomment">/// Implement IntoFfi for a type by converting through another type.</span>
+<span class="doccomment">/// Implement [`InfoFfi`][crate::IntoFfi] for a type by converting through</span>
+<span class="doccomment">/// another type.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// The argument `$MidTy` argument must implement `From&lt;$SrcTy&gt;` and</span>
-<span class="doccomment">/// [`InfoFfi`].</span>
+<span class="doccomment">/// [`InfoFfi`][crate::IntoFfi].</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// This is provided (even though it&#39;s trivial) because it is always safe (well,</span>
-<span class="doccomment">/// so long as `$MidTy`&#39;s [`IntoFfi`] implementation is correct), but would</span>
-<span class="doccomment">/// otherwise require use of `unsafe` to implement.</span>
+<span class="doccomment">/// so long as `$MidTy`&#39;s [`IntoFfi`][crate::IntoFfi] implementation is</span>
+<span class="doccomment">/// correct), but would otherwise require use of `unsafe` to implement.</span>
 <span class="attribute">#[<span class="ident">macro_export</span>]</span>
 <span class="macro">macro_rules!</span> <span class="ident">implement_into_ffi_by_delegation</span> {
     (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">SrcTy</span>:<span class="ident">ty</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">MidTy</span>:<span class="ident">ty</span>) <span class="op">=</span><span class="op">&gt;</span> {
@@ -528,7 +536,7 @@
 <span class="doccomment">/// provide it as a macro.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// It simply expands to a `#[no_mangle] pub unsafe extern &quot;C&quot; fn` which wraps this crate&#39;s</span>
-<span class="doccomment">/// [`destroy_c_string`] function.</span>
+<span class="doccomment">/// [`destroy_c_string`][crate::destroy_c_string] function.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// ## Caveats</span>
 <span class="doccomment">///</span>
@@ -625,7 +633,7 @@
     };
 }
 
-<span class="doccomment">/// Define a (public) destructor for the ByteBuffer type.</span>
+<span class="doccomment">/// Define a (public) destructor for the [`ByteBuffer`][crate::ByteBuffer] type.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// ## Caveats</span>
 <span class="doccomment">///</span>
@@ -658,7 +666,7 @@
 }
 
 <span class="doccomment">/// Define a (public) destructor for a type that lives inside a lazy_static</span>
-<span class="doccomment">/// [`ConcurrentHandleMap`].</span>
+<span class="doccomment">/// [`ConcurrentHandleMap`][crate::ConcurrentHandleMap].</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// Note that this is actually totally safe, unlike the other</span>
 <span class="doccomment">/// `define_blah_destructor` macros.</span>

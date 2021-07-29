@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/usr/local/cargo/registry/src/github.com-1ecc6299db9ec823/serde_with-1.9.1/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/usr/local/cargo/registry/src/github.com-1ecc6299db9ec823/serde_with-1.9.4/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../favicon-16x16.png">
 <link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../serde_with/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">   1</span>
@@ -1735,6 +1735,59 @@
 <span id="1732">1732</span>
 <span id="1733">1733</span>
 <span id="1734">1734</span>
+<span id="1735">1735</span>
+<span id="1736">1736</span>
+<span id="1737">1737</span>
+<span id="1738">1738</span>
+<span id="1739">1739</span>
+<span id="1740">1740</span>
+<span id="1741">1741</span>
+<span id="1742">1742</span>
+<span id="1743">1743</span>
+<span id="1744">1744</span>
+<span id="1745">1745</span>
+<span id="1746">1746</span>
+<span id="1747">1747</span>
+<span id="1748">1748</span>
+<span id="1749">1749</span>
+<span id="1750">1750</span>
+<span id="1751">1751</span>
+<span id="1752">1752</span>
+<span id="1753">1753</span>
+<span id="1754">1754</span>
+<span id="1755">1755</span>
+<span id="1756">1756</span>
+<span id="1757">1757</span>
+<span id="1758">1758</span>
+<span id="1759">1759</span>
+<span id="1760">1760</span>
+<span id="1761">1761</span>
+<span id="1762">1762</span>
+<span id="1763">1763</span>
+<span id="1764">1764</span>
+<span id="1765">1765</span>
+<span id="1766">1766</span>
+<span id="1767">1767</span>
+<span id="1768">1768</span>
+<span id="1769">1769</span>
+<span id="1770">1770</span>
+<span id="1771">1771</span>
+<span id="1772">1772</span>
+<span id="1773">1773</span>
+<span id="1774">1774</span>
+<span id="1775">1775</span>
+<span id="1776">1776</span>
+<span id="1777">1777</span>
+<span id="1778">1778</span>
+<span id="1779">1779</span>
+<span id="1780">1780</span>
+<span id="1781">1781</span>
+<span id="1782">1782</span>
+<span id="1783">1783</span>
+<span id="1784">1784</span>
+<span id="1785">1785</span>
+<span id="1786">1786</span>
+<span id="1787">1787</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="attribute">#![<span class="ident">deny</span>(
     <span class="ident">missing_copy_implementations</span>,
@@ -1763,7 +1816,7 @@
 <span class="attribute">#![<span class="ident">doc</span>(<span class="ident">test</span>(<span class="ident">attr</span>(<span class="ident">warn</span>(<span class="ident">rust_2018_idioms</span>))))]</span>
 <span class="comment">// Not needed for 2018 edition and conflicts with `rust_2018_idioms`</span>
 <span class="attribute">#![<span class="ident">doc</span>(<span class="ident">test</span>(<span class="ident">no_crate_inject</span>))]</span>
-<span class="attribute">#![<span class="ident">doc</span>(<span class="ident">html_root_url</span> <span class="op">=</span> <span class="string">&quot;https://docs.rs/serde_with/1.9.1&quot;</span>)]</span>
+<span class="attribute">#![<span class="ident">doc</span>(<span class="ident">html_root_url</span> <span class="op">=</span> <span class="string">&quot;https://docs.rs/serde_with/1.9.4&quot;</span>)]</span>
 <span class="comment">// Necessary to silence the warning about clippy::unknown_clippy_lints on nightly</span>
 <span class="attribute">#![<span class="ident">allow</span>(<span class="ident">renamed_and_removed_lints</span>)]</span>
 <span class="comment">// Rust 1.45: introduction of `strip_prefix` used by clippy::manual_strip</span>
@@ -1799,7 +1852,7 @@
 <span class="doccomment">//!</span>
 <span class="doccomment">//! ```toml</span>
 <span class="doccomment">//! [dependencies.serde_with]</span>
-<span class="doccomment">//! version = &quot;1.9.1&quot;</span>
+<span class="doccomment">//! version = &quot;1.9.4&quot;</span>
 <span class="doccomment">//! features = [ &quot;...&quot; ]</span>
 <span class="doccomment">//! ```</span>
 <span class="doccomment">//!</span>
@@ -1938,15 +1991,15 @@
 <span class="doccomment">//! # }</span>
 <span class="doccomment">//! ```</span>
 <span class="doccomment">//!</span>
-<span class="doccomment">//! [`DisplayFromStr`]: https://docs.rs/serde_with/1.9.1/serde_with/struct.DisplayFromStr.html</span>
-<span class="doccomment">//! [`with_prefix!`]: https://docs.rs/serde_with/1.9.1/serde_with/macro.with_prefix.html</span>
-<span class="doccomment">//! [display_fromstr]: https://docs.rs/serde_with/1.9.1/serde_with/rust/display_fromstr/index.html</span>
-<span class="doccomment">//! [feature flags]: https://docs.rs/serde_with/1.9.1/serde_with/guide/feature_flags/index.html</span>
-<span class="doccomment">//! [skip_serializing_none]: https://docs.rs/serde_with/1.9.1/serde_with/attr.skip_serializing_none.html</span>
-<span class="doccomment">//! [StringWithSeparator]: https://docs.rs/serde_with/1.9.1/serde_with/rust/struct.StringWithSeparator.html</span>
-<span class="doccomment">//! [user guide]: https://docs.rs/serde_with/1.9.1/serde_with/guide/index.html</span>
+<span class="doccomment">//! [`DisplayFromStr`]: https://docs.rs/serde_with/1.9.4/serde_with/struct.DisplayFromStr.html</span>
+<span class="doccomment">//! [`with_prefix!`]: https://docs.rs/serde_with/1.9.4/serde_with/macro.with_prefix.html</span>
+<span class="doccomment">//! [display_fromstr]: https://docs.rs/serde_with/1.9.4/serde_with/rust/display_fromstr/index.html</span>
+<span class="doccomment">//! [feature flags]: https://docs.rs/serde_with/1.9.4/serde_with/guide/feature_flags/index.html</span>
+<span class="doccomment">//! [skip_serializing_none]: https://docs.rs/serde_with/1.9.4/serde_with/attr.skip_serializing_none.html</span>
+<span class="doccomment">//! [StringWithSeparator]: https://docs.rs/serde_with/1.9.4/serde_with/rust/struct.StringWithSeparator.html</span>
+<span class="doccomment">//! [user guide]: https://docs.rs/serde_with/1.9.4/serde_with/guide/index.html</span>
 <span class="doccomment">//! [with-annotation]: https://serde.rs/field-attrs.html#with</span>
-<span class="doccomment">//! [as-annotation]: https://docs.rs/serde_with/1.9.1/serde_with/guide/serde_as/index.html</span>
+<span class="doccomment">//! [as-annotation]: https://docs.rs/serde_with/1.9.4/serde_with/guide/serde_as/index.html</span>
 
 <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
 <span class="kw">pub</span> <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">serde</span>;
@@ -2082,7 +2135,7 @@
 <span class="doccomment">/// # }</span>
 <span class="doccomment">/// ```</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// [serde_as]: https://docs.rs/serde_with/1.9.1/serde_with/attr.serde_as.html</span>
+<span class="doccomment">/// [serde_as]: https://docs.rs/serde_with/1.9.4/serde_with/attr.serde_as.html</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Default</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">As</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="question-mark">?</span><span class="ident">Sized</span><span class="op">&gt;</span>(<span class="ident">PhantomData</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>);
 
@@ -2548,7 +2601,7 @@
 <span class="doccomment">/// ```</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// [`chrono::Duration`]: chrono_crate::Duration</span>
-<span class="doccomment">/// [feature flag]: https://docs.rs/serde_with/1.9.1/serde_with/guide/feature_flags/index.html</span>
+<span class="doccomment">/// [feature flag]: https://docs.rs/serde_with/1.9.4/serde_with/guide/feature_flags/index.html</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Default</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">DurationSeconds</span><span class="op">&lt;</span>
     <span class="ident">FORMAT</span>: <span class="ident">formats::Format</span> <span class="op">=</span> <span class="ident">u64</span>,
@@ -2674,7 +2727,7 @@
 <span class="doccomment">/// ```</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// [`chrono::Duration`]: chrono_crate::Duration</span>
-<span class="doccomment">/// [feature flag]: https://docs.rs/serde_with/1.9.1/serde_with/guide/feature_flags/index.html</span>
+<span class="doccomment">/// [feature flag]: https://docs.rs/serde_with/1.9.4/serde_with/guide/feature_flags/index.html</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Default</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">DurationSecondsWithFrac</span><span class="op">&lt;</span>
     <span class="ident">FORMAT</span>: <span class="ident">formats::Format</span> <span class="op">=</span> <span class="ident">f64</span>,
@@ -2871,7 +2924,7 @@
 <span class="doccomment">///</span>
 <span class="doccomment">/// [`SystemTime`]: std::time::SystemTime</span>
 <span class="doccomment">/// [DateTime]: chrono_crate::DateTime</span>
-<span class="doccomment">/// [feature flag]: https://docs.rs/serde_with/1.9.1/serde_with/guide/feature_flags/index.html</span>
+<span class="doccomment">/// [feature flag]: https://docs.rs/serde_with/1.9.4/serde_with/guide/feature_flags/index.html</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Default</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">TimestampSeconds</span><span class="op">&lt;</span>
     <span class="ident">FORMAT</span>: <span class="ident">formats::Format</span> <span class="op">=</span> <span class="ident">i64</span>,
@@ -3000,7 +3053,7 @@
 <span class="doccomment">///</span>
 <span class="doccomment">/// [`SystemTime`]: std::time::SystemTime</span>
 <span class="doccomment">/// [DateTime]: chrono_crate::DateTime</span>
-<span class="doccomment">/// [feature flag]: https://docs.rs/serde_with/1.9.1/serde_with/guide/feature_flags/index.html</span>
+<span class="doccomment">/// [feature flag]: https://docs.rs/serde_with/1.9.4/serde_with/guide/feature_flags/index.html</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Default</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">TimestampSecondsWithFrac</span><span class="op">&lt;</span>
     <span class="ident">FORMAT</span>: <span class="ident">formats::Format</span> <span class="op">=</span> <span class="ident">f64</span>,
@@ -3071,11 +3124,13 @@
 <span class="doccomment">/// The type provides de-/serialization for these types:</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// * `[u8; N]`, Rust 1.51+, not possible using `serde_bytes`</span>
+<span class="doccomment">/// * `&amp;[u8; N]`, Rust 1.51+, not possible using `serde_bytes`</span>
 <span class="doccomment">/// * `&amp;[u8]`</span>
 <span class="doccomment">/// * `Box&lt;[u8; N]&gt;`, Rust 1.51+, not possible using `serde_bytes`</span>
 <span class="doccomment">/// * `Box&lt;[u8]&gt;`</span>
 <span class="doccomment">/// * `Vec&lt;u8&gt;`</span>
 <span class="doccomment">/// * `Cow&lt;&#39;_, [u8]&gt;`</span>
+<span class="doccomment">/// * `Cow&lt;&#39;_, [u8; N]&gt;`, Rust 1.51+, not possible using `serde_bytes`</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// # Examples</span>
 <span class="doccomment">///</span>
@@ -3097,6 +3152,10 @@
 <span class="doccomment">///     #[serde_as(as = &quot;Bytes&quot;)]</span>
 <span class="doccomment">///     #[serde(borrow)]</span>
 <span class="doccomment">///     cow: Cow&lt;&#39;a, [u8]&gt;,</span>
+<span class="doccomment">/// #   #[cfg(FALSE)]</span>
+<span class="doccomment">///     #[serde_as(as = &quot;Bytes&quot;)]</span>
+<span class="doccomment">///     #[serde(borrow)]</span>
+<span class="doccomment">///     cow_array: Cow&lt;&#39;a, [u8; 15]&gt;,</span>
 <span class="doccomment">///     #[serde_as(as = &quot;Bytes&quot;)]</span>
 <span class="doccomment">///     vec: Vec&lt;u8&gt;,</span>
 <span class="doccomment">/// }</span>
@@ -3106,16 +3165,19 @@
 <span class="doccomment">///     array: b&quot;0123456789ABCDE&quot;.clone(),</span>
 <span class="doccomment">///     boxed: b&quot;...&quot;.to_vec().into_boxed_slice(),</span>
 <span class="doccomment">///     cow: Cow::Borrowed(b&quot;FooBar&quot;),</span>
+<span class="doccomment">/// #   #[cfg(FALSE)]</span>
+<span class="doccomment">///     cow_array: Cow::Borrowed(&amp;[42u8; 15]),</span>
 <span class="doccomment">///     vec: vec![0x41, 0x61, 0x21],</span>
 <span class="doccomment">/// };</span>
 <span class="doccomment">/// let expected = r#&quot;(</span>
 <span class="doccomment">///     array: &quot;MDEyMzQ1Njc4OUFCQ0RF&quot;,</span>
 <span class="doccomment">///     boxed: &quot;Li4u&quot;,</span>
 <span class="doccomment">///     cow: &quot;Rm9vQmFy&quot;,</span>
+<span class="doccomment">///     cow_array: &quot;KioqKioqKioqKioqKioq&quot;,</span>
 <span class="doccomment">///     vec: &quot;QWEh&quot;,</span>
 <span class="doccomment">/// )&quot;#;</span>
 <span class="doccomment">/// # drop(expected);</span>
-<span class="doccomment">/// # // Create a fake expected value without the array to make the test compile without const generics</span>
+<span class="doccomment">/// # // Create a fake expected value that doesn&#39;t use const generics</span>
 <span class="doccomment">/// # let expected = r#&quot;(</span>
 <span class="doccomment">/// #     boxed: &quot;Li4u&quot;,</span>
 <span class="doccomment">/// #     cow: &quot;Rm9vQmFy&quot;,</span>
@@ -3126,6 +3188,50 @@
 <span class="doccomment">/// #     .with_new_line(&quot;\n&quot;.into());</span>
 <span class="doccomment">/// assert_eq!(expected, ron::ser::to_string_pretty(&amp;value, pretty_config).unwrap());</span>
 <span class="doccomment">/// assert_eq!(value, ron::from_str(&amp;expected).unwrap());</span>
+<span class="doccomment">/// # }</span>
+<span class="doccomment">/// ```</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// Fully borrowed types can also be used but you&#39;ll need a Deserializer that</span>
+<span class="doccomment">/// supports Serde&#39;s 0-copy deserialization:</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// ```</span>
+<span class="doccomment">/// # #[cfg(feature = &quot;macros&quot;)] {</span>
+<span class="doccomment">/// # use serde::{Deserialize, Serialize};</span>
+<span class="doccomment">/// # use serde_with::{serde_as, Bytes};</span>
+<span class="doccomment">/// # use std::borrow::Cow;</span>
+<span class="doccomment">/// #</span>
+<span class="doccomment">/// #[serde_as]</span>
+<span class="doccomment">/// # #[derive(Debug, PartialEq)]</span>
+<span class="doccomment">/// #[derive(Deserialize, Serialize)]</span>
+<span class="doccomment">/// struct TestBorrows&lt;&#39;a&gt; {</span>
+<span class="doccomment">/// #   #[cfg(FALSE)]</span>
+<span class="doccomment">///     #[serde_as(as = &quot;Bytes&quot;)]</span>
+<span class="doccomment">///     #[serde(borrow)]</span>
+<span class="doccomment">///     array_buf: &amp;&#39;a [u8; 15],</span>
+<span class="doccomment">///     #[serde_as(as = &quot;Bytes&quot;)]</span>
+<span class="doccomment">///     #[serde(borrow)]</span>
+<span class="doccomment">///     buf: &amp;&#39;a [u8],</span>
+<span class="doccomment">/// }</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// let value = TestBorrows {</span>
+<span class="doccomment">/// #   #[cfg(FALSE)]</span>
+<span class="doccomment">///     array_buf: &amp;[10u8; 15],</span>
+<span class="doccomment">///     buf: &amp;[20u8, 21u8, 22u8],</span>
+<span class="doccomment">/// };</span>
+<span class="doccomment">/// let expected = r#&quot;(</span>
+<span class="doccomment">///     array_buf: &quot;CgoKCgoKCgoKCgoKCgoK&quot;,</span>
+<span class="doccomment">///     buf: &quot;FBUW&quot;,</span>
+<span class="doccomment">/// )&quot;#;</span>
+<span class="doccomment">/// # drop(expected);</span>
+<span class="doccomment">/// # // Create a fake expected value that doesn&#39;t use const generics</span>
+<span class="doccomment">/// # let expected = r#&quot;(</span>
+<span class="doccomment">/// #     buf: &quot;FBUW&quot;,</span>
+<span class="doccomment">/// # )&quot;#;</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// # let pretty_config = ron::ser::PrettyConfig::new()</span>
+<span class="doccomment">/// #     .with_new_line(&quot;\n&quot;.into());</span>
+<span class="doccomment">/// assert_eq!(expected, ron::ser::to_string_pretty(&amp;value, pretty_config).unwrap());</span>
+<span class="doccomment">/// // RON doesn&#39;t support borrowed deserialization of byte arrays</span>
 <span class="doccomment">/// # }</span>
 <span class="doccomment">/// ```</span>
 <span class="doccomment">///</span>

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/usr/local/cargo/registry/src/github.com-1ecc6299db9ec823/ffi-support-0.4.2/src/handle_map.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>handle_map.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/usr/local/cargo/registry/src/github.com-1ecc6299db9ec823/ffi-support-0.4.3/src/handle_map.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>handle_map.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../favicon-16x16.png">
 <link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../ffi_support/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">   1</span>
@@ -1255,6 +1255,15 @@
 <span id="1252">1252</span>
 <span id="1253">1253</span>
 <span id="1254">1254</span>
+<span id="1255">1255</span>
+<span id="1256">1256</span>
+<span id="1257">1257</span>
+<span id="1258">1258</span>
+<span id="1259">1259</span>
+<span id="1260">1260</span>
+<span id="1261">1261</span>
+<span id="1262">1262</span>
+<span id="1263">1263</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">/* Copyright 2018-2019 Mozilla Foundation
  *
@@ -2158,7 +2167,7 @@
         <span class="self">self</span>.<span class="ident">get</span>(<span class="ident">Handle::from_u64</span>(<span class="ident">u</span>)<span class="question-mark">?</span>, <span class="ident">callback</span>)
     }
 
-    <span class="doccomment">/// Convenient wrapper for `get_mut` which takes a `u64` that it will</span>
+    <span class="doccomment">/// Convenient wrapper for [`Self::get_mut`] which takes a `u64` that it will</span>
     <span class="doccomment">/// convert to a handle.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// The main benefit (besides convenience) of this over the version</span>
@@ -2183,7 +2192,9 @@
         <span class="self">self</span>.<span class="ident">get_mut</span>(<span class="ident">Handle::from_u64</span>(<span class="ident">u</span>)<span class="question-mark">?</span>, <span class="ident">callback</span>)
     }
 
-    <span class="doccomment">/// Helper that performs both a [`call_with_result`] and [`get`](ConcurrentHandleMap::get_mut).</span>
+    <span class="doccomment">/// Helper that performs both a</span>
+    <span class="doccomment">/// [`call_with_result`][crate::call_with_result] and</span>
+    <span class="doccomment">/// [`get`](ConcurrentHandleMap::get_mut).</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">call_with_result_mut</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident">E</span>, <span class="ident">F</span><span class="op">&gt;</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         <span class="ident">out_error</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ExternError</span>,
@@ -2207,7 +2218,9 @@
         })
     }
 
-    <span class="doccomment">/// Helper that performs both a [`call_with_result`] and [`get`](ConcurrentHandleMap::get).</span>
+    <span class="doccomment">/// Helper that performs both a</span>
+    <span class="doccomment">/// [`call_with_result`][crate::call_with_result] and</span>
+    <span class="doccomment">/// [`get`](ConcurrentHandleMap::get).</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">call_with_result</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident">E</span>, <span class="ident">F</span><span class="op">&gt;</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         <span class="ident">out_error</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ExternError</span>,
@@ -2222,7 +2235,9 @@
         <span class="self">self</span>.<span class="ident">call_with_result_mut</span>(<span class="ident">out_error</span>, <span class="ident">h</span>, <span class="op">|</span><span class="ident">r</span><span class="op">|</span> <span class="ident">callback</span>(<span class="ident">r</span>))
     }
 
-    <span class="doccomment">/// Helper that performs both a [`call_with_output`] and [`get`](ConcurrentHandleMap::get).</span>
+    <span class="doccomment">/// Helper that performs both a</span>
+    <span class="doccomment">/// [`call_with_output`][crate::call_with_output] and</span>
+    <span class="doccomment">/// [`get`](ConcurrentHandleMap::get).</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">call_with_output</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident">F</span><span class="op">&gt;</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         <span class="ident">out_error</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ExternError</span>,
@@ -2238,7 +2253,9 @@
         })
     }
 
-    <span class="doccomment">/// Helper that performs both a [`call_with_output`] and [`get_mut`](ConcurrentHandleMap::get).</span>
+    <span class="doccomment">/// Helper that performs both a</span>
+    <span class="doccomment">/// [`call_with_output`][crate::call_with_output] and</span>
+    <span class="doccomment">/// [`get_mut`](ConcurrentHandleMap::get).</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">call_with_output_mut</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident">F</span><span class="op">&gt;</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         <span class="ident">out_error</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ExternError</span>,
@@ -2255,8 +2272,8 @@
     }
 
     <span class="doccomment">/// Use `constructor` to create and insert a `T`, while inside a</span>
-    <span class="doccomment">/// [`call_with_result`] call (to handle panics and map errors onto an</span>
-    <span class="doccomment">/// `ExternError`).</span>
+    <span class="doccomment">/// [`call_with_result`][crate::call_with_result] call (to handle panics and</span>
+    <span class="doccomment">/// map errors onto an [`ExternError`][crate::ExternError]).</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">insert_with_result</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">F</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">out_error</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ExternError</span>, <span class="ident">constructor</span>: <span class="ident">F</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u64</span>
     <span class="kw">where</span>
         <span class="ident">F</span>: <span class="ident">std::panic::UnwindSafe</span> <span class="op">+</span> <span class="ident">FnOnce</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">E</span><span class="op">&gt;</span>,
@@ -2276,8 +2293,9 @@
     <span class="doccomment">/// [`insert_with_result`](ConcurrentHandleMap::insert_with_result) for the</span>
     <span class="doccomment">/// case where the constructor cannot produce an error.</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// The name is somewhat dubious, since there&#39;s no `output`, but it&#39;s intended to make it</span>
-    <span class="doccomment">/// clear that it contains a [`call_with_output`] internally.</span>
+    <span class="doccomment">/// The name is somewhat dubious, since there&#39;s no `output`, but it&#39;s</span>
+    <span class="doccomment">/// intended to make it clear that it contains a</span>
+    <span class="doccomment">/// [`call_with_output`][crate::call_with_output] internally.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">insert_with_output</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">out_error</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ExternError</span>, <span class="ident">constructor</span>: <span class="ident">F</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u64</span>
     <span class="kw">where</span>
         <span class="ident">F</span>: <span class="ident">std::panic::UnwindSafe</span> <span class="op">+</span> <span class="ident">FnOnce</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T</span>,
