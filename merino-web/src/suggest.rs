@@ -212,6 +212,8 @@ impl FromRequest for SupportedLanguagesWrapper {
             Ok(language)
         }
 
+        // A closure is used here to enable the usage of the `?` operator, making error handling
+        // more ergonomic.
         let parse_header = || {
             let headers = req.headers();
             let header = match headers.get("Accept-Language") {
