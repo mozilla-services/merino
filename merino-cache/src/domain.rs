@@ -41,23 +41,23 @@ mod tests {
     fn it_works() {
         let req = SuggestionRequest {
             query: "arbitrary".into(),
-            supports_english: true,
+            accepts_english: true,
         };
         assert_eq!(req.cache_key(), "req:v1:d442cd90b1772ca1");
     }
 
     #[test]
-    fn key_format_supports_english_example() {
+    fn key_format_accepts_english_example() {
         let req = SuggestionRequest {
             query: "arbitrary".into(),
-            supports_english: true,
+            accepts_english: true,
         };
 
         assert_eq!(req.cache_key(), "req:v1:d442cd90b1772ca1");
 
         let req = SuggestionRequest {
             query: "arbitrary".into(),
-            supports_english: false,
+            accepts_english: false,
         };
 
         assert_eq!(req.cache_key(), "req:v1:13de429412a7998d");
@@ -67,10 +67,10 @@ mod tests {
         /// Test that the cache key format is correct regardless of the input query.
         #[test]
         // "\\PC*" is a regex for any number of Printable Characters.
-        fn key_format(s in "\\PC*") {
+        fn key_format(query in "\\PC*", accepts_english in proptest::bool::ANY) {
             let req = SuggestionRequest {
-                query: s.into(),
-                supports_english: true,
+                query: query.into(),
+                accepts_english,
             };
             let hex_digits = "0123456789abcdef";
             let parts: Vec<String> = req.cache_key().split(':').map(ToString::to_string).collect();

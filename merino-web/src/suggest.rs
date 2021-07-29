@@ -67,7 +67,7 @@ async fn suggest<'a>(
 
     let suggestion_request = SuggestionRequest {
         query: Cow::from(query.into_inner().q),
-        supports_english: languages.0.includes("en", None),
+        accepts_english: languages.0.includes("en", None),
     };
 
     let response = provider

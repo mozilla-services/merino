@@ -24,7 +24,7 @@ pub struct SuggestionRequest<'a> {
     /// The text typed by the user.
     pub query: Cow<'a, str>,
     /// Whether or not the request indicated support for English.
-    pub supports_english: bool,
+    pub accepts_english: bool,
 }
 
 /// A response of suggestions, along with related metadata.

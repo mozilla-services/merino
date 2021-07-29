@@ -231,7 +231,7 @@ impl<'a> SuggestionProvider<'a> for RemoteSettingsSuggester {
     ) -> Result<SuggestionResponse, SuggestError> {
         let suggestions = {
             match self.suggestions.get(request.query.as_ref()) {
-                Some(suggestion) if request.supports_english => vec![suggestion.as_ref().clone()],
+                Some(suggestion) if request.accepts_english => vec![suggestion.as_ref().clone()],
                 _ => vec![],
             }
         };
@@ -367,7 +367,7 @@ mod tests {
 
         let request = SuggestionRequest {
             query: "sheep".into(),
-            supports_english: true,
+            accepts_english: true,
         };
 
         assert_eq!(
@@ -405,7 +405,7 @@ mod tests {
 
         let request = SuggestionRequest {
             query: "sheep".into(),
-            supports_english: false,
+            accepts_english: false,
         };
 
         assert!(rs_suggester.suggest(request).await?.suggestions.is_empty());
