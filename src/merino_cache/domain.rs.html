@@ -87,13 +87,8 @@
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Data types specific to caching.</span>
 
-<span class="kw">use</span> <span class="ident">std</span>::{
-    <span class="ident">borrow::Cow</span>,
-    <span class="ident">collections::hash_map::DefaultHasher</span>,
-    <span class="ident">hash</span>::{<span class="ident">Hash</span>, <span class="ident">Hasher</span>},
-};
-
 <span class="kw">use</span> <span class="ident">merino_suggest::SuggestionRequest</span>;
+<span class="kw">use</span> <span class="ident">std::borrow::Cow</span>;
 
 <span class="doccomment">/// An object that can generate a cache key for itself.</span>
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">CacheKey</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
@@ -109,12 +104,12 @@
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">CacheKey</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">SuggestionRequest</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="kw">fn</span> <span class="ident">cache_key</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">str</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">hasher</span> <span class="op">=</span> <span class="ident">DefaultHasher::new</span>();
-        <span class="self">self</span>.<span class="ident">hash</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">hasher</span>);
-        <span class="kw">let</span> <span class="ident">hash</span> <span class="op">=</span> <span class="ident">hasher</span>.<span class="ident">finish</span>();
-        <span class="comment">// Print the hash as a padded hex number. `0&gt;16x` -&gt; use zeroes to right</span>
-        <span class="comment">// align to a width of 16 characters, in hexadecimal.</span>
-        <span class="macro">format!</span>(<span class="string">&quot;req:v1:{:0&gt;16x}&quot;</span>, <span class="ident">hash</span>).<span class="ident">into</span>()
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">hasher</span> <span class="op">=</span> <span class="ident">blake3::Hasher::new</span>();
+        <span class="ident">hasher</span>.<span class="ident">update</span>(<span class="self">self</span>.<span class="ident">query</span>.<span class="ident">as_bytes</span>());
+        <span class="ident">hasher</span>.<span class="ident">update</span>(<span class="kw-2">&amp;</span>[<span class="self">self</span>.<span class="ident">accepts_english</span> <span class="kw">as</span> <span class="ident">u8</span>]);
+
+        <span class="kw">let</span> <span class="ident">hash</span> <span class="op">=</span> <span class="ident">hasher</span>.<span class="ident">finalize</span>().<span class="ident">to_hex</span>();
+        <span class="macro">format!</span>(<span class="string">&quot;req:v2:{}&quot;</span>, <span class="ident">hash</span>).<span class="ident">into</span>()
     }
 }
 
@@ -124,30 +119,34 @@
     <span class="kw">use</span> <span class="ident">merino_suggest::SuggestionRequest</span>;
     <span class="kw">use</span> <span class="ident">proptest::prelude</span>::<span class="kw-2">*</span>;
 
+    <span class="doccomment">/// This test provides a fixed input, and expects a certain cache key to be</span>
+    <span class="doccomment">/// produced. This alerts us to any time the cache algorithm changes. If this</span>
+    <span class="doccomment">/// is an expected change, you should increment the version number in the</span>
+    <span class="doccomment">/// cache key string.</span>
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">it_works</span>() {
         <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">SuggestionRequest</span> {
             <span class="ident">query</span>: <span class="string">&quot;arbitrary&quot;</span>.<span class="ident">into</span>(),
             <span class="ident">accepts_english</span>: <span class="bool-val">true</span>,
         };
-        <span class="macro">assert_eq!</span>(<span class="ident">req</span>.<span class="ident">cache_key</span>(), <span class="string">&quot;req:v1:d442cd90b1772ca1&quot;</span>);
+        <span class="macro">assert_eq!</span>(
+            <span class="ident">req</span>.<span class="ident">cache_key</span>(),
+            <span class="string">&quot;req:v2:9b32b37fe784364d9b5fa13d8a943b077ff853174887fc18c8d30fc2028fee5a&quot;</span>,
+        );
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">key_format_accepts_english_example</span>() {
-        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">SuggestionRequest</span> {
+    <span class="kw">fn</span> <span class="ident">hash_uses_accepts_english_as_input</span>() {
+        <span class="kw">let</span> <span class="ident">req1</span> <span class="op">=</span> <span class="ident">SuggestionRequest</span> {
             <span class="ident">query</span>: <span class="string">&quot;arbitrary&quot;</span>.<span class="ident">into</span>(),
             <span class="ident">accepts_english</span>: <span class="bool-val">true</span>,
         };
-
-        <span class="macro">assert_eq!</span>(<span class="ident">req</span>.<span class="ident">cache_key</span>(), <span class="string">&quot;req:v1:d442cd90b1772ca1&quot;</span>);
-
-        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">SuggestionRequest</span> {
+        <span class="kw">let</span> <span class="ident">req2</span> <span class="op">=</span> <span class="ident">SuggestionRequest</span> {
             <span class="ident">query</span>: <span class="string">&quot;arbitrary&quot;</span>.<span class="ident">into</span>(),
             <span class="ident">accepts_english</span>: <span class="bool-val">false</span>,
         };
 
-        <span class="macro">assert_eq!</span>(<span class="ident">req</span>.<span class="ident">cache_key</span>(), <span class="string">&quot;req:v1:13de429412a7998d&quot;</span>);
+        <span class="macro">assert_ne!</span>(<span class="ident">req1</span>.<span class="ident">cache_key</span>(), <span class="ident">req2</span>.<span class="ident">cache_key</span>());
     }
 
     <span class="macro">proptest!</span> {
@@ -159,12 +158,13 @@
                 <span class="ident">query</span>: <span class="ident">query</span>.<span class="ident">into</span>(),
                 <span class="ident">accepts_english</span>,
             };
-            <span class="kw">let</span> <span class="ident">hex_digits</span> <span class="op">=</span> <span class="string">&quot;0123456789abcdef&quot;</span>;
+            <span class="kw">const</span> <span class="ident">HEX_DIGITS</span>: <span class="kw-2">&amp;</span><span class="ident">str</span> <span class="op">=</span> <span class="string">&quot;0123456789abcdef&quot;</span>;
             <span class="kw">let</span> <span class="ident">parts</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">req</span>.<span class="ident">cache_key</span>().<span class="ident">split</span>(<span class="string">&#39;:&#39;</span>).<span class="ident">map</span>(<span class="ident">ToString::to_string</span>).<span class="ident">collect</span>();
             <span class="macro">prop_assert_eq!</span>(<span class="ident">parts</span>.<span class="ident">len</span>(), <span class="number">3</span>);
             <span class="macro">prop_assert_eq!</span>(<span class="kw-2">&amp;</span><span class="ident">parts</span>[<span class="number">0</span>], <span class="string">&quot;req&quot;</span>);
-            <span class="macro">prop_assert_eq!</span>(<span class="kw-2">&amp;</span><span class="ident">parts</span>[<span class="number">1</span>], <span class="string">&quot;v1&quot;</span>);
-            <span class="macro">prop_assert!</span>(<span class="ident">parts</span>[<span class="number">2</span>].<span class="ident">chars</span>().<span class="ident">all</span>(<span class="op">|</span><span class="ident">c</span><span class="op">|</span> <span class="ident">hex_digits</span>.<span class="ident">contains</span>(<span class="ident">c</span>)));
+            <span class="macro">prop_assert_eq!</span>(<span class="kw-2">&amp;</span><span class="ident">parts</span>[<span class="number">1</span>], <span class="string">&quot;v2&quot;</span>);
+            <span class="macro">prop_assert!</span>(<span class="ident">parts</span>[<span class="number">2</span>].<span class="ident">chars</span>().<span class="ident">all</span>(<span class="op">|</span><span class="ident">c</span><span class="op">|</span><span class="ident">HEX_DIGITS</span>.<span class="ident">contains</span>(<span class="ident">c</span>)));
+            <span class="macro">prop_assert_eq!</span>(<span class="ident">parts</span>[<span class="number">2</span>].<span class="ident">len</span>(), <span class="number">64</span>);
         }
     }
 }
