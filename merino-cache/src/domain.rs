@@ -1,12 +1,7 @@
 //! Data types specific to caching.
 
-use std::{
-    borrow::Cow,
-    collections::hash_map::DefaultHasher,
-    hash::{Hash, Hasher},
-};
-
 use merino_suggest::SuggestionRequest;
+use std::borrow::Cow;
 
 /// An object that can generate a cache key for itself.
 pub trait CacheKey<'a> {
@@ -22,12 +17,12 @@ pub trait CacheKey<'a> {
 
 impl<'a> CacheKey<'a> for SuggestionRequest<'a> {
     fn cache_key(&self) -> Cow<'a, str> {
-        let mut hasher = DefaultHasher::new();
-        self.hash(&mut hasher);
-        let hash = hasher.finish();
-        // Print the hash as a padded hex number. `0>16x` -> use zeroes to right
-        // align to a width of 16 characters, in hexadecimal.
-        format!("req:v1:{:0>16x}", hash).into()
+        let mut hasher = blake3::Hasher::new();
+        hasher.update(self.query.as_bytes());
+        hasher.update(&[self.accepts_english as u8]);
+
+        let hash = hasher.finalize().to_hex();
+        format!("req:v2:{}", hash).into()
     }
 }
 
@@ -37,30 +32,34 @@ mod tests {
     use merino_suggest::SuggestionRequest;
     use proptest::prelude::*;
 
+    /// This test provides a fixed input, and expects a certain cache key to be
+    /// produced. This alerts us to any time the cache algorithm changes. If this
+    /// is an expected change, you should increment the version number in the
+    /// cache key string.
     #[test]
     fn it_works() {
         let req = SuggestionRequest {
             query: "arbitrary".into(),
             accepts_english: true,
         };
-        assert_eq!(req.cache_key(), "req:v1:d442cd90b1772ca1");
+        assert_eq!(
+            req.cache_key(),
+            "req:v2:9b32b37fe784364d9b5fa13d8a943b077ff853174887fc18c8d30fc2028fee5a",
+        );
     }
 
     #[test]
-    fn key_format_accepts_english_example() {
-        let req = SuggestionRequest {
+    fn hash_uses_accepts_english_as_input() {
+        let req1 = SuggestionRequest {
             query: "arbitrary".into(),
             accepts_english: true,
         };
-
-        assert_eq!(req.cache_key(), "req:v1:d442cd90b1772ca1");
-
-        let req = SuggestionRequest {
+        let req2 = SuggestionRequest {
             query: "arbitrary".into(),
             accepts_english: false,
         };
 
-        assert_eq!(req.cache_key(), "req:v1:13de429412a7998d");
+        assert_ne!(req1.cache_key(), req2.cache_key());
     }
 
     proptest! {
@@ -72,12 +71,13 @@ mod tests {
                 query: query.into(),
                 accepts_english,
             };
-            let hex_digits = "0123456789abcdef";
+            const HEX_DIGITS: &str = "0123456789abcdef";
             let parts: Vec<String> = req.cache_key().split(':').map(ToString::to_string).collect();
             prop_assert_eq!(parts.len(), 3);
             prop_assert_eq!(&parts[0], "req");
-            prop_assert_eq!(&parts[1], "v1");
-            prop_assert!(parts[2].chars().all(|c| hex_digits.contains(c)));
+            prop_assert_eq!(&parts[1], "v2");
+            prop_assert!(parts[2].chars().all(|c|HEX_DIGITS.contains(c)));
+            prop_assert_eq!(parts[2].len(), 64);
         }
     }
 }
