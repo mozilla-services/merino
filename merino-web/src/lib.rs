@@ -5,6 +5,7 @@
 mod debug;
 mod dockerflow;
 mod errors;
+mod extractors;
 mod suggest;
 
 use actix_cors::Cors;
