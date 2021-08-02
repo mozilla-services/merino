@@ -29,6 +29,7 @@ impl<'a> CacheKey<'a> for SuggestionRequest<'a> {
 #[cfg(test)]
 mod tests {
     use super::CacheKey;
+    use fake::{Fake, Faker};
     use merino_suggest::SuggestionRequest;
     use proptest::prelude::*;
 
@@ -51,12 +52,12 @@ mod tests {
     #[test]
     fn hash_uses_accepts_english_as_input() {
         let req1 = SuggestionRequest {
-            query: "arbitrary".into(),
             accepts_english: true,
+            ..Faker.fake()
         };
         let req2 = SuggestionRequest {
-            query: "arbitrary".into(),
             accepts_english: false,
+            ..Faker.fake()
         };
 
         assert_ne!(req1.cache_key(), req2.cache_key());

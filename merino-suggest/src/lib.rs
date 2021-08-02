@@ -27,6 +27,26 @@ pub struct SuggestionRequest<'a> {
     pub accepts_english: bool,
 }
 
+impl<'a, F> fake::Dummy<F> for SuggestionRequest<'a> {
+    fn dummy_with_rng<R: rand::Rng + ?Sized>(_config: &F, rng: &mut R) -> Self {
+        use fake::{
+            faker::{
+                address::en::{CityName, CountryCode, StateAbbr},
+                lorem::en::Words,
+            },
+            Fake, Faker,
+        };
+
+        Self {
+            query: Words(1..10)
+                .fake_with_rng::<Vec<String>, R>(rng)
+                .join(" ")
+                .into(),
+            accepts_english: Faker.fake(),
+        }
+    }
+}
+
 /// A response of suggestions, along with related metadata.
 #[derive(Debug)]
 pub struct SuggestionResponse {
