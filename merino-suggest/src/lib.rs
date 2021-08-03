@@ -2,6 +2,7 @@
 
 //! Suggestion backends for [Merino](../merino/index.html).
 
+mod debug;
 mod multi;
 mod wikifruit;
 
@@ -10,39 +11,59 @@ use std::hash::Hash;
 use std::time::Duration;
 
 use async_trait::async_trait;
+use fake::{
+    faker::{
+        address::en::{CityName, CountryCode, StateAbbr},
+        lorem::en::{Word, Words},
+    },
+    Fake, Faker,
+};
 use http::Uri;
 use serde::{Deserialize, Serialize};
 use serde_with::{serde_as, DisplayFromStr};
 use thiserror::Error;
 
+pub use crate::debug::DebugProvider;
 pub use crate::multi::Multi;
 pub use crate::wikifruit::WikiFruit;
 
 /// A request for suggestions.
-#[derive(Debug, Clone, Hash)]
+#[derive(Debug, Clone, Hash, Serialize)]
 pub struct SuggestionRequest<'a> {
     /// The text typed by the user.
     pub query: Cow<'a, str>,
+
     /// Whether or not the request indicated support for English.
     pub accepts_english: bool,
+
+    /// Country in ISO 3166-1 alpha-2 format, such as "MX" for Mexico or "IT" for Italy.
+    pub country: Option<Cow<'a, str>>,
+
+    /// Region/region (e.g. a US state) in ISO 3166-2 format, such as "QC"
+    /// for Quebec (with country = "CA") or "TX" for Texas (with country = "US").
+    pub region: Option<Cow<'a, str>>,
+
+    /// The Designated Market Area code, as defined by [Nielsen]. Only defined in the US.
+    ///
+    /// [Nielsen]: https://www.nielsen.com/us/en/contact-us/intl-campaigns/dma-maps/
+    pub dma: Option<u16>,
+
+    /// City, listed by name such as "Portland" or "Berlin".
+    pub city: Option<Cow<'a, str>>,
 }
 
 impl<'a, F> fake::Dummy<F> for SuggestionRequest<'a> {
     fn dummy_with_rng<R: rand::Rng + ?Sized>(_config: &F, rng: &mut R) -> Self {
-        use fake::{
-            faker::{
-                address::en::{CityName, CountryCode, StateAbbr},
-                lorem::en::Words,
-            },
-            Fake, Faker,
-        };
-
         Self {
             query: Words(1..10)
                 .fake_with_rng::<Vec<String>, R>(rng)
                 .join(" ")
                 .into(),
             accepts_english: Faker.fake(),
+            country: Some(CountryCode().fake::<String>().into()),
+            region: Some(StateAbbr().fake::<String>().into()),
+            dma: Some(rng.gen_range(100_u16..1000)),
+            city: Some(CityName().fake::<String>().into()),
         }
     }
 }
@@ -84,6 +105,18 @@ impl SuggestionResponse {
     pub fn with_cache_ttl(mut self, cache_ttl: Duration) -> Self {
         self.cache_ttl = Some(cache_ttl);
         self
+    }
+}
+
+impl<'a, F> fake::Dummy<F> for SuggestionResponse {
+    fn dummy_with_rng<R: rand::Rng + ?Sized>(_config: &F, rng: &mut R) -> Self {
+        SuggestionResponse {
+            cache_status: CacheStatus::NoCache,
+            cache_ttl: None,
+            suggestions: std::iter::repeat_with(|| Faker.fake())
+                .take(rng.gen_range(0..=5))
+                .collect(),
+        }
     }
 }
 
@@ -151,6 +184,36 @@ pub struct Suggestion {
     /// The URL of the icon to show along side this suggestion.
     #[serde_as(as = "DisplayFromStr")]
     pub icon: Uri,
+}
+
+impl<'a, F> fake::Dummy<F> for Suggestion {
+    fn dummy_with_rng<R: rand::Rng + ?Sized>(_config: &F, rng: &mut R) -> Self {
+        Self {
+            id: Faker.fake(),
+            full_keyword: Word().fake_with_rng(rng),
+            title: Words(3..5).fake_with_rng::<Vec<String>, R>(rng).join(" "),
+            url: fake_example_url(rng),
+            impression_url: fake_example_url(rng),
+            click_url: fake_example_url(rng),
+            advertiser: Words(2..4).fake_with_rng::<Vec<String>, R>(rng).join(" "),
+            is_sponsored: rng.gen(),
+            icon: fake_example_url(rng),
+        }
+    }
+}
+
+/// Helper to generate a URL to use for testing, of the form
+/// "https://example.com/fake#some-random-words".
+fn fake_example_url<R: rand::Rng + ?Sized>(rng: &mut R) -> Uri {
+    Uri::builder()
+        .scheme("https")
+        .authority("example.com")
+        .path_and_query(format!(
+            "/fake#{}",
+            Words(2..5).fake_with_rng::<Vec<String>, R>(rng).join("-")
+        ))
+        .build()
+        .unwrap()
 }
 
 /// A backend that can provide suggestions for queries.

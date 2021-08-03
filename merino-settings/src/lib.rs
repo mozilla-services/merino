@@ -70,6 +70,9 @@ pub struct Settings {
     /// Settings for the Redis-based suggestion cache. This can be used by any
     /// provider by setting the provider's cache type to "redis".
     pub redis_cache: RedisCacheSettings,
+
+    /// Settings to use when determining the location associated with requests.
+    pub location: LocationSettings,
 }
 
 /// Settings for the HTTP server.
@@ -138,6 +141,13 @@ pub struct RedisCacheSettings {
     #[serde_as(as = "DurationSeconds")]
     #[serde(rename = "default_ttl_sec")]
     pub default_ttl: Duration,
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct LocationSettings {
+    /// The location of the maxmind database to use to determine IP location. If
+    /// not specified, location information will not be calculated.
+    pub maxmind_database: Option<PathBuf>,
 }
 
 impl Settings {

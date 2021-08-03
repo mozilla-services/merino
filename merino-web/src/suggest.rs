@@ -9,7 +9,7 @@ use actix_web::{
 use anyhow::Result;
 use merino_adm::remote_settings::RemoteSettingsSuggester;
 use merino_settings::Settings;
-use merino_suggest::{Suggestion, SuggestionProvider, WikiFruit};
+use merino_suggest::{DebugProvider, Suggestion, SuggestionProvider, WikiFruit};
 
 use serde::Serialize;
 use tokio::sync::OnceCell;
@@ -93,7 +93,7 @@ impl<'a> SuggestionProviderRef<'a> {
 
                     /// The number of providers we expect to have, so we usually
                     /// don't have to re-allocate the vec.
-                    const NUM_PROVIDERS: usize = 2;
+                    const NUM_PROVIDERS: usize = 3;
                     let mut providers: Vec<Box<dyn SuggestionProvider + Send + Sync>> =
                         Vec::with_capacity(NUM_PROVIDERS);
 
@@ -116,6 +116,10 @@ impl<'a> SuggestionProviderRef<'a> {
                                 merino_cache::RedisSuggester::new_boxed(settings, *adm_rs).await?
                             }
                         });
+                    }
+
+                    if settings.debug {
+                        providers.push(DebugProvider::new_boxed(settings)?);
                     }
 
                     let multi = merino_suggest::Multi::new(providers);

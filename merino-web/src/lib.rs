@@ -15,6 +15,8 @@ use actix_web::{
     web::{self, Data},
     App, HttpResponse, HttpServer,
 };
+use actix_web_location::{providers::FallbackProvider, Location};
+use anyhow::Context;
 use merino_settings::Settings;
 use std::net::TcpListener;
 use tracing_actix_web_mozlog::MozLog;
@@ -69,14 +71,26 @@ use tracing_actix_web_mozlog::MozLog;
 /// /// The server can be stopped with `join_handle::abort()`, if needed.
 /// let join_handle = tokio::spawn(server);
 /// ```
-pub fn run(listener: TcpListener, settings: Settings) -> Result<Server, std::io::Error> {
+pub fn run(listener: TcpListener, settings: Settings) -> Result<Server, anyhow::Error> {
     let num_workers = settings.http.workers;
 
     let moz_log = MozLog::default();
 
+    let location_config = Data::new({
+        let mut config = actix_web_location::LocationConfig::default();
+        if let Some(ref mmdb) = settings.location.maxmind_database {
+            config = config.with_provider(
+                actix_web_location::providers::MaxMindProvider::from_path(mmdb)
+                    .context("Could not set maxmind location provider")?,
+            );
+        }
+        config.with_provider(FallbackProvider::new(Location::build()))
+    });
+
     let mut server = HttpServer::new(move || {
         App::new()
             .app_data(Data::new((&settings).clone()))
+            .app_data(location_config.clone())
             .wrap(moz_log.clone())
             .wrap(Cors::permissive())
             // The core functionality of Merino

@@ -1,13 +1,17 @@
 //! Types to extract merino data from requests.
 
+use std::borrow::Cow;
+
 use crate::errors::HandlerError;
 use actix_web::{dev::Payload, web::Query, Error as ActixError, FromRequest, HttpRequest};
+use actix_web_location::Location;
 use futures_util::{
     future::{self, LocalBoxFuture, Ready},
     FutureExt,
 };
 use merino_suggest::{Language, LanguageIdentifier, SuggestionRequest, SupportedLanguages};
 use serde::Deserialize;
+use tokio::try_join;
 
 /// An extractor for a [`merino_suggest::SuggestionRequest`].
 pub struct SuggestionRequestWrapper<'a>(pub SuggestionRequest<'a>);
@@ -22,15 +26,39 @@ impl<'a> FromRequest for SuggestionRequestWrapper<'a> {
     fn from_request(req: &HttpRequest, _payload: &mut Payload) -> Self::Future {
         let req = req.clone();
         async move {
+            // None of the requesters used below use payload, and getting `_payload` above into the closure is awkward.
             let mut fake_payload = Payload::None;
-            let Query(SuggestQuery { q: query }) =
-                Query::from_request(&req, &mut fake_payload).await?;
-            let SupportedLanguagesWrapper(supported_languages) =
-                SupportedLanguagesWrapper::from_request(&req, &mut fake_payload).await?;
+
+            /// try_join wants everything to have the same error type, and
+            /// doesn't give a chance to map the error. This wrapper helps that.
+            async fn loc_mapped_error(
+                request: &HttpRequest,
+                payload: &mut Payload,
+            ) -> Result<Location, ActixError> {
+                Location::from_request(request, payload)
+                    .await
+                    .map_err(ActixError::from)
+            }
+
+            // Retrieve all parts needed to make a SuggestionRequest concurrently.
+            // `try_join` implicitly `.await`s.
+            let (
+                Query(SuggestQuery { q: query }),
+                SupportedLanguagesWrapper(supported_languages),
+                location,
+            ) = try_join!(
+                Query::from_request(&req, &mut fake_payload),
+                SupportedLanguagesWrapper::from_request(&req, &mut fake_payload),
+                loc_mapped_error(&req, &mut fake_payload),
+            )?;
 
             Ok(Self(SuggestionRequest {
                 query: query.into(),
                 accepts_english: supported_languages.includes("en", None),
+                country: location.country.map(Cow::from),
+                region: location.region.map(Cow::from),
+                dma: location.dma,
+                city: location.city.map(Cow::from),
             }))
         }
         .boxed_local()

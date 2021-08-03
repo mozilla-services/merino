@@ -28,6 +28,8 @@ impl<'a> CacheKey<'a> for SuggestionRequest<'a> {
 
 #[cfg(test)]
 mod tests {
+    use std::borrow::Cow;
+
     use super::CacheKey;
     use fake::{Fake, Faker};
     use merino_suggest::SuggestionRequest;
@@ -42,6 +44,10 @@ mod tests {
         let req = SuggestionRequest {
             query: "arbitrary".into(),
             accepts_english: true,
+            country: Some("US".into()),
+            region: Some("OR".into()),
+            dma: Some(820_u16),
+            city: Some("Portland".into()),
         };
         assert_eq!(
             req.cache_key(),
@@ -67,10 +73,21 @@ mod tests {
         /// Test that the cache key format is correct regardless of the input query.
         #[test]
         // "\\PC*" is a regex for any number of Printable Characters.
-        fn key_format(query in "\\PC*", accepts_english in proptest::bool::ANY) {
+        fn key_format(
+            query in "\\PC*",
+            accepts_english in proptest::bool::ANY,
+            country in proptest::option::of("[A-Z]{2}"),
+            region in proptest::option::of("[A-Z]{2}"),
+            dma in proptest::option::of(100_u16..1000),
+            city in proptest::option::of("[A-Z]{2}"),
+        ) {
             let req = SuggestionRequest {
                 query: query.into(),
                 accepts_english,
+                country: country.map(Cow::from),
+                region: region.map(Cow::from),
+                dma,
+                city: city.map(Cow::from),
             };
             const HEX_DIGITS: &str = "0123456789abcdef";
             let parts: Vec<String> = req.cache_key().split(':').map(ToString::to_string).collect();
