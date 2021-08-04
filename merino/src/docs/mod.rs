@@ -6,4 +6,5 @@
 mod adrs;
 mod dev;
 mod overview;
+mod showroom;
 mod testing;
