@@ -118,7 +118,7 @@ impl<'a> SuggestionProviderRef<'a> {
                         });
                     }
 
-                    if settings.debug {
+                    if settings.providers.enable_debug_provider {
                         providers.push(DebugProvider::new_boxed(settings)?);
                     }
 

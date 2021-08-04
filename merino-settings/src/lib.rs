@@ -94,6 +94,11 @@ pub struct SuggestionProviderSettings {
 
     /// Settings for the development provider.
     pub wiki_fruit: WikiFruitSettings,
+
+    /// Whether to enable the debug provider. This is on by default in
+    /// development environments. It is an error to enable this if the `debug`
+    /// setting isn't set to true.
+    pub enable_debug_provider: bool,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
