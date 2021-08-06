@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["FallbackProvider","A “dummy” provider that returns None for all fields."],["MaxMindProvider","A provider that uses a MaxMind GeoIP database to derive location from a the IP a request was sent from."]],"trait":[["Provider","An object that can be queried to convert [`HttpRequest`] into locations."]]});

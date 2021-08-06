@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["CurrencyCode",""],["CurrencyName",""],["CurrencySymbol",""]]});

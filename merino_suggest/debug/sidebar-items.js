@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["DebugProvider","A toy suggester to test the system."]]});

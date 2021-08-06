@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["SuggestQuery","A query passed to the API."],["SuggestionRequestWrapper","An extractor for a [`merino_suggest::SuggestionRequest`]."],["SupportedLanguagesWrapper","A wrapper around `SupportedLanguages`."]]});

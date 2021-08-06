@@ -1,0 +1,1 @@
+initSidebarItems({"derive":[["Dummy",""]],"macro":[["binary_heap",""],["linked_list",""],["vec",""],["vec_deque",""]],"mod":[["faker",""],["locales",""]],"struct":[["Faker",""],["PathFaker",""],["ResultFaker",""],["StringFaker",""]],"trait":[["Dummy",""],["Fake",""]]});
