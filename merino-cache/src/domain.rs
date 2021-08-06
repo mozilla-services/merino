@@ -77,7 +77,7 @@ mod tests {
             query in "\\PC*",
             accepts_english in proptest::bool::ANY,
             country in proptest::option::of("[A-Z]{2}"),
-            region in proptest::option::of("[A-Z]{2}"),
+            region in proptest::option::of("[A-Z]{1,3}"),
             dma in proptest::option::of(100_u16..1000),
             city in proptest::option::of("[A-Z]{2}"),
         ) {
