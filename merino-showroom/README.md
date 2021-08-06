@@ -1,10 +1,10 @@
 # Merino Showroom
 
-This page provides a UI to interact with Merino independently of the
+Showroom is a small JS demo to interact with Merino independent of the
 implementation in Firefox's UI, for testing and demonstration purposes.
 
-To use the showroom, first start an instance of `merino-web` with `cargo run
--p merino-web`. Then, in another terminal start a dev server by running
+To use the showroom, first start an instance of `merino` with
+`cargo run -p merino`. Then, in another terminal start Showroom by running:
 
 ```shell
 # From the repository root
@@ -13,5 +13,5 @@ $ npm install
 $ npm run dev
 ```
 
-This will start a server on [http://localhost:3000][] that is configured to
-connect to the default configuration of `merino-web`.
+This will start a server on [localhost:3000](http://localhost:3000) that is
+configured to connect to the default configuration of `merino-web`.
