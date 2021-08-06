@@ -163,13 +163,21 @@ pub struct LocationSettings {
 #[serde_as]
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct MemoryCacheSettings {
+    /// The default TTL to assign to a cache entry if the underlying provider does not provide one.
     #[serde_as(as = "DurationSeconds")]
     #[serde(rename = "default_ttl_sec")]
     pub default_ttl: Duration,
 
+    /// The cleanup task will be run with a period equal to this setting. Any
+    /// expired entries will be removed from the cache.
     #[serde_as(as = "DurationSeconds")]
     #[serde(rename = "cleanup_interval_sec")]
     pub cleanup_interval: Duration,
+
+    /// While running the cleanup task, at most this many entries will be removed
+    /// before cancelling the task. This should be used to limit the maximum
+    /// amount of time the cleanup task takes.
+    pub max_removed_entries: usize,
 }
 
 impl Settings {

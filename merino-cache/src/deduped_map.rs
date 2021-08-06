@@ -48,7 +48,7 @@ struct MapValue<V> {
 
 impl<K, M, V> DedupedMap<K, M, V>
 where
-    K: Eq + Hash,
+    K: Eq + Hash + Debug,
     M: Debug + Clone,
     V: Hash + Debug + Clone,
 {
@@ -70,8 +70,11 @@ where
         value.hash(&mut hasher);
         let hash = hasher.finish();
 
-        self.pointers.insert(key, MapPointer { meta, hash });
-
+        // This order reduces the chance of seeing a dangling pointer, since we
+        // wont have a time where there is a pointer pointing to nothing. It
+        // increases the chances of orphaned storage entries. An orphan is safer
+        // than a dangling pointer, as an orphan is similar to a memory leak,
+        // instead of allowing for potential race conditions.
         match self.storage.entry(hash) {
             Entry::Occupied(mut occupied_entry) => {
                 occupied_entry.get_mut().refcount += 1;
@@ -80,6 +83,8 @@ where
                 vacant_entry.insert(MapValue { value, refcount: 1 });
             }
         }
+
+        self.pointers.insert(key, MapPointer { meta, hash });
     }
 
     /// Remove the item associated with a key from the map.
@@ -116,8 +121,7 @@ where
                     Some((meta, value))
                 }
                 None => {
-                    tracing::error!("missing storage entry in memory cache");
-                    self.pointers.remove(key);
+                    tracing::error!(?key, "missing storage entry in memory cache");
                     None
                 }
             },
@@ -139,27 +143,46 @@ where
         self.pointers.len()
     }
 
-    /// Retain elements that whose predicates return true
-    /// and discard elements whose predicates return false.
-    pub fn retain<F>(&self, pred: F)
+    /// Retain elements based on the result of a predicate.
+    ///
+    /// If the predicate function returns:
+    ///
+    /// - `ControlFlow::Continue(true)`: The item will be retained and the iteration will continue.
+    /// - `ControlFlow::Continue(false)`: The item will be removed and the iteration will continue.
+    /// - `ControlFlow::Break(())`: This item, and all further items in the map,
+    ///   will be retained, and the predicate won't be called again.
+    pub fn retain<F>(&self, mut pred: F)
     where
-        F: Fn(&K, &M, &V) -> bool,
+        F: FnMut(&K, &M, &V) -> ControlFlow<bool>,
     {
+        let mut should_continue = true;
+
         self.pointers.retain(|key, pointer| -> bool {
+            // it would be nice if we could stop the `dashmap`'s iteration, but we can't.
+            if !should_continue {
+                return true;
+            }
+
             match self.storage.entry(pointer.hash) {
                 Entry::Occupied(mut occupied_entry) => {
                     let item = occupied_entry.get_mut();
                     let should_keep = pred(key, &pointer.meta, &item.value);
 
-                    if !should_keep {
-                        if item.refcount > 1 {
-                            item.refcount -= 1;
-                        } else {
-                            occupied_entry.remove();
+                    match should_keep {
+                        ControlFlow::Continue(true) => true,
+                        ControlFlow::Continue(false) => {
+                            if item.refcount > 1 {
+                                item.refcount -= 1;
+                            } else {
+                                occupied_entry.remove();
+                            }
+                            false
+                        }
+                        ControlFlow::Break => {
+                            should_continue = false;
+                            true
                         }
                     }
-
-                    should_keep
                 }
                 Entry::Vacant(_) => {
                     tracing::error!("missing storage entry in memory cache");
@@ -173,5 +196,78 @@ where
     #[cfg_attr(not(test), allow(dead_code))]
     pub fn contains_key(&self, key: &K) -> bool {
         self.pointers.contains_key(key)
+    }
+}
+
+/// This mimic's the unstable API std::ops::ControlFlow, except the Break variant here doesn't have a value.
+#[derive(Debug)]
+pub enum ControlFlow<C> {
+    /// Continue to the next iteration.
+    Continue(C),
+    /// Stop after this iteration.
+    Break,
+}
+
+#[cfg(test)]
+mod tests {
+    use std::collections::HashSet;
+
+    use super::{ControlFlow, DedupedMap};
+
+    #[test]
+    fn test_retain() {
+        let map = DedupedMap::<&str, &str, &str>::new();
+        map.insert("a", "red", "#f00");
+        map.insert("b", "red", "#f00");
+        map.insert("c", "green", "#0f0");
+        map.insert("d", "green", "#0f0");
+        map.insert("e", "blue", "#00f");
+        map.insert("f", "blue", "#00f");
+
+        assert_eq!(map.len_pointers(), 6);
+        assert_eq!(map.len_storage(), 3);
+
+        // retain only red things
+        map.retain(|_key, meta, _value| ControlFlow::Continue(*meta == "red"));
+
+        assert_eq!(map.len_pointers(), 2);
+        assert_eq!(map.len_storage(), 1);
+
+        assert!(map.contains_key(&"a"));
+        assert!(map.contains_key(&"b"));
+    }
+
+    #[test]
+    fn test_retain_control_flow() {
+        let map = DedupedMap::<u32, (), ()>::new();
+        for i in 0..10 {
+            map.insert(i, (), ());
+        }
+        assert_eq!(map.len_pointers(), 10);
+        assert_eq!(map.len_storage(), 1);
+
+        // Remove numbers until we find five, and then stop.
+        // note: keys are iterated in an arbitrary order.
+        let mut removed_items = HashSet::new();
+        map.retain(|key, _, _| {
+            if *key == 5 {
+                ControlFlow::Break
+            } else {
+                removed_items.insert(*key);
+                ControlFlow::Continue(false)
+            }
+        });
+
+        // Five should still be in the map, the removed numbers should no longer
+        // be in the map, and any number that wasn't encountered before the
+        // break should still be in the map.
+        assert!(map.contains_key(&5));
+        for i in 0..10 {
+            if removed_items.contains(&i) {
+                assert!(!map.contains_key(&i));
+            } else {
+                assert!(map.contains_key(&i));
+            }
+        }
     }
 }

@@ -5,7 +5,10 @@
 //! tier maps from those hashes to the responses. In this way, duplicate
 //! responses can be stored only once, even if they are used for many requests.
 
-use crate::{deduped_map::DedupedMap, domain::CacheKey};
+use crate::{
+    deduped_map::{ControlFlow, DedupedMap},
+    domain::CacheKey,
+};
 use async_trait::async_trait;
 use merino_settings::Settings;
 use merino_suggest::{
@@ -13,6 +16,7 @@ use merino_suggest::{
 };
 use std::{
     borrow::Cow,
+    fmt::Debug,
     hash::Hash,
     sync::Arc,
     time::{Duration, Instant},
@@ -63,13 +67,31 @@ impl<S> Suggester<S> {
     ///
     /// This is a selfless method so that it can be called from a spawned Tokio task.
     #[tracing::instrument(level = "debug", skip(items))]
-    fn remove_expired_entries<K: Eq + Hash>(items: &Arc<DedupedMap<K, Instant, Vec<Suggestion>>>) {
+    fn remove_expired_entries<K: Eq + Hash + Debug>(
+        items: &Arc<DedupedMap<K, Instant, Vec<Suggestion>>>,
+    ) {
         let start = Instant::now();
         let count_before_storage = items.len_storage();
         let count_before_pointers = items.len_pointers();
 
         // Retain all cache entries that have not yet expired.
-        items.retain(|_key, expiration, _suggestions| *expiration > start);
+        let max_removals = 10_000;
+        let mut num_removals = 0;
+        items.retain(|_key, expiration, _suggestions| {
+            if num_removals > max_removals {
+                tracing::warn!(
+                    ?max_removals,
+                    "memory-cache cleanup reached max number of removed entries"
+                );
+                return ControlFlow::Break;
+            }
+
+            let should_remove = *expiration < start;
+            if should_remove {
+                num_removals += 1;
+            }
+            ControlFlow::Continue(!should_remove)
+        });
 
         // Report finishing.
         let duration = Instant::now() - start;
