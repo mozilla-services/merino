@@ -347,6 +347,7 @@ struct AdmSuggestion {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use fake::{Fake, Faker};
     use merino_suggest::{Suggestion, SuggestionProvider};
 
     #[actix_rt::test]
@@ -371,6 +372,7 @@ mod tests {
         let request = SuggestionRequest {
             query: "sheep".into(),
             accepts_english: true,
+            ..Faker.fake()
         };
 
         assert_eq!(
@@ -409,6 +411,7 @@ mod tests {
         let request = SuggestionRequest {
             query: "sheep".into(),
             accepts_english: false,
+            ..Faker.fake()
         };
 
         assert!(rs_suggester.suggest(request).await?.suggestions.is_empty());
