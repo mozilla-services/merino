@@ -2,7 +2,10 @@
 
 //! Manages Merino's cache
 
+mod deduped_map;
 mod domain;
+mod memory;
 mod redis;
 
-pub use crate::redis::Suggester as RedisSuggester;
+pub use crate::memory::Suggester as MemoryCacheSuggester;
+pub use crate::redis::Suggester as RedisCacheSuggester;

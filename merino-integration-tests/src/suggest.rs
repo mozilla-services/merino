@@ -1,64 +1,50 @@
 //! Tests Merino's ability to make basic suggestions.
 #![cfg(test)]
 
-use crate::{merino_test, TestingTools};
+use crate::{merino_test_macro, TestingTools};
 use anyhow::Result;
 use httpmock::{Method::GET, MockServer};
 use reqwest::StatusCode;
 use serde_json::json;
 
-#[actix_rt::test]
-async fn suggest_wikifruit_works() -> Result<()> {
-    merino_test(
-        |settings| {
-            // Wiki fruit is only enabled when debug is true.
-            settings.debug = true;
-            settings.providers.wiki_fruit.enabled = true;
-        },
-        |TestingTools { test_client, .. }| async move {
-            let response = test_client.get("/api/v1/suggest?q=apple").send().await?;
+#[merino_test_macro(|settings| {
+    // Wiki fruit is only enabled when debug is true.
+    settings.debug = true;
+    settings.providers.wiki_fruit.enabled = true;
+})]
+async fn suggest_wikifruit_works(TestingTools { test_client, .. }: TestingTools) -> Result<()> {
+    let response = test_client.get("/api/v1/suggest?q=apple").send().await?;
 
-            assert_eq!(response.status(), StatusCode::OK);
-            let body: serde_json::Value = response.json().await?;
-            assert_eq!(
-                body["suggestions"][0]["url"],
-                json!("https://en.wikipedia.org/wiki/Apple")
-            );
+    assert_eq!(response.status(), StatusCode::OK);
+    let body: serde_json::Value = response.json().await?;
+    assert_eq!(
+        body["suggestions"][0]["url"],
+        json!("https://en.wikipedia.org/wiki/Apple")
+    );
 
-            Ok(())
-        },
-    )
-    .await
+    Ok(())
 }
 
-#[actix_rt::test]
-async fn suggest_adm_rs_works() -> Result<()> {
-    merino_test(
-        |settings| {
-            // Wiki fruit is only enabled when debug is true.
-            settings.debug = true;
-            settings.providers.adm_rs.enabled = true;
-        },
-        |TestingTools {
-             test_client,
-             remote_settings_mock,
-             ..
-         }| async move {
-            setup_empty_remote_settings_collection(remote_settings_mock);
+#[merino_test_macro(|settings| settings.providers.adm_rs.enabled = true )]
+async fn suggest_adm_rs_works(
+    TestingTools {
+        test_client,
+        remote_settings_mock,
+        ..
+    }: TestingTools,
+) -> Result<()> {
+    setup_empty_remote_settings_collection(remote_settings_mock);
 
-            let response = test_client.get("/api/v1/suggest?q=apple").send().await?;
+    let response = test_client.get("/api/v1/suggest?q=apple").send().await?;
 
-            // Check that the status is 200 OK, and that the body is JSON. The
-            // collection is empty so there shouldn't be any suggestion
-            // response.
-            assert_eq!(response.status(), StatusCode::OK);
-            let body: serde_json::Value = response.json().await?;
-            assert_eq!(body["suggestions"].as_array().unwrap().len(), 0);
+    // Check that the status is 200 OK, and that the body is JSON. The
+    // collection is empty so there shouldn't be any suggestion
+    // response.
+    assert_eq!(response.status(), StatusCode::OK);
+    let body: serde_json::Value = response.json().await?;
+    assert_eq!(body["suggestions"].as_array().unwrap().len(), 0);
 
-            Ok(())
-        },
-    )
-    .await
+    Ok(())
 }
 
 fn setup_empty_remote_settings_collection(server: MockServer) {

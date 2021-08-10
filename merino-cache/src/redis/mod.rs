@@ -18,10 +18,7 @@ use tracing_futures::{Instrument, WithSubscriber};
 use self::domain::RedisTtl;
 
 /// A suggester that uses Redis to cache previous results.
-pub struct Suggester<S>
-where
-    for<'a> S: SuggestionProvider<'a>,
-{
+pub struct Suggester<S> {
     /// The suggester to query on cache-miss.
     inner: S,
 
@@ -49,7 +46,11 @@ impl<S> Suggester<S>
 where
     for<'a> S: SuggestionProvider<'a>,
 {
-    /// Create a WikiFruit provider from settings.
+    /// Create a Redis suggestion provider from settings that wraps `provider`.
+    /// Opens a connection to Redis.
+    ///
+    /// # Errors
+    /// Fails if it cannot connect to Redis.
     pub async fn new_boxed(settings: &Settings, provider: S) -> Result<Box<Self>, SetupError> {
         tracing::debug!(?settings.redis_cache.url, "Setting up redis connection");
         let client = redis::Client::open(settings.redis_cache.url.clone().ok_or_else(|| {

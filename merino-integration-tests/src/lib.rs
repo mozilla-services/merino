@@ -20,22 +20,18 @@
 //! providing the above tools as an argument.
 //!
 //! ```
-//! #[actix_rt::test]
-//! async fn lbheartbeat_works() {
-//!     merino_test(
-//!         |_| (),
-//!         |TestingTools { test_client, .. }| async move {
-//!             let response = test_client
-//!                 .get("/__lbheartbeat__")
-//!                 .send()
-//!                 .await
-//!                 .expect("failed to execute request");
+//! use merino_integration_tests::{TestingTools, merino_test_macro};
 //!
-//!             assert_eq!(response.status(), StatusCode::OK);
-//!             assert_eq!(response.content_length(), Some(0));
-//!         },
-//!     )
-//!     .await
+//! #[merino_test_macro(|settings| settings.debug = true)]
+//! async fn lbheartbeat_works(TestingTools { test_client, .. }: TestingTools) {
+//!    let response = test_client
+//!        .get("/__lbheartbeat__")
+//!        .send()
+//!        .await
+//!        .expect("failed to execute request");
+//!
+//!    assert_eq!(response.status(), StatusCode::OK);
+//!    assert_eq!(response.content_length(), Some(0));
 //! }
 //! ```
 
@@ -51,3 +47,5 @@ pub use crate::utils::{
     logging::{LogWatcher, TracingJsonEvent},
     test_tools::{merino_test, TestingTools},
 };
+
+pub use merino_integration_tests_macro::merino_test as merino_test_macro;

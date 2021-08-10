@@ -7,6 +7,7 @@ mod multi;
 mod wikifruit;
 
 use std::borrow::Cow;
+use std::fmt::Debug;
 use std::hash::Hash;
 use std::time::Duration;
 
@@ -69,7 +70,7 @@ impl<'a, F> fake::Dummy<F> for SuggestionRequest<'a> {
 }
 
 /// A response of suggestions, along with related metadata.
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct SuggestionResponse {
     /// The relation of this response to the cache it came from, if any.
     pub cache_status: CacheStatus,
@@ -150,7 +151,7 @@ impl ToString for CacheStatus {
 
 /// A suggestion to provide to a user.
 #[serde_as]
-#[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq, Hash)]
 pub struct Suggestion {
     /// The content provider ID of the suggestion.
     #[serde(rename = "block_id")]
@@ -255,6 +256,9 @@ pub enum SuggestError {
 
     #[error("There was an error serializing the suggestions")]
     Serialization(#[source] serde_json::Error),
+
+    #[error("There was an internal error in the suggestion provider")]
+    Internal(#[source] anyhow::Error),
 }
 
 /// Languages supported by the client.
