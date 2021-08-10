@@ -26,8 +26,12 @@ pub fn configure(config: &mut ServiceConfig) {
 #[derive(Debug, Serialize)]
 struct SuggestResponse<'a> {
     /// A list of suggestions from the service.
-    suggestions: &'a [Suggestion],
+    suggestions: Vec<SuggestionWrapper<'a>>,
 }
+
+// Customizes the output format of [`Suggestion`].
+#[derive(Debug)]
+struct SuggestionWrapper<'a>(&'a Suggestion);
 
 /// Suggest content in response to the queried text.
 #[get("")]
@@ -66,7 +70,7 @@ async fn suggest<'a>(
     let res = HttpResponse::Ok()
         .append_header(("X-Cache", response.cache_status.to_string()))
         .json(SuggestResponse {
-            suggestions: &response.suggestions,
+            suggestions: response.suggestions.iter().map(SuggestionWrapper).collect(),
         });
 
     Ok(res)
@@ -131,5 +135,44 @@ impl<'a> SuggestionProviderRef<'a> {
                 .instrument(setup_span)
             })
             .await
+    }
+}
+
+/// A mapper from the internal schema used by merino-suggest to the expected API.
+impl<'a> Serialize for SuggestionWrapper<'a> {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        #[derive(Serialize)]
+        #[allow(clippy::missing_docs_in_private_items)]
+        struct Generated<'a> {
+            block_id: u32,
+            full_keyword: &'a str,
+            title: &'a str,
+            url: String,
+            impression_url: String,
+            click_url: String,
+            provider: &'a str,
+            is_sponsored: bool,
+            icon: String,
+            advertiser: &'a str,
+        }
+
+        let provider = &self.0.provider;
+        let generated = Generated {
+            block_id: self.0.id,
+            full_keyword: &self.0.full_keyword,
+            title: &self.0.title,
+            url: self.0.url.to_string(),
+            impression_url: self.0.impression_url.to_string(),
+            click_url: self.0.click_url.to_string(),
+            provider,
+            is_sponsored: self.0.is_sponsored,
+            icon: self.0.icon.to_string(),
+            advertiser: provider,
+        };
+
+        generated.serialize(serializer)
     }
 }

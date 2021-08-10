@@ -48,7 +48,7 @@ impl<'a> SuggestionProvider<'a> for DebugProvider {
 
         Ok(SuggestionResponse::new(vec![Suggestion {
             title: json,
-            advertiser: "Merino::Debug".into(),
+            provider: "Merino::Debug".into(),
             ..Faker.fake()
         }]))
     }

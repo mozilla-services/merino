@@ -117,7 +117,7 @@ mod tests {
             url: Uri::from_static("https://example.com/target/one"),
             impression_url: Uri::from_static("https://example.com/impression/one"),
             click_url: Uri::from_static("https://example.com/click/one"),
-            advertiser: "One Inc.".to_string(),
+            provider: "One Inc.".to_string(),
             is_sponsored: true,
             icon: Uri::from_static("https://example.com/icon/one.png"),
         }];
@@ -184,7 +184,7 @@ mod tests {
             url: Uri::from_static("https://example.com/target/one"),
             impression_url: Uri::from_static("https://example.com/impression/one"),
             click_url: Uri::from_static("https://example.com/click/one"),
-            advertiser: "One Inc.".to_string(),
+            provider: "One Inc.".to_string(),
             is_sponsored: true,
             icon: Uri::from_static("https://example.com/icon/one.png"),
         }];
