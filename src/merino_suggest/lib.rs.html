@@ -383,6 +383,10 @@
 <span id="381">381</span>
 <span id="382">382</span>
 <span id="383">383</span>
+<span id="384">384</span>
+<span id="385">385</span>
+<span id="386">386</span>
+<span id="387">387</span>
 </pre><pre class="rust">
 <span class="attribute">#![<span class="ident">warn</span>(<span class="ident">missing_docs</span>, <span class="ident">clippy::missing_docs_in_private_items</span>)]</span>
 
@@ -393,6 +397,7 @@
 <span class="kw">mod</span> <span class="ident">wikifruit</span>;
 
 <span class="kw">use</span> <span class="ident">std::borrow::Cow</span>;
+<span class="kw">use</span> <span class="ident">std::fmt::Debug</span>;
 <span class="kw">use</span> <span class="ident">std::hash::Hash</span>;
 <span class="kw">use</span> <span class="ident">std::time::Duration</span>;
 
@@ -455,7 +460,7 @@
 }
 
 <span class="doccomment">/// A response of suggestions, along with related metadata.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">SuggestionResponse</span> {
     <span class="doccomment">/// The relation of this response to the cache it came from, if any.</span>
     <span class="kw">pub</span> <span class="ident">cache_status</span>: <span class="ident">CacheStatus</span>,
@@ -536,7 +541,7 @@
 
 <span class="doccomment">/// A suggestion to provide to a user.</span>
 <span class="attribute">#[<span class="ident">serde_as</span>]</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Hash</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Suggestion</span> {
     <span class="doccomment">/// The content provider ID of the suggestion.</span>
     <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;block_id&quot;</span>)]</span>
@@ -641,6 +646,9 @@
 
     <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;There was an error serializing the suggestions&quot;</span>)]</span>
     <span class="ident">Serialization</span>(<span class="attribute">#[<span class="ident">source</span>]</span> <span class="ident">serde_json::Error</span>),
+
+    <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;There was an internal error in the suggestion provider&quot;</span>)]</span>
+    <span class="ident">Internal</span>(<span class="attribute">#[<span class="ident">source</span>]</span> <span class="ident">anyhow::Error</span>),
 }
 
 <span class="doccomment">/// Languages supported by the client.</span>

@@ -51,8 +51,6 @@
 <span id="49">49</span>
 <span id="50">50</span>
 <span id="51">51</span>
-<span id="52">52</span>
-<span id="53">53</span>
 </pre><pre class="rust">
 <span class="attribute">#![<span class="ident">warn</span>(<span class="ident">missing_docs</span>, <span class="ident">clippy::missing_docs_in_private_items</span>)]</span>
 <span class="comment">// None of the tests are seen by the linter, so none of the utilities are marked</span>
@@ -76,22 +74,18 @@
 <span class="doccomment">//! providing the above tools as an argument.</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! ```</span>
-<span class="doccomment">//! #[actix_rt::test]</span>
-<span class="doccomment">//! async fn lbheartbeat_works() {</span>
-<span class="doccomment">//!     merino_test(</span>
-<span class="doccomment">//!         |_| (),</span>
-<span class="doccomment">//!         |TestingTools { test_client, .. }| async move {</span>
-<span class="doccomment">//!             let response = test_client</span>
-<span class="doccomment">//!                 .get(&quot;/__lbheartbeat__&quot;)</span>
-<span class="doccomment">//!                 .send()</span>
-<span class="doccomment">//!                 .await</span>
-<span class="doccomment">//!                 .expect(&quot;failed to execute request&quot;);</span>
+<span class="doccomment">//! use merino_integration_tests::{TestingTools, merino_test_macro};</span>
 <span class="doccomment">//!</span>
-<span class="doccomment">//!             assert_eq!(response.status(), StatusCode::OK);</span>
-<span class="doccomment">//!             assert_eq!(response.content_length(), Some(0));</span>
-<span class="doccomment">//!         },</span>
-<span class="doccomment">//!     )</span>
-<span class="doccomment">//!     .await</span>
+<span class="doccomment">//! #[merino_test_macro(|settings| settings.debug = true)]</span>
+<span class="doccomment">//! async fn lbheartbeat_works(TestingTools { test_client, .. }: TestingTools) {</span>
+<span class="doccomment">//!    let response = test_client</span>
+<span class="doccomment">//!        .get(&quot;/__lbheartbeat__&quot;)</span>
+<span class="doccomment">//!        .send()</span>
+<span class="doccomment">//!        .await</span>
+<span class="doccomment">//!        .expect(&quot;failed to execute request&quot;);</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//!    assert_eq!(response.status(), StatusCode::OK);</span>
+<span class="doccomment">//!    assert_eq!(response.content_length(), Some(0));</span>
 <span class="doccomment">//! }</span>
 <span class="doccomment">//! ```</span>
 
@@ -107,5 +101,7 @@
     <span class="ident">logging</span>::{<span class="ident">LogWatcher</span>, <span class="ident">TracingJsonEvent</span>},
     <span class="ident">test_tools</span>::{<span class="ident">merino_test</span>, <span class="ident">TestingTools</span>},
 };
+
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">merino_integration_tests_macro::merino_test</span> <span class="kw">as</span> <span class="ident">merino_test_macro</span>;
 </pre></div>
 </section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="merino_integration_tests" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div><script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script></body></html>

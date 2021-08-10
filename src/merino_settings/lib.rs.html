@@ -210,6 +210,31 @@
 <span id="208">208</span>
 <span id="209">209</span>
 <span id="210">210</span>
+<span id="211">211</span>
+<span id="212">212</span>
+<span id="213">213</span>
+<span id="214">214</span>
+<span id="215">215</span>
+<span id="216">216</span>
+<span id="217">217</span>
+<span id="218">218</span>
+<span id="219">219</span>
+<span id="220">220</span>
+<span id="221">221</span>
+<span id="222">222</span>
+<span id="223">223</span>
+<span id="224">224</span>
+<span id="225">225</span>
+<span id="226">226</span>
+<span id="227">227</span>
+<span id="228">228</span>
+<span id="229">229</span>
+<span id="230">230</span>
+<span id="231">231</span>
+<span id="232">232</span>
+<span id="233">233</span>
+<span id="234">234</span>
+<span id="235">235</span>
 </pre><pre class="rust">
 <span class="doccomment">//! # Merino Settings</span>
 <span class="doccomment">//!</span>
@@ -286,6 +311,10 @@
 
     <span class="doccomment">/// Settings to use when determining the location associated with requests.</span>
     <span class="kw">pub</span> <span class="ident">location</span>: <span class="ident">LocationSettings</span>,
+
+    <span class="doccomment">/// Settings for the in-memory suggestion cache. This can be used by any</span>
+    <span class="doccomment">/// provider by setting the provider&#39;s cache type to &quot;memory&quot;.</span>
+    <span class="kw">pub</span> <span class="ident">memory_cache</span>: <span class="ident">MemoryCacheSettings</span>,
 }
 
 <span class="doccomment">/// Settings for the HTTP server.</span>
@@ -319,6 +348,7 @@
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">CacheType</span> {
     <span class="prelude-val">None</span>,
     <span class="ident">Redis</span>,
+    <span class="ident">Memory</span>,
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
@@ -366,6 +396,26 @@
     <span class="doccomment">/// The location of the maxmind database to use to determine IP location. If</span>
     <span class="doccomment">/// not specified, location information will not be calculated.</span>
     <span class="kw">pub</span> <span class="ident">maxmind_database</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PathBuf</span><span class="op">&gt;</span>,
+}
+
+<span class="attribute">#[<span class="ident">serde_as</span>]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">MemoryCacheSettings</span> {
+    <span class="doccomment">/// The default TTL to assign to a cache entry if the underlying provider does not provide one.</span>
+    <span class="attribute">#[<span class="ident">serde_as</span>(<span class="kw">as</span> <span class="op">=</span> <span class="string">&quot;DurationSeconds&quot;</span>)]</span>
+    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;default_ttl_sec&quot;</span>)]</span>
+    <span class="kw">pub</span> <span class="ident">default_ttl</span>: <span class="ident">Duration</span>,
+
+    <span class="doccomment">/// The cleanup task will be run with a period equal to this setting. Any</span>
+    <span class="doccomment">/// expired entries will be removed from the cache.</span>
+    <span class="attribute">#[<span class="ident">serde_as</span>(<span class="kw">as</span> <span class="op">=</span> <span class="string">&quot;DurationSeconds&quot;</span>)]</span>
+    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;cleanup_interval_sec&quot;</span>)]</span>
+    <span class="kw">pub</span> <span class="ident">cleanup_interval</span>: <span class="ident">Duration</span>,
+
+    <span class="doccomment">/// While running the cleanup task, at most this many entries will be removed</span>
+    <span class="doccomment">/// before cancelling the task. This should be used to limit the maximum</span>
+    <span class="doccomment">/// amount of time the cleanup task takes.</span>
+    <span class="kw">pub</span> <span class="ident">max_removed_entries</span>: <span class="ident">usize</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">Settings</span> {

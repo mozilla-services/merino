@@ -132,6 +132,9 @@
 <span id="130">130</span>
 <span id="131">131</span>
 <span id="132">132</span>
+<span id="133">133</span>
+<span id="134">134</span>
+<span id="135">135</span>
 </pre><pre class="rust">
 <span class="doccomment">//! Web handlers for the suggestions API.</span>
 
@@ -143,9 +146,9 @@
 };
 <span class="kw">use</span> <span class="ident">anyhow::Result</span>;
 <span class="kw">use</span> <span class="ident">merino_adm::remote_settings::RemoteSettingsSuggester</span>;
-<span class="kw">use</span> <span class="ident">merino_settings::Settings</span>;
+<span class="kw">use</span> <span class="ident">merino_cache</span>::{<span class="ident">MemoryCacheSuggester</span>, <span class="ident">RedisCacheSuggester</span>};
+<span class="kw">use</span> <span class="ident">merino_settings</span>::{<span class="ident">CacheType</span>, <span class="ident">Settings</span>};
 <span class="kw">use</span> <span class="ident">merino_suggest</span>::{<span class="ident">DebugProvider</span>, <span class="ident">Suggestion</span>, <span class="ident">SuggestionProvider</span>, <span class="ident">WikiFruit</span>};
-
 <span class="kw">use</span> <span class="ident">serde::Serialize</span>;
 <span class="kw">use</span> <span class="ident">tokio::sync::OnceCell</span>;
 <span class="kw">use</span> <span class="ident">tracing_futures::Instrument</span>;
@@ -235,10 +238,12 @@
                     <span class="kw">if</span> <span class="ident">settings</span>.<span class="ident">providers</span>.<span class="ident">wiki_fruit</span>.<span class="ident">enabled</span> {
                         <span class="kw">let</span> <span class="ident">wikifruit</span> <span class="op">=</span> <span class="ident">WikiFruit::new_boxed</span>(<span class="ident">settings</span>)<span class="question-mark">?</span>;
                         <span class="ident">providers</span>.<span class="ident">push</span>(<span class="kw">match</span> <span class="ident">settings</span>.<span class="ident">providers</span>.<span class="ident">wiki_fruit</span>.<span class="ident">cache</span> {
-                            <span class="ident">merino_settings::CacheType::None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">wikifruit</span>,
-                            <span class="ident">merino_settings::CacheType::Redis</span> <span class="op">=</span><span class="op">&gt;</span> {
-                                <span class="ident">merino_cache::RedisSuggester::new_boxed</span>(<span class="ident">settings</span>, <span class="kw-2">*</span><span class="ident">wikifruit</span>)
-                                    .<span class="kw">await</span><span class="question-mark">?</span>
+                            <span class="ident">CacheType::None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">wikifruit</span>,
+                            <span class="ident">CacheType::Redis</span> <span class="op">=</span><span class="op">&gt;</span> {
+                                <span class="ident">RedisCacheSuggester::new_boxed</span>(<span class="ident">settings</span>, <span class="kw-2">*</span><span class="ident">wikifruit</span>).<span class="kw">await</span><span class="question-mark">?</span>
+                            }
+                            <span class="ident">CacheType::Memory</span> <span class="op">=</span><span class="op">&gt;</span> {
+                                <span class="ident">MemoryCacheSuggester::new_boxed</span>(<span class="ident">settings</span>, <span class="kw-2">*</span><span class="ident">wikifruit</span>)
                             }
                         });
                     }
@@ -246,10 +251,11 @@
                     <span class="kw">if</span> <span class="ident">settings</span>.<span class="ident">providers</span>.<span class="ident">adm_rs</span>.<span class="ident">enabled</span> {
                         <span class="kw">let</span> <span class="ident">adm_rs</span> <span class="op">=</span> <span class="ident">RemoteSettingsSuggester::new_boxed</span>(<span class="ident">settings</span>).<span class="kw">await</span><span class="question-mark">?</span>;
                         <span class="ident">providers</span>.<span class="ident">push</span>(<span class="kw">match</span> <span class="ident">settings</span>.<span class="ident">providers</span>.<span class="ident">adm_rs</span>.<span class="ident">cache</span> {
-                            <span class="ident">merino_settings::CacheType::None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">adm_rs</span>,
-                            <span class="ident">merino_settings::CacheType::Redis</span> <span class="op">=</span><span class="op">&gt;</span> {
-                                <span class="ident">merino_cache::RedisSuggester::new_boxed</span>(<span class="ident">settings</span>, <span class="kw-2">*</span><span class="ident">adm_rs</span>).<span class="kw">await</span><span class="question-mark">?</span>
+                            <span class="ident">CacheType::None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">adm_rs</span>,
+                            <span class="ident">CacheType::Redis</span> <span class="op">=</span><span class="op">&gt;</span> {
+                                <span class="ident">RedisCacheSuggester::new_boxed</span>(<span class="ident">settings</span>, <span class="kw-2">*</span><span class="ident">adm_rs</span>).<span class="kw">await</span><span class="question-mark">?</span>
                             }
+                            <span class="ident">CacheType::Memory</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">MemoryCacheSuggester::new_boxed</span>(<span class="ident">settings</span>, <span class="kw-2">*</span><span class="ident">adm_rs</span>),
                         });
                     }
 
