@@ -29,7 +29,7 @@ and headers.
   Languages with `q=0` or not mentioned in the header will not produce any
   suggestions.
 
-### Other derived language
+### Other derived inputs
 
 - Location - The IP address of the user or nearest proxy will be used to
   determine location. This location may be as granular as city level, depending
