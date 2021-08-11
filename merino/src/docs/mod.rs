@@ -61,6 +61,7 @@
 //! as a whole, instead of providing a server to manual test against.
 
 mod adrs;
+mod api;
 mod dev;
 mod showroom;
 mod testing;
