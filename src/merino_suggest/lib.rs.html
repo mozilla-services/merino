@@ -386,7 +386,6 @@
 <span id="384">384</span>
 <span id="385">385</span>
 <span id="386">386</span>
-<span id="387">387</span>
 </pre><pre class="rust">
 <span class="attribute">#![<span class="ident">warn</span>(<span class="ident">missing_docs</span>, <span class="ident">clippy::missing_docs_in_private_items</span>)]</span>
 
@@ -544,7 +543,6 @@
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Hash</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Suggestion</span> {
     <span class="doccomment">/// The content provider ID of the suggestion.</span>
-    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;block_id&quot;</span>)]</span>
     <span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">u32</span>,
 
     <span class="doccomment">/// If this suggestion can be matched with partial keywords this is the full</span>
@@ -567,7 +565,7 @@
     <span class="kw">pub</span> <span class="ident">click_url</span>: <span class="ident">Uri</span>,
 
     <span class="doccomment">/// The name of the advertiser associated with this suggestion.</span>
-    <span class="kw">pub</span> <span class="ident">advertiser</span>: <span class="ident">String</span>,
+    <span class="kw">pub</span> <span class="ident">provider</span>: <span class="ident">String</span>,
 
     <span class="doccomment">/// Whether this suggestion is sponsored.</span>
     <span class="kw">pub</span> <span class="ident">is_sponsored</span>: <span class="ident">bool</span>,
@@ -586,7 +584,7 @@
             <span class="ident">url</span>: <span class="ident">fake_example_url</span>(<span class="ident">rng</span>),
             <span class="ident">impression_url</span>: <span class="ident">fake_example_url</span>(<span class="ident">rng</span>),
             <span class="ident">click_url</span>: <span class="ident">fake_example_url</span>(<span class="ident">rng</span>),
-            <span class="ident">advertiser</span>: <span class="ident">Words</span>(<span class="number">2</span>..<span class="number">4</span>).<span class="ident">fake_with_rng</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>, <span class="ident">R</span><span class="op">&gt;</span>(<span class="ident">rng</span>).<span class="ident">join</span>(<span class="string">&quot; &quot;</span>),
+            <span class="ident">provider</span>: <span class="ident">Words</span>(<span class="number">2</span>..<span class="number">4</span>).<span class="ident">fake_with_rng</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>, <span class="ident">R</span><span class="op">&gt;</span>(<span class="ident">rng</span>).<span class="ident">join</span>(<span class="string">&quot; &quot;</span>),
             <span class="ident">is_sponsored</span>: <span class="ident">rng</span>.<span class="ident">gen</span>(),
             <span class="ident">icon</span>: <span class="ident">fake_example_url</span>(<span class="ident">rng</span>),
         }
