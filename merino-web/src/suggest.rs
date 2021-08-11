@@ -29,7 +29,7 @@ struct SuggestResponse<'a> {
     suggestions: Vec<SuggestionWrapper<'a>>,
 }
 
-// Customizes the output format of [`Suggestion`].
+/// Customizes the output format of [`Suggestion`].
 #[derive(Debug)]
 struct SuggestionWrapper<'a>(&'a Suggestion);
 
