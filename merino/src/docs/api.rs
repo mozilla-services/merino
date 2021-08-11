@@ -7,7 +7,7 @@ This page describes the API endpoints available on Merino.
 
 Endpoint: `/api/v1/suggest`
 
-Example: `/api/v1/suggest?nelson%20mand`
+Example: `/api/v1/suggest?q=nelson%20mand`
 
 The primary endpoint for the browser to consume, this endpoint consumes user
 input and suggests pages the user may want to visit. The expectation is that
@@ -79,14 +79,15 @@ following keys:
 
 - `impression_url` - A telemetry URL that should be notified if the browser
   shows this suggestion to the user. This is used along with `click_url` to
-  monitor the relevancy of suggestions. For more details see Interaction Pings,
-  below. This field may be null, in which case no impression ping is required.
+  monitor the relevancy of suggestions. For more details see [Interaction
+  Pings](#interaction-pings), below. This field may be null, in which case no
+  impression ping is required.
 
 - `click_url` - A telemetry URL that should be notified if the user selects this
   suggestion. This should only be notified as the result of positive user
   action, and only if the user has navigated to the page specified in the
-  `url` field. For more details see Interaction Pings, below. This field may
-  be null, in which case no impression ping is required.
+  `url` field. For more details see [Interaction Pings](#interaction-pings),
+  below. This field may be null, in which case no click ping is required.
 
 - `provider` - A string that identifies the source of this suggestion. This can
   be used along with `block_id` to uniquely identify this suggestion. It is not
@@ -114,6 +115,7 @@ results as indicated by these headers.
 - 4xx - Client error. See response for details.
 - 5xx - Internal server error. Try again later.
 
+<a id="interaction-pings"></a>
 ## Interaction Pings
 
 In order to indicate activity relating to a suggestion, a ping should be sent to
@@ -122,7 +124,7 @@ These pings should be delegated to a Mozilla-controlled service instead of being
 sent directly by the browser. This is preferable since it helps maintain user
 privacy.
 
-If the URL for a interaction ping is not specified (for example, `click_url`
+If the URL for an interaction ping is not specified (for example, `click_url`
 is `null`), then no ping should be sent for that action.
 
 The required behavior for interaction pings is TBD.
