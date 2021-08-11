@@ -154,7 +154,6 @@ impl ToString for CacheStatus {
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq, Hash)]
 pub struct Suggestion {
     /// The content provider ID of the suggestion.
-    #[serde(rename = "block_id")]
     pub id: u32,
 
     /// If this suggestion can be matched with partial keywords this is the full
@@ -177,7 +176,7 @@ pub struct Suggestion {
     pub click_url: Uri,
 
     /// The name of the advertiser associated with this suggestion.
-    pub advertiser: String,
+    pub provider: String,
 
     /// Whether this suggestion is sponsored.
     pub is_sponsored: bool,
@@ -196,7 +195,7 @@ impl<'a, F> fake::Dummy<F> for Suggestion {
             url: fake_example_url(rng),
             impression_url: fake_example_url(rng),
             click_url: fake_example_url(rng),
-            advertiser: Words(2..4).fake_with_rng::<Vec<String>, R>(rng).join(" "),
+            provider: Words(2..4).fake_with_rng::<Vec<String>, R>(rng).join(" "),
             is_sponsored: rng.gen(),
             icon: fake_example_url(rng),
         }

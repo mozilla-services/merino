@@ -1,6 +1,8 @@
 //! Tests Merino's ability to make basic suggestions.
 #![cfg(test)]
 
+use std::collections::HashSet;
+
 use crate::{merino_test_macro, TestingTools};
 use anyhow::Result;
 use httpmock::{Method::GET, MockServer};
@@ -21,6 +23,42 @@ async fn suggest_wikifruit_works(TestingTools { test_client, .. }: TestingTools)
         body["suggestions"][0]["url"],
         json!("https://en.wikipedia.org/wiki/Apple")
     );
+
+    Ok(())
+}
+
+#[merino_test_macro(|settings| {
+    // Wiki fruit is only enabled when debug is true.
+    settings.debug = true;
+    settings.providers.wiki_fruit.enabled = true;
+})]
+async fn test_expected_fields(TestingTools { test_client, .. }: TestingTools) -> Result<()> {
+    let response = test_client.get("/api/v1/suggest?q=apple").send().await?;
+
+    assert_eq!(response.status(), StatusCode::OK);
+    let body: serde_json::Value = response.json().await?;
+    let keys: HashSet<_> = body["suggestions"][0].as_object().unwrap().keys().collect();
+
+    let expected_keys = vec![
+        "block_id",
+        "full_keyword",
+        "title",
+        "url",
+        "impression_url",
+        "click_url",
+        "provider",
+        "advertiser",
+        "is_sponsored",
+        "icon",
+    ];
+    dbg!(&keys);
+    for expected_key in expected_keys {
+        assert!(
+            keys.contains(&expected_key.to_string()),
+            "key {} should be included in suggestion objects",
+            expected_key
+        );
+    }
 
     Ok(())
 }
