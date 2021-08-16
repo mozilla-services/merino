@@ -316,6 +316,28 @@
 <span id="314">314</span>
 <span id="315">315</span>
 <span id="316">316</span>
+<span id="317">317</span>
+<span id="318">318</span>
+<span id="319">319</span>
+<span id="320">320</span>
+<span id="321">321</span>
+<span id="322">322</span>
+<span id="323">323</span>
+<span id="324">324</span>
+<span id="325">325</span>
+<span id="326">326</span>
+<span id="327">327</span>
+<span id="328">328</span>
+<span id="329">329</span>
+<span id="330">330</span>
+<span id="331">331</span>
+<span id="332">332</span>
+<span id="333">333</span>
+<span id="334">334</span>
+<span id="335">335</span>
+<span id="336">336</span>
+<span id="337">337</span>
+<span id="338">338</span>
 </pre><pre class="rust">
 <span class="doccomment">//! Types to extract merino data from requests.</span>
 
@@ -467,7 +489,8 @@
             }<span class="question-mark">?</span>;
 
             <span class="kw">let</span> <span class="ident">languages</span> <span class="op">=</span> <span class="ident">header</span>
-                .<span class="ident">split</span>(<span class="string">&quot;, &quot;</span>)
+                .<span class="ident">split</span>(<span class="string">&#39;,&#39;</span>)
+                .<span class="ident">map</span>(<span class="ident">str::trim</span>)
                 .<span class="ident">map</span>(<span class="ident">parse_language</span>)
                 .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Language</span><span class="op">&gt;</span>, <span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>()<span class="question-mark">?</span>;
 
@@ -482,12 +505,13 @@
 <span class="kw">mod</span> <span class="ident">tests</span> {
     <span class="kw">use</span> <span class="ident">actix_web</span>::{<span class="ident">dev::Payload</span>, <span class="ident">http::Method</span>, <span class="ident">test::TestRequest</span>, <span class="ident">FromRequest</span>, <span class="ident">HttpRequest</span>};
     <span class="kw">use</span> <span class="ident">merino_suggest</span>::{<span class="ident">Language</span>, <span class="ident">LanguageIdentifier</span>, <span class="ident">SupportedLanguages</span>};
+    <span class="kw">use</span> <span class="ident">pretty_assertions::assert_eq</span>;
 
     <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::extractors::SupportedLanguagesWrapper</span>;
 
     <span class="kw">const</span> <span class="ident">SUGGEST_URI</span>: <span class="kw-2">&amp;</span><span class="ident">str</span> <span class="op">=</span> <span class="string">&quot;/api/v1/suggest&quot;</span>;
 
-    <span class="kw">fn</span> <span class="ident">test_request_with_accept_language</span>(<span class="ident">accept_language</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">HttpRequest</span> {
+    <span class="kw">fn</span> <span class="ident">request_with_accept_language</span>(<span class="ident">accept_language</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">HttpRequest</span> {
         <span class="ident">TestRequest::with_uri</span>(<span class="ident">SUGGEST_URI</span>)
             .<span class="ident">insert_header</span>((<span class="string">&quot;Accept-Language&quot;</span>, <span class="ident">accept_language</span>))
             .<span class="ident">method</span>(<span class="ident">Method::GET</span>)
@@ -501,7 +525,7 @@
 
         <span class="comment">// Test single language without region</span>
         <span class="kw">let</span> <span class="ident">accept_language</span> <span class="op">=</span> <span class="string">&quot;en&quot;</span>;
-        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">test_request_with_accept_language</span>(<span class="ident">accept_language</span>);
+        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">request_with_accept_language</span>(<span class="ident">accept_language</span>);
         <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">SupportedLanguagesWrapper::from_request</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">payload</span>)
             .<span class="kw">await</span>
             .<span class="ident">expect</span>(<span class="string">&quot;Could not get result in test_valid_accept_language_headers&quot;</span>);
@@ -522,7 +546,7 @@
 
         <span class="comment">// Test single language with region</span>
         <span class="kw">let</span> <span class="ident">accept_language</span> <span class="op">=</span> <span class="string">&quot;en-US&quot;</span>;
-        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">test_request_with_accept_language</span>(<span class="ident">accept_language</span>);
+        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">request_with_accept_language</span>(<span class="ident">accept_language</span>);
         <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">SupportedLanguagesWrapper::from_request</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">payload</span>)
             .<span class="kw">await</span>
             .<span class="ident">expect</span>(<span class="string">&quot;Could not get result in test_valid_accept_language_headers&quot;</span>);
@@ -543,7 +567,7 @@
 
         <span class="comment">// Test wildcard</span>
         <span class="kw">let</span> <span class="ident">accept_language</span> <span class="op">=</span> <span class="string">&quot;*&quot;</span>;
-        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">test_request_with_accept_language</span>(<span class="ident">accept_language</span>);
+        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">request_with_accept_language</span>(<span class="ident">accept_language</span>);
         <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">SupportedLanguagesWrapper::from_request</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">payload</span>)
             .<span class="kw">await</span>
             .<span class="ident">expect</span>(<span class="string">&quot;Could not get result in test_valid_accept_language_headers&quot;</span>);
@@ -554,7 +578,7 @@
 
         <span class="comment">// Test several languages with quality values</span>
         <span class="kw">let</span> <span class="ident">accept_language</span> <span class="op">=</span> <span class="string">&quot;fr-CH, fr;q=0.9, en;q=0.8, de;q=0.7, *;q=0.5&quot;</span>;
-        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">test_request_with_accept_language</span>(<span class="ident">accept_language</span>);
+        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">request_with_accept_language</span>(<span class="ident">accept_language</span>);
         <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">SupportedLanguagesWrapper::from_request</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">payload</span>)
             .<span class="kw">await</span>
             .<span class="ident">expect</span>(<span class="string">&quot;Could not get result in test_valid_accept_language_headers&quot;</span>);
@@ -604,7 +628,7 @@
 
         <span class="comment">// Malformed quality value</span>
         <span class="kw">let</span> <span class="ident">accept_language</span> <span class="op">=</span> <span class="string">&quot;en-US;3&quot;</span>;
-        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">test_request_with_accept_language</span>(<span class="ident">accept_language</span>);
+        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">request_with_accept_language</span>(<span class="ident">accept_language</span>);
         <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">SupportedLanguagesWrapper::from_request</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">payload</span>).<span class="kw">await</span>;
 
         <span class="macro">assert_eq!</span>(
@@ -614,7 +638,7 @@
 
         <span class="comment">// Header with non-visible ASCII characters (\u{200B} is the zero-width space character)</span>
         <span class="kw">let</span> <span class="ident">accept_language</span> <span class="op">=</span> <span class="string">&quot;\u{200B}&quot;</span>;
-        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">test_request_with_accept_language</span>(<span class="ident">accept_language</span>);
+        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">request_with_accept_language</span>(<span class="ident">accept_language</span>);
         <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">SupportedLanguagesWrapper::from_request</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">payload</span>).<span class="kw">await</span>;
 
         <span class="macro">assert_eq!</span>(
@@ -624,13 +648,33 @@
 
         <span class="comment">// Non-numeric quality value</span>
         <span class="kw">let</span> <span class="ident">accept_language</span> <span class="op">=</span> <span class="string">&quot;en-US;q=one&quot;</span>;
-        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">test_request_with_accept_language</span>(<span class="ident">accept_language</span>);
+        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">request_with_accept_language</span>(<span class="ident">accept_language</span>);
         <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">SupportedLanguagesWrapper::from_request</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">payload</span>).<span class="kw">await</span>;
 
         <span class="macro">assert_eq!</span>(
             <span class="string">&quot;Malformed header: Accept-Language&quot;</span>,
             <span class="ident">result</span>.<span class="ident">unwrap_err</span>().<span class="ident">to_string</span>()
         );
+    }
+
+    <span class="attribute">#[<span class="ident">actix_rt::test</span>]</span>
+    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">test_valid_non_english_language_headers</span>() {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">payload</span> <span class="op">=</span> <span class="ident">Payload::None</span>;
+        <span class="kw">let</span> <span class="ident">accept_language</span> <span class="op">=</span> <span class="string">&quot;es-ES;q=1.0,es-MX;q=0.5,es;q=0.7&quot;</span>;
+        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">request_with_accept_language</span>(<span class="ident">accept_language</span>);
+        <span class="kw">let</span> <span class="ident">supported_languages</span> <span class="op">=</span> <span class="ident">SupportedLanguagesWrapper::from_request</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">payload</span>)
+            .<span class="kw">await</span>
+            .<span class="ident">unwrap</span>()
+            .<span class="number">0</span>;
+
+        <span class="kw">let</span> <span class="ident">expected_supported_languages</span> <span class="op">=</span> <span class="ident">SupportedLanguages</span>(<span class="macro">vec!</span>[
+            <span class="ident">Language::locale</span>(<span class="string">&quot;es&quot;</span>, <span class="prelude-val">Some</span>(<span class="string">&quot;es&quot;</span>), <span class="prelude-val">Some</span>(<span class="number">1.0</span>)),
+            <span class="ident">Language::locale</span>(<span class="string">&quot;es&quot;</span>, <span class="prelude-val">Some</span>(<span class="string">&quot;mx&quot;</span>), <span class="prelude-val">Some</span>(<span class="number">0.5</span>)),
+            <span class="ident">Language::locale</span>::<span class="op">&lt;</span><span class="kw">_</span>, <span class="ident">String</span><span class="op">&gt;</span>(<span class="string">&quot;es&quot;</span>, <span class="prelude-val">None</span>, <span class="prelude-val">Some</span>(<span class="number">0.7</span>)),
+        ]);
+
+        <span class="macro">assert_eq!</span>(<span class="ident">supported_languages</span>, <span class="ident">expected_supported_languages</span>);
+        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">supported_languages</span>.<span class="ident">includes</span>(<span class="string">&quot;en&quot;</span>, <span class="prelude-val">None</span>));
     }
 }
 </pre></div>
