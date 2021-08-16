@@ -1,6 +1,6 @@
 //! Tools for running tests
 
-use crate::utils::{logging::LogWatcher, redis::get_temp_db};
+use crate::utils::{logging::LogWatcher, metrics::MetricsWatcher, redis::get_temp_db};
 use httpmock::MockServer;
 use merino_settings::Settings;
 use reqwest::{redirect, Client, ClientBuilder, RequestBuilder};
@@ -68,6 +68,7 @@ where
     let mut settings = Settings::load_for_tests();
     settings.providers.adm_rs.server = Some(remote_settings_mock.url(""));
 
+    // Set up Redis
     let _connection_guard = if let Some(ref original_connection_info) = settings.redis_cache.url {
         match get_temp_db(original_connection_info).await {
             Ok((connection_info, connection_guard)) => {
@@ -92,13 +93,22 @@ where
             .expect("Failed to set viaduct backend");
     });
 
+    // Setup metrics
+    assert_eq!(
+        settings.metrics.sink_address,
+        "0.0.0.0:0".parse().unwrap(),
+        "Tests cannot change the metrics sink address, since it is ignored"
+    );
+    let (metrics_watcher, metrics_client) = MetricsWatcher::new_with_client();
+
     // Run server in the background
     let listener = TcpListener::bind(settings.http.listen).expect("Failed to bind to a port");
     let address = listener.local_addr().unwrap().to_string();
     let redis_client = (&settings.redis_cache.url)
         .clone()
         .map(|url| redis::Client::open(url).expect("Couldn't access redis server"));
-    let server = merino_web::run(listener, settings).expect("Failed to start server");
+    let server =
+        merino_web::run(listener, metrics_client, settings).expect("Failed to start server");
     let server_handle = tokio::spawn(server.with_current_subscriber());
     let test_client = TestReqwestClient::new(address);
 
@@ -108,6 +118,7 @@ where
         remote_settings_mock,
         log_watcher,
         redis_client,
+        metrics_watcher,
     };
     // Run the test
     let rv = test(tools).instrument(test_span).await;
@@ -140,6 +151,9 @@ pub struct TestingTools {
 
     /// To interact with the Redis cache
     pub redis_client: Option<redis::Client>,
+
+    /// To make assertions about metrics.
+    pub metrics_watcher: MetricsWatcher,
 }
 
 /// A wrapper around a `[reqwest::client]` that automatically sends requests to

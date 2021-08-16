@@ -45,6 +45,7 @@ mod utils;
 
 pub use crate::utils::{
     logging::{LogWatcher, TracingJsonEvent},
+    metrics::MetricsWatcher,
     test_tools::{merino_test, TestingTools},
 };
 
