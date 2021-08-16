@@ -148,7 +148,8 @@ impl FromRequest for SupportedLanguagesWrapper {
             }?;
 
             let languages = header
-                .split(", ")
+                .split(',')
+                .map(str::trim)
                 .map(parse_language)
                 .collect::<Result<Vec<Language>, _>>()?;
 
@@ -163,12 +164,13 @@ impl FromRequest for SupportedLanguagesWrapper {
 mod tests {
     use actix_web::{dev::Payload, http::Method, test::TestRequest, FromRequest, HttpRequest};
     use merino_suggest::{Language, LanguageIdentifier, SupportedLanguages};
+    use pretty_assertions::assert_eq;
 
     use crate::extractors::SupportedLanguagesWrapper;
 
     const SUGGEST_URI: &str = "/api/v1/suggest";
 
-    fn test_request_with_accept_language(accept_language: &str) -> HttpRequest {
+    fn request_with_accept_language(accept_language: &str) -> HttpRequest {
         TestRequest::with_uri(SUGGEST_URI)
             .insert_header(("Accept-Language", accept_language))
             .method(Method::GET)
@@ -182,7 +184,7 @@ mod tests {
 
         // Test single language without region
         let accept_language = "en";
-        let req = test_request_with_accept_language(accept_language);
+        let req = request_with_accept_language(accept_language);
         let result = SupportedLanguagesWrapper::from_request(&req, &mut payload)
             .await
             .expect("Could not get result in test_valid_accept_language_headers");
@@ -203,7 +205,7 @@ mod tests {
 
         // Test single language with region
         let accept_language = "en-US";
-        let req = test_request_with_accept_language(accept_language);
+        let req = request_with_accept_language(accept_language);
         let result = SupportedLanguagesWrapper::from_request(&req, &mut payload)
             .await
             .expect("Could not get result in test_valid_accept_language_headers");
@@ -224,7 +226,7 @@ mod tests {
 
         // Test wildcard
         let accept_language = "*";
-        let req = test_request_with_accept_language(accept_language);
+        let req = request_with_accept_language(accept_language);
         let result = SupportedLanguagesWrapper::from_request(&req, &mut payload)
             .await
             .expect("Could not get result in test_valid_accept_language_headers");
@@ -235,7 +237,7 @@ mod tests {
 
         // Test several languages with quality values
         let accept_language = "fr-CH, fr;q=0.9, en;q=0.8, de;q=0.7, *;q=0.5";
-        let req = test_request_with_accept_language(accept_language);
+        let req = request_with_accept_language(accept_language);
         let result = SupportedLanguagesWrapper::from_request(&req, &mut payload)
             .await
             .expect("Could not get result in test_valid_accept_language_headers");
@@ -285,7 +287,7 @@ mod tests {
 
         // Malformed quality value
         let accept_language = "en-US;3";
-        let req = test_request_with_accept_language(accept_language);
+        let req = request_with_accept_language(accept_language);
         let result = SupportedLanguagesWrapper::from_request(&req, &mut payload).await;
 
         assert_eq!(
@@ -295,7 +297,7 @@ mod tests {
 
         // Header with non-visible ASCII characters (\u{200B} is the zero-width space character)
         let accept_language = "\u{200B}";
-        let req = test_request_with_accept_language(accept_language);
+        let req = request_with_accept_language(accept_language);
         let result = SupportedLanguagesWrapper::from_request(&req, &mut payload).await;
 
         assert_eq!(
@@ -305,12 +307,32 @@ mod tests {
 
         // Non-numeric quality value
         let accept_language = "en-US;q=one";
-        let req = test_request_with_accept_language(accept_language);
+        let req = request_with_accept_language(accept_language);
         let result = SupportedLanguagesWrapper::from_request(&req, &mut payload).await;
 
         assert_eq!(
             "Malformed header: Accept-Language",
             result.unwrap_err().to_string()
         );
+    }
+
+    #[actix_rt::test]
+    async fn test_valid_non_english_language_headers() {
+        let mut payload = Payload::None;
+        let accept_language = "es-ES;q=1.0,es-MX;q=0.5,es;q=0.7";
+        let req = request_with_accept_language(accept_language);
+        let supported_languages = SupportedLanguagesWrapper::from_request(&req, &mut payload)
+            .await
+            .unwrap()
+            .0;
+
+        let expected_supported_languages = SupportedLanguages(vec![
+            Language::locale("es", Some("es"), Some(1.0)),
+            Language::locale("es", Some("mx"), Some(0.5)),
+            Language::locale::<_, String>("es", None, Some(0.7)),
+        ]);
+
+        assert_eq!(supported_languages, expected_supported_languages);
+        assert!(!supported_languages.includes("en", None));
     }
 }

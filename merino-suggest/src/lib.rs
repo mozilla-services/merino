@@ -309,6 +309,23 @@ pub struct Language {
     pub quality_value: Option<f64>,
 }
 
+impl Language {
+    /// Create a new Language instance with the given locale and quality.
+    pub fn locale<S1: Into<String>, S2: Into<String>>(
+        language: S1,
+        region: Option<S2>,
+        quality_value: Option<f64>,
+    ) -> Self {
+        Self {
+            language_identifier: LanguageIdentifier::Locale {
+                language: language.into(),
+                region: region.map(Into::into),
+            },
+            quality_value,
+        }
+    }
+}
+
 /// An enum used to signify whether a `Language` refers to a specific language or a wildcard.
 #[derive(Debug, PartialEq)]
 pub enum LanguageIdentifier {
