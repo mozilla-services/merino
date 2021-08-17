@@ -235,6 +235,19 @@
 <span id="233">233</span>
 <span id="234">234</span>
 <span id="235">235</span>
+<span id="236">236</span>
+<span id="237">237</span>
+<span id="238">238</span>
+<span id="239">239</span>
+<span id="240">240</span>
+<span id="241">241</span>
+<span id="242">242</span>
+<span id="243">243</span>
+<span id="244">244</span>
+<span id="245">245</span>
+<span id="246">246</span>
+<span id="247">247</span>
+<span id="248">248</span>
 </pre><pre class="rust">
 <span class="doccomment">//! # Merino Settings</span>
 <span class="doccomment">//!</span>
@@ -299,6 +312,9 @@
 
     <span class="doccomment">/// Logging settings.</span>
     <span class="kw">pub</span> <span class="ident">logging</span>: <span class="ident">LoggingSettings</span>,
+
+    <span class="doccomment">/// Metrics settings.</span>
+    <span class="kw">pub</span> <span class="ident">metrics</span>: <span class="ident">MetricsSettings</span>,
 
     <span class="doccomment">/// URL to redirect curious users to, that explains what this service is.</span>
     <span class="doccomment">/// Preferable a public wiki page. Optional.</span>
@@ -416,6 +432,16 @@
     <span class="doccomment">/// before cancelling the task. This should be used to limit the maximum</span>
     <span class="doccomment">/// amount of time the cleanup task takes.</span>
     <span class="kw">pub</span> <span class="ident">max_removed_entries</span>: <span class="ident">usize</span>,
+}
+
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">MetricsSettings</span> {
+    <span class="doccomment">/// The host and port to send metrics to, such as &quot;127.0.0.1:8125&quot; or &quot;metrics.local:9999&quot;.</span>
+    <span class="kw">pub</span> <span class="ident">sink_address</span>: <span class="ident">SocketAddr</span>,
+
+    <span class="doccomment">/// Maximum size in kilobytes that the metrics queue can grow to before</span>
+    <span class="doccomment">/// locale metrics start to be dropped.</span>
+    <span class="kw">pub</span> <span class="ident">max_queue_size_kb</span>: <span class="ident">usize</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">Settings</span> {

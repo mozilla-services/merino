@@ -178,6 +178,11 @@
 <span id="176">176</span>
 <span id="177">177</span>
 <span id="178">178</span>
+<span id="179">179</span>
+<span id="180">180</span>
+<span id="181">181</span>
+<span id="182">182</span>
+<span id="183">183</span>
 </pre><pre class="rust">
 <span class="doccomment">//! Web handlers for the suggestions API.</span>
 
@@ -188,6 +193,7 @@
     <span class="ident">HttpResponse</span>,
 };
 <span class="kw">use</span> <span class="ident">anyhow::Result</span>;
+<span class="kw">use</span> <span class="ident">cadence</span>::{<span class="ident">Histogrammed</span>, <span class="ident">StatsdClient</span>};
 <span class="kw">use</span> <span class="ident">merino_adm::remote_settings::RemoteSettingsSuggester</span>;
 <span class="kw">use</span> <span class="ident">merino_cache</span>::{<span class="ident">MemoryCacheSuggester</span>, <span class="ident">RedisCacheSuggester</span>};
 <span class="kw">use</span> <span class="ident">merino_settings</span>::{<span class="ident">CacheType</span>, <span class="ident">Settings</span>};
@@ -221,6 +227,7 @@
     <span class="ident">SuggestionRequestWrapper</span>(<span class="ident">suggestion_request</span>): <span class="ident">SuggestionRequestWrapper</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
     <span class="ident">provider</span>: <span class="ident">Data</span><span class="op">&lt;</span><span class="ident">SuggestionProviderRef</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     <span class="ident">settings</span>: <span class="ident">Data</span><span class="op">&lt;</span><span class="ident">Settings</span><span class="op">&gt;</span>,
+    <span class="ident">metrics_client</span>: <span class="ident">Data</span><span class="op">&lt;</span><span class="ident">StatsdClient</span><span class="op">&gt;</span>,
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">HttpResponse</span>, <span class="ident">HandlerError</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">provider</span> <span class="op">=</span> <span class="ident">provider</span>
         .<span class="ident">get_or_try_init</span>(<span class="ident">settings</span>.<span class="ident">as_ref</span>())
@@ -247,6 +254,9 @@
         <span class="ident">suggestion_count</span> <span class="op">=</span> <span class="ident">response</span>.<span class="ident">suggestions</span>.<span class="ident">len</span>(),
         <span class="string">&quot;Providing suggestions&quot;</span>
     );
+    <span class="ident">metrics_client</span>
+        .<span class="ident">histogram</span>(<span class="string">&quot;request.suggestion-per&quot;</span>, <span class="ident">response</span>.<span class="ident">suggestions</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">u64</span>)
+        .<span class="ident">ok</span>();
 
     <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">HttpResponse::Ok</span>()
         .<span class="ident">append_header</span>((<span class="string">&quot;X-Cache&quot;</span>, <span class="ident">response</span>.<span class="ident">cache_status</span>.<span class="ident">to_string</span>()))
