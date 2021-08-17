@@ -112,3 +112,22 @@ fn setup_empty_remote_settings_collection(server: MockServer) {
         }));
     });
 }
+
+#[merino_test_macro(|settings| {
+    // Wiki fruit is only enabled when debug is true.
+    settings.debug = true;
+    settings.providers.wiki_fruit.enabled = true;
+})]
+async fn suggest_records_suggestion_metrics(
+    TestingTools {
+        test_client,
+        mut metrics_watcher,
+        ..
+    }: TestingTools,
+) -> Result<()> {
+    let response = test_client.get("/api/v1/suggest?q=apple").send().await?;
+    let body: serde_json::Value = response.json().await?;
+    let response_suggestion_count = body["suggestions"].as_array().unwrap().len() as f64;
+    assert!(metrics_watcher.has_histogram("request.suggestion-per", response_suggestion_count));
+    Ok(())
+}

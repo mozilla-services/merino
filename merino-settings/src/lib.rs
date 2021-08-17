@@ -62,6 +62,9 @@ pub struct Settings {
     /// Logging settings.
     pub logging: LoggingSettings,
 
+    /// Metrics settings.
+    pub metrics: MetricsSettings,
+
     /// URL to redirect curious users to, that explains what this service is.
     /// Preferable a public wiki page. Optional.
     #[serde_as(as = "Option<DisplayFromStr>")]
@@ -178,6 +181,16 @@ pub struct MemoryCacheSettings {
     /// before cancelling the task. This should be used to limit the maximum
     /// amount of time the cleanup task takes.
     pub max_removed_entries: usize,
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct MetricsSettings {
+    /// The host and port to send metrics to, such as "127.0.0.1:8125" or "metrics.local:9999".
+    pub sink_address: SocketAddr,
+
+    /// Maximum size in kilobytes that the metrics queue can grow to before
+    /// locale metrics start to be dropped.
+    pub max_queue_size_kb: usize,
 }
 
 impl Settings {

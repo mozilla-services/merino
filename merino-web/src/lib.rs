@@ -6,6 +6,7 @@ mod debug;
 mod dockerflow;
 mod errors;
 mod extractors;
+mod middleware;
 mod suggest;
 
 use actix_cors::Cors;
@@ -17,6 +18,7 @@ use actix_web::{
 };
 use actix_web_location::{providers::FallbackProvider, Location};
 use anyhow::Context;
+use cadence::StatsdClient;
 use merino_settings::Settings;
 use std::net::TcpListener;
 use tracing_actix_web_mozlog::MozLog;
@@ -30,6 +32,12 @@ use tracing_actix_web_mozlog::MozLog;
 /// go into building the listener (the host and port). If you want to respect the
 /// settings specified in that object, you must include them in the construction
 /// of `listener`.
+///
+/// # Context
+///
+/// The code initialized here emits logs and metrics, assuming global defaults
+/// have been set. Logs are emitted via [`tracing`], and metrics via
+/// [`cadence`].
 ///
 /// # Errors
 ///
@@ -47,7 +55,8 @@ use tracing_actix_web_mozlog::MozLog;
 ///     .expect("Failed to bind port");
 /// let settings = merino_settings::Settings::load()
 ///     .expect("Failed to load settings");
-/// merino_web::run(listener, settings)
+/// let metrics_client = cadence::StatsdClient::from_sink("merino", cadence::NopMetricSink);
+/// merino_web::run(listener, metrics_client, settings)
 ///     .expect("Failed to start server")
 ///     .await
 ///     .expect("Fatal error while running server");
@@ -65,33 +74,45 @@ use tracing_actix_web_mozlog::MozLog;
 ///     .expect("Failed to bind port");
 /// let settings = merino_settings::Settings::load()
 ///     .expect("Failed to load settings");
-/// let server = merino_web::run(listener, settings)
+/// let metrics_client = cadence::StatsdClient::from_sink("merino", cadence::NopMetricSink);
+/// let server = merino_web::run(listener, metrics_client, settings)
 ///     .expect("Failed to start server");
 ///
 /// /// The server can be stopped with `join_handle::abort()`, if needed.
 /// let join_handle = tokio::spawn(server);
 /// ```
-pub fn run(listener: TcpListener, settings: Settings) -> Result<Server, anyhow::Error> {
+pub fn run(
+    listener: TcpListener,
+    metrics_client: StatsdClient,
+    settings: Settings,
+) -> Result<Server, anyhow::Error> {
     let num_workers = settings.http.workers;
 
     let moz_log = MozLog::default();
 
     let location_config = Data::new({
-        let mut config = actix_web_location::LocationConfig::default();
+        let mut config =
+            actix_web_location::LocationConfig::default().with_metrics(metrics_client.clone());
+
         if let Some(ref mmdb) = settings.location.maxmind_database {
             config = config.with_provider(
                 actix_web_location::providers::MaxMindProvider::from_path(mmdb)
                     .context("Could not set maxmind location provider")?,
             );
         }
+
         config.with_provider(FallbackProvider::new(Location::build()))
     });
 
     let mut server = HttpServer::new(move || {
         App::new()
+            // App state
             .app_data(Data::new((&settings).clone()))
             .app_data(location_config.clone())
+            .app_data(Data::new(metrics_client.clone()))
+            // Middlewares
             .wrap(moz_log.clone())
+            .wrap(middleware::Metrics)
             .wrap(Cors::permissive())
             // The core functionality of Merino
             .service(web::scope("api/v1/suggest").configure(suggest::configure))

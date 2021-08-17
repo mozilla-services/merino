@@ -7,6 +7,7 @@ use actix_web::{
     HttpResponse,
 };
 use anyhow::Result;
+use cadence::{Histogrammed, StatsdClient};
 use merino_adm::remote_settings::RemoteSettingsSuggester;
 use merino_cache::{MemoryCacheSuggester, RedisCacheSuggester};
 use merino_settings::{CacheType, Settings};
@@ -40,6 +41,7 @@ async fn suggest<'a>(
     SuggestionRequestWrapper(suggestion_request): SuggestionRequestWrapper<'a>,
     provider: Data<SuggestionProviderRef<'a>>,
     settings: Data<Settings>,
+    metrics_client: Data<StatsdClient>,
 ) -> Result<HttpResponse, HandlerError> {
     let provider = provider
         .get_or_try_init(settings.as_ref())
@@ -66,6 +68,9 @@ async fn suggest<'a>(
         suggestion_count = response.suggestions.len(),
         "Providing suggestions"
     );
+    metrics_client
+        .histogram("request.suggestion-per", response.suggestions.len() as u64)
+        .ok();
 
     let res = HttpResponse::Ok()
         .append_header(("X-Cache", response.cache_status.to_string()))

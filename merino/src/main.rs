@@ -16,8 +16,9 @@
 mod docs;
 
 use anyhow::{Context, Result};
+use cadence::{BufferedUdpMetricSink, CountedExt, QueuingMetricSink, StatsdClient};
 use merino_settings::{LogFormat, Settings};
-use std::net::TcpListener;
+use std::net::{TcpListener, UdpSocket};
 use tracing::Level;
 use tracing_actix_web_mozlog::{JsonStorageLayer, MozLogFormatLayer};
 use tracing_log::LogTracer;
@@ -28,11 +29,13 @@ use viaduct_reqwest::ReqwestBackend;
 #[actix_rt::main]
 async fn main() -> Result<()> {
     let settings = merino_settings::Settings::load().context("Loading settings")?;
-    init_logging(&settings)?;
-    viaduct::set_backend(&ReqwestBackend).context("setting viaduct backend")?;
-    let listener = TcpListener::bind(settings.http.listen).context("Binding port")?;
+    init_logging(&settings).context("initializing logging")?;
+    let metrics_client = init_metrics(&settings).context("initializing metrics")?;
 
-    merino_web::run(listener, settings)
+    viaduct::set_backend(&ReqwestBackend).context("setting viaduct backend")?;
+
+    let listener = TcpListener::bind(settings.http.listen).context("Binding port")?;
+    merino_web::run(listener, metrics_client, settings)
         .context("Starting merino-web server")?
         .await
         .context("Running merino-web server")?;
@@ -71,5 +74,45 @@ fn init_logging(settings: &Settings) -> Result<()> {
         }
     };
 
+    let _span_guard = tracing::debug_span!("init_logging").entered();
+    tracing::debug!("logging set up");
+
     Ok(())
+}
+
+#[tracing::instrument(level = "DEBUG", skip(settings))]
+/// Set up metrics for Merino, based on settings.
+fn init_metrics(settings: &Settings) -> Result<StatsdClient> {
+    // We'll only be sending on this socket, so the host and port don't matter.
+    let socket = UdpSocket::bind("0.0.0.0:0").context("creating metrics socket")?;
+    socket
+        .set_nonblocking(true)
+        .context("setting metrics port to nonblocking")?;
+
+    let queue_size = settings.metrics.max_queue_size_kb * 1024;
+
+    // Make metrics show up immediately in development by using a non-buffered
+    // sink. This would be a terrible idea in production though, so in
+    // production use the buffered version. However, still use the queuing sink,
+    // which is run on a different thread. This way we still get the concurrency
+    // complexity, in case it causes bugs.
+    let sink = if settings.debug {
+        let udp_sink = cadence::UdpMetricSink::from(settings.metrics.sink_address, socket)
+            .context("setting up debug metrics sink")?;
+        QueuingMetricSink::with_capacity(udp_sink, queue_size)
+    } else {
+        let udp_sink = BufferedUdpMetricSink::from(settings.metrics.sink_address, socket)
+            .context("setting up metrics sink")?;
+        QueuingMetricSink::with_capacity(udp_sink, queue_size)
+    };
+
+    let client = StatsdClient::from_sink("merino", sink);
+
+    // Test the newly made metrics client
+    client
+        .incr("startup")
+        .context("Sending startup metrics ping")?;
+
+    tracing::debug!(sink_address=?settings.metrics.sink_address, ?queue_size, "metrics set up");
+    Ok(client)
 }
