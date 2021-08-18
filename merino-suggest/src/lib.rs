@@ -421,7 +421,7 @@ impl fmt::Display for OsFamily {
 
 impl<'a, F> fake::Dummy<F> for OsFamily {
     fn dummy_with_rng<R: rand::Rng + ?Sized>(_config: &F, rng: &mut R) -> Self {
-        match rng.gen_range(0..4) {
+        match rng.gen_range(0..8) {
             0 => OsFamily::Windows,
             1 => OsFamily::MacOs,
             2 => OsFamily::Linux,
