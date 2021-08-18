@@ -20,13 +20,17 @@ pub enum HandlerError {
     /// Indicates that the server's config is incorrect.
     #[error("The server was setup invalidly")]
     InvalidSetup(#[source] anyhow::Error),
+    /// An error that indicates that one of the request headers is invalid.
+    #[error("Invalid header: {0}")]
+    InvalidHeader(&'static str),
 }
 
 impl ResponseError for HandlerError {
     fn status_code(&self) -> StatusCode {
         match self {
             Self::Internal | Self::InvalidSetup(_) => StatusCode::INTERNAL_SERVER_ERROR,
-            Self::MalformedHeader(_) => StatusCode::BAD_REQUEST,
+            HandlerError::MalformedHeader(_) => StatusCode::BAD_REQUEST,
+            HandlerError::InvalidHeader(_) => StatusCode::BAD_REQUEST,
         }
     }
 
