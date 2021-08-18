@@ -471,7 +471,7 @@ pub struct DeviceInfo {
     pub os_family: OsFamily,
     /// The device form factor indicated in the User-Agent header.
     pub form_factor: FormFactor,
-    /// The major browser version of Firefox .
+    /// The web browser indicated in the User-Agent header.
     pub browser: Browser,
 }
 
