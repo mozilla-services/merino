@@ -208,7 +208,7 @@ impl FromWootheeResult for DeviceInfo {
         Self {
             os_family: OsFamily::from_woothee_result(wresult),
             form_factor: FormFactor::from_woothee_result(wresult),
-            browser: Browser::from_woothee_result(wresult)
+            browser: Browser::from_woothee_result(wresult),
         }
     }
 }
@@ -246,8 +246,8 @@ impl FromWootheeResult for OsFamily {
 impl FromWootheeResult for Browser {
     fn from_woothee_result(wresult: &WootheeResult) -> Self {
         if wresult.name.to_lowercase() == "firefox" {
-            let version = 
-                u32::from_str(wresult.version.split('.').collect::<Vec<&str>>()[0]).unwrap_or_default();
+            let version = u32::from_str(wresult.version.split('.').collect::<Vec<&str>>()[0])
+                .unwrap_or_default();
             Browser::Firefox(version)
         } else {
             Browser::Other

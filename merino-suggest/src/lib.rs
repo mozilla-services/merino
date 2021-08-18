@@ -443,7 +443,7 @@ pub enum Browser {
     /// The Firefox web browser with the major version number.
     Firefox(u32),
     /// A web browser other than Firefox.
-    Other
+    Other,
 }
 
 impl fmt::Display for Browser {
@@ -480,9 +480,7 @@ impl fmt::Display for DeviceInfo {
         write!(
             fmt,
             "{}, {}, {}",
-            self.os_family,
-            self.form_factor,
-            self.browser,
+            self.os_family, self.form_factor, self.browser,
         )
     }
 }

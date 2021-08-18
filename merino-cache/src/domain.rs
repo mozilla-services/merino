@@ -33,7 +33,9 @@ mod tests {
 
     use super::CacheKey;
     use fake::{Fake, Faker};
-    use merino_suggest::{Browser, DeviceInfo, FIREFOX_VERSION_RANGE, FormFactor, OsFamily, SuggestionRequest};
+    use merino_suggest::{
+        Browser, DeviceInfo, FormFactor, OsFamily, SuggestionRequest, FIREFOX_VERSION_RANGE,
+    };
     use proptest::prelude::*;
 
     /// This test provides a fixed input, and expects a certain cache key to be
