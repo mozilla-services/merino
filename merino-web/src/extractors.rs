@@ -17,12 +17,12 @@ use futures_util::{
 };
 use lazy_static::lazy_static;
 use merino_suggest::{
-    DeviceInfo, FormFactor, Language, LanguageIdentifier, OsFamily, SuggestionRequest,
+    Browser, DeviceInfo, FormFactor, Language, LanguageIdentifier, OsFamily, SuggestionRequest,
     SupportedLanguages,
 };
 use serde::Deserialize;
 use tokio::try_join;
-use woothee::parser::Parser;
+use woothee::parser::{Parser, WootheeResult};
 
 lazy_static! {
     static ref EMPTY_HEADER: HeaderValue = HeaderValue::from_static("");
@@ -170,7 +170,7 @@ impl FromRequest for SupportedLanguagesWrapper {
 }
 
 /// A wrapper around [`DeviceInfo`].
-#[derive(Debug, Default, PartialEq)]
+#[derive(Debug, PartialEq)]
 struct DeviceInfoWrapper(DeviceInfo);
 
 impl FromRequest for DeviceInfoWrapper {
@@ -185,23 +185,52 @@ impl FromRequest for DeviceInfoWrapper {
             .unwrap_or(&EMPTY_HEADER)
             .to_str()
             .unwrap_or_default();
-
-        if header.is_empty() {
-            return future::ready(Ok(DeviceInfoWrapper::default()));
-        }
-
         let wresult = Parser::new().parse(header).unwrap_or_default();
 
-        // If it's not firefox, it doesn't belong here...
-        if !["firefox"].contains(&wresult.name.to_lowercase().as_str()) {
-            return future::ready(Err(HandlerError::InvalidHeader(
-                "User agent is not a Firefox user agent",
-            )
-            .into()));
-        }
+        future::ready(Ok(DeviceInfoWrapper::from_woothee_result(&wresult)))
+    }
+}
 
+/// Extracts information from a [`WootheeResult`].
+trait FromWootheeResult {
+    /// Extracts information from a [`WootheeResult`].
+    fn from_woothee_result(wresult: &WootheeResult) -> Self;
+}
+
+impl FromWootheeResult for DeviceInfoWrapper {
+    fn from_woothee_result(wresult: &WootheeResult) -> Self {
+        Self(DeviceInfo::from_woothee_result(wresult))
+    }
+}
+
+impl FromWootheeResult for DeviceInfo {
+    fn from_woothee_result(wresult: &WootheeResult) -> Self {
+        Self {
+            os_family: OsFamily::from_woothee_result(wresult),
+            form_factor: FormFactor::from_woothee_result(wresult),
+            browser: Browser::from_woothee_result(wresult)
+        }
+    }
+}
+
+impl FromWootheeResult for FormFactor {
+    fn from_woothee_result(wresult: &WootheeResult) -> Self {
         let os = wresult.os.to_lowercase();
-        let os_family = match os.as_str() {
+
+        match wresult.category {
+            "pc" => FormFactor::Desktop,
+            "smartphone" if os == "ipad" => FormFactor::Tablet,
+            "smartphone" => FormFactor::Phone,
+            _ => FormFactor::Other,
+        }
+    }
+}
+
+impl FromWootheeResult for OsFamily {
+    fn from_woothee_result(wresult: &WootheeResult) -> Self {
+        let os = wresult.os.to_lowercase();
+
+        match os.as_str() {
             _ if os.starts_with("windows") => OsFamily::Windows,
             "mac osx" => OsFamily::MacOs,
             "linux" => OsFamily::Linux,
@@ -210,24 +239,19 @@ impl FromRequest for DeviceInfoWrapper {
             "chromeos" => OsFamily::ChromeOs,
             "blackberry" => OsFamily::BlackBerry,
             _ => OsFamily::Other,
-        };
+        }
+    }
+}
 
-        let form_factor = match wresult.category {
-            "pc" => FormFactor::Desktop,
-            "smartphone" if os.as_str() == "ipad" => FormFactor::Tablet,
-            "smartphone" => FormFactor::Phone,
-            _ => FormFactor::Other,
-        };
-
-        let ff_version = Some(
-            u32::from_str(wresult.version.split('.').collect::<Vec<&str>>()[0]).unwrap_or_default(),
-        );
-
-        future::ready(Ok(DeviceInfoWrapper(DeviceInfo {
-            os_family,
-            form_factor,
-            ff_version,
-        })))
+impl FromWootheeResult for Browser {
+    fn from_woothee_result(wresult: &WootheeResult) -> Self {
+        if wresult.name.to_lowercase() == "firefox" {
+            let version = 
+                u32::from_str(wresult.version.split('.').collect::<Vec<&str>>()[0]).unwrap_or_default();
+            Browser::Firefox(version)
+        } else {
+            Browser::Other
+        }
     }
 }
 
@@ -235,7 +259,7 @@ impl FromRequest for DeviceInfoWrapper {
 mod tests {
     use actix_web::{dev::Payload, http::Method, test::TestRequest, FromRequest, HttpRequest};
     use merino_suggest::{
-        DeviceInfo, FormFactor, Language, LanguageIdentifier, OsFamily, SupportedLanguages,
+        Browser, DeviceInfo, FormFactor, Language, LanguageIdentifier, OsFamily, SupportedLanguages,
     };
     use pretty_assertions::assert_eq;
 
@@ -418,7 +442,7 @@ mod tests {
             DeviceInfoWrapper(DeviceInfo {
                 os_family: OsFamily::MacOs,
                 form_factor: FormFactor::Desktop,
-                ff_version: Some(85),
+                browser: Browser::Firefox(85),
             })
         );
 
@@ -434,7 +458,7 @@ mod tests {
             DeviceInfoWrapper(DeviceInfo {
                 os_family: OsFamily::Windows,
                 form_factor: FormFactor::Desktop,
-                ff_version: Some(61),
+                browser: Browser::Firefox(61),
             })
         );
 
@@ -450,7 +474,7 @@ mod tests {
             DeviceInfoWrapper(DeviceInfo {
                 os_family: OsFamily::Linux,
                 form_factor: FormFactor::Desktop,
-                ff_version: Some(82),
+                browser: Browser::Firefox(82),
             })
         );
 
@@ -466,7 +490,7 @@ mod tests {
             DeviceInfoWrapper(DeviceInfo {
                 os_family: OsFamily::Android,
                 form_factor: FormFactor::Phone,
-                ff_version: Some(85),
+                browser: Browser::Firefox(85),
             })
         );
 
@@ -479,7 +503,7 @@ mod tests {
             DeviceInfoWrapper(DeviceInfo {
                 os_family: OsFamily::IOs,
                 form_factor: FormFactor::Phone,
-                ff_version: Some(2),
+                browser: Browser::Firefox(2),
             })
         );
 
@@ -492,7 +516,7 @@ mod tests {
             DeviceInfoWrapper(DeviceInfo {
                 os_family: OsFamily::IOs,
                 form_factor: FormFactor::Tablet,
-                ff_version: Some(1),
+                browser: Browser::Firefox(1),
             })
         );
 
@@ -508,21 +532,24 @@ mod tests {
             DeviceInfoWrapper(DeviceInfo {
                 os_family: OsFamily::Other,
                 form_factor: FormFactor::Other,
-                ff_version: None,
+                browser: Browser::Other,
             })
         );
-    }
 
-    #[actix_rt::test]
-    async fn test_invalid_user_agents() {
-        // Not a Firefox user agent
-        let header = ("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 11_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.150 Safari/537.36");
+        // Browser other than Firefox
+        let header = (
+            "User-Agent",
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36",
+        );
         assert_eq!(
             DeviceInfoWrapper::extract(&test_request_with_header(header))
                 .await
-                .unwrap_err()
-                .to_string(),
-            "Invalid header: User agent is not a Firefox user agent"
+                .expect("Count not get result in test_valid_user_agents"),
+            DeviceInfoWrapper(DeviceInfo {
+                os_family: OsFamily::Windows,
+                form_factor: FormFactor::Desktop,
+                browser: Browser::Other,
+            })
         );
     }
 }

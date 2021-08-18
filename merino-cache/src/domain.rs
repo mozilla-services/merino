@@ -33,7 +33,7 @@ mod tests {
 
     use super::CacheKey;
     use fake::{Fake, Faker};
-    use merino_suggest::{DeviceInfo, FormFactor, OsFamily, SuggestionRequest};
+    use merino_suggest::{Browser, DeviceInfo, FIREFOX_VERSION_RANGE, FormFactor, OsFamily, SuggestionRequest};
     use proptest::prelude::*;
 
     /// This test provides a fixed input, and expects a certain cache key to be
@@ -52,12 +52,12 @@ mod tests {
             device_info: DeviceInfo {
                 os_family: OsFamily::Windows,
                 form_factor: FormFactor::Desktop,
-                ff_version: Some(90),
+                browser: Browser::Firefox(90),
             },
         };
         assert_eq!(
             req.cache_key(),
-            "req:v3:816fd227379f613945eee2dd56ccbd49c8eca3f2861f245af1c93278c805a53d",
+            "req:v3:3096f07f8bce1cd4d39f2ea5544cd58e5c2ec94d3b491004a83257bb48c5fa45",
         );
     }
 
@@ -129,13 +129,20 @@ mod tests {
         ]
     }
 
+    fn browser_strategy() -> impl Strategy<Value = Browser> {
+        prop_oneof![
+            FIREFOX_VERSION_RANGE.prop_map(Browser::Firefox),
+            Just(Browser::Other),
+        ]
+    }
+
     prop_compose! {
         fn device_info_strategy()(
             form_factor in form_factor_strategy(),
             os_family in os_family_strategy(),
-            ff_version in proptest::option::of(70u32..95),
+            browser in browser_strategy()
         ) -> DeviceInfo {
-            DeviceInfo { form_factor, os_family, ff_version }
+            DeviceInfo { form_factor, os_family, browser }
         }
     }
 }

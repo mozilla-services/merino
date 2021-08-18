@@ -29,6 +29,9 @@ pub use crate::debug::DebugProvider;
 pub use crate::multi::Multi;
 pub use crate::wikifruit::WikiFruit;
 
+/// The range of major Firefox version numbers to use for testing.
+pub const FIREFOX_VERSION_RANGE: Range<u32> = 70..95;
+
 /// A request for suggestions.
 #[derive(Debug, Clone, Hash, Serialize)]
 pub struct SuggestionRequest<'a> {
@@ -347,7 +350,7 @@ pub enum LanguageIdentifier {
     Wildcard,
 }
 
-/// ADM required browser format form
+/// The form factor of the device that sent a given suggestion request.
 #[derive(Clone, Debug, Hash, PartialEq, Serialize)]
 pub enum FormFactor {
     /// A desktop computer.
@@ -360,26 +363,24 @@ pub enum FormFactor {
     Other,
 }
 
-impl Default for FormFactor {
-    fn default() -> Self {
-        Self::Other
-    }
-}
-
 impl fmt::Display for FormFactor {
     fn fmt(&self, fmt: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let name = format!("{:?}", self).to_lowercase();
-        write!(fmt, "{}", name)
+        match self {
+            Self::Desktop => write!(fmt, "desktop"),
+            Self::Phone => write!(fmt, "phone"),
+            Self::Tablet => write!(fmt, "tablet"),
+            Self::Other => write!(fmt, "other"),
+        }
     }
 }
 
 impl<'a, F> fake::Dummy<F> for FormFactor {
     fn dummy_with_rng<R: rand::Rng + ?Sized>(_config: &F, rng: &mut R) -> Self {
         match rng.gen_range(0..4) {
-            0 => FormFactor::Desktop,
-            1 => FormFactor::Phone,
-            2 => FormFactor::Tablet,
-            _ => FormFactor::Other,
+            0 => Self::Desktop,
+            1 => Self::Phone,
+            2 => Self::Tablet,
+            _ => Self::Other,
         }
     }
 }
@@ -406,64 +407,92 @@ pub enum OsFamily {
     Other,
 }
 
-impl Default for OsFamily {
-    fn default() -> Self {
-        Self::Other
-    }
-}
-
 impl fmt::Display for OsFamily {
     fn fmt(&self, fmt: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let name = format!("{:?}", self).to_lowercase();
-        write!(fmt, "{}", name)
+        match self {
+            Self::Windows => write!(fmt, "windows"),
+            Self::MacOs => write!(fmt, "macos"),
+            Self::Linux => write!(fmt, "linux"),
+            Self::IOs => write!(fmt, "ios"),
+            Self::Android => write!(fmt, "android"),
+            Self::ChromeOs => write!(fmt, "chrome os"),
+            Self::BlackBerry => write!(fmt, "blackberry"),
+            Self::Other => write!(fmt, "other"),
+        }
     }
 }
 
 impl<'a, F> fake::Dummy<F> for OsFamily {
     fn dummy_with_rng<R: rand::Rng + ?Sized>(_config: &F, rng: &mut R) -> Self {
         match rng.gen_range(0..8) {
-            0 => OsFamily::Windows,
-            1 => OsFamily::MacOs,
-            2 => OsFamily::Linux,
-            3 => OsFamily::IOs,
-            4 => OsFamily::Android,
-            5 => OsFamily::ChromeOs,
-            6 => OsFamily::BlackBerry,
-            _ => OsFamily::Other,
+            0 => Self::Windows,
+            1 => Self::MacOs,
+            2 => Self::Linux,
+            3 => Self::IOs,
+            4 => Self::Android,
+            5 => Self::ChromeOs,
+            6 => Self::BlackBerry,
+            _ => Self::Other,
+        }
+    }
+}
+
+/// The web browser used to make a suggestion request.
+#[derive(Clone, Debug, Hash, PartialEq, Serialize)]
+pub enum Browser {
+    /// The Firefox web browser with the major version number.
+    Firefox(u32),
+    /// A web browser other than Firefox.
+    Other
+}
+
+impl fmt::Display for Browser {
+    fn fmt(&self, fmt: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::Firefox(version) => write!(fmt, "firefox({})", version),
+            Self::Other => write!(fmt, "other"),
+        }
+    }
+}
+
+impl<'a, F> fake::Dummy<F> for Browser {
+    fn dummy_with_rng<R: rand::Rng + ?Sized>(_config: &F, rng: &mut R) -> Self {
+        match rng.gen_range(0..2) {
+            0 => Self::Firefox(rng.gen_range(FIREFOX_VERSION_RANGE)),
+            _ => Self::Other,
         }
     }
 }
 
 /// The user agent from a suggestion request.
-#[derive(Clone, Debug, Default, Hash, PartialEq, Serialize)]
+#[derive(Clone, Debug, Hash, PartialEq, Serialize)]
 pub struct DeviceInfo {
     /// The operating system family indicated in the User-Agent header.
     pub os_family: OsFamily,
     /// The device form factor indicated in the User-Agent header.
     pub form_factor: FormFactor,
-    /// The major browser version of Firefox.
-    pub ff_version: Option<u32>,
+    /// The major browser version of Firefox .
+    pub browser: Browser,
 }
 
 impl fmt::Display for DeviceInfo {
     fn fmt(&self, fmt: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(
             fmt,
-            "{}, {}, {:?}",
-            self.os_family, self.form_factor, self.ff_version
+            "{}, {}, {}",
+            self.os_family,
+            self.form_factor,
+            self.browser,
         )
     }
 }
 
 impl<'a, F> fake::Dummy<F> for DeviceInfo {
-    fn dummy_with_rng<R: rand::Rng + ?Sized>(_config: &F, rng: &mut R) -> Self {
-        /// The range of major Firefox version numbers to use for this test.
-        const FIREFOX_VERSION_RANGE: Range<u32> = 70..95;
-
+    fn dummy_with_rng<R: rand::Rng + ?Sized>(_config: &F, _rng: &mut R) -> Self {
         DeviceInfo {
             os_family: Faker.fake(),
             form_factor: Faker.fake(),
-            ff_version: Some(rng.gen_range(FIREFOX_VERSION_RANGE)),
+            browser: Faker.fake(),
         }
     }
 }
