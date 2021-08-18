@@ -20,6 +20,7 @@ pub enum HandlerError {
     /// Indicates that the server's config is incorrect.
     #[error("The server was setup invalidly")]
     InvalidSetup(#[source] anyhow::Error),
+
     /// An error that indicates that one of the request headers is invalid.
     #[error("Invalid header: {0}")]
     InvalidHeader(&'static str),
