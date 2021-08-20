@@ -403,18 +403,31 @@
 <span id="401">401</span>
 <span id="402">402</span>
 <span id="403">403</span>
+<span id="404">404</span>
+<span id="405">405</span>
+<span id="406">406</span>
+<span id="407">407</span>
+<span id="408">408</span>
+<span id="409">409</span>
+<span id="410">410</span>
+<span id="411">411</span>
+<span id="412">412</span>
+<span id="413">413</span>
+<span id="414">414</span>
 </pre><pre class="rust">
 <span class="attribute">#![<span class="ident">warn</span>(<span class="ident">missing_docs</span>, <span class="ident">clippy::missing_docs_in_private_items</span>)]</span>
 
 <span class="doccomment">//! Suggestion backends for [Merino](../merino/index.html).</span>
 
 <span class="kw">mod</span> <span class="ident">debug</span>;
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">device_info</span>;
 <span class="kw">mod</span> <span class="ident">multi</span>;
 <span class="kw">mod</span> <span class="ident">wikifruit</span>;
 
 <span class="kw">use</span> <span class="ident">std::borrow::Cow</span>;
 <span class="kw">use</span> <span class="ident">std::fmt::Debug</span>;
 <span class="kw">use</span> <span class="ident">std::hash::Hash</span>;
+<span class="kw">use</span> <span class="ident">std::ops::Range</span>;
 <span class="kw">use</span> <span class="ident">std::time::Duration</span>;
 
 <span class="kw">use</span> <span class="ident">async_trait::async_trait</span>;
@@ -431,8 +444,12 @@
 <span class="kw">use</span> <span class="ident">thiserror::Error</span>;
 
 <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::debug::DebugProvider</span>;
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::device_info::DeviceInfo</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::multi::Multi</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::wikifruit::WikiFruit</span>;
+
+<span class="doccomment">/// The range of major Firefox version numbers to use for testing.</span>
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">FIREFOX_TEST_VERSIONS</span>: <span class="ident">Range</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span> <span class="op">=</span> <span class="number">70</span>..<span class="number">95</span>;
 
 <span class="doccomment">/// A request for suggestions.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">Hash</span>, <span class="ident">Serialize</span>)]</span>
@@ -457,6 +474,10 @@
 
     <span class="doccomment">/// City, listed by name such as &quot;Portland&quot; or &quot;Berlin&quot;.</span>
     <span class="kw">pub</span> <span class="ident">city</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">str</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+
+    <span class="doccomment">/// The user agent of the request, including OS family, device form factor, and major Firefox</span>
+    <span class="doccomment">/// version number.</span>
+    <span class="kw">pub</span> <span class="ident">device_info</span>: <span class="ident">DeviceInfo</span>,
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">F</span><span class="op">&gt;</span> <span class="ident">fake::Dummy</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">SuggestionRequest</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
@@ -471,6 +492,7 @@
             <span class="ident">region</span>: <span class="prelude-val">Some</span>(<span class="ident">StateAbbr</span>().<span class="ident">fake</span>::<span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>().<span class="ident">into</span>()),
             <span class="ident">dma</span>: <span class="prelude-val">Some</span>(<span class="ident">rng</span>.<span class="ident">gen_range</span>(<span class="number">100_u16</span>..<span class="number">1000</span>)),
             <span class="ident">city</span>: <span class="prelude-val">Some</span>(<span class="ident">CityName</span>().<span class="ident">fake</span>::<span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>().<span class="ident">into</span>()),
+            <span class="ident">device_info</span>: <span class="ident">Faker</span>.<span class="ident">fake</span>(),
         }
     }
 }
