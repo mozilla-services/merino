@@ -34,7 +34,8 @@ mod tests {
     use super::CacheKey;
     use fake::{Fake, Faker};
     use merino_suggest::{
-        Browser, DeviceInfo, FormFactor, OsFamily, SuggestionRequest, FIREFOX_VERSION_RANGE,
+        device_info::{Browser, DeviceInfo, FormFactor, OsFamily},
+        SuggestionRequest, FIREFOX_TEST_VERSIONS,
     };
     use proptest::prelude::*;
 
@@ -133,7 +134,7 @@ mod tests {
 
     fn browser_strategy() -> impl Strategy<Value = Browser> {
         prop_oneof![
-            FIREFOX_VERSION_RANGE.prop_map(Browser::Firefox),
+            FIREFOX_TEST_VERSIONS.prop_map(Browser::Firefox),
             Just(Browser::Other),
         ]
     }

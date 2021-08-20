@@ -17,8 +17,8 @@ use futures_util::{
 };
 use lazy_static::lazy_static;
 use merino_suggest::{
-    Browser, DeviceInfo, FormFactor, Language, LanguageIdentifier, OsFamily, SuggestionRequest,
-    SupportedLanguages,
+    device_info::{Browser, DeviceInfo, FormFactor, OsFamily},
+    Language, LanguageIdentifier, SuggestionRequest, SupportedLanguages,
 };
 use serde::Deserialize;
 use tokio::try_join;
@@ -259,7 +259,8 @@ impl FromWootheeResult for Browser {
 mod tests {
     use actix_web::{dev::Payload, http::Method, test::TestRequest, FromRequest, HttpRequest};
     use merino_suggest::{
-        Browser, DeviceInfo, FormFactor, Language, LanguageIdentifier, OsFamily, SupportedLanguages,
+        device_info::{Browser, DeviceInfo, FormFactor, OsFamily},
+        Language, LanguageIdentifier, SupportedLanguages,
     };
     use pretty_assertions::assert_eq;
 
@@ -429,8 +430,7 @@ mod tests {
     }
 
     #[actix_rt::test]
-    async fn test_valid_user_agents() {
-        // macOS
+    async fn test_macos_user_agent() {
         let header = (
             "User-Agent",
             "Mozilla/5.0 (Macintosh; Intel Mac OS X 11.2; rv:85.0) Gecko/20100101 Firefox/85.0",
@@ -445,8 +445,10 @@ mod tests {
                 browser: Browser::Firefox(85),
             })
         );
+    }
 
-        // Windows
+    #[actix_rt::test]
+    async fn test_windows_user_agent() {
         let header = (
             "User-Agent",
             "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:61.0) Gecko/20100101 Firefox/61.0",
@@ -461,8 +463,10 @@ mod tests {
                 browser: Browser::Firefox(61),
             })
         );
+    }
 
-        // Linux
+    #[actix_rt::test]
+    async fn test_linux_user_agent() {
         let header = (
             "User-Agent",
             "Mozilla/5.0 (X11; Fedora; Linux x86_64; rv:82.0.1) Gecko/20100101 Firefox/82.0.1",
@@ -477,8 +481,10 @@ mod tests {
                 browser: Browser::Firefox(82),
             })
         );
+    }
 
-        // Android
+    #[actix_rt::test]
+    async fn test_android_user_agent() {
         let header = (
             "User-Agent",
             "Mozilla/5.0 (Android 11; Mobile; rv:68.0) Gecko/68.0 Firefox/85.0",
@@ -493,8 +499,10 @@ mod tests {
                 browser: Browser::Firefox(85),
             })
         );
+    }
 
-        // iOS (iPhone)
+    #[actix_rt::test]
+    async fn test_iphone_user_agent() {
         let header = ("User-Agent", "Mozilla/5.0 (iPhone; CPU iPhone OS 8_3 like Mac OS X) AppleWebKit/600.1.4 (KHTML, like Gecko) FxiOS/2.0 Mobile/12F69 Safari/600.1.4");
         assert_eq!(
             DeviceInfoWrapper::extract(&test_request_with_header(header))
@@ -506,8 +514,10 @@ mod tests {
                 browser: Browser::Firefox(2),
             })
         );
+    }
 
-        // iOS (iPad)
+    #[actix_rt::test]
+    async fn test_ipad_user_agent() {
         let header = ("User-Agent", "Mozilla/5.0 (iPad; CPU iPhone OS 8_3 like Mac OS X) AppleWebKit/600.1.4 (KHTML, like Gecko) FxiOS/1.0 Mobile/12F69 Safari/600.1.4");
         assert_eq!(
             DeviceInfoWrapper::extract(&test_request_with_header(header))
@@ -519,8 +529,10 @@ mod tests {
                 browser: Browser::Firefox(1),
             })
         );
+    }
 
-        // No user agent header
+    #[actix_rt::test]
+    async fn test_missing_user_agent() {
         let request = TestRequest::with_uri(SUGGEST_URI)
             .method(Method::GET)
             .param("q", "asdf")
@@ -535,8 +547,10 @@ mod tests {
                 browser: Browser::Other,
             })
         );
+    }
 
-        // Browser other than Firefox
+    #[actix_rt::test]
+    async fn test_non_firefox_user_agent() {
         let header = (
             "User-Agent",
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36",
