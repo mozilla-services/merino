@@ -77,17 +77,18 @@ following keys:
   this suggestion. This will be a resource with the title specified in the
   `title` field.
 
-- `impression_url` - A telemetry URL that should be notified if the browser
-  shows this suggestion to the user. This is used along with `click_url` to
-  monitor the relevancy of suggestions. For more details see [Interaction
-  Pings](#interaction-pings), below. This field may be null, in which case no
-  impression ping is required.
+- `impression_url` - A provider specified telemetry URL that should be notified
+  if the browser shows this suggestion to the user. This is used along with
+  `click_url` to monitor the relevancy of suggestions. For more details see
+  [Interaction Pings](#interaction-pings), below. This field may be null, in which
+  case no impression ping is required for this suggestion provider.
 
-- `click_url` - A telemetry URL that should be notified if the user selects this
-  suggestion. This should only be notified as the result of positive user
-  action, and only if the user has navigated to the page specified in the
-  `url` field. For more details see [Interaction Pings](#interaction-pings),
-  below. This field may be null, in which case no click ping is required.
+- `click_url` - A provider specified telemetry URL that should be notified
+  if the user selects this suggestion. This should only be notified as the result
+  of positive user action, and only if the user has navigated to the page specified
+  in the `url` field. For more details see [Interaction Pings](#interaction-pings),
+  below. This field may be null, in which case no click ping is required for this
+  suggestion provider.
 
 - `provider` - A string that identifies the source of this suggestion. This can
   be used along with `block_id` to uniquely identify this suggestion. It is not
@@ -118,14 +119,18 @@ results as indicated by these headers.
 <a id="interaction-pings"></a>
 ## Interaction Pings
 
-In order to indicate activity relating to a suggestion, a ping should be sent to
-the provided URLs, either the click URL or the impression URL, as appropriate.
-These pings should be delegated to a Mozilla-controlled service instead of being
-sent directly by the browser. This is preferable since it helps maintain user
-privacy.
+When a Firefox user views or selects a suggestion from Merino, Firefox will
+send an impression or a click ping to a Mozilla-controlled service indicating
+this user interaction. Some suggestion providers may also need that interaction
+data for reporting and relevancy optimization. Firefox will not send the pings
+to those providers directly, rather, it will delegate those to a Mozilla-controlled
+service, by which the interaction pings will be sent to the `impression_url` or
+`click_url` specified by the providers.
 
 If the URL for an interaction ping is not specified (for example, `click_url`
-is `null`), then no ping should be sent for that action.
+is `null`), then no ping should be sent to the provider for that action. However,
+this interaction ping is always sent to the Mozilla-controlled service unless
+the user opts out the telemetry collection of Firefox.
 
 The required behavior for interaction pings is TBD.
 
