@@ -3,12 +3,14 @@
 //! Suggestion backends for [Merino](../merino/index.html).
 
 mod debug;
+pub mod device_info;
 mod multi;
 mod wikifruit;
 
 use std::borrow::Cow;
 use std::fmt::Debug;
 use std::hash::Hash;
+use std::ops::Range;
 use std::time::Duration;
 
 use async_trait::async_trait;
@@ -25,8 +27,12 @@ use serde_with::{serde_as, DisplayFromStr};
 use thiserror::Error;
 
 pub use crate::debug::DebugProvider;
+use crate::device_info::DeviceInfo;
 pub use crate::multi::Multi;
 pub use crate::wikifruit::WikiFruit;
+
+/// The range of major Firefox version numbers to use for testing.
+pub const FIREFOX_TEST_VERSIONS: Range<u32> = 70..95;
 
 /// A request for suggestions.
 #[derive(Debug, Clone, Hash, Serialize)]
@@ -51,6 +57,10 @@ pub struct SuggestionRequest<'a> {
 
     /// City, listed by name such as "Portland" or "Berlin".
     pub city: Option<Cow<'a, str>>,
+
+    /// The user agent of the request, including OS family, device form factor, and major Firefox
+    /// version number.
+    pub device_info: DeviceInfo,
 }
 
 impl<'a, F> fake::Dummy<F> for SuggestionRequest<'a> {
@@ -65,6 +75,7 @@ impl<'a, F> fake::Dummy<F> for SuggestionRequest<'a> {
             region: Some(StateAbbr().fake::<String>().into()),
             dma: Some(rng.gen_range(100_u16..1000)),
             city: Some(CityName().fake::<String>().into()),
+            device_info: Faker.fake(),
         }
     }
 }

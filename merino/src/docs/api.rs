@@ -38,6 +38,9 @@ and headers.
   Merino will return an empty list instead of attempting to query other
   languages.
 
+- `User-Agent` - A user's device form factor, operating system, and browser/Firefox version
+  are detected from the `User-Agent` header included in the request.
+
 [rfc-2616-14-4]: https://datatracker.ietf.org/doc/html/rfc2616/#section-14.4
 
 ### Other derived inputs

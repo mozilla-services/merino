@@ -1,17 +1,32 @@
 //! Types to extract merino data from requests.
 
 use std::borrow::Cow;
+use std::str::FromStr;
 
 use crate::errors::HandlerError;
-use actix_web::{dev::Payload, web::Query, Error as ActixError, FromRequest, HttpRequest};
+use actix_web::{
+    dev::Payload,
+    http::{header, HeaderValue},
+    web::Query,
+    Error as ActixError, FromRequest, HttpRequest,
+};
 use actix_web_location::Location;
 use futures_util::{
     future::{self, LocalBoxFuture, Ready},
     FutureExt,
 };
-use merino_suggest::{Language, LanguageIdentifier, SuggestionRequest, SupportedLanguages};
+use lazy_static::lazy_static;
+use merino_suggest::{
+    device_info::{Browser, DeviceInfo, FormFactor, OsFamily},
+    Language, LanguageIdentifier, SuggestionRequest, SupportedLanguages,
+};
 use serde::Deserialize;
 use tokio::try_join;
+use woothee::parser::{Parser, WootheeResult};
+
+lazy_static! {
+    static ref EMPTY_HEADER: HeaderValue = HeaderValue::from_static("");
+}
 
 /// An extractor for a [`merino_suggest::SuggestionRequest`].
 pub struct SuggestionRequestWrapper<'a>(pub SuggestionRequest<'a>);
@@ -26,18 +41,10 @@ impl<'a> FromRequest for SuggestionRequestWrapper<'a> {
     fn from_request(req: &HttpRequest, _payload: &mut Payload) -> Self::Future {
         let req = req.clone();
         async move {
-            // None of the requesters used below use payload, and getting `_payload` above into the closure is awkward.
-            let mut fake_payload = Payload::None;
-
             /// try_join wants everything to have the same error type, and
             /// doesn't give a chance to map the error. This wrapper helps that.
-            async fn loc_mapped_error(
-                request: &HttpRequest,
-                payload: &mut Payload,
-            ) -> Result<Location, ActixError> {
-                Location::from_request(request, payload)
-                    .await
-                    .map_err(ActixError::from)
+            async fn loc_mapped_error(request: &HttpRequest) -> Result<Location, ActixError> {
+                Location::extract(request).await.map_err(ActixError::from)
             }
 
             // Retrieve all parts needed to make a SuggestionRequest concurrently.
@@ -46,10 +53,12 @@ impl<'a> FromRequest for SuggestionRequestWrapper<'a> {
                 Query(SuggestQuery { q: query }),
                 SupportedLanguagesWrapper(supported_languages),
                 location,
+                DeviceInfoWrapper(device_info),
             ) = try_join!(
-                Query::from_request(&req, &mut fake_payload),
-                SupportedLanguagesWrapper::from_request(&req, &mut fake_payload),
-                loc_mapped_error(&req, &mut fake_payload),
+                Query::extract(&req),
+                SupportedLanguagesWrapper::extract(&req),
+                loc_mapped_error(&req),
+                DeviceInfoWrapper::extract(&req),
             )?;
 
             Ok(Self(SuggestionRequest {
@@ -59,6 +68,7 @@ impl<'a> FromRequest for SuggestionRequestWrapper<'a> {
                 region: location.region.map(Cow::from),
                 dma: location.dma,
                 city: location.city.map(Cow::from),
+                device_info,
             }))
         }
         .boxed_local()
@@ -72,7 +82,7 @@ struct SuggestQuery {
     q: String,
 }
 
-/// A wrapper around `SupportedLanguages`.
+/// A wrapper around [`SupportedLanguages`].
 #[derive(Debug, PartialEq)]
 struct SupportedLanguagesWrapper(SupportedLanguages);
 
@@ -139,8 +149,7 @@ impl FromRequest for SupportedLanguagesWrapper {
         // A closure is used here to enable the usage of the `?` operator, making error handling
         // more ergonomic.
         let parse_header = || {
-            let headers = req.headers();
-            let header = match headers.get("Accept-Language") {
+            let header = match req.headers().get(header::ACCEPT_LANGUAGE) {
                 Some(header) => header.to_str().map_err::<Self::Error, _>(|_| {
                     HandlerError::MalformedHeader("Accept-Language").into()
                 }),
@@ -160,19 +169,108 @@ impl FromRequest for SupportedLanguagesWrapper {
     }
 }
 
+/// A wrapper around [`DeviceInfo`].
+#[derive(Debug, PartialEq)]
+struct DeviceInfoWrapper(DeviceInfo);
+
+impl FromRequest for DeviceInfoWrapper {
+    type Config = ();
+    type Error = ActixError;
+    type Future = Ready<Result<Self, Self::Error>>;
+
+    fn from_request(req: &HttpRequest, _payload: &mut Payload) -> Self::Future {
+        let header = req
+            .headers()
+            .get(header::USER_AGENT)
+            .unwrap_or(&EMPTY_HEADER)
+            .to_str()
+            .unwrap_or_default();
+        let wresult = Parser::new().parse(header).unwrap_or_default();
+
+        future::ready(Ok(DeviceInfoWrapper::from_woothee_result(&wresult)))
+    }
+}
+
+/// Extracts information from a [`WootheeResult`].
+trait FromWootheeResult {
+    /// Extracts information from a [`WootheeResult`].
+    fn from_woothee_result(wresult: &WootheeResult) -> Self;
+}
+
+impl FromWootheeResult for DeviceInfoWrapper {
+    fn from_woothee_result(wresult: &WootheeResult) -> Self {
+        Self(DeviceInfo::from_woothee_result(wresult))
+    }
+}
+
+impl FromWootheeResult for DeviceInfo {
+    fn from_woothee_result(wresult: &WootheeResult) -> Self {
+        Self {
+            os_family: OsFamily::from_woothee_result(wresult),
+            form_factor: FormFactor::from_woothee_result(wresult),
+            browser: Browser::from_woothee_result(wresult),
+        }
+    }
+}
+
+impl FromWootheeResult for FormFactor {
+    fn from_woothee_result(wresult: &WootheeResult) -> Self {
+        let os = wresult.os.to_lowercase();
+
+        match wresult.category {
+            "pc" => FormFactor::Desktop,
+            "smartphone" if os == "ipad" => FormFactor::Tablet,
+            "smartphone" => FormFactor::Phone,
+            _ => FormFactor::Other,
+        }
+    }
+}
+
+impl FromWootheeResult for OsFamily {
+    fn from_woothee_result(wresult: &WootheeResult) -> Self {
+        let os = wresult.os.to_lowercase();
+
+        match os.as_str() {
+            _ if os.starts_with("windows") => OsFamily::Windows,
+            "mac osx" => OsFamily::MacOs,
+            "linux" => OsFamily::Linux,
+            "iphone" | "ipad" => OsFamily::IOs,
+            "android" => OsFamily::Android,
+            "chromeos" => OsFamily::ChromeOs,
+            "blackberry" => OsFamily::BlackBerry,
+            _ => OsFamily::Other,
+        }
+    }
+}
+
+impl FromWootheeResult for Browser {
+    fn from_woothee_result(wresult: &WootheeResult) -> Self {
+        if wresult.name.to_lowercase() == "firefox" {
+            let version = u32::from_str(wresult.version.split('.').collect::<Vec<&str>>()[0])
+                .unwrap_or_default();
+            Browser::Firefox(version)
+        } else {
+            Browser::Other
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use actix_web::{dev::Payload, http::Method, test::TestRequest, FromRequest, HttpRequest};
-    use merino_suggest::{Language, LanguageIdentifier, SupportedLanguages};
+    use merino_suggest::{
+        device_info::{Browser, DeviceInfo, FormFactor, OsFamily},
+        Language, LanguageIdentifier, SupportedLanguages,
+    };
     use pretty_assertions::assert_eq;
 
-    use crate::extractors::SupportedLanguagesWrapper;
+    use crate::extractors::{DeviceInfoWrapper, SupportedLanguagesWrapper};
 
     const SUGGEST_URI: &str = "/api/v1/suggest";
 
-    fn request_with_accept_language(accept_language: &str) -> HttpRequest {
+    fn test_request_with_header(header: (&'static str, &'static str)) -> HttpRequest {
         TestRequest::with_uri(SUGGEST_URI)
-            .insert_header(("Accept-Language", accept_language))
+            .insert_header(header)
             .method(Method::GET)
             .param("q", "asdf")
             .to_http_request()
@@ -183,8 +281,7 @@ mod tests {
         let mut payload = Payload::None;
 
         // Test single language without region
-        let accept_language = "en";
-        let req = request_with_accept_language(accept_language);
+        let req = test_request_with_header(("Accept-Language", "en"));
         let result = SupportedLanguagesWrapper::from_request(&req, &mut payload)
             .await
             .expect("Could not get result in test_valid_accept_language_headers");
@@ -204,8 +301,7 @@ mod tests {
         assert_eq!(expected_supported_languages_wrapper, result);
 
         // Test single language with region
-        let accept_language = "en-US";
-        let req = request_with_accept_language(accept_language);
+        let req = test_request_with_header(("Accept-Language", "en-US"));
         let result = SupportedLanguagesWrapper::from_request(&req, &mut payload)
             .await
             .expect("Could not get result in test_valid_accept_language_headers");
@@ -225,8 +321,7 @@ mod tests {
         assert_eq!(expected_supported_languages_wrapper, result);
 
         // Test wildcard
-        let accept_language = "*";
-        let req = request_with_accept_language(accept_language);
+        let req = test_request_with_header(("Accept-Language", "*"));
         let result = SupportedLanguagesWrapper::from_request(&req, &mut payload)
             .await
             .expect("Could not get result in test_valid_accept_language_headers");
@@ -236,8 +331,10 @@ mod tests {
         assert_eq!(expected_supported_languages_wrapper, result);
 
         // Test several languages with quality values
-        let accept_language = "fr-CH, fr;q=0.9, en;q=0.8, de;q=0.7, *;q=0.5";
-        let req = request_with_accept_language(accept_language);
+        let req = test_request_with_header((
+            "Accept-Language",
+            "fr-CH, fr;q=0.9, en;q=0.8, de;q=0.7, *;q=0.5",
+        ));
         let result = SupportedLanguagesWrapper::from_request(&req, &mut payload)
             .await
             .expect("Could not get result in test_valid_accept_language_headers");
@@ -286,8 +383,7 @@ mod tests {
         let mut payload = Payload::None;
 
         // Malformed quality value
-        let accept_language = "en-US;3";
-        let req = request_with_accept_language(accept_language);
+        let req = test_request_with_header(("Accept-Language", "en-US;3"));
         let result = SupportedLanguagesWrapper::from_request(&req, &mut payload).await;
 
         assert_eq!(
@@ -296,8 +392,7 @@ mod tests {
         );
 
         // Header with non-visible ASCII characters (\u{200B} is the zero-width space character)
-        let accept_language = "\u{200B}";
-        let req = request_with_accept_language(accept_language);
+        let req = test_request_with_header(("Accept-Language", "\u{200B}"));
         let result = SupportedLanguagesWrapper::from_request(&req, &mut payload).await;
 
         assert_eq!(
@@ -306,8 +401,7 @@ mod tests {
         );
 
         // Non-numeric quality value
-        let accept_language = "en-US;q=one";
-        let req = request_with_accept_language(accept_language);
+        let req = test_request_with_header(("Accept-Language", "en-US;q=one"));
         let result = SupportedLanguagesWrapper::from_request(&req, &mut payload).await;
 
         assert_eq!(
@@ -319,8 +413,7 @@ mod tests {
     #[actix_rt::test]
     async fn test_valid_non_english_language_headers() {
         let mut payload = Payload::None;
-        let accept_language = "es-ES;q=1.0,es-MX;q=0.5,es;q=0.7";
-        let req = request_with_accept_language(accept_language);
+        let req = test_request_with_header(("Accept-Language", "es-ES;q=1.0,es-MX;q=0.5,es;q=0.7"));
         let supported_languages = SupportedLanguagesWrapper::from_request(&req, &mut payload)
             .await
             .unwrap()
@@ -334,5 +427,143 @@ mod tests {
 
         assert_eq!(supported_languages, expected_supported_languages);
         assert!(!supported_languages.includes("en", None));
+    }
+
+    #[actix_rt::test]
+    async fn test_macos_user_agent() {
+        let header = (
+            "User-Agent",
+            "Mozilla/5.0 (Macintosh; Intel Mac OS X 11.2; rv:85.0) Gecko/20100101 Firefox/85.0",
+        );
+        assert_eq!(
+            DeviceInfoWrapper::extract(&test_request_with_header(header))
+                .await
+                .expect("Count not get result in test_valid_user_agents"),
+            DeviceInfoWrapper(DeviceInfo {
+                os_family: OsFamily::MacOs,
+                form_factor: FormFactor::Desktop,
+                browser: Browser::Firefox(85),
+            })
+        );
+    }
+
+    #[actix_rt::test]
+    async fn test_windows_user_agent() {
+        let header = (
+            "User-Agent",
+            "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:61.0) Gecko/20100101 Firefox/61.0",
+        );
+        assert_eq!(
+            DeviceInfoWrapper::extract(&test_request_with_header(header))
+                .await
+                .expect("Count not get result in test_valid_user_agents"),
+            DeviceInfoWrapper(DeviceInfo {
+                os_family: OsFamily::Windows,
+                form_factor: FormFactor::Desktop,
+                browser: Browser::Firefox(61),
+            })
+        );
+    }
+
+    #[actix_rt::test]
+    async fn test_linux_user_agent() {
+        let header = (
+            "User-Agent",
+            "Mozilla/5.0 (X11; Fedora; Linux x86_64; rv:82.0.1) Gecko/20100101 Firefox/82.0.1",
+        );
+        assert_eq!(
+            DeviceInfoWrapper::extract(&test_request_with_header(header))
+                .await
+                .expect("Count not get result in test_valid_user_agents"),
+            DeviceInfoWrapper(DeviceInfo {
+                os_family: OsFamily::Linux,
+                form_factor: FormFactor::Desktop,
+                browser: Browser::Firefox(82),
+            })
+        );
+    }
+
+    #[actix_rt::test]
+    async fn test_android_user_agent() {
+        let header = (
+            "User-Agent",
+            "Mozilla/5.0 (Android 11; Mobile; rv:68.0) Gecko/68.0 Firefox/85.0",
+        );
+        assert_eq!(
+            DeviceInfoWrapper::extract(&test_request_with_header(header))
+                .await
+                .expect("Count not get result in test_valid_user_agents"),
+            DeviceInfoWrapper(DeviceInfo {
+                os_family: OsFamily::Android,
+                form_factor: FormFactor::Phone,
+                browser: Browser::Firefox(85),
+            })
+        );
+    }
+
+    #[actix_rt::test]
+    async fn test_iphone_user_agent() {
+        let header = ("User-Agent", "Mozilla/5.0 (iPhone; CPU iPhone OS 8_3 like Mac OS X) AppleWebKit/600.1.4 (KHTML, like Gecko) FxiOS/2.0 Mobile/12F69 Safari/600.1.4");
+        assert_eq!(
+            DeviceInfoWrapper::extract(&test_request_with_header(header))
+                .await
+                .expect("Count not get result in test_valid_user_agents"),
+            DeviceInfoWrapper(DeviceInfo {
+                os_family: OsFamily::IOs,
+                form_factor: FormFactor::Phone,
+                browser: Browser::Firefox(2),
+            })
+        );
+    }
+
+    #[actix_rt::test]
+    async fn test_ipad_user_agent() {
+        let header = ("User-Agent", "Mozilla/5.0 (iPad; CPU iPhone OS 8_3 like Mac OS X) AppleWebKit/600.1.4 (KHTML, like Gecko) FxiOS/1.0 Mobile/12F69 Safari/600.1.4");
+        assert_eq!(
+            DeviceInfoWrapper::extract(&test_request_with_header(header))
+                .await
+                .expect("Count not get result in test_valid_user_agents"),
+            DeviceInfoWrapper(DeviceInfo {
+                os_family: OsFamily::IOs,
+                form_factor: FormFactor::Tablet,
+                browser: Browser::Firefox(1),
+            })
+        );
+    }
+
+    #[actix_rt::test]
+    async fn test_missing_user_agent() {
+        let request = TestRequest::with_uri(SUGGEST_URI)
+            .method(Method::GET)
+            .param("q", "asdf")
+            .to_http_request();
+        assert_eq!(
+            DeviceInfoWrapper::extract(&request)
+                .await
+                .expect("Count not get result in test_valid_user_agents"),
+            DeviceInfoWrapper(DeviceInfo {
+                os_family: OsFamily::Other,
+                form_factor: FormFactor::Other,
+                browser: Browser::Other,
+            })
+        );
+    }
+
+    #[actix_rt::test]
+    async fn test_non_firefox_user_agent() {
+        let header = (
+            "User-Agent",
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36",
+        );
+        assert_eq!(
+            DeviceInfoWrapper::extract(&test_request_with_header(header))
+                .await
+                .expect("Count not get result in test_valid_user_agents"),
+            DeviceInfoWrapper(DeviceInfo {
+                os_family: OsFamily::Windows,
+                form_factor: FormFactor::Desktop,
+                browser: Browser::Other,
+            })
+        );
     }
 }

@@ -20,9 +20,10 @@ impl<'a> CacheKey<'a> for SuggestionRequest<'a> {
         let mut hasher = blake3::Hasher::new();
         hasher.update(self.query.as_bytes());
         hasher.update(&[self.accepts_english as u8]);
+        hasher.update(self.device_info.to_string().as_bytes());
 
         let hash = hasher.finalize().to_hex();
-        format!("req:v2:{}", hash).into()
+        format!("req:v3:{}", hash).into()
     }
 }
 
@@ -32,7 +33,10 @@ mod tests {
 
     use super::CacheKey;
     use fake::{Fake, Faker};
-    use merino_suggest::SuggestionRequest;
+    use merino_suggest::{
+        device_info::{Browser, DeviceInfo, FormFactor, OsFamily},
+        SuggestionRequest, FIREFOX_TEST_VERSIONS,
+    };
     use proptest::prelude::*;
 
     /// This test provides a fixed input, and expects a certain cache key to be
@@ -48,10 +52,15 @@ mod tests {
             region: Some("OR".into()),
             dma: Some(820_u16),
             city: Some("Portland".into()),
+            device_info: DeviceInfo {
+                os_family: OsFamily::Windows,
+                form_factor: FormFactor::Desktop,
+                browser: Browser::Firefox(90),
+            },
         };
         assert_eq!(
             req.cache_key(),
-            "req:v2:9b32b37fe784364d9b5fa13d8a943b077ff853174887fc18c8d30fc2028fee5a",
+            "req:v3:3096f07f8bce1cd4d39f2ea5544cd58e5c2ec94d3b491004a83257bb48c5fa45",
         );
     }
 
@@ -80,6 +89,7 @@ mod tests {
             region in proptest::option::of("[A-Z]{1,3}"),
             dma in proptest::option::of(100_u16..1000),
             city in proptest::option::of("[A-Z]{2}"),
+            device_info in device_info_strategy()
         ) {
             let req = SuggestionRequest {
                 query: query.into(),
@@ -88,14 +98,54 @@ mod tests {
                 region: region.map(Cow::from),
                 dma,
                 city: city.map(Cow::from),
+                device_info,
             };
             const HEX_DIGITS: &str = "0123456789abcdef";
             let parts: Vec<String> = req.cache_key().split(':').map(ToString::to_string).collect();
             prop_assert_eq!(parts.len(), 3);
             prop_assert_eq!(&parts[0], "req");
-            prop_assert_eq!(&parts[1], "v2");
+            prop_assert_eq!(&parts[1], "v3");
             prop_assert!(parts[2].chars().all(|c|HEX_DIGITS.contains(c)));
             prop_assert_eq!(parts[2].len(), 64);
+        }
+    }
+
+    fn form_factor_strategy() -> impl Strategy<Value = FormFactor> {
+        prop_oneof![
+            Just(FormFactor::Desktop),
+            Just(FormFactor::Phone),
+            Just(FormFactor::Tablet),
+            Just(FormFactor::Other),
+        ]
+    }
+
+    fn os_family_strategy() -> impl Strategy<Value = OsFamily> {
+        prop_oneof![
+            Just(OsFamily::Windows),
+            Just(OsFamily::MacOs),
+            Just(OsFamily::Linux),
+            Just(OsFamily::IOs),
+            Just(OsFamily::Android),
+            Just(OsFamily::ChromeOs),
+            Just(OsFamily::BlackBerry),
+            Just(OsFamily::Other),
+        ]
+    }
+
+    fn browser_strategy() -> impl Strategy<Value = Browser> {
+        prop_oneof![
+            FIREFOX_TEST_VERSIONS.prop_map(Browser::Firefox),
+            Just(Browser::Other),
+        ]
+    }
+
+    prop_compose! {
+        fn device_info_strategy()(
+            form_factor in form_factor_strategy(),
+            os_family in os_family_strategy(),
+            browser in browser_strategy()
+        ) -> DeviceInfo {
+            DeviceInfo { form_factor, os_family, browser }
         }
     }
 }
