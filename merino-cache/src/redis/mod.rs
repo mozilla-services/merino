@@ -192,10 +192,7 @@ where
             .add_command(redis::Cmd::set(&pending_key, &lock))
             .add_command(redis::Cmd::expire(
                 &pending_key,
-                self.default_lock_timeout
-                    .as_secs()
-                    .try_into()
-                    .unwrap_or(3),
+                self.default_lock_timeout.as_secs().try_into().unwrap_or(3),
             ))
             .query_async(&mut connection)
             .await
