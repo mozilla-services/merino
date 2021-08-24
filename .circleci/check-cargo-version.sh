@@ -14,4 +14,5 @@ if [[ "$EXPECTED_CARGO_VERSION" = "$ACTUAL_CARGO_VERSION" ]]; then
   echo "Cargo version is the expected value of ${EXPECTED_CARGO_VERSION}"
 else
   echo "Error: Expected cargo version ${EXPECTED_CARGO_VERSION} but found ${ACTUAL_CARGO_VERSION}"
+  exit 1
 fi
