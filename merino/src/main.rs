@@ -14,6 +14,7 @@
 //! - [merino-web](../merino_web/index.html)
 
 mod docs;
+mod sentry;
 
 use anyhow::{Context, Result};
 use cadence::{BufferedUdpMetricSink, CountedExt, QueuingMetricSink, StatsdClient};
@@ -29,6 +30,7 @@ use viaduct_reqwest::ReqwestBackend;
 #[actix_rt::main]
 async fn main() -> Result<()> {
     let settings = merino_settings::Settings::load().context("Loading settings")?;
+    let _sentry_guard = crate::sentry::init_sentry(&settings).context("initializing sentry")?;
     init_logging(&settings).context("initializing logging")?;
     let metrics_client = init_metrics(&settings).context("initializing metrics")?;
 
@@ -47,6 +49,7 @@ async fn main() -> Result<()> {
 fn init_logging(settings: &Settings) -> Result<()> {
     LogTracer::init()?;
     let env_filter: EnvFilter = (&settings.logging.levels).into();
+    let sentry_layer = sentry_tracing::layer();
 
     match settings.logging.format {
         LogFormat::Pretty => {
@@ -54,6 +57,7 @@ fn init_logging(settings: &Settings) -> Result<()> {
                 .pretty()
                 .with_max_level(Level::TRACE)
                 .finish()
+                .with(sentry_layer)
                 .with(env_filter);
             tracing::subscriber::set_global_default(subscriber)?;
         }
@@ -62,6 +66,7 @@ fn init_logging(settings: &Settings) -> Result<()> {
                 .with_level(true)
                 .with_max_level(Level::TRACE)
                 .finish()
+                .with(sentry_layer)
                 .with(env_filter);
             tracing::subscriber::set_global_default(subscriber)?;
         }
@@ -69,6 +74,7 @@ fn init_logging(settings: &Settings) -> Result<()> {
             let subscriber = tracing_subscriber::registry()
                 .with(JsonStorageLayer)
                 .with(MozLogFormatLayer::new("merino", std::io::stdout))
+                .with(sentry_layer)
                 .with(env_filter);
             tracing::subscriber::set_global_default(subscriber)?;
         }

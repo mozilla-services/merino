@@ -33,7 +33,7 @@ mod redis;
 
 pub use logging::{LogFormat, LoggingSettings};
 
-use anyhow::{Context, Result};
+use anyhow::{ensure, Context, Result};
 use config::{Config, Environment, File};
 use http::Uri;
 use serde::{Deserialize, Serialize};
@@ -64,6 +64,9 @@ pub struct Settings {
 
     /// Metrics settings.
     pub metrics: MetricsSettings,
+
+    /// Settings for error reporting via Sentry.
+    pub sentry: SentrySettings,
 
     /// URL to redirect curious users to, that explains what this service is.
     /// Preferable a public wiki page. Optional.
@@ -193,6 +196,19 @@ pub struct MetricsSettings {
     pub max_queue_size_kb: usize,
 }
 
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct SentrySettings {
+    /// Sentry DSN
+    ///
+    /// If not provided, no Sentry integration will be configured.
+    pub dsn: Option<sentry::internals::Dsn>,
+
+    /// If true, enable sentry debug diagnostics. Requires `settings.debug` to
+    /// be true as well. Also requires a DSN to be set; in local development or
+    /// testing consider using `https://public@example.com/1`.
+    pub debug: bool,
+}
+
 impl Settings {
     /// Load settings from configuration files and environment variables.
     ///
@@ -223,7 +239,10 @@ impl Settings {
         s.merge(Environment::default().prefix("MERINO").separator("__"))
             .context("merging config")?;
 
-        serde_path_to_error::deserialize(s).context("Deserializing settings")
+        let settings: Self =
+            serde_path_to_error::deserialize(s).context("Deserializing settings")?;
+        settings.check_settings()?;
+        Ok(settings)
     }
 
     /// Load settings from configuration files for tests.
@@ -243,6 +262,25 @@ impl Settings {
         s.merge(File::with_name("../config/local_test").required(false))
             .expect("Could not load local settings for tests");
 
-        s.try_into().expect("Could not convert settings")
+        let settings: Self = s.try_into().expect("Could not convert settings");
+        settings
+            .check_settings()
+            .expect("Test settings are invalid");
+        settings
+    }
+
+    /// Check for common errors in settings
+    fn check_settings(&self) -> Result<()> {
+        if self.sentry.debug {
+            ensure!(
+                self.debug,
+                "Sentry debugging requires MERINO_DEBUG to also be set"
+            );
+            ensure!(
+                self.sentry.dsn.is_some(),
+                "Sentry debugging requires MERINO_SENTRY__DSN to be set. Consider 'https://public@example.com/1'.",
+            )
+        }
+        Ok(())
     }
 }
