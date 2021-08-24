@@ -142,7 +142,7 @@ where
         let pending_key = Self::pending_key(key);
         let mut connection = self.redis_connection.clone();
 
-        tracing::debug!("🔒Checking key: {:?}", &pending_key);
+        tracing::trace!("🔒Checking key: {:?}", &pending_key);
         let lock = redis::pipe()
             .add_command(redis::Cmd::get(&pending_key))
             .query_async::<redis::aio::ConnectionManager, String>(&mut connection)
@@ -150,7 +150,7 @@ where
             .await;
 
         let locked = !lock.unwrap_or_default().is_empty();
-        tracing::debug!("🔒Is Pending {:?} {:?}", &pending_key, &locked);
+        tracing::trace!("🔒Is Pending {:?} {:?}", &pending_key, &locked);
         Ok(locked)
     }
 
@@ -158,27 +158,36 @@ where
     async fn check_pending(&self, key: &str, lock: &str) -> bool {
         let mut conn = self.redis_connection.clone();
         let pending_key = Self::pending_key(key);
-        let locked = match redis::cmd("GET").arg(&pending_key).query_async::<redis::aio::ConnectionManager, String>(&mut conn).await {
+        let locked = match redis::cmd("GET")
+            .arg(&pending_key)
+            .query_async::<redis::aio::ConnectionManager, String>(&mut conn)
+            .await
+        {
             Ok(set_lock) => {
-                tracing::debug!("🔒Checking key: {:?} {:?} =? {:?}", &pending_key, set_lock, lock);
+                tracing::trace!(
+                    "🔒Checking key: {:?} {:?} =? {:?}",
+                    &pending_key,
+                    set_lock,
+                    lock
+                );
                 set_lock == lock
             }
-            ,
             Err(e) => {
                 tracing::warn!("🔒Could not get lock. Gone? {:?} {:?}", pending_key, e);
                 false
             }
         };
-        tracing::debug!("🔒Check Pending: {:?} {:?}", pending_key, locked);
+        tracing::trace!("🔒Check Pending: {:?} {:?}", pending_key, locked);
         locked
     }
 
-    /// Generate a lock.
+    /// Generate a lock, this returns a unique Lock value string to ensure that
+    /// only the thread with the most recent "lock" can write to this key.
     async fn set_pending(&self, key: &str) -> Result<String, SuggestError> {
         let mut connection = self.redis_connection.clone();
         let pending_key = Self::pending_key(key);
         let lock = Uuid::new_v4().to_simple().to_string();
-        tracing::debug!("🔒Setting lock for {:?} to {:?}", &pending_key, &lock);
+        tracing::trace!("🔒Setting lock for {:?} to {:?}", &pending_key, &lock);
         redis::pipe()
             .add_command(redis::Cmd::set(&pending_key, &lock))
             .add_command(redis::Cmd::expire(
@@ -186,7 +195,7 @@ where
                 self.default_lock_timeout
                     .as_secs()
                     .try_into()
-                    .unwrap_or_else(|_| 3),
+                    .unwrap_or(3),
             ))
             .query_async(&mut connection)
             .await
@@ -197,22 +206,22 @@ where
         Ok(lock)
     }
 
-    /// Delete a lock (fails if it does not match.)
+    /// Delete a lock (fails if the lock value does not match.)
     async fn del_pending(&self, key: &str, lock: &str) -> Result<(), SuggestError> {
         let mut connection = self.redis_connection.clone();
         let pending_key = Self::pending_key(key);
-        if self.check_pending(&key, lock).await {
-            tracing::debug!("🔒Removing lock for {:?}", &pending_key);
+        if self.check_pending(key, lock).await {
+            tracing::trace!("🔒Removing lock for {:?}", &pending_key);
             redis::cmd("DEL")
-            .arg(&pending_key)
-            .query_async::<redis::aio::ConnectionManager, _>(&mut connection)
-            .await
-            .map_err(|e|{
-                tracing::warn!("🔒Key removal error: {:?} {:?}", &pending_key, e);
-                SuggestError::Internal(e.into())
-            })?;
+                .arg(&pending_key)
+                .query_async::<redis::aio::ConnectionManager, _>(&mut connection)
+                .await
+                .map_err(|e| {
+                    tracing::warn!("🔒Key removal error: {:?} {:?}", &pending_key, e);
+                    SuggestError::Internal(e.into())
+                })?;
         } else {
-            tracing::warn!("🔒Hrm, existing lock for {:?}", &pending_key);
+            tracing::debug!("🔒Hrm, existing lock for {:?}", &pending_key);
         }
         Ok(())
     }
