@@ -2,7 +2,7 @@
 
 mod domain;
 
-use std::{borrow::Cow, time::Duration};
+use std::{borrow::Cow, convert::TryInto, time::Duration};
 
 use crate::{domain::CacheKey, redis::domain::RedisSuggestions};
 use anyhow::{anyhow, Context};
@@ -14,6 +14,7 @@ use merino_suggest::{
 };
 use redis::RedisError;
 use tracing_futures::{Instrument, WithSubscriber};
+use uuid::Uuid;
 
 use self::domain::RedisTtl;
 
@@ -28,6 +29,9 @@ pub struct Suggester<S> {
     /// The default amount of time a cache entry is valid, unless overridden by
     /// `inner`.
     default_ttl: Duration,
+
+    /// Default lock timeout
+    default_lock_timeout: Duration,
 }
 
 #[derive(Debug)]
@@ -68,6 +72,7 @@ where
             inner: provider,
             redis_connection,
             default_ttl: settings.redis_cache.default_ttl,
+            default_lock_timeout: settings.redis_cache.default_lock_timeout,
         }))
     }
 
@@ -123,6 +128,93 @@ where
                 Ok(CacheCheckResult::ErrorAsMiss)
             }
         }
+    }
+
+    /// Generate a lock identifier key.
+    /// This is a VERY simple locking mechanism. The only bit of fancy is that it will
+    /// expire, allowing for "stuck" queries to eventually resolve.
+    fn pending_key(key: &str) -> String {
+        format!("pending_{}", key)
+    }
+
+    /// See iff a record update is pending. (Does not check lock value, only if it exists)
+    async fn is_pending(&self, key: &str) -> Result<bool, SuggestError> {
+        let pending_key = Self::pending_key(key);
+        let mut connection = self.redis_connection.clone();
+
+        tracing::debug!("🔒Checking key: {:?}", &pending_key);
+        let lock = redis::pipe()
+            .add_command(redis::Cmd::get(&pending_key))
+            .query_async::<redis::aio::ConnectionManager, String>(&mut connection)
+            .instrument(tracing::info_span!("getting-cache-pending", %pending_key))
+            .await;
+
+        let locked = !lock.unwrap_or_default().is_empty();
+        tracing::debug!("🔒Is Pending {:?} {:?}", &pending_key, &locked);
+        Ok(locked)
+    }
+
+    /// Check to see if the lock we have matches the lock we made.
+    async fn check_pending(&self, key: &str, lock: &str) -> bool {
+        let mut conn = self.redis_connection.clone();
+        let pending_key = Self::pending_key(key);
+        let locked = match redis::cmd("GET").arg(&pending_key).query_async::<redis::aio::ConnectionManager, String>(&mut conn).await {
+            Ok(set_lock) => {
+                tracing::debug!("🔒Checking key: {:?} {:?} =? {:?}", &pending_key, set_lock, lock);
+                set_lock == lock
+            }
+            ,
+            Err(e) => {
+                tracing::warn!("🔒Could not get lock. Gone? {:?} {:?}", pending_key, e);
+                false
+            }
+        };
+        tracing::debug!("🔒Check Pending: {:?} {:?}", pending_key, locked);
+        locked
+    }
+
+    /// Generate a lock.
+    async fn set_pending(&self, key: &str) -> Result<String, SuggestError> {
+        let mut connection = self.redis_connection.clone();
+        let pending_key = Self::pending_key(key);
+        let lock = Uuid::new_v4().to_simple().to_string();
+        tracing::debug!("🔒Setting lock for {:?} to {:?}", &pending_key, &lock);
+        redis::pipe()
+            .add_command(redis::Cmd::set(&pending_key, &lock))
+            .add_command(redis::Cmd::expire(
+                &pending_key,
+                self.default_lock_timeout
+                    .as_secs()
+                    .try_into()
+                    .unwrap_or_else(|_| 3),
+            ))
+            .query_async(&mut connection)
+            .await
+            .map_err(|e| {
+                tracing::error!("🔒lock error: {:?}", e);
+                SuggestError::Internal(e.into())
+            })?;
+        Ok(lock)
+    }
+
+    /// Delete a lock (fails if it does not match.)
+    async fn del_pending(&self, key: &str, lock: &str) -> Result<(), SuggestError> {
+        let mut connection = self.redis_connection.clone();
+        let pending_key = Self::pending_key(key);
+        if self.check_pending(&key, lock).await {
+            tracing::debug!("🔒Removing lock for {:?}", &pending_key);
+            redis::cmd("DEL")
+            .arg(&pending_key)
+            .query_async::<redis::aio::ConnectionManager, _>(&mut connection)
+            .await
+            .map_err(|e|{
+                tracing::warn!("🔒Key removal error: {:?} {:?}", &pending_key, e);
+                SuggestError::Internal(e.into())
+            })?;
+        } else {
+            tracing::warn!("🔒Hrm, existing lock for {:?}", &pending_key);
+        }
+        Ok(())
     }
 
     /// Queue a command to store an entry in the cache.
@@ -239,13 +331,25 @@ where
             tracing::debug!(%key, "cache hit");
             Ok(suggestions)
         } else {
+            if self.is_pending(&key).await? {
+                tracing::debug!(%key, "cache updating...");
+                // A "pending" review may not yet have content (e.g. it's the initial lookup), otherwise it's a "Hit"
+                let response =
+                    SuggestionResponse::new(Vec::new()).with_cache_status(CacheStatus::Miss);
+                return Ok(response);
+            }
+            let lock = self.set_pending(&key).await?;
             let mut response = self
                 .inner
                 .suggest(request)
                 .await?
                 .with_cache_ttl(self.default_ttl);
 
-            self.queue_store_key(&key, response.suggestions.clone())?;
+            if self.check_pending(&key, &lock).await {
+                self.queue_store_key(&key, response.suggestions.clone())?;
+                tracing::trace!("🔒Killing lock: {:?} {:?}", &key, &lock);
+                self.del_pending(&key, &lock).await?;
+            }
 
             if let CacheCheckResult::Miss = cache_result {
                 tracing::debug!(%key, "cache miss");
