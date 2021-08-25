@@ -11,7 +11,10 @@ ARG CACHE_BUST="2021-05-13"
 # Analyze the project, and produce a plan to compile its dependcies. This will
 # be run every time. The output should only change if the dependencies of the
 # project change, or if significant details of the build process change.
-FROM lukemathwalker/cargo-chef as planner
+
+# Note that this is not actually an alpha version. The image is mistagged. See
+# https://github.com/LukeMathWalker/cargo-chef/issues/86
+FROM lukemathwalker/cargo-chef:0.1.26-alpha.0-rust-1.54-buster as planner
 WORKDIR /app
 COPY . .
 RUN cargo version | tee cargo-version.txt
@@ -21,7 +24,10 @@ RUN cargo chef prepare --recipe-path recipe.json
 # Use the plan from above to build only the dependencies of the project. This
 # should almost always be pulled straight from cache unless dependencies or the
 # build process change.
-FROM lukemathwalker/cargo-chef as cacher
+
+# Note that this is not actually an alpha version. The image is mistagged. See
+# https://github.com/LukeMathWalker/cargo-chef/issues/86
+FROM lukemathwalker/cargo-chef:0.1.26-alpha.0-rust-1.54-buster as cacher
 WORKDIR /app
 
 COPY --from=planner /app/cargo-version.txt cargo-version.txt
@@ -33,7 +39,7 @@ RUN cargo chef cook --release --recipe-path recipe.json
 
 # =============================================================================
 # Now build the project, taking advantage of the cached dependencies from
-# above.
+# above. The version number here should be the same as the version used by cargo-chef
 FROM rust:1.54 as builder
 WORKDIR /app
 ARG RUST_TOOLCHAIN=stable
