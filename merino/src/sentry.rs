@@ -8,23 +8,15 @@ use merino_settings::Settings;
 /// The returned guard must be held for the duration of the program. Once it is
 /// dropped, no more errors will be reported.
 pub fn init_sentry(settings: &Settings) -> Result<sentry::ClientInitGuard> {
-    if settings.sentry.debug {
-        anyhow::ensure!(
-            settings.debug,
-            "Sentry debugging requires general debugging as well"
-        );
-    }
-
     let mut config = sentry::apply_defaults(sentry::ClientOptions {
-        dsn: settings.sentry.dsn.clone(),
-        // set debug here to true to diagnose Sentry integration issues
-        debug: settings.sentry.debug,
+        dsn: settings.sentry.dsn(),
+        debug: settings.sentry.debug(),
         release: sentry::release_name!(),
         environment: Some(settings.env.clone().into()),
         ..Default::default()
     });
 
-    if settings.sentry.debug {
+    if settings.sentry.debug() {
         config = config.add_integration(SentryTracer);
     };
 

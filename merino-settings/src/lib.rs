@@ -33,12 +33,13 @@ mod redis;
 
 pub use logging::{LogFormat, LoggingSettings};
 
-use anyhow::{ensure, Context, Result};
+use anyhow::{Context, Result};
 use config::{Config, Environment, File};
 use http::Uri;
+use sentry::internals::Dsn;
 use serde::{Deserialize, Serialize};
 use serde_with::{serde_as, DisplayFromStr, DurationSeconds};
-use std::{net::SocketAddr, path::PathBuf, time::Duration};
+use std::{net::SocketAddr, path::PathBuf, str::FromStr, time::Duration};
 
 /// Top level settings object for Merino.
 #[serde_as]
@@ -196,17 +197,42 @@ pub struct MetricsSettings {
     pub max_queue_size_kb: usize,
 }
 
+/// Settings for the error and event reporting system Sentry.
+///
+/// Uses an enum to maintain invariants. In yaml or environment variable configs, set using one of these patterns:
+///
+/// * mode=release, dsn=https://...
+/// * mode=debug
+/// * mode=disabled
+///
+/// In debug mode, events will be logged, but the DSN setting will be ignored.
+/// It will be set to a testing value as recommended by Sentry's docs.
 #[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct SentrySettings {
-    /// Sentry DSN
-    ///
-    /// If not provided, no Sentry integration will be configured.
-    pub dsn: Option<sentry::internals::Dsn>,
+#[serde(tag = "mode", rename_all="snake_case")]
+pub enum SentrySettings {
+    Release { dsn: Dsn },
+    Debug,
+    Disabled,
+}
 
-    /// If true, enable sentry debug diagnostics. Requires `settings.debug` to
-    /// be true as well. Also requires a DSN to be set; in local development or
-    /// testing consider using `https://public@example.com/1`.
-    pub debug: bool,
+impl SentrySettings {
+    /// Get the configured DSN.
+    pub fn dsn(&self) -> Option<Dsn> {
+        match self {
+            SentrySettings::Release { dsn } => Some(dsn.clone()),
+            SentrySettings::Debug => Some(Dsn::from_str("https://public@example.com/1").unwrap()),
+            SentrySettings::Disabled => None,
+        }
+    }
+
+    /// Check if the Sentry settings are in debug mode
+    pub fn debug(&self) -> bool {
+        match self {
+            SentrySettings::Release {..} => false,
+            SentrySettings::Debug => true,
+            SentrySettings::Disabled => false,
+        }
+    }
 }
 
 impl Settings {
@@ -239,10 +265,7 @@ impl Settings {
         s.merge(Environment::default().prefix("MERINO").separator("__"))
             .context("merging config")?;
 
-        let settings: Self =
-            serde_path_to_error::deserialize(s).context("Deserializing settings")?;
-        settings.check_settings()?;
-        Ok(settings)
+        serde_path_to_error::deserialize(s).context("Deserializing settings")
     }
 
     /// Load settings from configuration files for tests.
@@ -262,25 +285,6 @@ impl Settings {
         s.merge(File::with_name("../config/local_test").required(false))
             .expect("Could not load local settings for tests");
 
-        let settings: Self = s.try_into().expect("Could not convert settings");
-        settings
-            .check_settings()
-            .expect("Test settings are invalid");
-        settings
-    }
-
-    /// Check for common errors in settings
-    fn check_settings(&self) -> Result<()> {
-        if self.sentry.debug {
-            ensure!(
-                self.debug,
-                "Sentry debugging requires MERINO_DEBUG to also be set"
-            );
-            ensure!(
-                self.sentry.dsn.is_some(),
-                "Sentry debugging requires MERINO_SENTRY__DSN to be set. Consider 'https://public@example.com/1'.",
-            )
-        }
-        Ok(())
+        s.try_into().expect("Could not convert settings")
     }
 }
