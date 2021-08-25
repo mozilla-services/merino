@@ -130,36 +130,14 @@ where
 
         Box::pin(async move {
             // let settings = settings.ok_or(HandlerError::Internal)?;
-            let mut response = fut.await.map_err(|error| {
+            let response = fut.await.map_err(|error| {
                 tracing::error!(?error, "handler error");
                 HandlerError::Internal
             })?;
             tracing::trace!(?response, "checking response for errors");
 
             match response.response().error() {
-                None => {
-                    // Middleware errors are eaten by current versions of Actix. Errors are now added
-                    // to the extensions. Need to check both for any errors and report them.
-                    if let Some(events) = response
-                        .request()
-                        .extensions_mut()
-                        .remove::<Vec<Event<'static>>>()
-                    {
-                        for event in events {
-                            tracing::trace!(?event, "Sentry: found sentry event stored in request",);
-                            hub.capture_event(event);
-                        }
-                    }
-                    if let Some(events) = response
-                        .response_mut()
-                        .extensions_mut()
-                        .remove::<Vec<Event<'static>>>()
-                    {
-                        for event in events {
-                            hub.capture_event(event);
-                        }
-                    }
-                }
+                None => (),
                 Some(error) => {
                     tracing::trace!(?error, "Found error on response");
                     if let Some(handler_error) = error.as_error::<HandlerError>() {

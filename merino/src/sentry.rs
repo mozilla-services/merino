@@ -18,10 +18,9 @@ pub fn init_sentry(settings: &Settings) -> Result<sentry::ClientInitGuard> {
 
     if settings.sentry.debug() {
         config = config.add_integration(SentryTracer);
-    };
+    }
 
     let guard = sentry::init(config);
-    sentry::integrations::panic::PanicIntegration::default();
     Ok(guard)
 }
 

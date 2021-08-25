@@ -208,7 +208,7 @@ pub struct MetricsSettings {
 /// In debug mode, events will be logged, but the DSN setting will be ignored.
 /// It will be set to a testing value as recommended by Sentry's docs.
 #[derive(Clone, Debug, Serialize, Deserialize)]
-#[serde(tag = "mode", rename_all="snake_case")]
+#[serde(tag = "mode", rename_all = "snake_case")]
 pub enum SentrySettings {
     Release { dsn: Dsn },
     Debug,
@@ -228,7 +228,7 @@ impl SentrySettings {
     /// Check if the Sentry settings are in debug mode
     pub fn debug(&self) -> bool {
         match self {
-            SentrySettings::Release {..} => false,
+            SentrySettings::Release { .. } => false,
             SentrySettings::Debug => true,
             SentrySettings::Disabled => false,
         }

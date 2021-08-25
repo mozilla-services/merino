@@ -118,16 +118,10 @@ fn heartbeat(_: HttpRequest) -> HttpResponse {
     HttpResponse::Ok().json(checklist)
 }
 
-/// A workaround because serde defaults can't be expressions
-fn default_false() -> bool {
-    false
-}
-
 /// Arguments to the __error__ handler.
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Default)]
 struct ErrorArgs {
     /// If true, and the server has settings.debug == true, the error handler will panic.
-    #[serde(default = "default_false")]
     panic: bool,
 }
 
