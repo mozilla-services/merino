@@ -16,12 +16,6 @@ workflows:
               only: /.*/
 
       - build-and-test:
-          name: build-and-test-with-sccache
-          useSccache: true
-
-      - build-and-test:
-          name: build-and-test-no-sccache
-          useSccache: false
           filters:
             tags:
               only: /.*/
@@ -54,7 +48,7 @@ workflows:
       - docker-image-publish:
           requires:
             - checks
-            - build-and-test-no-sccache
+            - build-and-test
             - docker-image-build-deploy
           filters:
             branches:
@@ -74,11 +68,6 @@ jobs:
       - rust-check
 
   build-and-test:
-    parameters:
-      useSccache:
-        type: boolean
-        default: false
-
     docker:
       - image: mozilla/cidockerbases:rust-latest
         auth:
@@ -93,17 +82,9 @@ jobs:
 
     steps:
       - checkout
-      - when:
-          condition: << parameters.useSccache >>
-          steps:
-            - setup-sccache
       - write-version
       - cargo-build
       - run-tests
-      - when:
-          condition: << parameters.useSccache >>
-          steps:
-            - save-sccache-cache
 
   docker-image-build:
     parameters:
@@ -262,27 +243,3 @@ commands:
       - run:
           name: cargo test
           command: cargo test --all --verbose
-
-  setup-sccache:
-    steps:
-      - run:
-          name: Setup sccache
-          command: |
-            sccache --version
-            # This configures Rust to use sccache.
-            echo 'export "RUSTC_WRAPPER"="sccache"' >> $BASH_ENV
-            # This is the maximum space sccache cache will use on disk.
-            echo 'export "SCCACHE_CACHE_SIZE"="1G"' >> $BASH_ENV
-      - restore_cache:
-          name: Restore sccache cache
-          key: sccache-cache-stable-{{ .Branch }}-{{ .Environment.CIRCLE_TAG }}
-
-  save-sccache-cache:
-    steps:
-      - save_cache:
-          name: Save sccache cache
-          key:
-            sccache-cache-stable-{{ .Branch }}-{{ .Environment.CIRCLE_TAG }}-{{
-            epoch }}
-          paths:
-            - "~/.cache/sccache"
