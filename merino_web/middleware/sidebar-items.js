@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["Metrics","Factory for [`MetricsMiddleware`]."],["MetricsMiddleware","Middleware to record request metrics."]]});
+initSidebarItems({"mod":[["metrics","Middlewares for reporting Metrics in Merino."],["sentry","Middlewares for using Sentry in Merino."]]});

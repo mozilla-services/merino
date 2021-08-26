@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["EN",""],["FR_FR",""],["RegistrantRule",""],["ZH_CN",""],["ZH_TW",""]],"trait":[["Data",""]]});
+initSidebarItems({"struct":[["EN",""],["FR_FR",""],["ZH_CN",""],["ZH_TW",""]],"trait":[["Data",""]]});

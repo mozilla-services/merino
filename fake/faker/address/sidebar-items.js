@@ -1,1 +1,1 @@
-initSidebarItems({"mod":[["en",""],["fr_fr",""],["raw",""],["zh_cn",""],["zh_tw",""]]});
+initSidebarItems({"mod":[["en",""],["raw",""],["zh_cn",""],["zh_tw",""]]});

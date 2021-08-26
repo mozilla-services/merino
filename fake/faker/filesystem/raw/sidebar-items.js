@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["DirPath",""],["FileExtension",""],["FileName",""],["FilePath",""],["MimeType",""],["Semver",""],["SemverStable",""],["SemverUnstable",""]]});
+initSidebarItems({"struct":[["DirPath",""],["FileExtension",""],["FileName",""],["FilePath",""],["MimeType",""],["Semver",""]]});

@@ -34,10 +34,6 @@
 <span id="32">32</span>
 <span id="33">33</span>
 <span id="34">34</span>
-<span id="35">35</span>
-<span id="36">36</span>
-<span id="37">37</span>
-<span id="38">38</span>
 </pre><pre class="rust">
 <span class="doccomment">//! Any errors that merino-web might generate, and supporting implementations.</span>
 
@@ -57,16 +53,12 @@
     <span class="doccomment">/// An error that indicates that one of the request headers is malformed.</span>
     <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;Malformed header: {0}&quot;</span>)]</span>
     <span class="ident">MalformedHeader</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>),
-
-    <span class="doccomment">/// Indicates that the server&#39;s config is incorrect.</span>
-    <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;The server was setup invalidly&quot;</span>)]</span>
-    <span class="ident">InvalidSetup</span>(<span class="attribute">#[<span class="ident">source</span>]</span> <span class="ident">anyhow::Error</span>),
 }
 
 <span class="kw">impl</span> <span class="ident">ResponseError</span> <span class="kw">for</span> <span class="ident">HandlerError</span> {
     <span class="kw">fn</span> <span class="ident">status_code</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">StatusCode</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="self">Self</span><span class="ident">::Internal</span> <span class="op">|</span> <span class="self">Self</span><span class="ident">::InvalidSetup</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">StatusCode::INTERNAL_SERVER_ERROR</span>,
+            <span class="self">Self</span><span class="ident">::Internal</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">StatusCode::INTERNAL_SERVER_ERROR</span>,
             <span class="self">Self</span><span class="ident">::MalformedHeader</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">StatusCode::BAD_REQUEST</span>,
         }
     }
