@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["Isbn",""],["Isbn10",""],["Isbn13",""]]});
