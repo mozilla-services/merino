@@ -2,7 +2,7 @@
 
 mod domain;
 
-use std::{borrow::Cow, time::Duration};
+use std::{borrow::Cow, convert::TryInto, time::Duration};
 
 use crate::{domain::CacheKey, redis::domain::RedisSuggestions};
 use anyhow::{anyhow, Context};
@@ -14,6 +14,7 @@ use merino_suggest::{
 };
 use redis::RedisError;
 use tracing_futures::{Instrument, WithSubscriber};
+use uuid::Uuid;
 
 use self::domain::RedisTtl;
 
@@ -28,6 +29,9 @@ pub struct Suggester<S> {
     /// The default amount of time a cache entry is valid, unless overridden by
     /// `inner`.
     default_ttl: Duration,
+
+    /// Default lock timeout
+    default_lock_timeout: Duration,
 }
 
 #[derive(Debug)]
@@ -40,6 +44,128 @@ enum CacheCheckResult {
     /// There was an error retrieving the item from the cache that should be
     /// treated as a miss.
     ErrorAsMiss,
+}
+
+#[derive(Clone)]
+/// Very simple Redis Lock mechanism.
+pub struct SimpleRedisLock {
+    /// connection handler
+    connection: redis::aio::ConnectionManager,
+}
+
+impl From<&redis::aio::ConnectionManager> for SimpleRedisLock {
+    fn from(connection: &redis::aio::ConnectionManager) -> Self {
+        Self {
+            connection: connection.clone(),
+        }
+    }
+}
+
+impl SimpleRedisLock {
+    /// Generate a lock identifier key.
+    ///
+    /// This is a VERY simple locking mechanism. The only bit of fancy is that it will
+    /// expire, allowing for "stuck" queries to eventually resolve.
+    fn lock_key(key: &str) -> String {
+        format!("pending_{}", key)
+    }
+
+    /// See if a record update is locked for pending update.
+    ///
+    /// This does not check lock value, only if a lock exists.
+    async fn is_locked(&mut self, key: &str) -> Result<bool, SuggestError> {
+        let lock_key = Self::lock_key(key);
+
+        tracing::trace!(%lock_key, "🔒Checking key");
+        let lock = redis::Cmd::get(&lock_key)
+            .query_async::<redis::aio::ConnectionManager, String>(&mut self.connection)
+            .instrument(tracing::info_span!("getting-cache-pending", %lock_key))
+            .await;
+
+        let locked = !lock.unwrap_or_default().is_empty();
+        tracing::trace!(%lock_key, "🔒Is Pending with {:?}", &locked);
+        Ok(locked)
+    }
+
+    /// Generate a lock, this returns a unique Lock value string to ensure that
+    /// only the thread with the most recent "lock" can write to this key.
+    ///
+    /// This will return a None if the lock could not be created.
+    async fn lock(
+        &mut self,
+        key: &str,
+        default_lock_timeout: Duration,
+    ) -> Result<Option<String>, SuggestError> {
+        let lock_key = Self::lock_key(key);
+        let lock = Uuid::new_v4().to_simple().to_string();
+        tracing::trace!("🔒Setting lock for {:?} to {:?}", &lock_key, &lock);
+        if let Some(v) = redis::Cmd::set(&lock_key, &lock)
+            .arg("NX")
+            .arg("EX")
+            .arg(default_lock_timeout.as_secs().try_into().unwrap_or(3))
+            .query_async::<redis::aio::ConnectionManager, Option<String>>(&mut self.connection)
+            .await
+            .map_err(|e| {
+                tracing::error!("🔒⛔lock error: {:?}", e);
+                SuggestError::Internal(e.into())
+            })?
+        {
+            if v == *"OK" {
+                return Ok(Some(lock));
+            }
+        };
+        Ok(None)
+    }
+
+    /// Only write a given item if the lock matches the value we have on hand.
+    ///
+    /// Silently fails and discards if the lock is invalid.
+    async fn write_if_locked(
+        &mut self,
+        key: &str,
+        lock: &str,
+        to_store: RedisSuggestions,
+        ttl: Duration,
+    ) -> Result<(), SuggestError> {
+        let lock_key = Self::lock_key(key);
+        tracing::debug!(%key, "🔒 attempting to store cache entry");
+        // atomically check the lock to make sure it matches our stored
+        // value, and if it does write the corresponding storage and
+        // delete the lock.
+        let cmd = r"
+            if redis.call('get', ARGV[1]) == ARGV[2] then
+                redis.call('set', ARGV[3], ARGV[4], 'EX', tonumber(ARGV[5]))
+                redis.call('del', ARGV[1])
+                return true
+            else
+                return false
+            end";
+        tracing::trace!(%cmd, %lock_key, %lock, %key, "{}", ttl.as_secs());
+        match redis::cmd("EVAL")
+            .arg(cmd)
+            .arg(0) // You need to specify the keys, even if you don't have any.
+            .arg(lock_key) // argv[1]
+            .arg(lock) // argv[2]
+            .arg(key) // argv[3]
+            .arg(to_store) // argv[4]
+            .arg(ttl.as_secs()) // argv[5]
+            .query_async::<redis::aio::ConnectionManager, bool>(&mut self.connection)
+            .await
+        {
+            Ok(v) => {
+                if v {
+                    tracing::debug!(%key, "🔒Successfully stored cache entry");
+                } else {
+                    tracing::warn!(%key, "🔒⛔write blocked, newer lock");
+                }
+                Ok(())
+            }
+            Err(error) => {
+                tracing::error!(%error, r#type="cache.redis.save-error", "Could not save suggestion to redis");
+                Err(SuggestError::Internal(error.into()))
+            }
+        }
+    }
 }
 
 impl<S> Suggester<S>
@@ -68,6 +194,7 @@ where
             inner: provider,
             redis_connection,
             default_ttl: settings.redis_cache.default_ttl,
+            default_lock_timeout: settings.redis_cache.default_lock_timeout,
         }))
     }
 
@@ -133,31 +260,29 @@ where
     /// # Errors
     /// Returns an error if the command cannot be queued. Does *not* error if the
     /// command fails to run to completion.
-    fn queue_store_key(&self, key: &str, suggestions: Vec<Suggestion>) -> Result<(), SuggestError> {
-        let mut connection = self.redis_connection.clone();
+    fn queue_store_key(
+        &self,
+        key: &str,
+        suggestions: Vec<Suggestion>,
+        lock: String,
+    ) -> Result<(), SuggestError> {
+        let connection = self.redis_connection.clone();
         let key = key.to_string();
         let span = tracing::info_span!("storing-cache-entry", %key);
-        let ttl = self.default_ttl.as_secs() as usize;
+        let ttl = self.default_ttl;
 
-        tokio::task::spawn(async move {
-            let to_store = RedisSuggestions(suggestions);
-            tracing::debug!(%key, "storing cache entry");
-            match redis::pipe()
-                .add_command(redis::Cmd::set(&key, to_store))
-                .add_command(redis::Cmd::expire(&key, ttl))
-                .query_async(&mut connection)
-                .await
-            {
-                Ok(()) => {
-                    tracing::debug!(%key, "Successfully stored cache entry");
-                }
-                Err(error) => {
-                    tracing::error!(%error, r#type="cache.redis.save-error", "Could not save suggestion to redis")
-                }
+        tokio::task::spawn(
+            async move {
+                let mut rlock = SimpleRedisLock::from(&connection);
+                let to_store = RedisSuggestions(suggestions);
+                rlock
+                    .write_if_locked(&key, &lock, to_store, ttl)
+                    .await
+                    .expect("Could not write data");
             }
-
-        }.with_current_subscriber().instrument(span));
-
+            .with_current_subscriber()
+            .instrument(span),
+        );
         Ok(())
     }
 
@@ -232,6 +357,7 @@ where
         request: SuggestionRequest<'a>,
     ) -> Result<SuggestionResponse, SuggestError> {
         let key = request.cache_key();
+        let mut rlock = SimpleRedisLock::from(&self.redis_connection);
 
         let cache_result = self.get_key(&key).await?;
 
@@ -239,23 +365,134 @@ where
             tracing::debug!(%key, "cache hit");
             Ok(suggestions)
         } else {
-            let mut response = self
-                .inner
-                .suggest(request)
-                .await?
-                .with_cache_ttl(self.default_ttl);
-
-            self.queue_store_key(&key, response.suggestions.clone())?;
-
-            if let CacheCheckResult::Miss = cache_result {
-                tracing::debug!(%key, "cache miss");
-                response = response.with_cache_status(CacheStatus::Miss);
-            } else {
-                debug_assert!(matches!(cache_result, CacheCheckResult::ErrorAsMiss));
-                tracing::debug!(%key, "cache error treated as miss");
-                response = response.with_cache_status(CacheStatus::Error);
+            if rlock.is_locked(&key).await? {
+                tracing::debug!(%key, "cache updating...");
+                // A "pending" review may not yet have content (e.g. it's the initial lookup), otherwise it's a "Hit"
+                let response =
+                    SuggestionResponse::new(Vec::new()).with_cache_status(CacheStatus::Miss);
+                return Ok(response);
             }
+            let response = if let Some(lock) = rlock.lock(&key, self.default_lock_timeout).await? {
+                let response = self
+                    .inner
+                    .suggest(request)
+                    .await?
+                    .with_cache_ttl(self.default_ttl);
+
+                self.queue_store_key(&key, response.suggestions.clone(), lock)?;
+
+                if let CacheCheckResult::Miss = cache_result {
+                    tracing::debug!(%key, "cache miss");
+                    response.with_cache_status(CacheStatus::Miss)
+                } else {
+                    debug_assert!(matches!(cache_result, CacheCheckResult::ErrorAsMiss));
+                    tracing::debug!(%key, "cache error treated as miss");
+                    response.with_cache_status(CacheStatus::Error)
+                }
+            } else {
+                SuggestionResponse::new(Vec::new()).with_cache_status(CacheStatus::Error)
+            };
             Ok(response)
         }
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use http::Uri;
+    use merino_suggest::Suggestion;
+
+    use super::*;
+
+    #[tokio::test]
+    async fn check_cache() -> Result<(), SetupError> {
+        let settings = Settings::load_for_tests();
+
+        let r_client = redis::Client::open(settings.redis_cache.url.clone().ok_or_else(|| {
+            SetupError::InvalidConfiguration(anyhow!("No Redis URL is configured for caching"))
+        })?)
+        .context("Setting up Redis client")
+        .map_err(SetupError::Network)?;
+        let mut redis_connection = redis::aio::ConnectionManager::new(r_client)
+            .await
+            .context("Connecting to Redis")
+            .map_err(SetupError::Network)?;
+
+        // try to add an entry:
+        let tty = Duration::from_secs(300);
+        let mut rlock = SimpleRedisLock::from(&redis_connection);
+        let test_key = "testKey";
+        let uri: Uri = "https://example.com".parse().unwrap();
+        let text = "test".to_owned();
+        let suggestion1 = Suggestion {
+            id: 1234,
+            full_keyword: text.clone(),
+            title: text.clone(),
+            url: uri.clone(),
+            impression_url: uri.clone(),
+            click_url: uri.clone(),
+            provider: text.clone(),
+            is_sponsored: false,
+            icon: uri.clone(),
+        };
+        let suggestion2 = Suggestion {
+            id: 5678,
+            ..suggestion1.clone()
+        };
+        let to_store: Vec<Suggestion> = [suggestion1].to_vec();
+        let to_store2: Vec<Suggestion> = [suggestion2].to_vec();
+
+        // try a happy path write cycle.
+        let lock = rlock
+            .lock(test_key, Duration::from_secs(3))
+            .await
+            .expect("Could not generate lock")
+            .unwrap();
+        assert!(rlock.is_locked(test_key).await.expect("failed lock check"));
+        assert!(rlock
+            .write_if_locked(test_key, &lock, RedisSuggestions(to_store.clone()), tty)
+            .await
+            .is_ok());
+        assert!(!rlock
+            .is_locked(test_key)
+            .await
+            .expect("Could not check unlocked"));
+
+        // test to see if you can re-lock.
+        let lock2 = rlock.lock(test_key, tty).await.unwrap().unwrap();
+        // second lock should fail.
+        assert!(rlock.lock(test_key, tty).await.unwrap().is_none());
+
+        let res1 = redis::Cmd::get(test_key)
+            .query_async::<redis::aio::ConnectionManager, String>(&mut redis_connection)
+            .await
+            .unwrap();
+        // trying to write with an old lock should silently fail.
+        assert!(rlock
+            .write_if_locked(test_key, &lock, RedisSuggestions(to_store2.clone()), tty)
+            .await
+            .is_ok());
+        let res2 = redis::Cmd::get(test_key)
+            .query_async::<redis::aio::ConnectionManager, String>(&mut redis_connection)
+            .await
+            .unwrap();
+        assert_eq!(res1, res2);
+
+        // trying to write with an new lock should work and release the lock.
+        assert!(rlock
+            .write_if_locked(test_key, &lock2, RedisSuggestions(to_store2), tty)
+            .await
+            .is_ok());
+        assert!(!rlock
+            .is_locked(test_key)
+            .await
+            .expect("Could not check unlocked"));
+        let res2 = redis::Cmd::get(test_key)
+            .query_async::<redis::aio::ConnectionManager, String>(&mut redis_connection)
+            .await
+            .unwrap();
+        assert_ne!(res1, res2);
+
+        Ok(())
     }
 }
