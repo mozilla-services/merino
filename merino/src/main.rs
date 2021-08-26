@@ -49,7 +49,6 @@ async fn main() -> Result<()> {
 fn init_logging(settings: &Settings) -> Result<()> {
     LogTracer::init()?;
     let env_filter: EnvFilter = (&settings.logging.levels).into();
-    let sentry_layer = sentry_tracing::layer();
 
     match settings.logging.format {
         LogFormat::Pretty => {
@@ -57,7 +56,6 @@ fn init_logging(settings: &Settings) -> Result<()> {
                 .pretty()
                 .with_max_level(Level::TRACE)
                 .finish()
-                .with(sentry_layer)
                 .with(env_filter);
             tracing::subscriber::set_global_default(subscriber)?;
         }
@@ -66,7 +64,6 @@ fn init_logging(settings: &Settings) -> Result<()> {
                 .with_level(true)
                 .with_max_level(Level::TRACE)
                 .finish()
-                .with(sentry_layer)
                 .with(env_filter);
             tracing::subscriber::set_global_default(subscriber)?;
         }
@@ -74,7 +71,6 @@ fn init_logging(settings: &Settings) -> Result<()> {
             let subscriber = tracing_subscriber::registry()
                 .with(JsonStorageLayer)
                 .with(MozLogFormatLayer::new("merino", std::io::stdout))
-                .with(sentry_layer)
                 .with(env_filter);
             tracing::subscriber::set_global_default(subscriber)?;
         }
