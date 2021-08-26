@@ -70,15 +70,51 @@ async fn version_works(TestingTools { test_client, .. }: TestingTools) -> Result
     Ok(())
 }
 
-#[merino_test_macro]
-async fn error_works(TestingTools { test_client, .. }: TestingTools) -> Result<()> {
-    let response = test_client
-        .get("/__error__")
-        .send()
-        .await
-        .expect("failed to execute request");
+mod error {
 
-    assert!(response.status().is_server_error());
+    use crate::{merino_test_macro, TestingTools};
+    use anyhow::Result;
 
-    Ok(())
+    #[merino_test_macro]
+    async fn error_works(TestingTools { test_client, .. }: TestingTools) -> Result<()> {
+        let response = test_client
+            .get("/__error__")
+            .send()
+            .await
+            .expect("failed to execute request");
+
+        assert!(response.status().is_server_error());
+        Ok(())
+    }
+
+    #[merino_test_macro(|settings| settings.debug = true)]
+    async fn panic_true(TestingTools { test_client, .. }: TestingTools) -> Result<()> {
+        let response = test_client.get("/__error__?panic=true").send().await;
+        assert!(response.is_err());
+        Ok(())
+    }
+
+    #[merino_test_macro(|settings| settings.debug = true)]
+    async fn panic_false(TestingTools { test_client, .. }: TestingTools) -> Result<()> {
+        let response = test_client
+            .get("/__error__?panic=false")
+            .send()
+            .await
+            .expect("failed to execute request");
+
+        assert!(response.status().is_server_error());
+        Ok(())
+    }
+
+    #[merino_test_macro(|settings| settings.debug = false)]
+    async fn panic_not_allowed(TestingTools { test_client, .. }: TestingTools) -> Result<()> {
+        let response = test_client
+            .get("/__error__?panic=true")
+            .send()
+            .await
+            .expect("failed to execute request");
+
+        assert!(response.status().is_client_error());
+        Ok(())
+    }
 }

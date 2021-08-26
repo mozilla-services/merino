@@ -120,6 +120,7 @@ fn heartbeat(_: HttpRequest) -> HttpResponse {
 
 /// Arguments to the __error__ handler.
 #[derive(Debug, Deserialize, Default)]
+#[serde(default)]
 struct ErrorArgs {
     /// If true, and the server has settings.debug == true, the error handler will panic.
     panic: bool,
