@@ -48,12 +48,12 @@ enum CacheCheckResult {
 
 #[derive(Clone)]
 /// Very simple Redis Lock mechanism.
-pub struct Rlock {
+pub struct SimpleRedisLock {
     /// connection handler
     connection: redis::aio::ConnectionManager,
 }
 
-impl From<&redis::aio::ConnectionManager> for Rlock {
+impl From<&redis::aio::ConnectionManager> for SimpleRedisLock {
     fn from(connection: &redis::aio::ConnectionManager) -> Self {
         Self {
             connection: connection.clone(),
@@ -61,7 +61,7 @@ impl From<&redis::aio::ConnectionManager> for Rlock {
     }
 }
 
-impl Rlock {
+impl SimpleRedisLock {
     /// Generate a lock identifier key.
     ///
     /// This is a VERY simple locking mechanism. The only bit of fancy is that it will
@@ -273,7 +273,7 @@ where
 
         tokio::task::spawn(
             async move {
-                let mut rlock = Rlock::from(&connection);
+                let mut rlock = SimpleRedisLock::from(&connection);
                 let to_store = RedisSuggestions(suggestions);
                 rlock
                     .write_if_locked(&key, &lock, to_store, ttl)
@@ -357,7 +357,7 @@ where
         request: SuggestionRequest<'a>,
     ) -> Result<SuggestionResponse, SuggestError> {
         let key = request.cache_key();
-        let mut rlock = Rlock::from(&self.redis_connection);
+        let mut rlock = SimpleRedisLock::from(&self.redis_connection);
 
         let cache_result = self.get_key(&key).await?;
 
@@ -390,9 +390,7 @@ where
                     response.with_cache_status(CacheStatus::Error)
                 }
             } else {
-                SuggestionResponse::new(Vec::new())
-                    .with_cache_status(CacheStatus::Miss)
-                    .with_cache_status(CacheStatus::Error)
+                SuggestionResponse::new(Vec::new()).with_cache_status(CacheStatus::Error)
             };
             Ok(response)
         }
@@ -422,7 +420,7 @@ mod test {
 
         // try to add an entry:
         let tty = Duration::from_secs(300);
-        let mut rlock = Rlock::from(&redis_connection);
+        let mut rlock = SimpleRedisLock::from(&redis_connection);
         let test_key = "testKey";
         let uri: Uri = "https://example.com".parse().unwrap();
         let text = "test".to_owned();
@@ -480,7 +478,7 @@ mod test {
             .unwrap();
         assert_eq!(res1, res2);
 
-        // trying to write with an new lock should work, and .
+        // trying to write with an new lock should work and release the lock.
         assert!(rlock
             .write_if_locked(test_key, &lock2, RedisSuggestions(to_store2), tty)
             .await
