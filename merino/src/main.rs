@@ -14,6 +14,7 @@
 //! - [merino-web](../merino_web/index.html)
 
 mod docs;
+mod sentry;
 
 use anyhow::{Context, Result};
 use cadence::{BufferedUdpMetricSink, CountedExt, QueuingMetricSink, StatsdClient};
@@ -29,6 +30,7 @@ use viaduct_reqwest::ReqwestBackend;
 #[actix_rt::main]
 async fn main() -> Result<()> {
     let settings = merino_settings::Settings::load().context("Loading settings")?;
+    let _sentry_guard = crate::sentry::init_sentry(&settings).context("initializing sentry")?;
     init_logging(&settings).context("initializing logging")?;
     let metrics_client = init_metrics(&settings).context("initializing metrics")?;
 

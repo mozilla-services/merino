@@ -11,7 +11,8 @@ ignore = [
     "RUSTSEC-2021-0078", # Hyper 0.13.10 - Lenient `hyper` header parsing of `Content-Length` could allow request smuggling
     "RUSTSEC-2021-0079", # Integer overflow in `hyper`'s parsing of the `Transfer-Encoding` header leads to data loss
 
-    # Pending distribution of openssl 111.15.0+1.1.1k
-    # (Also, we do not use SM2 for anything, so low impact)
-    "RUSTSEC-2021-0097",
+    # sized-chunks is used by the crate im, pulled in by sentry-core. We can't
+    # update the Sentry libraries to get out of this, until our server has
+    # upgraded. I've reviewed the CVE, and don't believe it affects im's usage.
+    "RUSTSEC-2020-0041",
 ]

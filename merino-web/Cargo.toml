@@ -15,6 +15,8 @@ merino-adm = { path = "../merino-adm" }
 merino-cache = { path = "../merino-cache" }
 merino-settings = { path = "../merino-settings" }
 merino-suggest = { path = "../merino-suggest" }
+# Pin sentry_backtrace to 0.19 until our on-premise server updates to 20.6.
+sentry-backtrace = "0.19"
 serde = { version = "1.0.125", features = ["derive"] }
 serde_json = "1.0.64"
 thiserror = "1.0.24"
@@ -25,6 +27,12 @@ tracing-actix-web-mozlog = "0.3"
 tracing-futures = "0.2"
 uuid = { version = "0.8.2", features = ["v4"] }
 woothee = "0.11.0"
+
+[dependencies.sentry]
+# Pin Sentry to 0.19 until our on premise Sentry server upgrades to at least 20.6
+version = "0.19"
+default_features = false
+features = ["backtrace", "contexts", "panic", "transport", "anyhow"]
 
 [dev-dependencies]
 actix-rt = "2.2.0"

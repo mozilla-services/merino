@@ -1,4 +1,4 @@
-//! Middlewares specific to Merino.
+//! Middlewares for reporting Metrics in Merino.
 
 use crate::errors::HandlerError;
 use actix_web::{
@@ -7,8 +7,10 @@ use actix_web::{
 };
 use cadence::{StatsdClient, Timed};
 use std::{
+    fmt,
     future::{ready, Future, Ready},
     pin::Pin,
+    task::Context,
     time::Instant,
 };
 
@@ -25,6 +27,7 @@ impl<S> Transform<S, ServiceRequest> for Metrics
 where
     S: Service<ServiceRequest, Response = ServiceResponse>,
     S::Future: 'static,
+    S::Error: fmt::Debug,
 {
     type Response = ServiceResponse;
 
@@ -45,6 +48,7 @@ impl<S> Service<ServiceRequest> for MetricsMiddleware<S>
 where
     S: Service<ServiceRequest, Response = ServiceResponse>,
     S::Future: 'static,
+    S::Error: fmt::Debug,
 {
     type Response = ServiceResponse;
 
@@ -53,13 +57,10 @@ where
     #[allow(clippy::type_complexity)]
     type Future = Pin<Box<dyn Future<Output = Result<Self::Response, Self::Error>>>>;
 
-    fn poll_ready(
-        &self,
-        ctx: &mut core::task::Context<'_>,
-    ) -> std::task::Poll<Result<(), Self::Error>> {
-        self.service.poll_ready(ctx).map_err(|_err| {
-            HandlerError::InvalidSetup(anyhow::anyhow!("Error setting up metrics middleware"))
-                .into()
+    fn poll_ready(&self, ctx: &mut Context<'_>) -> std::task::Poll<Result<(), Self::Error>> {
+        self.service.poll_ready(ctx).map_err(|error| {
+            tracing::error!(?error, "Error polling service from metrics middleware");
+            HandlerError::Internal.into()
         })
     }
 

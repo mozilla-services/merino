@@ -36,9 +36,10 @@ pub use logging::{LogFormat, LoggingSettings};
 use anyhow::{Context, Result};
 use config::{Config, Environment, File};
 use http::Uri;
+use sentry::internals::Dsn;
 use serde::{Deserialize, Serialize};
 use serde_with::{serde_as, DisplayFromStr, DurationSeconds};
-use std::{net::SocketAddr, path::PathBuf, time::Duration};
+use std::{net::SocketAddr, path::PathBuf, str::FromStr, time::Duration};
 
 /// Top level settings object for Merino.
 #[serde_as]
@@ -64,6 +65,9 @@ pub struct Settings {
 
     /// Metrics settings.
     pub metrics: MetricsSettings,
+
+    /// Settings for error reporting via Sentry.
+    pub sentry: SentrySettings,
 
     /// URL to redirect curious users to, that explains what this service is.
     /// Preferable a public wiki page. Optional.
@@ -197,6 +201,44 @@ pub struct MetricsSettings {
     /// Maximum size in kilobytes that the metrics queue can grow to before
     /// locale metrics start to be dropped.
     pub max_queue_size_kb: usize,
+}
+
+/// Settings for the error and event reporting system Sentry.
+///
+/// Uses an enum to maintain invariants. In yaml or environment variable configs, set using one of these patterns:
+///
+/// * mode=release, dsn=https://...
+/// * mode=debug
+/// * mode=disabled
+///
+/// In debug mode, events will be logged, but the DSN setting will be ignored.
+/// It will be set to a testing value as recommended by Sentry's docs.
+#[derive(Clone, Debug, Serialize, Deserialize)]
+#[serde(tag = "mode", rename_all = "snake_case")]
+pub enum SentrySettings {
+    Release { dsn: Dsn },
+    Debug,
+    Disabled,
+}
+
+impl SentrySettings {
+    /// Get the configured DSN.
+    pub fn dsn(&self) -> Option<Dsn> {
+        match self {
+            SentrySettings::Release { dsn } => Some(dsn.clone()),
+            SentrySettings::Debug => Some(Dsn::from_str("https://public@example.com/1").unwrap()),
+            SentrySettings::Disabled => None,
+        }
+    }
+
+    /// Check if the Sentry settings are in debug mode
+    pub fn debug(&self) -> bool {
+        match self {
+            SentrySettings::Release { .. } => false,
+            SentrySettings::Debug => true,
+            SentrySettings::Disabled => false,
+        }
+    }
 }
 
 impl Settings {

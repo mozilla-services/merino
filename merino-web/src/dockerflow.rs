@@ -2,8 +2,13 @@
 
 use std::collections::HashMap;
 
-use actix_web::{get, web, HttpRequest, HttpResponse};
-use serde::Serialize;
+use actix_web::{
+    get,
+    web::{self, Data},
+    HttpRequest, HttpResponse,
+};
+use merino_settings::Settings;
+use serde::{Deserialize, Serialize};
 use tracing::Level;
 
 use crate::errors::HandlerError;
@@ -113,13 +118,38 @@ fn heartbeat(_: HttpRequest) -> HttpResponse {
     HttpResponse::Ok().json(checklist)
 }
 
+/// Arguments to the __error__ handler.
+#[derive(Debug, Deserialize, Default)]
+#[serde(default)]
+struct ErrorArgs {
+    /// If true, and the server has settings.debug == true, the error handler will panic.
+    panic: bool,
+}
+
 /// Returning an API error to test error handling.
 #[get("__error__")]
-async fn test_error() -> Result<HttpResponse, HandlerError> {
-    tracing::event!(
-        Level::ERROR,
-        r#type = "dockerflow.error_endpoint",
-        "The __error__ endpoint was called"
-    );
-    Err(HandlerError::Internal)
+async fn test_error(
+    params: web::Query<ErrorArgs>,
+    settings: Data<Settings>,
+) -> Result<HttpResponse, HandlerError> {
+    match (params.panic, settings.debug) {
+        (true, true) => {
+            // allowed panic
+            tracing::event!(
+                Level::ERROR,
+                r#type = "dockerflow.panic_endpoint",
+                "The __panic__ endpoint was called"
+            );
+            panic!("Test panic for debugging");
+        }
+        (true, false) => Ok(HttpResponse::Forbidden().body("Not permitted in production mode")),
+        (false, _) => {
+            tracing::event!(
+                Level::ERROR,
+                r#type = "dockerflow.error_endpoint",
+                "The __error__ endpoint was called"
+            );
+            Err(HandlerError::Internal)
+        }
+    }
 }

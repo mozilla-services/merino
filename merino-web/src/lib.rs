@@ -113,6 +113,7 @@ pub fn run(
             // Middlewares
             .wrap(moz_log.clone())
             .wrap(middleware::Metrics)
+            .wrap(middleware::Sentry)
             .wrap(Cors::permissive())
             // The core functionality of Merino
             .service(web::scope("api/v1/suggest").configure(suggest::configure))
