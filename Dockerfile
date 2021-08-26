@@ -70,6 +70,7 @@ ARG CACHE_BUST
 
 RUN apt-get -qq update && \
     apt-get -qq upgrade && \
+    apt-get -qq install ca-certificates && \
     rm -rf /var/lib/apt/lists
 RUN groupadd --gid 10001 app && \
     useradd --uid 10001 --gid 10001 --home /app --create-home app

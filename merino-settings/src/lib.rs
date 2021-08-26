@@ -158,6 +158,12 @@ pub struct RedisCacheSettings {
     #[serde_as(as = "DurationSeconds")]
     #[serde(rename = "default_ttl_sec")]
     pub default_ttl: Duration,
+
+    /// The default time to try and hold a lock for a response
+    /// from the source on cache refresh/load.
+    #[serde_as(as = "DurationSeconds")]
+    #[serde(rename = "default_lock_timeout_sec")]
+    pub default_lock_timeout: Duration,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]

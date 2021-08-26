@@ -40,11 +40,13 @@ async fn responses_are_stored_in_the_cache(
     tokio::time::sleep(Duration::from_millis(1000)).await;
 
     let keys_after: Vec<String> = redis_client.keys("*").expect("Could not get keys");
+    tracing::trace!("🗝 set {:?}", &keys_after);
     assert_eq!(keys_after.len(), 1, "an item should be in the cache");
 
     let encoded: String = redis_client
         .get(&keys_after[0])
         .expect("Could not get cached item");
+    tracing::trace!("➡▶response: {:?}", &encoded);
     assert_eq!(&encoded[0..2], "v0", "version tag is included");
 
     let cache_suggestions: Vec<Value> =
