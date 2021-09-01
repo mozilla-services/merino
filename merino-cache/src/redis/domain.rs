@@ -102,7 +102,7 @@ impl FromRedisValue for RedisTtl {
 mod tests {
     use anyhow::{anyhow, Result};
     use http::Uri;
-    use merino_suggest::Suggestion;
+    use merino_suggest::{Proportion, Suggestion};
     use proptest::prelude::*;
     use redis::{FromRedisValue, ToRedisArgs};
 
@@ -120,6 +120,7 @@ mod tests {
             provider: "One Inc.".to_string(),
             is_sponsored: true,
             icon: Uri::from_static("https://example.com/icon/one.png"),
+            score: Proportion::zero(),
         }];
 
         let mut serialized = SERIALIZATION_VERSION.to_vec();
@@ -187,6 +188,7 @@ mod tests {
             provider: "One Inc.".to_string(),
             is_sponsored: true,
             icon: Uri::from_static("https://example.com/icon/one.png"),
+            score: Proportion::zero(),
         }];
 
         let val = RedisSuggestions(original_suggestions.clone()).to_redis_args();

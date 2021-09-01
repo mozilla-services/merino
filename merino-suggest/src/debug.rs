@@ -10,7 +10,8 @@ use fake::{Fake, Faker};
 use merino_settings::Settings;
 
 use crate::{
-    SetupError, SuggestError, Suggestion, SuggestionProvider, SuggestionRequest, SuggestionResponse,
+    Proportion, SetupError, SuggestError, Suggestion, SuggestionProvider, SuggestionRequest,
+    SuggestionResponse,
 };
 
 /// A toy suggester to test the system.
@@ -49,6 +50,7 @@ impl<'a> SuggestionProvider<'a> for DebugProvider {
         Ok(SuggestionResponse::new(vec![Suggestion {
             title: json,
             provider: "Merino::Debug".into(),
+            score: Proportion::zero(),
             ..Faker.fake()
         }]))
     }
