@@ -50,6 +50,7 @@ async fn test_expected_fields(TestingTools { test_client, .. }: TestingTools) ->
         "advertiser",
         "is_sponsored",
         "icon",
+        "score",
     ];
     dbg!(&keys);
     for expected_key in expected_keys {

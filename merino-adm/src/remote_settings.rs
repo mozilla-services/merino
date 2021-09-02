@@ -7,7 +7,8 @@ use http::Uri;
 use lazy_static::lazy_static;
 use merino_settings::Settings;
 use merino_suggest::{
-    SetupError, SuggestError, Suggestion, SuggestionProvider, SuggestionRequest, SuggestionResponse,
+    Proportion, SetupError, SuggestError, Suggestion, SuggestionProvider, SuggestionRequest,
+    SuggestionResponse,
 };
 use remote_settings_client::client::FileStorage;
 use serde::Deserialize;
@@ -195,6 +196,7 @@ impl RemoteSettingsSuggester {
                     is_sponsored: !NON_SPONSORED_IAB_CATEGORIES
                         .contains(&adm_suggestion.iab_category.as_str()),
                     icon: icon_url,
+                    score: Proportion::from(0.2),
                 });
                 for keyword in adm_suggestion.keywords {
                     suggestions.insert(keyword, merino_suggestion.clone());
@@ -365,6 +367,7 @@ mod tests {
                 provider: "test".to_string(),
                 is_sponsored: false,
                 icon: Uri::from_static("https://en.wikipedia.org/favicon.ico"),
+                score: Proportion::zero(),
             }),
         );
         let rs_suggester = RemoteSettingsSuggester { suggestions };
@@ -404,6 +407,7 @@ mod tests {
                 provider: "test".to_string(),
                 is_sponsored: false,
                 icon: Uri::from_static("https://en.wikipedia.org/favicon.ico"),
+                score: Proportion::zero(),
             }),
         );
         let rs_suggester = RemoteSettingsSuggester { suggestions };

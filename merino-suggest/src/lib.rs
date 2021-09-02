@@ -4,6 +4,7 @@
 
 mod debug;
 pub mod device_info;
+mod domain;
 mod multi;
 mod wikifruit;
 
@@ -13,6 +14,7 @@ use std::hash::Hash;
 use std::ops::Range;
 use std::time::Duration;
 
+use crate::device_info::DeviceInfo;
 use async_trait::async_trait;
 use fake::{
     faker::{
@@ -27,7 +29,7 @@ use serde_with::{serde_as, DisplayFromStr};
 use thiserror::Error;
 
 pub use crate::debug::DebugProvider;
-use crate::device_info::DeviceInfo;
+pub use crate::domain::Proportion;
 pub use crate::multi::Multi;
 pub use crate::wikifruit::WikiFruit;
 
@@ -195,6 +197,14 @@ pub struct Suggestion {
     /// The URL of the icon to show along side this suggestion.
     #[serde_as(as = "DisplayFromStr")]
     pub icon: Uri,
+
+    /// A value used to compare suggestions. When choosing a suggestion to show
+    /// the user, higher scored suggestions are preferred. Should range from 0.0
+    /// to 1.0.
+    ///
+    /// Note that Firefox uses a static value of 0.2 for Remote Settings
+    /// provided suggestions.
+    pub score: Proportion,
 }
 
 impl<'a, F> fake::Dummy<F> for Suggestion {
@@ -209,6 +219,7 @@ impl<'a, F> fake::Dummy<F> for Suggestion {
             provider: Words(2..4).fake_with_rng::<Vec<String>, R>(rng).join(" "),
             is_sponsored: rng.gen(),
             icon: fake_example_url(rng),
+            score: rng.gen(),
         }
     }
 }

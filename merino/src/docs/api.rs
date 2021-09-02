@@ -107,6 +107,10 @@ following keys:
   small square image, suitable to be included inline with the text, such as a
   site's favicon.
 
+- `score` - A value between 0.0 and 1.0 used to compare suggestions. When
+  choosing a suggestion to show the user, higher scored suggestions are
+  preferred.
+
 ### Response Headers
 
 Responses will carry standard HTTP caching headers that indicate the validity of

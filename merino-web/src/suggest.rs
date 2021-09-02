@@ -162,6 +162,7 @@ impl<'a> Serialize for SuggestionWrapper<'a> {
             is_sponsored: bool,
             icon: String,
             advertiser: &'a str,
+            score: f32,
         }
 
         let provider = &self.0.provider;
@@ -176,6 +177,7 @@ impl<'a> Serialize for SuggestionWrapper<'a> {
             is_sponsored: self.0.is_sponsored,
             icon: self.0.icon.to_string(),
             advertiser: provider,
+            score: self.0.score.into(),
         };
 
         generated.serialize(serializer)

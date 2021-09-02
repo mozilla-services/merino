@@ -400,7 +400,7 @@ where
 #[cfg(test)]
 mod test {
     use http::Uri;
-    use merino_suggest::Suggestion;
+    use merino_suggest::{Proportion, Suggestion};
 
     use super::*;
 
@@ -434,6 +434,7 @@ mod test {
             provider: text.clone(),
             is_sponsored: false,
             icon: uri.clone(),
+            score: Proportion::zero(),
         };
         let suggestion2 = Suggestion {
             id: 5678,
@@ -476,7 +477,7 @@ mod test {
             .query_async::<redis::aio::ConnectionManager, String>(&mut redis_connection)
             .await
             .unwrap();
-        assert_eq!(res1, res2);
+        assert_eq!(res1, res2, "cached values should match");
 
         // trying to write with an new lock should work and release the lock.
         assert!(rlock
@@ -491,7 +492,7 @@ mod test {
             .query_async::<redis::aio::ConnectionManager, String>(&mut redis_connection)
             .await
             .unwrap();
-        assert_ne!(res1, res2);
+        assert_ne!(res1, res2, "cached values should not match");
 
         Ok(())
     }

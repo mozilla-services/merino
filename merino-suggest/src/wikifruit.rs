@@ -11,7 +11,8 @@ use http::Uri;
 use merino_settings::Settings;
 
 use crate::{
-    SetupError, SuggestError, Suggestion, SuggestionProvider, SuggestionRequest, SuggestionResponse,
+    domain::Proportion, SetupError, SuggestError, Suggestion, SuggestionProvider,
+    SuggestionRequest, SuggestionResponse,
 };
 
 /// A toy suggester to test the system.
@@ -56,6 +57,7 @@ impl<'a> SuggestionProvider<'a> for WikiFruit {
                 provider: "Merino::WikiFruit".to_string(),
                 is_sponsored: false,
                 icon: Uri::from_static("https://en.wikipedia.org/favicon.ico"),
+                score: Proportion::zero(),
             }),
             "banana" => Some(Suggestion {
                 id: 1,
@@ -67,6 +69,7 @@ impl<'a> SuggestionProvider<'a> for WikiFruit {
                 provider: "Merino::WikiFruit".to_string(),
                 is_sponsored: false,
                 icon: Uri::from_static("https://en.wikipedia.org/favicon.ico"),
+                score: Proportion::zero(),
             }),
             "cherry" => Some(Suggestion {
                 id: 1,
@@ -78,6 +81,7 @@ impl<'a> SuggestionProvider<'a> for WikiFruit {
                 provider: "Merino::WikiFruit".to_string(),
                 is_sponsored: false,
                 icon: Uri::from_static("https://en.wikipedia.org/favicon.ico"),
+                score: Proportion::zero(),
             }),
             _ => None,
         };
