@@ -421,6 +421,10 @@
 <span id="419">419</span>
 <span id="420">420</span>
 <span id="421">421</span>
+<span id="422">422</span>
+<span id="423">423</span>
+<span id="424">424</span>
+<span id="425">425</span>
 </pre><pre class="rust">
 <span class="doccomment">//! AdM integration that uses the remote-settings provided data.</span>
 
@@ -431,7 +435,8 @@
 <span class="kw">use</span> <span class="ident">lazy_static::lazy_static</span>;
 <span class="kw">use</span> <span class="ident">merino_settings::Settings</span>;
 <span class="kw">use</span> <span class="ident">merino_suggest</span>::{
-    <span class="ident">SetupError</span>, <span class="ident">SuggestError</span>, <span class="ident">Suggestion</span>, <span class="ident">SuggestionProvider</span>, <span class="ident">SuggestionRequest</span>, <span class="ident">SuggestionResponse</span>,
+    <span class="ident">Proportion</span>, <span class="ident">SetupError</span>, <span class="ident">SuggestError</span>, <span class="ident">Suggestion</span>, <span class="ident">SuggestionProvider</span>, <span class="ident">SuggestionRequest</span>,
+    <span class="ident">SuggestionResponse</span>,
 };
 <span class="kw">use</span> <span class="ident">remote_settings_client::client::FileStorage</span>;
 <span class="kw">use</span> <span class="ident">serde::Deserialize</span>;
@@ -619,6 +624,7 @@
                     <span class="ident">is_sponsored</span>: <span class="op">!</span><span class="ident">NON_SPONSORED_IAB_CATEGORIES</span>
                         .<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">adm_suggestion</span>.<span class="ident">iab_category</span>.<span class="ident">as_str</span>()),
                     <span class="ident">icon</span>: <span class="ident">icon_url</span>,
+                    <span class="ident">score</span>: <span class="ident">Proportion::from</span>(<span class="number">0.2</span>),
                 });
                 <span class="kw">for</span> <span class="ident">keyword</span> <span class="kw">in</span> <span class="ident">adm_suggestion</span>.<span class="ident">keywords</span> {
                     <span class="ident">suggestions</span>.<span class="ident">insert</span>(<span class="ident">keyword</span>, <span class="ident">merino_suggestion</span>.<span class="ident">clone</span>());
@@ -789,6 +795,7 @@
                 <span class="ident">provider</span>: <span class="string">&quot;test&quot;</span>.<span class="ident">to_string</span>(),
                 <span class="ident">is_sponsored</span>: <span class="bool-val">false</span>,
                 <span class="ident">icon</span>: <span class="ident">Uri::from_static</span>(<span class="string">&quot;https://en.wikipedia.org/favicon.ico&quot;</span>),
+                <span class="ident">score</span>: <span class="ident">Proportion::zero</span>(),
             }),
         );
         <span class="kw">let</span> <span class="ident">rs_suggester</span> <span class="op">=</span> <span class="ident">RemoteSettingsSuggester</span> { <span class="ident">suggestions</span> };
@@ -828,6 +835,7 @@
                 <span class="ident">provider</span>: <span class="string">&quot;test&quot;</span>.<span class="ident">to_string</span>(),
                 <span class="ident">is_sponsored</span>: <span class="bool-val">false</span>,
                 <span class="ident">icon</span>: <span class="ident">Uri::from_static</span>(<span class="string">&quot;https://en.wikipedia.org/favicon.ico&quot;</span>),
+                <span class="ident">score</span>: <span class="ident">Proportion::zero</span>(),
             }),
         );
         <span class="kw">let</span> <span class="ident">rs_suggester</span> <span class="op">=</span> <span class="ident">RemoteSettingsSuggester</span> { <span class="ident">suggestions</span> };

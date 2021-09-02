@@ -498,6 +498,7 @@
 <span id="496">496</span>
 <span id="497">497</span>
 <span id="498">498</span>
+<span id="499">499</span>
 </pre><pre class="rust">
 <span class="doccomment">//! Interactions with Redis.</span>
 
@@ -901,7 +902,7 @@
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
 <span class="kw">mod</span> <span class="ident">test</span> {
     <span class="kw">use</span> <span class="ident">http::Uri</span>;
-    <span class="kw">use</span> <span class="ident">merino_suggest::Suggestion</span>;
+    <span class="kw">use</span> <span class="ident">merino_suggest</span>::{<span class="ident">Proportion</span>, <span class="ident">Suggestion</span>};
 
     <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
 
@@ -935,6 +936,7 @@
             <span class="ident">provider</span>: <span class="ident">text</span>.<span class="ident">clone</span>(),
             <span class="ident">is_sponsored</span>: <span class="bool-val">false</span>,
             <span class="ident">icon</span>: <span class="ident">uri</span>.<span class="ident">clone</span>(),
+            <span class="ident">score</span>: <span class="ident">Proportion::zero</span>(),
         };
         <span class="kw">let</span> <span class="ident">suggestion2</span> <span class="op">=</span> <span class="ident">Suggestion</span> {
             <span class="ident">id</span>: <span class="number">5678</span>,
@@ -977,7 +979,7 @@
             .<span class="ident">query_async</span>::<span class="op">&lt;</span><span class="ident">redis::aio::ConnectionManager</span>, <span class="ident">String</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">redis_connection</span>)
             .<span class="kw">await</span>
             .<span class="ident">unwrap</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">res1</span>, <span class="ident">res2</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">res1</span>, <span class="ident">res2</span>, <span class="string">&quot;cached values should match&quot;</span>);
 
         <span class="comment">// trying to write with an new lock should work and release the lock.</span>
         <span class="macro">assert!</span>(<span class="ident">rlock</span>
@@ -992,7 +994,7 @@
             .<span class="ident">query_async</span>::<span class="op">&lt;</span><span class="ident">redis::aio::ConnectionManager</span>, <span class="ident">String</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">redis_connection</span>)
             .<span class="kw">await</span>
             .<span class="ident">unwrap</span>();
-        <span class="macro">assert_ne!</span>(<span class="ident">res1</span>, <span class="ident">res2</span>);
+        <span class="macro">assert_ne!</span>(<span class="ident">res1</span>, <span class="ident">res2</span>, <span class="string">&quot;cached values should not match&quot;</span>);
 
         <span class="prelude-val">Ok</span>(())
     }

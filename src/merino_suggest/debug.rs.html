@@ -55,6 +55,8 @@
 <span id="53">53</span>
 <span id="54">54</span>
 <span id="55">55</span>
+<span id="56">56</span>
+<span id="57">57</span>
 </pre><pre class="rust">
 <span class="doccomment">//! A suggestion provider that provides debug responses.</span>
 <span class="doccomment">//!</span>
@@ -68,7 +70,8 @@
 <span class="kw">use</span> <span class="ident">merino_settings::Settings</span>;
 
 <span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">SetupError</span>, <span class="ident">SuggestError</span>, <span class="ident">Suggestion</span>, <span class="ident">SuggestionProvider</span>, <span class="ident">SuggestionRequest</span>, <span class="ident">SuggestionResponse</span>,
+    <span class="ident">Proportion</span>, <span class="ident">SetupError</span>, <span class="ident">SuggestError</span>, <span class="ident">Suggestion</span>, <span class="ident">SuggestionProvider</span>, <span class="ident">SuggestionRequest</span>,
+    <span class="ident">SuggestionResponse</span>,
 };
 
 <span class="doccomment">/// A toy suggester to test the system.</span>
@@ -107,6 +110,7 @@
         <span class="prelude-val">Ok</span>(<span class="ident">SuggestionResponse::new</span>(<span class="macro">vec!</span>[<span class="ident">Suggestion</span> {
             <span class="ident">title</span>: <span class="ident">json</span>,
             <span class="ident">provider</span>: <span class="string">&quot;Merino::Debug&quot;</span>.<span class="ident">into</span>(),
+            <span class="ident">score</span>: <span class="ident">Proportion::zero</span>(),
             ..<span class="ident">Faker</span>.<span class="ident">fake</span>()
         }]))
     }
