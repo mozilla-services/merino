@@ -2,6 +2,9 @@
 
 //! Manages Merino's cache
 
+#[macro_use]
+extern crate lazy_static;
+
 mod deduped_map;
 mod domain;
 mod memory;

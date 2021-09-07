@@ -16,12 +16,19 @@ use merino_suggest::{
 };
 use std::{
     borrow::Cow,
+    collections::HashMap,
     fmt::Debug,
     hash::Hash,
     sync::Arc,
     time::{Duration, Instant},
 };
 use tracing::Instrument;
+
+use arc_swap::ArcSwap;
+
+lazy_static!{
+    static ref PENDING_TABLE: ArcSwap<HashMap<String, Instant>> = ArcSwap::from_pointee(HashMap::new());
+}
 
 /// A in-memory cache for suggestions.
 pub struct Suggester<S> {
@@ -70,7 +77,7 @@ impl<S> Suggester<S> {
     fn remove_expired_entries<K: Eq + Hash + Debug>(
         items: &Arc<DedupedMap<K, Instant, Vec<Suggestion>>>,
     ) {
-        let start = Instant::now();
+        let mut start = Instant::now();
         let count_before_storage = items.len_storage();
         let count_before_pointers = items.len_pointers();
 
@@ -91,6 +98,13 @@ impl<S> Suggester<S> {
                 num_removals += 1;
             }
             ControlFlow::Continue(!should_remove)
+        });
+
+        // remove any expired elements from the Pending table (There shouldn't be many.)
+        PENDING_TABLE.rcu(|table| {
+            let mut cleaned = HashMap::clone(table);
+            cleaned.retain(|_k, v| {v > &mut start});
+            cleaned
         });
 
         // Report finishing.
@@ -145,7 +159,25 @@ where
                 }
             }
 
+            if let Some(pending) = PENDING_TABLE.load().get(&key) {
+                if *pending > now {
+                    // there's a fetch already in progress. Return empty for now.
+                    return Ok(SuggestionResponse {
+                        cache_status: CacheStatus::Hit,
+                        cache_ttl: None,
+                        suggestions: Vec::new()
+                    })
+                }
+            }
             // handle cache miss or stale cache
+            // TODO: Make this a config
+            let lock_time = now + Duration::from_secs(3);
+            PENDING_TABLE.rcu(|table| {
+                let mut locked = HashMap::clone(table);
+                //TODO: Make this a config:
+                locked.insert(key.clone(), lock_time);
+                locked
+            });
             let mut response = self
                 .inner
                 .suggest(query)
@@ -153,12 +185,25 @@ where
                 // Todo, cache status should be a vec.
                 .with_cache_status(CacheStatus::Miss);
 
-            let cache_ttl = response.cache_ttl.get_or_insert(self.default_ttl);
-            let expiration = now + *cache_ttl;
+            PENDING_TABLE.rcu(|table| {
+                let mut locked = HashMap::clone(table);
+                // if there's a lock entry, and it matches what we put in there...
+                if let Some(ts) = locked.get(&key) {
+                    if ts == &lock_time {
+                        // Update the cache data.
+                        let cache_ttl = response.cache_ttl.get_or_insert(self.default_ttl);
+                        let expiration = now + *cache_ttl;
+                        tracing::debug!(?now, ?expiration, "inserting into cache");
+                        self.items
+                            .insert(key.clone(), expiration, response.suggestions.clone());
+                        // Don't forget to drop the old PENDING hold
+                        locked.remove(&key);
+                    }
+                }
+                // Finally, return the updated pending table.
+                locked
+            });
 
-            tracing::debug!(?now, ?expiration, "inserting into cache");
-            self.items
-                .insert(key, expiration, response.suggestions.clone());
 
             Ok(response)
         }
