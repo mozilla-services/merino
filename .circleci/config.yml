@@ -31,7 +31,7 @@ workflows:
 
       - docker-image-build:
           name: docker-image-build-pr
-          saveToWorkspace: false
+          saveToWorkspace: true  # Changed to true to test out integration tests job
           filters:
             branches:
               ignore: main
@@ -45,6 +45,13 @@ workflows:
             tags:
               only: /.+/
       
+      - integration-tests:
+          name: integration-tests
+          requires:
+            - checks
+            - build-and-test
+            - docker-image-build-pr
+
       - docker-image-publish:
           requires:
             - checks
@@ -116,6 +123,25 @@ jobs:
                 root: workspace
                 paths:
                   - merino.tar.gz
+
+  integration-tests:
+    machine:
+      docker_layer_caching: true
+      image: ubuntu-2004:202101-01 # Ubuntu 20.04, Docker v20.10.2, Docker Compose v1.28.2
+    working_directory: ~/merino
+    steps:
+      - checkout
+      - attach_workspace:
+          at: workspace
+      - dockerhub-login
+      - run:
+          name: Load Docker image from workspace
+          command: docker load -i workspace/merino.tar.gz
+      - run:
+         name: Run Integration tests
+         command: |
+           docker-compose --version
+           docker-compose -f test-engineering/docker-compose.yml up --abort-on-container-exit
 
   docker-image-publish:
     docker:
