@@ -26,8 +26,9 @@ use tracing::Instrument;
 
 use arc_swap::ArcSwap;
 
-lazy_static!{
-    static ref PENDING_TABLE: ArcSwap<HashMap<String, Instant>> = ArcSwap::from_pointee(HashMap::new());
+lazy_static! {
+    static ref PENDING_TABLE: ArcSwap<HashMap<String, Instant>> =
+        ArcSwap::from_pointee(HashMap::new());
 }
 
 /// A in-memory cache for suggestions.
@@ -103,7 +104,7 @@ impl<S> Suggester<S> {
         // remove any expired elements from the Pending table (There shouldn't be many.)
         PENDING_TABLE.rcu(|table| {
             let mut cleaned = HashMap::clone(table);
-            cleaned.retain(|_k, v| {v > &mut start});
+            cleaned.retain(|_k, v| v > &mut start);
             cleaned
         });
 
@@ -165,8 +166,8 @@ where
                     return Ok(SuggestionResponse {
                         cache_status: CacheStatus::Hit,
                         cache_ttl: None,
-                        suggestions: Vec::new()
-                    })
+                        suggestions: Vec::new(),
+                    });
                 }
             }
             // handle cache miss or stale cache
@@ -203,7 +204,6 @@ where
                 // Finally, return the updated pending table.
                 locked
             });
-
 
             Ok(response)
         }
