@@ -191,6 +191,12 @@ pub struct MemoryCacheSettings {
     /// before cancelling the task. This should be used to limit the maximum
     /// amount of time the cleanup task takes.
     pub max_removed_entries: usize,
+
+    /// The default TTL for in-memory locks to prevent multiple update requests from
+    /// being fired at providers at the same time.
+    #[serde_as(as = "DurationSeconds")]
+    #[serde(rename = "default_lock_timeout_sec")]
+    pub default_lock_timeout: Duration,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]

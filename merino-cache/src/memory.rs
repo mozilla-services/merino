@@ -41,6 +41,10 @@ pub struct Suggester<S> {
 
     /// TTL to apply to items if the underlying provider does not give one.
     default_ttl: Duration,
+
+    /// TTL for locks on cache refresh updates
+    default_lock_timeout: Duration,
+
 }
 
 impl<S> Suggester<S> {
@@ -68,6 +72,7 @@ impl<S> Suggester<S> {
             inner: provider,
             items,
             default_ttl: settings.memory_cache.default_ttl,
+            default_lock_timeout: settings.memory_cache.default_lock_timeout
         })
     }
 
@@ -172,7 +177,7 @@ where
             }
             // handle cache miss or stale cache
             // TODO: Make this a config
-            let lock_time = now + Duration::from_secs(3);
+            let lock_time = now + self.default_lock_timeout;
             PENDING_TABLE.rcu(|table| {
                 let mut locked = HashMap::clone(table);
                 //TODO: Make this a config:
