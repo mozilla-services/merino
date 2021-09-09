@@ -27,11 +27,11 @@ use tracing::Instrument;
 use arc_swap::ArcSwap;
 
 lazy_static! {
-    static ref PENDING_TABLE: ArcSwap<HashMap<String, Instant>> =
+    static ref LOCK_TABLE: ArcSwap<HashMap<String, Instant>> =
         ArcSwap::from_pointee(HashMap::new());
 }
 
-impl PENDING_TABLE {
+impl LOCK_TABLE {
     /// Check to see if there's any lock for a given key
     fn is_locked(&self, key: &str) -> bool {
         if let Some(lock_val) = self.load().get(key) {
@@ -144,7 +144,7 @@ impl<S> Suggester<S> {
         });
 
         // remove any expired elements from the Pending table (There shouldn't be many.)
-        PENDING_TABLE.rcu(|table| {
+        LOCK_TABLE.rcu(|table| {
             let mut cleaned = HashMap::clone(table);
             cleaned.retain(|_k, v| v > &mut start);
             cleaned
@@ -202,7 +202,7 @@ where
                 }
             }
 
-            if PENDING_TABLE.is_locked(&key) {
+            if LOCK_TABLE.is_locked(&key) {
                 // there's a fetch already in progress. Return empty for now.
                 return Ok(SuggestionResponse {
                     cache_status: CacheStatus::Hit,
@@ -212,7 +212,7 @@ where
             }
 
             // handle cache miss or stale cache
-            let lock = PENDING_TABLE.add_lock(&key, self.default_lock_timeout);
+            let lock = LOCK_TABLE.add_lock(&key, self.default_lock_timeout);
             let mut response = self
                 .inner
                 .suggest(query)
@@ -220,7 +220,7 @@ where
                 // Todo, cache status should be a vec.
                 .with_cache_status(CacheStatus::Miss);
 
-            PENDING_TABLE.update(&key, lock, || {
+            LOCK_TABLE.update(&key, lock, || {
                 // Update the cache data.
                 let cache_ttl = response.cache_ttl.get_or_insert(self.default_ttl);
                 let expiration = now + *cache_ttl;
@@ -237,7 +237,7 @@ where
 
 #[cfg(test)]
 mod tests {
-    use super::{Suggester, PENDING_TABLE};
+    use super::{Suggester, LOCK_TABLE};
     use crate::deduped_map::DedupedMap;
     use fake::{Fake, Faker};
     use merino_suggest::{Suggestion, WikiFruit};
@@ -280,23 +280,23 @@ mod tests {
         let lock_name = "testLock";
         let other_lock_name = "otherLock";
         let timeout = Duration::from_secs(3);
-        let lock = PENDING_TABLE.add_lock(lock_name, timeout);
+        let lock = LOCK_TABLE.add_lock(lock_name, timeout);
         let mut lock_check = false;
-        PENDING_TABLE.add_lock(other_lock_name, timeout);
-        assert!(PENDING_TABLE.is_locked(lock_name));
-        assert!(!PENDING_TABLE.is_locked("unlocked"));
+        LOCK_TABLE.add_lock(other_lock_name, timeout);
+        assert!(LOCK_TABLE.is_locked(lock_name));
+        assert!(!LOCK_TABLE.is_locked("unlocked"));
 
-        PENDING_TABLE.update(lock_name, lock, || lock_check = true);
+        LOCK_TABLE.update(lock_name, lock, || lock_check = true);
 
         assert!(lock_check);
-        assert!(!PENDING_TABLE.is_locked(lock_name));
+        assert!(!LOCK_TABLE.is_locked(lock_name));
 
         // Should fail, lock dismissed
-        PENDING_TABLE.update(lock_name, lock, || lock_check = false);
+        LOCK_TABLE.update(lock_name, lock, || lock_check = false);
         assert!(lock_check);
 
         // Should fail, wrong lock value
-        PENDING_TABLE.update(other_lock_name, lock, || lock_check = false);
+        LOCK_TABLE.update(other_lock_name, lock, || lock_check = false);
         assert!(lock_check);
     }
 }
