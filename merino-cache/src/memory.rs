@@ -31,6 +31,44 @@ lazy_static! {
         ArcSwap::from_pointee(HashMap::new());
 }
 
+impl PENDING_TABLE {
+    /// Check to see if there's any lock for a given key
+    fn is_locked(&self, key: &str) -> bool {
+        if let Some(lock_val) = self.load().get(key) {
+            return *lock_val > Instant::now();
+        }
+        false
+    }
+
+    /// Generate a lock for the given key and timeout
+    fn add_lock(&self, key: &str, lock_timeout: Duration) -> Instant {
+        let lock = Instant::now() + lock_timeout;
+        self.rcu(|table| {
+            let mut locked = HashMap::clone(table);
+            locked.insert(key.to_owned(), lock);
+            locked
+        });
+        lock
+    }
+
+    /// run func only if the lock we have matches what is registered for the key
+    fn update<F>(&self, key: &str, lock: Instant, mut func: F)
+    where
+        F: FnMut(),
+    {
+        self.rcu(|table| {
+            let mut locked = HashMap::clone(table);
+            if let Some(ts) = locked.get(key) {
+                if *ts == lock {
+                    func();
+                }
+                locked.remove(key);
+            }
+            locked
+        });
+    }
+}
+
 /// A in-memory cache for suggestions.
 pub struct Suggester<S> {
     /// The suggester to query on cache-miss.
@@ -164,25 +202,17 @@ where
                 }
             }
 
-            if let Some(pending) = PENDING_TABLE.load().get(&key) {
-                if *pending > now {
-                    // there's a fetch already in progress. Return empty for now.
-                    return Ok(SuggestionResponse {
-                        cache_status: CacheStatus::Hit,
-                        cache_ttl: None,
-                        suggestions: Vec::new(),
-                    });
-                }
+            if PENDING_TABLE.is_locked(&key) {
+                // there's a fetch already in progress. Return empty for now.
+                return Ok(SuggestionResponse {
+                    cache_status: CacheStatus::Hit,
+                    cache_ttl: None,
+                    suggestions: Vec::new(),
+                });
             }
+
             // handle cache miss or stale cache
-            // TODO: Make this a config
-            let lock_time = now + self.default_lock_timeout;
-            PENDING_TABLE.rcu(|table| {
-                let mut locked = HashMap::clone(table);
-                //TODO: Make this a config:
-                locked.insert(key.clone(), lock_time);
-                locked
-            });
+            let lock = PENDING_TABLE.add_lock(&key, self.default_lock_timeout);
             let mut response = self
                 .inner
                 .suggest(query)
@@ -190,25 +220,14 @@ where
                 // Todo, cache status should be a vec.
                 .with_cache_status(CacheStatus::Miss);
 
-            PENDING_TABLE.rcu(|table| {
-                let mut locked = HashMap::clone(table);
-                // if there's a lock entry, and it matches what we put in there...
-                if let Some(ts) = locked.get(&key) {
-                    if ts == &lock_time {
-                        // Update the cache data.
-                        let cache_ttl = response.cache_ttl.get_or_insert(self.default_ttl);
-                        let expiration = now + *cache_ttl;
-                        tracing::debug!(?now, ?expiration, "inserting into cache");
-                        self.items
-                            .insert(key.clone(), expiration, response.suggestions.clone());
-                        // Don't forget to drop the old PENDING hold
-                        locked.remove(&key);
-                    }
-                }
-                // Finally, return the updated pending table.
-                locked
+            PENDING_TABLE.update(&key, lock, || {
+                // Update the cache data.
+                let cache_ttl = response.cache_ttl.get_or_insert(self.default_ttl);
+                let expiration = now + *cache_ttl;
+                tracing::debug!(?now, ?expiration, "inserting into cache");
+                self.items
+                    .insert(key.clone(), expiration, response.suggestions.clone());
             });
-
             Ok(response)
         }
         .instrument(span)
@@ -218,7 +237,7 @@ where
 
 #[cfg(test)]
 mod tests {
-    use super::Suggester;
+    use super::{Suggester, PENDING_TABLE};
     use crate::deduped_map::DedupedMap;
     use fake::{Fake, Faker};
     use merino_suggest::{Suggestion, WikiFruit};
@@ -254,5 +273,30 @@ mod tests {
         assert_eq!(cache.len_pointers(), 1);
         assert!(cache.contains_key(&"current".to_owned()));
         assert!(!cache.contains_key(&"expired".to_owned()));
+    }
+
+    #[test]
+    fn cache_lock_test() {
+        let lock_name = "testLock";
+        let other_lock_name = "otherLock";
+        let timeout = Duration::from_secs(3);
+        let lock = PENDING_TABLE.add_lock(lock_name, timeout);
+        let mut lock_check = false;
+        PENDING_TABLE.add_lock(other_lock_name, timeout);
+        assert!(PENDING_TABLE.is_locked(lock_name));
+        assert!(!PENDING_TABLE.is_locked("unlocked"));
+
+        PENDING_TABLE.update(lock_name, lock, || lock_check = true);
+
+        assert!(lock_check);
+        assert!(!PENDING_TABLE.is_locked(lock_name));
+
+        // Should fail, lock dismissed
+        PENDING_TABLE.update(lock_name, lock, || lock_check = false);
+        assert!(lock_check);
+
+        // Should fail, wrong lock value
+        PENDING_TABLE.update(other_lock_name, lock, || lock_check = false);
+        assert!(lock_check);
     }
 }
