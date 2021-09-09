@@ -44,7 +44,6 @@ pub struct Suggester<S> {
 
     /// TTL for locks on cache refresh updates
     default_lock_timeout: Duration,
-
 }
 
 impl<S> Suggester<S> {
@@ -72,7 +71,7 @@ impl<S> Suggester<S> {
             inner: provider,
             items,
             default_ttl: settings.memory_cache.default_ttl,
-            default_lock_timeout: settings.memory_cache.default_lock_timeout
+            default_lock_timeout: settings.memory_cache.default_lock_timeout,
         })
     }
 
