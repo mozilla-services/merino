@@ -2,7 +2,7 @@
 
 mod domain;
 
-use std::{borrow::Cow, convert::TryInto, time::Duration};
+use std::{convert::TryInto, time::Duration};
 
 use crate::{domain::CacheKey, redis::domain::RedisSuggestions};
 use anyhow::{anyhow, Context};
@@ -19,9 +19,9 @@ use uuid::Uuid;
 use self::domain::RedisTtl;
 
 /// A suggester that uses Redis to cache previous results.
-pub struct Suggester<S> {
+pub struct Suggester {
     /// The suggester to query on cache-miss.
-    inner: S,
+    inner: Box<dyn SuggestionProvider>,
 
     /// Connection to Redis.
     redis_connection: redis::aio::ConnectionManager,
@@ -168,16 +168,16 @@ impl SimpleRedisLock {
     }
 }
 
-impl<S> Suggester<S>
-where
-    for<'a> S: SuggestionProvider<'a>,
-{
+impl Suggester {
     /// Create a Redis suggestion provider from settings that wraps `provider`.
     /// Opens a connection to Redis.
     ///
     /// # Errors
     /// Fails if it cannot connect to Redis.
-    pub async fn new_boxed(settings: &Settings, provider: S) -> Result<Box<Self>, SetupError> {
+    pub async fn new_boxed(
+        settings: &Settings,
+        provider: Box<dyn SuggestionProvider>,
+    ) -> Result<Box<Self>, SetupError> {
         tracing::debug!(?settings.redis_cache.url, "Setting up redis connection");
         let client = redis::Client::open(settings.redis_cache.url.clone().ok_or_else(|| {
             SetupError::InvalidConfiguration(anyhow!("No Redis URL is configured for caching"))
@@ -344,17 +344,14 @@ where
 }
 
 #[async_trait]
-impl<'a, S> SuggestionProvider<'a> for Suggester<S>
-where
-    S: for<'b> SuggestionProvider<'b> + Send + Sync,
-{
-    fn name(&self) -> Cow<'a, str> {
-        format!("RedisCache({})", self.inner.name()).into()
+impl SuggestionProvider for Suggester {
+    fn name(&self) -> String {
+        format!("RedisCache({})", self.inner.name())
     }
 
     async fn suggest(
         &self,
-        request: SuggestionRequest<'a>,
+        request: SuggestionRequest,
     ) -> Result<SuggestionResponse, SuggestError> {
         let key = request.cache_key();
         let mut rlock = SimpleRedisLock::from(&self.redis_connection);

@@ -14,7 +14,7 @@ use remote_settings_client::client::FileStorage;
 use serde::Deserialize;
 use serde_json::Value;
 use serde_with::{serde_as, DisplayFromStr};
-use std::{borrow::Cow, collections::HashMap, convert::TryFrom, sync::Arc};
+use std::{collections::HashMap, convert::TryFrom, sync::Arc};
 use tokio::sync::OnceCell;
 
 lazy_static! {
@@ -222,17 +222,17 @@ impl RemoteSettingsSuggester {
 }
 
 #[async_trait]
-impl<'a> SuggestionProvider<'a> for RemoteSettingsSuggester {
-    fn name(&self) -> std::borrow::Cow<'a, str> {
-        Cow::from("AdmRemoteSettings")
+impl SuggestionProvider for RemoteSettingsSuggester {
+    fn name(&self) -> String {
+        "AdmRemoteSettings".into()
     }
 
     async fn suggest(
         &self,
-        request: SuggestionRequest<'a>,
+        request: SuggestionRequest,
     ) -> Result<SuggestionResponse, SuggestError> {
         let suggestions = if request.accepts_english {
-            match self.suggestions.get(request.query.as_ref()) {
+            match self.suggestions.get(&request.query) {
                 Some(suggestion) => vec![suggestion.as_ref().clone()],
                 _ => vec![],
             }

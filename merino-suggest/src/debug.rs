@@ -2,7 +2,7 @@
 //!
 //! It is meant to be used in development and testing.
 
-use std::{borrow::Cow, marker::PhantomData};
+use std::marker::PhantomData;
 
 use anyhow::anyhow;
 use async_trait::async_trait;
@@ -36,14 +36,14 @@ impl DebugProvider {
 }
 
 #[async_trait]
-impl<'a> SuggestionProvider<'a> for DebugProvider {
-    fn name(&self) -> Cow<'a, str> {
-        Cow::from("DebugProvider")
+impl SuggestionProvider for DebugProvider {
+    fn name(&self) -> String {
+        "DebugProvider".to_string()
     }
 
     async fn suggest(
         &self,
-        request: SuggestionRequest<'a>,
+        request: SuggestionRequest,
     ) -> Result<SuggestionResponse, SuggestError> {
         let json: String = serde_json::to_string(&request).map_err(SuggestError::Serialization)?;
 

@@ -3,7 +3,7 @@
 //! It is useful in that it is fully self contained and very simple. It is meant
 //! to be used in development and testing.
 
-use std::{borrow::Cow, marker::PhantomData};
+use std::marker::PhantomData;
 
 use anyhow::anyhow;
 use async_trait::async_trait;
@@ -37,14 +37,14 @@ impl WikiFruit {
 }
 
 #[async_trait]
-impl<'a> SuggestionProvider<'a> for WikiFruit {
-    fn name(&self) -> Cow<'a, str> {
-        Cow::from("WikiFruit")
+impl SuggestionProvider for WikiFruit {
+    fn name(&self) -> String {
+        "WikiFruit".to_string()
     }
 
     async fn suggest(
         &self,
-        request: SuggestionRequest<'a>,
+        request: SuggestionRequest,
     ) -> Result<SuggestionResponse, SuggestError> {
         let suggestion = match request.query.as_ref() {
             "apple" => Some(Suggestion {

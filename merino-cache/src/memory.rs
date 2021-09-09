@@ -16,7 +16,6 @@ use merino_suggest::{
     CacheStatus, Suggestion, SuggestionProvider, SuggestionRequest, SuggestionResponse,
 };
 use std::{
-    borrow::Cow,
     collections::HashMap,
     fmt::Debug,
     hash::Hash,
@@ -82,9 +81,9 @@ impl LOCK_TABLE {
 }
 
 /// A in-memory cache for suggestions.
-pub struct Suggester<S> {
+pub struct Suggester {
     /// The suggester to query on cache-miss.
-    inner: S,
+    inner: Box<dyn SuggestionProvider>,
 
     /// The cached items.
     items: Arc<DedupedMap<String, Instant, Vec<Suggestion>>>,
@@ -96,9 +95,9 @@ pub struct Suggester<S> {
     default_lock_timeout: Duration,
 }
 
-impl<S> Suggester<S> {
+impl Suggester {
     /// Create a in-memory suggestion cache from settings that wraps `provider`.
-    pub fn new_boxed(settings: &Settings, provider: S) -> Box<Self> {
+    pub fn new_boxed(settings: &Settings, provider: Box<dyn SuggestionProvider>) -> Box<Self> {
         let items = Arc::new(DedupedMap::new());
 
         {
@@ -171,19 +170,14 @@ impl<S> Suggester<S> {
 }
 
 #[async_trait]
-impl<'a, S> SuggestionProvider<'a> for Suggester<S>
-where
-    S: for<'b> SuggestionProvider<'b> + Send + Sync,
-{
-    fn name(&self) -> Cow<'a, str> {
-        /// The name of the provider.
-        static NAME: &str = "in-memory-cache";
-        Cow::from(NAME)
+impl SuggestionProvider for Suggester {
+    fn name(&self) -> String {
+        "in-memory-cache".into()
     }
 
     async fn suggest(
         &self,
-        query: SuggestionRequest<'a>,
+        query: SuggestionRequest,
     ) -> Result<SuggestionResponse, merino_suggest::SuggestError> {
         let now = Instant::now();
         let key = query.cache_key().to_string();
@@ -247,7 +241,7 @@ mod tests {
     use super::{Suggester, LOCK_TABLE};
     use crate::deduped_map::DedupedMap;
     use fake::{Fake, Faker};
-    use merino_suggest::{Suggestion, WikiFruit};
+    use merino_suggest::Suggestion;
     use std::{
         sync::Arc,
         time::{Duration, Instant},
@@ -273,8 +267,7 @@ mod tests {
         assert!(cache.contains_key(&"current".to_owned()));
         assert!(cache.contains_key(&"expired".to_owned()));
 
-        // `WikiFruit` here is simply to fulfill the generic argument. It isn't used.
-        Suggester::<WikiFruit>::remove_expired_entries(&cache);
+        Suggester::remove_expired_entries(&cache);
 
         assert_eq!(cache.len_storage(), 1);
         assert_eq!(cache.len_pointers(), 1);

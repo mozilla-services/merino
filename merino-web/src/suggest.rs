@@ -37,9 +37,9 @@ struct SuggestionWrapper<'a>(&'a Suggestion);
 /// Suggest content in response to the queried text.
 #[get("")]
 #[tracing::instrument(skip(suggestion_request, provider, settings))]
-async fn suggest<'a>(
-    SuggestionRequestWrapper(suggestion_request): SuggestionRequestWrapper<'a>,
-    provider: Data<SuggestionProviderRef<'a>>,
+async fn suggest(
+    SuggestionRequestWrapper(suggestion_request): SuggestionRequestWrapper,
+    provider: Data<SuggestionProviderRef>,
     settings: Data<Settings>,
     metrics_client: Data<StatsdClient>,
 ) -> Result<HttpResponse, HandlerError> {
@@ -82,14 +82,11 @@ async fn suggest<'a>(
 }
 
 /// The SuggestionProvider stored in Actix's app_data.
-struct SuggestionProviderRef<'a>(OnceCell<merino_suggest::Multi<'a>>);
+struct SuggestionProviderRef(OnceCell<merino_suggest::Multi>);
 
-impl<'a> SuggestionProviderRef<'a> {
+impl SuggestionProviderRef {
     /// Get the provider, or create a new one if it doesn't exist.
-    async fn get_or_try_init(
-        &self,
-        settings: &Settings,
-    ) -> anyhow::Result<&merino_suggest::Multi<'a>> {
+    async fn get_or_try_init(&self, settings: &Settings) -> anyhow::Result<&merino_suggest::Multi> {
         let setup_span = tracing::info_span!("suggestion_provider_setup");
         self.0
             .get_or_try_init(|| {
@@ -103,7 +100,7 @@ impl<'a> SuggestionProviderRef<'a> {
                     /// The number of providers we expect to have, so we usually
                     /// don't have to re-allocate the vec.
                     const NUM_PROVIDERS: usize = 3;
-                    let mut providers: Vec<Box<dyn SuggestionProvider + Send + Sync>> =
+                    let mut providers: Vec<Box<dyn SuggestionProvider>> =
                         Vec::with_capacity(NUM_PROVIDERS);
 
                     if settings.providers.wiki_fruit.enabled {
@@ -111,10 +108,10 @@ impl<'a> SuggestionProviderRef<'a> {
                         providers.push(match settings.providers.wiki_fruit.cache {
                             CacheType::None => wikifruit,
                             CacheType::Redis => {
-                                RedisCacheSuggester::new_boxed(settings, *wikifruit).await?
+                                RedisCacheSuggester::new_boxed(settings, wikifruit).await?
                             }
                             CacheType::Memory => {
-                                MemoryCacheSuggester::new_boxed(settings, *wikifruit)
+                                MemoryCacheSuggester::new_boxed(settings, wikifruit)
                             }
                         });
                     }
@@ -124,9 +121,9 @@ impl<'a> SuggestionProviderRef<'a> {
                         providers.push(match settings.providers.adm_rs.cache {
                             CacheType::None => adm_rs,
                             CacheType::Redis => {
-                                RedisCacheSuggester::new_boxed(settings, *adm_rs).await?
+                                RedisCacheSuggester::new_boxed(settings, adm_rs).await?
                             }
-                            CacheType::Memory => MemoryCacheSuggester::new_boxed(settings, *adm_rs),
+                            CacheType::Memory => MemoryCacheSuggester::new_boxed(settings, adm_rs),
                         });
                     }
 

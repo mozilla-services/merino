@@ -5,36 +5,40 @@ use async_trait::async_trait;
 use futures::future::join_all;
 
 /// Type alias for the contained suggestion type to save some typing.
-type ThreadSafeSuggestionProvider<'a> = Box<dyn SuggestionProvider<'a> + Send + Sync>;
 
 /// A provider that aggregates suggestions from multiple suggesters.
-pub struct Multi<'a> {
+pub struct Multi {
     /// The providers to aggregate from.
-    providers: Vec<ThreadSafeSuggestionProvider<'a>>,
+    providers: Vec<Box<dyn SuggestionProvider>>,
 }
 
-impl<'a> Multi<'a> {
+impl Multi {
     /// Create a `Multi` that draws suggestions from `providers`.
-    pub fn new(providers: Vec<ThreadSafeSuggestionProvider<'a>>) -> Self {
+    pub fn new(providers: Vec<Box<dyn SuggestionProvider>>) -> Self {
         Self { providers }
+    }
+
+    /// Create a boxed multi
+    pub fn new_boxed(providers: Vec<Box<dyn SuggestionProvider>>) -> Box<Self> {
+        Box::new(Self::new(providers))
     }
 }
 
 #[async_trait]
-impl<'a> SuggestionProvider<'a> for Multi<'a> {
-    fn name(&self) -> std::borrow::Cow<'a, str> {
+impl SuggestionProvider for Multi {
+    fn name(&self) -> String {
         let provider_names = self
             .providers
             .iter()
             .map(|p| p.name())
             .collect::<Vec<_>>()
             .join(", ");
-        format!("{}({})", "Multi", provider_names).into()
+        format!("Multi({})", provider_names)
     }
 
     async fn suggest(
         &self,
-        request: SuggestionRequest<'a>,
+        request: SuggestionRequest,
     ) -> Result<SuggestionResponse, SuggestError> {
         // collect a Vec<Result<Vec<T>, E>>, and then transpose it into a Result<Vec<Vec<T>>, E>.
         let v: Result<Vec<SuggestionResponse>, _> =
