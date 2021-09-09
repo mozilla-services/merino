@@ -5,7 +5,7 @@ use async_trait::async_trait;
 use futures::StreamExt;
 use http::Uri;
 use lazy_static::lazy_static;
-use merino_settings::Settings;
+use merino_settings::{providers::RemoteSettingsConfig, Settings};
 use merino_suggest::{
     Proportion, SetupError, SuggestError, Suggestion, SuggestionProvider, SuggestionRequest,
     SuggestionResponse,
@@ -34,11 +34,14 @@ static REMOTE_SETTINGS_SERVER_INFO: OnceCell<RemoteSettingsServerInfo> = OnceCel
 
 impl RemoteSettingsSuggester {
     /// Make and sync a new suggester.
-    pub async fn new_boxed(settings: &Settings) -> Result<Box<Self>, SetupError> {
+    pub async fn new_boxed(
+        settings: &Settings,
+        config: &RemoteSettingsConfig,
+    ) -> Result<Box<Self>, SetupError> {
         let mut provider = Self {
             suggestions: HashMap::new(),
         };
-        provider.sync(settings).await?;
+        provider.sync(settings, config).await?;
         Ok(Box::new(provider))
     }
 
@@ -46,26 +49,29 @@ impl RemoteSettingsSuggester {
     ///
     /// This must be called at least once before any suggestions will be provided
     #[tracing::instrument(skip(self, settings))]
-    pub async fn sync(&mut self, settings: &Settings) -> Result<(), SetupError> {
+    pub async fn sync(
+        &mut self,
+        settings: &Settings,
+        config: &RemoteSettingsConfig,
+    ) -> Result<(), SetupError> {
         tracing::info!(
             r#type = "adm.remote-settings.sync-start",
             "Syncing quicksuggest records from Remote Settings"
         );
-        let provider_settings = &settings.providers.adm_rs;
         let reqwest_client = reqwest::Client::new();
 
         // Set up and sync a Remote Settings client for the quicksuggest collection.
-        std::fs::create_dir_all(&provider_settings.storage_path)
+        std::fs::create_dir_all(&settings.remote_settings.storage_path)
             .context("Creating RemoteSettings file cache")
             .map_err(SetupError::Io)?;
         let mut rs_client = {
             let mut rs_client_builder = remote_settings_client::Client::builder()
-                .collection_name(&provider_settings.collection)
+                .collection_name(&config.collection)
                 .storage(Box::new(FileStorage {
-                    folder: provider_settings.storage_path.clone(),
+                    folder: settings.remote_settings.storage_path.clone(),
                     ..Default::default()
                 }));
-            if let Some(server) = &provider_settings.server {
+            if let Some(server) = &settings.remote_settings.server {
                 rs_client_builder = rs_client_builder.server_url(server);
             }
             rs_client_builder

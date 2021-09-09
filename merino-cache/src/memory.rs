@@ -11,7 +11,7 @@ use crate::{
 };
 use async_trait::async_trait;
 use lazy_static::lazy_static;
-use merino_settings::Settings;
+use merino_settings::providers::MemoryCacheConfig;
 use merino_suggest::{
     CacheStatus, Suggestion, SuggestionProvider, SuggestionRequest, SuggestionResponse,
 };
@@ -97,12 +97,15 @@ pub struct Suggester {
 
 impl Suggester {
     /// Create a in-memory suggestion cache from settings that wraps `provider`.
-    pub fn new_boxed(settings: &Settings, provider: Box<dyn SuggestionProvider>) -> Box<Self> {
+    pub fn new_boxed(
+        config: &MemoryCacheConfig,
+        provider: Box<dyn SuggestionProvider>,
+    ) -> Box<Self> {
         let items = Arc::new(DedupedMap::new());
 
         {
             let task_items = items.clone();
-            let task_interval = settings.memory_cache.cleanup_interval;
+            let task_interval = config.cleanup_interval;
             tokio::spawn(async move {
                 let mut timer = tokio::time::interval(task_interval);
                 // The timer fires immediately, but we don't want to run the
@@ -119,8 +122,8 @@ impl Suggester {
         Box::new(Self {
             inner: provider,
             items,
-            default_ttl: settings.memory_cache.default_ttl,
-            default_lock_timeout: settings.memory_cache.default_lock_timeout,
+            default_ttl: config.default_ttl,
+            default_lock_timeout: config.default_lock_timeout,
         })
     }
 
@@ -172,7 +175,7 @@ impl Suggester {
 #[async_trait]
 impl SuggestionProvider for Suggester {
     fn name(&self) -> String {
-        "in-memory-cache".into()
+        format!("MemoryCache({})", self.inner.name())
     }
 
     async fn suggest(

@@ -244,6 +244,20 @@ pub trait SuggestionProvider: Send + Sync {
     async fn suggest(&self, query: SuggestionRequest) -> Result<SuggestionResponse, SuggestError>;
 }
 
+/// A provider that never provides any suggestions
+pub struct NullProvider;
+
+#[async_trait]
+impl SuggestionProvider for NullProvider {
+    fn name(&self) -> String {
+        "NullProvider".into()
+    }
+
+    async fn suggest(&self, _query: SuggestionRequest) -> Result<SuggestionResponse, SuggestError> {
+        Ok(SuggestionResponse::new(vec![]))
+    }
+}
+
 /// Errors that may occur while setting up the provider.
 #[derive(Debug, Error)]
 #[allow(missing_docs, clippy::missing_docs_in_private_items)]

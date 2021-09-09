@@ -3,26 +3,11 @@ services:
   merino:
     # See `docker-image-build` job in `.circleci/config.yml`
     image: app:build
+    build: ..
     container_name: merino
     environment:
-      # Enable additional features to debug the application
-      MERINO_DEBUG: "true"
-      # The environment Merino is running in
-      MERINO_ENV: "development"
-      # The host and port Merino listens on
-      MERINO_HTTP__LISTEN: "0.0.0.0:8000"
-      # The location of the maxmind database to use to determine IP location
-      MERINO_LOCATION__MAXMIND_DATABASE: "/tmp/dev/GeoLite2-City-Test.mmdb"
-      # The minimum level that logs should be reported at
-      MERINO_LOGGING__LEVELS: "DEBUG"
-      # Whether the adM Remote Settings-based provider should be active
-      MERINO_PROVIDERS__ADM_RS__ENABLED: "false"
-      # Remote Settings-based provider
-      MERINO_PROVIDERS__ENABLE_DEBUG_PROVIDER: "false"
-      # Whether the WikiFruit development provider should be active
-      MERINO_PROVIDERS__WIKI_FRUIT__ENABLED: "true"
-      # Mode of the Sentry error and event reporting system
-      MERINO_SENTRY__MODE: "disabled"
+      # The configuration preset to use
+      MERINO_ENV: "ci"
     volumes:
       - ../dev:/tmp/dev
 
@@ -34,8 +19,9 @@ services:
       - merino
     volumes:
       - ./volumes/client:/tmp/client
+      - ../dev/wait-for-it.sh:/wait-for-it.sh
     environment:
       MERINO_URL: http://merino:8000
       SCENARIOS_FILE: /tmp/client/scenarios.yml
     command: >
-      "-vv"
+      /wait-for-it.sh merino:8000 -- pytest -vv

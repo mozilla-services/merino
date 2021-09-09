@@ -5,9 +5,10 @@ mod domain;
 use std::{convert::TryInto, time::Duration};
 
 use crate::{domain::CacheKey, redis::domain::RedisSuggestions};
-use anyhow::{anyhow, Context};
+use anyhow::Context;
 use async_trait::async_trait;
-use merino_settings::Settings;
+use fix_hidden_lifetime_bug::fix_hidden_lifetime_bug;
+use merino_settings::{providers::RedisCacheConfig, Settings};
 use merino_suggest::{
     CacheStatus, SetupError, SuggestError, Suggestion, SuggestionProvider, SuggestionRequest,
     SuggestionResponse,
@@ -174,27 +175,29 @@ impl Suggester {
     ///
     /// # Errors
     /// Fails if it cannot connect to Redis.
+
+    #[allow(clippy::manual_async_fn)]
+    #[fix_hidden_lifetime_bug]
     pub async fn new_boxed(
         settings: &Settings,
-        provider: Box<dyn SuggestionProvider>,
+        config: &RedisCacheConfig,
+        provider: Box<dyn SuggestionProvider + 'static>,
     ) -> Result<Box<Self>, SetupError> {
-        tracing::debug!(?settings.redis_cache.url, "Setting up redis connection");
-        let client = redis::Client::open(settings.redis_cache.url.clone().ok_or_else(|| {
-            SetupError::InvalidConfiguration(anyhow!("No Redis URL is configured for caching"))
-        })?)
-        .context("Setting up Redis client")
-        .map_err(SetupError::Network)?;
+        tracing::debug!(?settings.redis.url, "Setting up redis connection");
+        let client = redis::Client::open(settings.redis.url.clone())
+            .context("Setting up Redis client")
+            .map_err(SetupError::Network)?;
 
         let redis_connection = redis::aio::ConnectionManager::new(client)
             .await
             .context("Connecting to Redis")
             .map_err(SetupError::Network)?;
 
-        Ok(Box::new(Self {
+        Ok(Box::new(Suggester {
             inner: provider,
             redis_connection,
-            default_ttl: settings.redis_cache.default_ttl,
-            default_lock_timeout: settings.redis_cache.default_lock_timeout,
+            default_ttl: config.default_ttl,
+            default_lock_timeout: config.default_lock_timeout,
         }))
     }
 
@@ -396,20 +399,23 @@ impl SuggestionProvider for Suggester {
 
 #[cfg(test)]
 mod test {
-    use http::Uri;
-    use merino_suggest::{Proportion, Suggestion};
+    use std::time::Duration;
 
-    use super::*;
+    use crate::redis::{domain::RedisSuggestions, SimpleRedisLock};
+
+    use super::SetupError;
+    use anyhow::Context;
+    use http::Uri;
+    use merino_settings::Settings;
+    use merino_suggest::{Proportion, Suggestion};
 
     #[tokio::test]
     async fn check_cache() -> Result<(), SetupError> {
         let settings = Settings::load_for_tests();
 
-        let r_client = redis::Client::open(settings.redis_cache.url.clone().ok_or_else(|| {
-            SetupError::InvalidConfiguration(anyhow!("No Redis URL is configured for caching"))
-        })?)
-        .context("Setting up Redis client")
-        .map_err(SetupError::Network)?;
+        let r_client = redis::Client::open(settings.redis.url.clone())
+            .context("Setting up Redis client")
+            .map_err(SetupError::Network)?;
         let mut redis_connection = redis::aio::ConnectionManager::new(r_client)
             .await
             .context("Connecting to Redis")

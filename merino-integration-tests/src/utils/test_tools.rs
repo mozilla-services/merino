@@ -51,7 +51,7 @@ where
     let log_watcher = LogWatcher::default();
     let log_watcher_writer = log_watcher.make_writer();
 
-    let subscriber = tracing_subscriber::registry()
+    let tracing_subscriber = tracing_subscriber::registry()
         .with(
             tracing_subscriber::fmt::layer()
                 .json()
@@ -59,30 +59,26 @@ where
         )
         .with(tracing_subscriber::fmt::layer().pretty().with_test_writer());
 
-    let _subscriber_guard = tracing::subscriber::set_default(subscriber);
-
-    // Set up a mock server for Remote Settings to talk to
-    let remote_settings_mock = MockServer::start();
+    let _tracing_subscriber_guard = tracing::subscriber::set_default(tracing_subscriber);
 
     // Load settings
     let mut settings = Settings::load_for_tests();
-    settings.providers.adm_rs.server = Some(remote_settings_mock.url(""));
+
+    // Set up a mock server for Remote Settings to talk to
+    let remote_settings_mock = MockServer::start();
+    settings.remote_settings.server = Some(remote_settings_mock.base_url());
 
     // Set up Redis
-    let _connection_guard = if let Some(ref original_connection_info) = settings.redis_cache.url {
-        match get_temp_db(original_connection_info).await {
-            Ok((connection_info, connection_guard)) => {
-                tracing::debug!(?connection_info, "Configuring temporary Redis database");
-                settings.redis_cache.url = Some(connection_info);
-                Some(connection_guard)
-            }
-            Err(error) => {
-                tracing::warn!(%error, "Could not set up Redis for test");
-                None
-            }
+    let _redis_connection_guard = match get_temp_db(&settings.redis.url).await {
+        Ok((connection_info, connection_guard)) => {
+            tracing::debug!(?connection_info, "Configuring temporary Redis database");
+            settings.redis.url = connection_info;
+            Some(connection_guard)
         }
-    } else {
-        None
+        Err(error) => {
+            tracing::warn!(%error, "Could not set up Redis for test");
+            None
+        }
     };
 
     settings_changer(&mut settings);
@@ -104,9 +100,8 @@ where
     // Run server in the background
     let listener = TcpListener::bind(settings.http.listen).expect("Failed to bind to a port");
     let address = listener.local_addr().unwrap().to_string();
-    let redis_client = (&settings.redis_cache.url)
-        .clone()
-        .map(|url| redis::Client::open(url).expect("Couldn't access redis server"));
+    let redis_client =
+        redis::Client::open(settings.redis.url.clone()).expect("Couldn't access redis server");
     let server =
         merino_web::run(listener, metrics_client, settings).expect("Failed to start server");
     let server_handle = tokio::spawn(server.with_current_subscriber());
@@ -150,7 +145,7 @@ pub struct TestingTools {
     pub log_watcher: LogWatcher,
 
     /// To interact with the Redis cache
-    pub redis_client: Option<redis::Client>,
+    pub redis_client: redis::Client,
 
     /// To make assertions about metrics.
     pub metrics_watcher: MetricsWatcher,

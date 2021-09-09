@@ -2,7 +2,7 @@
 #![cfg(test)]
 
 use crate::{merino_test_macro, TestingTools};
-use merino_settings::CacheType;
+use merino_settings::providers::{RedisCacheConfig, SuggestionProviderConfig};
 use redis::Commands;
 use reqwest::{header::HeaderValue, StatusCode};
 use serde_json::Value;
@@ -10,9 +10,10 @@ use std::time::Duration;
 
 #[merino_test_macro(|settings| {
     settings.debug = true;
-    settings.providers.wiki_fruit.enabled = true;
-    settings.providers.wiki_fruit.cache = CacheType::Redis;
-    settings.redis_cache.default_ttl = Duration::from_secs(600);
+    settings.suggestion_providers.insert(
+        "wiki_fruit_redis".to_string(),
+        SuggestionProviderConfig::RedisCache(RedisCacheConfig::with_inner(SuggestionProviderConfig::WikiFruit)),
+    );
 })]
 async fn responses_are_stored_in_the_cache(
     TestingTools {
@@ -21,7 +22,7 @@ async fn responses_are_stored_in_the_cache(
         ..
     }: TestingTools,
 ) {
-    let mut redis_client = redis_client.expect("This test requires a Redis connection");
+    let mut redis_client = redis_client;
     let keys_before: Vec<String> = redis_client
         .keys("*")
         .expect("Could not get keys from redis");
@@ -67,19 +68,19 @@ async fn responses_are_stored_in_the_cache(
 
 #[merino_test_macro(|settings| {
     settings.debug = true;
-    settings.providers.wiki_fruit.enabled = true;
-    settings.providers.wiki_fruit.cache = CacheType::Redis;
-    settings.redis_cache.default_ttl = Duration::from_secs(600);
+    settings.suggestion_providers.insert(
+        "wiki_fruit_redis".to_string(),
+        SuggestionProviderConfig::RedisCache(RedisCacheConfig::with_inner(SuggestionProviderConfig::WikiFruit)),
+    );
 })]
 async fn bad_cache_data_is_handled(
     TestingTools {
         test_client,
-        redis_client,
+        mut redis_client,
         mut log_watcher,
         ..
     }: TestingTools,
 ) {
-    let mut redis_client = redis_client.expect("This test requires a Redis connection");
     let url = "/api/v1/suggest?q=apple";
 
     // one request to prime the cache
@@ -125,19 +126,19 @@ async fn bad_cache_data_is_handled(
 
 #[merino_test_macro(|settings| {
     settings.debug = true;
-    settings.providers.wiki_fruit.enabled = true;
-    settings.providers.wiki_fruit.cache = CacheType::Redis;
-    settings.redis_cache.default_ttl = Duration::from_secs(600);
+    settings.suggestion_providers.insert(
+        "wiki_fruit_redis".to_string(),
+        SuggestionProviderConfig::RedisCache(RedisCacheConfig::with_inner(SuggestionProviderConfig::WikiFruit)),
+    );
 })]
 async fn missing_ttls_are_re_set(
     TestingTools {
         test_client,
-        redis_client,
+        mut redis_client,
         mut log_watcher,
         ..
     }: TestingTools,
 ) {
-    let mut redis_client = redis_client.expect("This test requires a Redis connection");
     let url = "/api/v1/suggest?q=apple";
 
     // one request to prime the cache
