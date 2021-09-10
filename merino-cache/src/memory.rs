@@ -10,6 +10,7 @@ use crate::{
     domain::CacheKey,
 };
 use async_trait::async_trait;
+use lazy_static::lazy_static;
 use merino_settings::Settings;
 use merino_suggest::{
     CacheStatus, Suggestion, SuggestionProvider, SuggestionRequest, SuggestionResponse,
@@ -51,7 +52,8 @@ impl LOCK_TABLE {
         lock
     }
 
-    /// run func only if the lock we have matches what is registered for the key
+    /// run func and remove lock, only if the lock we have matches what
+    /// is registered for the key.
     fn update<F>(&self, key: &str, lock: Instant, mut func: F)
     where
         F: FnMut(),
@@ -65,6 +67,16 @@ impl LOCK_TABLE {
                 locked.remove(key);
             }
             locked
+        });
+    }
+
+    /// remove any expired elements from the Pending table
+    /// (There shouldn't be many.)
+    fn prune(&self, start: &Instant) {
+        self.rcu(|table| {
+            let mut cleaned = HashMap::clone(table);
+            cleaned.retain(|_k, v| *v > *start);
+            cleaned
         });
     }
 }
@@ -120,7 +132,7 @@ impl<S> Suggester<S> {
     fn remove_expired_entries<K: Eq + Hash + Debug>(
         items: &Arc<DedupedMap<K, Instant, Vec<Suggestion>>>,
     ) {
-        let mut start = Instant::now();
+        let start = Instant::now();
         let count_before_storage = items.len_storage();
         let count_before_pointers = items.len_pointers();
 
@@ -143,12 +155,7 @@ impl<S> Suggester<S> {
             ControlFlow::Continue(!should_remove)
         });
 
-        // remove any expired elements from the Pending table (There shouldn't be many.)
-        LOCK_TABLE.rcu(|table| {
-            let mut cleaned = HashMap::clone(table);
-            cleaned.retain(|_k, v| v > &mut start);
-            cleaned
-        });
+        LOCK_TABLE.prune(&start);
 
         // Report finishing.
         let duration = Instant::now() - start;
