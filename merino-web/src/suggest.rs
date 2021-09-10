@@ -3,16 +3,17 @@
 use crate::{errors::HandlerError, extractors::SuggestionRequestWrapper};
 use actix_web::{
     get,
-    web::{Data, ServiceConfig},
+    web::{self, Data, ServiceConfig},
     HttpResponse,
 };
 use anyhow::Result;
-use cadence::{Histogrammed, StatsdClient};
+use cadence::{CountedExt, Histogrammed, StatsdClient};
 use merino_adm::remote_settings::RemoteSettingsSuggester;
 use merino_cache::{MemoryCacheSuggester, RedisCacheSuggester};
 use merino_settings::{CacheType, Settings};
 use merino_suggest::{DebugProvider, Suggestion, SuggestionProvider, WikiFruit};
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
+use serde_with::{rust::StringWithSeparator, serde_as, CommaSeparator};
 use tokio::sync::OnceCell;
 use tracing_futures::Instrument;
 
@@ -28,8 +29,20 @@ pub fn configure(config: &mut ServiceConfig) {
 struct SuggestResponse<'a> {
     /// A list of suggestions from the service.
     suggestions: Vec<SuggestionWrapper<'a>>,
+    /// A list of taken from the request query
+    client_variants: Vec<String>,
+    /// An empty list
+    server_variants: Vec<String>,
 }
-
+/// Query parameters
+#[serde_as]
+#[derive(Debug, Deserialize)]
+struct SuggestQueryParameters {
+    #[serde_as(as = "StringWithSeparator::<CommaSeparator, String>")]
+    #[serde(default)]
+    /// Query Paramater for client_variants
+    client_variants: Vec<String>,
+}
 /// Customizes the output format of [`Suggestion`].
 #[derive(Debug)]
 struct SuggestionWrapper<'a>(&'a Suggestion);
@@ -42,6 +55,7 @@ async fn suggest<'a>(
     provider: Data<SuggestionProviderRef<'a>>,
     settings: Data<Settings>,
     metrics_client: Data<StatsdClient>,
+    query_parameters: web::Query<SuggestQueryParameters>,
 ) -> Result<HttpResponse, HandlerError> {
     let provider = provider
         .get_or_try_init(settings.as_ref())
@@ -72,10 +86,18 @@ async fn suggest<'a>(
         .histogram("request.suggestion-per", response.suggestions.len() as u64)
         .ok();
 
+    for client_variant in &query_parameters.client_variants {
+        metrics_client
+            .incr(&format!("client_variants.{}", client_variant))
+            .ok();
+    }
+
     let res = HttpResponse::Ok()
         .append_header(("X-Cache", response.cache_status.to_string()))
         .json(SuggestResponse {
             suggestions: response.suggestions.iter().map(SuggestionWrapper).collect(),
+            client_variants: query_parameters.client_variants.clone(),
+            server_variants: Vec::new(),
         });
 
     Ok(res)

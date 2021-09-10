@@ -32,7 +32,9 @@ async fn suggest_wikifruit_works(TestingTools { test_client, .. }: TestingTools)
     settings.debug = true;
     settings.providers.wiki_fruit.enabled = true;
 })]
-async fn test_expected_fields(TestingTools { test_client, .. }: TestingTools) -> Result<()> {
+async fn test_expected_suggestion_fields(
+    TestingTools { test_client, .. }: TestingTools,
+) -> Result<()> {
     let response = test_client.get("/api/v1/suggest?q=apple").send().await?;
 
     assert_eq!(response.status(), StatusCode::OK);
@@ -60,6 +62,45 @@ async fn test_expected_fields(TestingTools { test_client, .. }: TestingTools) ->
             expected_key
         );
     }
+
+    Ok(())
+}
+
+#[merino_test_macro]
+async fn test_returns_client_variants(
+    TestingTools { test_client, .. }: TestingTools,
+) -> Result<()> {
+    let response = test_client
+        .get("/api/v1/suggest?q=apple&client_variants=one,two")
+        .send()
+        .await?;
+
+    assert_eq!(response.status(), StatusCode::OK);
+    let body: serde_json::Value = response.json().await?;
+    assert_eq!(
+        *body["client_variants"].as_array().unwrap(),
+        vec!["one", "two"]
+    );
+
+    Ok(())
+}
+
+#[merino_test_macro]
+async fn test_expected_variant_fields(
+    TestingTools { test_client, .. }: TestingTools,
+) -> Result<()> {
+    let response = test_client.get("/api/v1/suggest?q=apple").send().await?;
+
+    assert_eq!(response.status(), StatusCode::OK);
+    let body: serde_json::Value = response.json().await?;
+    assert!(
+        body.as_object().unwrap().contains_key("client_variants"),
+        "response should have a clients variants key"
+    );
+    assert!(
+        body.as_object().unwrap().contains_key("server_variants"),
+        "response should have a server variants key"
+    );
 
     Ok(())
 }
@@ -130,5 +171,23 @@ async fn suggest_records_suggestion_metrics(
     let body: serde_json::Value = response.json().await?;
     let response_suggestion_count = body["suggestions"].as_array().unwrap().len() as f64;
     assert!(metrics_watcher.has_histogram("request.suggestion-per", response_suggestion_count));
+    Ok(())
+}
+
+#[merino_test_macro]
+async fn suggest_records_client_variants_metrics(
+    TestingTools {
+        test_client,
+        mut metrics_watcher,
+        ..
+    }: TestingTools,
+) -> Result<()> {
+    test_client
+        .get("/api/v1/suggest?q=apple&client_variants=one,two")
+        .send()
+        .await?;
+
+    assert!(metrics_watcher.has_incr("client_variants.one"));
+    assert!(metrics_watcher.has_incr("client_variants.two"));
     Ok(())
 }

@@ -7,7 +7,7 @@ This page describes the API endpoints available on Merino.
 
 Endpoint: `/api/v1/suggest`
 
-Example: `/api/v1/suggest?q=nelson%20mand`
+Example: `/api/v1/suggest?q=nelson%20mand&client_variants=one,two`
 
 The primary endpoint for the browser to consume, this endpoint consumes user
 input and suggests pages the user may want to visit. The expectation is that
@@ -56,8 +56,10 @@ and headers.
 
 ### Response
 
-The response will be a JSON object containing a single key, `suggestions`, which
-will be a list of suggestion objects. Each suggestion object will have the
+The response will be a JSON object containing the keys `suggestions`, `client_variants` and `server_variants`.
+`client_variants` will return a list of the strings specified from the `client_variants` parameter in the request
+`server_variants` will return a list of strings
+`suggestions` will be a list of suggestion objects. Each suggestion object will have the
 following keys:
 
 - `block_id` - a number that can be used, along with the `provider` field below, to
