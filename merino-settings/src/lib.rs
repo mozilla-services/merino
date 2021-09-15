@@ -222,7 +222,7 @@ pub struct MetricsSettings {
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(tag = "mode", rename_all = "snake_case")]
 pub enum SentrySettings {
-    Release { dsn: Dsn },
+    Release { dsn: Dsn, env: String },
     Debug,
     Disabled,
 }
@@ -231,7 +231,7 @@ impl SentrySettings {
     /// Get the configured DSN.
     pub fn dsn(&self) -> Option<Dsn> {
         match self {
-            SentrySettings::Release { dsn } => Some(dsn.clone()),
+            SentrySettings::Release { dsn, .. } => Some(dsn.clone()),
             SentrySettings::Debug => Some(Dsn::from_str("https://public@example.com/1").unwrap()),
             SentrySettings::Disabled => None,
         }
@@ -243,6 +243,14 @@ impl SentrySettings {
             SentrySettings::Release { .. } => false,
             SentrySettings::Debug => true,
             SentrySettings::Disabled => false,
+        }
+    }
+
+    pub fn env(&self) -> &str {
+        match self {
+            SentrySettings::Release { env, .. } => env.as_str(),
+            SentrySettings::Debug => "debug",
+            SentrySettings::Disabled => "disabled",
         }
     }
 }
