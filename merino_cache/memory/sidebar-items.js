@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["Suggester","A in-memory cache for suggestions."]]});
+initSidebarItems({"struct":[["LOCK_TABLE",""],["Suggester","A in-memory cache for suggestions."]]});
