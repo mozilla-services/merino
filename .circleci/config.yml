@@ -30,26 +30,22 @@ workflows:
               only: main
 
       - docker-image-build:
-          name: docker-image-build-pr
-          saveToWorkspace: false
           filters:
-            branches:
-              ignore: main
-
-      - docker-image-build:
-          name: docker-image-build-deploy
-          saveToWorkspace: true
-          filters:
-            branches:
-              only: main
             tags:
               only: /.+/
       
+      - integration-tests:
+          name: integration-tests
+          requires:
+            - checks
+            - build-and-test
+            - docker-image-build
+
       - docker-image-publish:
           requires:
             - checks
             - build-and-test
-            - docker-image-build-deploy
+            - docker-image-build
           filters:
             branches:
               only: main
@@ -87,11 +83,6 @@ jobs:
       - run-tests
 
   docker-image-build:
-    parameters:
-      saveToWorkspace:
-        type: boolean
-        default: true
-
     docker:
       - image: mozilla/cidockerbases:docker-latest
 
@@ -103,19 +94,35 @@ jobs:
       - run:
           name: Build Docker image
           command: docker build -t app:build .
-      - when:
-          condition: << parameters.saveToWorkspace >>
-          steps:
-            - run:
-                name: Save image into workspace
-                command: |
-                  mkdir -p workspace
-                  docker save -o workspace/merino.tar app:build
-                  gzip workspace/merino.tar
-            - persist_to_workspace:
-                root: workspace
-                paths:
-                  - merino.tar.gz
+      - run:
+          name: Save image into workspace
+          command: |
+            mkdir -p workspace
+            docker save -o workspace/merino.tar app:build
+            gzip workspace/merino.tar
+      - persist_to_workspace:
+          root: workspace
+          paths:
+            - merino.tar.gz
+
+  integration-tests:
+    machine:
+      docker_layer_caching: true
+      image: ubuntu-2004:202101-01 # Ubuntu 20.04, Docker v20.10.2, Docker Compose v1.28.2
+    working_directory: ~/merino
+    steps:
+      - checkout
+      - attach_workspace:
+          at: workspace
+      - dockerhub-login
+      - run:
+          name: Load Docker image from workspace
+          command: docker load -i workspace/merino.tar.gz
+      - run:
+         name: Run Integration tests
+         command: |
+           docker-compose --version
+           docker-compose -f test-engineering/docker-compose.yml up --abort-on-container-exit
 
   docker-image-publish:
     docker:
