@@ -13,6 +13,8 @@ scenarios:
         response:
           status_code: 200
           content:
+            client_variants: []
+            server_variants: []
             suggestions:
               - block_id: 1
                 full_keyword: 'apple'
@@ -25,7 +27,36 @@ scenarios:
                 is_sponsored: false
                 icon: 'https://en.wikipedia.org/favicon.ico'
                 score: 0.0
-
+  - name: wiki_fruit__apple_with_client_variants
+    description: Test that Merino successfully returns a WikiFruit suggestion
+    steps:
+      - request:
+          method: GET
+          path: '/api/v1/suggest?q=apple&client_variants=one,two'
+          headers:
+            - name: User-Agent
+              value: 'Mozilla/5.0 (Windows NT 10.0; rv:10.0) Gecko/20100101 Firefox/91.0'
+            - name: Accept-Language
+              value: 'en-US'
+        response:
+          status_code: 200
+          content:
+            client_variants:
+              - "one"
+              - "two"
+            server_variants: []
+            suggestions:
+              - block_id: 1
+                full_keyword: 'apple'
+                title: 'Wikipedia - Apple'
+                url: 'https://en.wikipedia.org/wiki/Apple'
+                impression_url: 'https://127.0.0.1/'
+                click_url: 'https://127.0.0.1/'
+                provider: 'Merino::WikiFruit'
+                advertiser: 'Merino::WikiFruit'
+                is_sponsored: false
+                icon: 'https://en.wikipedia.org/favicon.ico'
+                score: 0.0
   - name: wiki_fruit__banana
     description: Test that Merino successfully returns a WikiFruit suggestion
     steps:
@@ -40,6 +71,8 @@ scenarios:
         response:
           status_code: 200
           content:
+            client_variants: [ ]
+            server_variants: [ ]
             suggestions:
               - block_id: 1
                 full_keyword: 'banana'
@@ -67,6 +100,8 @@ scenarios:
         response:
           status_code: 200
           content:
+            client_variants: [ ]
+            server_variants: [ ]
             suggestions:
               - block_id: 1
                 full_keyword: 'cherry'

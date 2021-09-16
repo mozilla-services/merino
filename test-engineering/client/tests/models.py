@@ -4,7 +4,7 @@
 
 from typing import Any, List, Optional, Union
 
-from pydantic import BaseModel, Extra
+from pydantic import BaseModel, Extra, Field
 
 
 class Header(BaseModel):
@@ -42,6 +42,8 @@ class Suggestions(BaseModel):
     """Class that contains a list of Suggestions returned by Merino."""
 
     suggestions: List[Suggestion]
+    client_variants: List[str] = Field(default_factory=list)
+    server_variants: List[str]
 
 
 class Response(BaseModel):
