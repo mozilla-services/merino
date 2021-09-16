@@ -96,8 +96,12 @@ pub fn run(
 
         if let Some(ref mmdb) = settings.location.maxmind_database {
             config = config.with_provider(
-                actix_web_location::providers::MaxMindProvider::from_path(mmdb)
-                    .context("Could not set maxmind location provider")?,
+                actix_web_location::providers::MaxMindProvider::from_path(mmdb).context(
+                    format!(
+                        "Could not set up maxmind location provider with database at {}",
+                        mmdb.to_string_lossy(),
+                    ),
+                )?,
             );
         }
 
