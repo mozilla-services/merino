@@ -43,7 +43,7 @@ class Suggestions(BaseModel):
 
     suggestions: List[Suggestion]
     client_variants: List[str] = Field(default_factory=list)
-    server_variants: List[str]
+    server_variants: List[str] = Field(default_factory=list)
 
 
 class Response(BaseModel):
