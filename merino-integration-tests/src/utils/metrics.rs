@@ -80,4 +80,15 @@ impl MetricsWatcher {
                 }
         })
     }
+
+    /// Test if any metric this watcher increase in value for a given name.
+    pub fn has_incr(&mut self, name: &str) -> bool {
+        self.has(|msg| {
+            msg.name == name
+                && match &msg.metric {
+                    statsd_parser::Metric::Counter(counter) => (counter.value - 1.0).abs() < 0.0001,
+                    _ => false,
+                }
+        })
+    }
 }
