@@ -17,17 +17,9 @@ def pytest_configure(config):
     with pathlib.Path(scenarios_file).open() as f:
         loaded_scenarios = yaml.safe_load(f)
 
-    """    config.merino_scenarios = [
+    config.merino_scenarios = [
         Scenario(**scenario) for scenario in loaded_scenarios["scenarios"]
     ]
-    
-    """
-    scenarios = []
-    for scenario in loaded_scenarios["scenarios"]:
-        scenario_obj = Scenario(**scenario)
-        assert( "client_variants" in scenario_obj.steps[0].response.content.dict())
-        scenarios.append(scenario_obj)
-    config.merino_scenarios = scenarios
 
 
 def pytest_generate_tests(metafunc):

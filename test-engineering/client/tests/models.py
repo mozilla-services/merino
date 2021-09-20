@@ -38,7 +38,7 @@ class Suggestion(BaseModel, extra=Extra.allow):
     advertiser: Optional[str]  # A deprecated alias of `provider`
 
 
-class Content(BaseModel):
+class Suggestions(BaseModel):
     """Class that contains a list of Suggestions returned by Merino."""
 
     suggestions: List[Suggestion]
@@ -50,7 +50,7 @@ class Response(BaseModel):
     """Class that holds information about a HTTP response from Merino."""
 
     status_code: int
-    content: Union[Content, Any]
+    content: Union[Suggestions, Any]
     headers: List[Header] = []
 
 
