@@ -144,12 +144,12 @@ pub struct RedisSettings {
 #[serde_as]
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct RemoteSettingsGlobalSettings {
-    /// The path, relative or absolute, to where to store Remote Settings data.
-    pub storage_path: PathBuf,
-
-    /// The server to sync from. If no value is provided, a default is provided
-    /// by the remote settings client.
-    pub server: Option<String>,
+    /// The server to sync from, including the protocol and port, but not including a trailing slash.
+    ///
+    /// ## Examples
+    /// - `http://127.0.0.1`
+    /// - `https://firefox.settings.services.mozilla.com`
+    pub server: String,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]

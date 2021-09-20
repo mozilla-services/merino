@@ -3,19 +3,17 @@
 use anyhow::{anyhow, Context};
 use async_trait::async_trait;
 use futures::StreamExt;
-use http::Uri;
+use http::{HeaderValue, Uri};
 use lazy_static::lazy_static;
 use merino_settings::{providers::RemoteSettingsConfig, Settings};
 use merino_suggest::{
     Proportion, SetupError, SuggestError, Suggestion, SuggestionProvider, SuggestionRequest,
     SuggestionResponse,
 };
-use remote_settings_client::client::FileStorage;
-use serde::Deserialize;
-use serde_json::Value;
+use reqwest::Response;
+use serde::{Deserialize, Serialize};
 use serde_with::{serde_as, DisplayFromStr};
 use std::{collections::HashMap, convert::TryFrom, sync::Arc};
-use tokio::sync::OnceCell;
 
 lazy_static! {
     static ref NON_SPONSORED_IAB_CATEGORIES: Vec<&'static str> = vec!["5 - Education"];
@@ -27,10 +25,6 @@ pub struct RemoteSettingsSuggester {
     /// A map from keywords to suggestions that can be provided.
     suggestions: HashMap<String, Arc<Suggestion>>,
 }
-
-/// A lazy version of the server settings for the default Remote Settings server.
-/// Should be initialized with `RemoteSettingsServerInfo::fetch`.
-static REMOTE_SETTINGS_SERVER_INFO: OnceCell<RemoteSettingsServerInfo> = OnceCell::const_new();
 
 impl RemoteSettingsSuggester {
     /// Make and sync a new suggester.
@@ -60,53 +54,51 @@ impl RemoteSettingsSuggester {
         );
         let reqwest_client = reqwest::Client::new();
 
-        // Set up and sync a Remote Settings client for the quicksuggest collection.
-        std::fs::create_dir_all(&settings.remote_settings.storage_path)
-            .context("Creating RemoteSettings file cache")
-            .map_err(SetupError::Io)?;
-        let mut rs_client = {
-            let mut rs_client_builder = remote_settings_client::Client::builder()
-                .collection_name(&config.collection)
-                .storage(Box::new(FileStorage {
-                    folder: settings.remote_settings.storage_path.clone(),
-                    ..Default::default()
-                }));
-            if let Some(server) = &settings.remote_settings.server {
-                rs_client_builder = rs_client_builder.server_url(server);
-            }
-            rs_client_builder
-                .build()
-                .context("Creating RemoteSettings client")
-                .map_err(SetupError::InvalidConfiguration)?
-        };
-
-        // `.sync()` blocks while doing IO
-        rs_client
-            .sync(None)
-            .context("Syncing suggestions from remote settings")
-            .map_err(SetupError::Network)?;
-
         // Get the base URL to download attachments from.
-        let attachment_base_url = &REMOTE_SETTINGS_SERVER_INFO
-            .get_or_try_init(|| RemoteSettingsServerInfo::fetch(&reqwest_client))
-            .await?
-            .attachment_base_url()?;
+        let remote_settings_server_info =
+            RemoteSettingsServerInfo::fetch(settings, &reqwest_client).await?;
+        let attachment_base_url = remote_settings_server_info.attachment_base_url()?;
 
-        // Get records from Remote Settings, and convert them into a schema instead of using JSON `Value`s.
-        let records: Vec<SuggestRecord> = rs_client
-            // `.get()` blocks while doing IO
-            .get()
-            .context("Fetching records from remote settings")
-            .map_err(SetupError::Network)?
-            .into_iter()
-            .filter(|r| !r.deleted())
-            .map(|r| {
-                let value = Value::Object(r.as_object().clone());
-                <SuggestRecord as Deserialize>::deserialize(value)
-            })
-            .collect::<Result<_, <Value as serde::Deserializer>::Error>>()
-            .context("Parsing suggestions records")
-            .map_err(SetupError::Format)?;
+        // Get records from Remote Settings.
+        let records = {
+            let records_url = format!(
+                "{}/v1/buckets/{}/collections/{}/records",
+                settings.remote_settings.server, config.bucket, config.collection
+            );
+
+            let mut all_records = Vec::new();
+            let mut next_url = Some(records_url);
+            while let Some(url) = next_url {
+                let records_res = reqwest_client
+                    .get(&url)
+                    .send()
+                    .await
+                    .and_then(Response::error_for_status)
+                    .context(format!("Fetching records from remote settings: {}", url))
+                    .map_err(SetupError::Network)?;
+
+                next_url = match records_res
+                    .headers()
+                    .get("Next-Page")
+                    .map(HeaderValue::to_str)
+                {
+                    Some(Ok(u)) => Some(u.to_string()),
+                    Some(Err(error)) => {
+                        tracing::warn!(?error, "Invalid Next header from Remote Settings");
+                        None
+                    }
+                    None => None,
+                };
+
+                let RecordsResponse { data: records } = records_res
+                    .json()
+                    .await
+                    .context("Parsing suggestion records")
+                    .map_err(SetupError::Format)?;
+                all_records.extend(records.into_iter());
+            }
+            all_records
+        };
 
         // Sort records by type
         let mut records_by_type: HashMap<&str, Vec<&SuggestRecord>> =
@@ -251,7 +243,7 @@ impl SuggestionProvider for RemoteSettingsSuggester {
 }
 
 /// Remote Settings server info
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Serialize)]
 struct RemoteSettingsServerInfo {
     /// The capabilities the server supports.
     capabilities: RemoteSettingsCapabilities,
@@ -259,12 +251,12 @@ struct RemoteSettingsServerInfo {
 
 impl RemoteSettingsServerInfo {
     /// Fetch a copy of the server info from the default Remote Settings server with the provided client.
-    async fn fetch(client: &reqwest::Client) -> Result<Self, SetupError> {
+    async fn fetch(settings: &Settings, client: &reqwest::Client) -> Result<Self, SetupError> {
         let res = client
-            .get(remote_settings_client::DEFAULT_SERVER_URL)
+            .get(format!("{}/v1/", settings.remote_settings.server))
             .send()
             .await
-            .and_then(|res| res.error_for_status())
+            .and_then(Response::error_for_status)
             .context("Fetching RemoteSettings server info")
             .map_err(SetupError::Network)?;
         let server_info: Self = res
@@ -290,15 +282,22 @@ impl RemoteSettingsServerInfo {
     }
 }
 
+/// The result of the /records endpoint on a collection.
+#[derive(Debug, Deserialize, Serialize)]
+struct RecordsResponse {
+    /// The records returned.
+    data: Vec<SuggestRecord>,
+}
+
 /// Remote Settings server capabilities
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Serialize)]
 struct RemoteSettingsCapabilities {
     /// The attachments capability. `None` if the server does not support attachments.
     attachments: Option<RemoteSettingsAttachmentsCapability>,
 }
 
 /// Remote Settings attachments capability
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Serialize)]
 struct RemoteSettingsAttachmentsCapability {
     /// The URL that attachments' `location` field is relative to
     base_url: String,
@@ -308,7 +307,7 @@ struct RemoteSettingsAttachmentsCapability {
 ///
 /// This is a non-exhaustive description of the records in the collection, only
 /// including fields needed to retrieve suggestions.
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize, Serialize)]
 struct SuggestRecord {
     /// Record ID
     id: String,
@@ -325,7 +324,7 @@ struct SuggestRecord {
 ///
 /// This is a non-exhaustive description of the records in the collection, only
 /// including fields needed to retrieve suggestions.
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize, Serialize)]
 struct AttachmentMeta {
     /// The location the attachment can be downloaded from, relative to the
     /// attachment base_url specified in the server capabilities.
@@ -334,7 +333,7 @@ struct AttachmentMeta {
 
 /// A suggestion record from AdM
 #[serde_as]
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Serialize)]
 #[allow(clippy::missing_docs_in_private_items)]
 struct AdmSuggestion {
     id: u32,
@@ -425,6 +424,91 @@ mod tests {
         };
 
         assert!(rs_suggester.suggest(request).await?.suggestions.is_empty());
+
+        Ok(())
+    }
+
+    #[actix_rt::test]
+    async fn test_sync_makes_expected_call() -> anyhow::Result<()> {
+        let config = RemoteSettingsConfig::default();
+
+        let mock_server = httpmock::MockServer::start();
+        let settings = {
+            let mut settings = Settings::load_for_tests();
+            settings.remote_settings.server = format!("http://{}", mock_server.address());
+            settings
+        };
+
+        let server_info_mock = mock_server.mock(|when, then| {
+            when.path("/v1/");
+            then.json_body_obj(&RemoteSettingsServerInfo {
+                capabilities: RemoteSettingsCapabilities {
+                    attachments: Some(RemoteSettingsAttachmentsCapability {
+                        base_url: settings.remote_settings.server.clone(),
+                    }),
+                },
+            });
+        });
+
+        let records_mock = mock_server.mock(|when, then| {
+            when.path(format!(
+                "/v1/buckets/{}/collections/{}/records",
+                config.bucket, config.collection
+            ));
+            then.json_body_obj(&RecordsResponse { data: vec![] });
+        });
+
+        let mut provider = RemoteSettingsSuggester::default();
+        provider.sync(&settings, &config).await?;
+
+        server_info_mock.assert();
+        records_mock.assert();
+
+        Ok(())
+    }
+
+    #[actix_rt::test]
+    async fn test_sync_two_pages() -> anyhow::Result<()> {
+        let config = RemoteSettingsConfig::default();
+
+        let mock_server = httpmock::MockServer::start();
+        let settings = {
+            let mut settings = Settings::load_for_tests();
+            settings.remote_settings.server = format!("http://{}", mock_server.address());
+            settings
+        };
+
+        let server_info_mock = mock_server.mock(|when, then| {
+            when.path("/v1/");
+            then.status(200).json_body_obj(&RemoteSettingsServerInfo {
+                capabilities: RemoteSettingsCapabilities {
+                    attachments: Some(RemoteSettingsAttachmentsCapability {
+                        base_url: settings.remote_settings.server.clone(),
+                    }),
+                },
+            });
+        });
+
+        let page_1_mock = mock_server.mock(|when, then| {
+            when.path(format!(
+                "/v1/buckets/{}/collections/{}/records",
+                config.bucket, config.collection
+            ));
+            then.header("Next-Page", &mock_server.url("/page-2"))
+                .json_body_obj(&RecordsResponse { data: vec![] });
+        });
+
+        let page_2_mock = mock_server.mock(|when, then| {
+            when.path("/page-2");
+            then.json_body_obj(&RecordsResponse { data: vec![] });
+        });
+
+        let mut provider = RemoteSettingsSuggester::default();
+        provider.sync(&settings, &config).await?;
+
+        server_info_mock.assert();
+        page_1_mock.assert();
+        page_2_mock.assert();
 
         Ok(())
     }
