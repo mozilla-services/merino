@@ -183,6 +183,61 @@
 <span id="183">183</span>
 <span id="184">184</span>
 <span id="185">185</span>
+<span id="186">186</span>
+<span id="187">187</span>
+<span id="188">188</span>
+<span id="189">189</span>
+<span id="190">190</span>
+<span id="191">191</span>
+<span id="192">192</span>
+<span id="193">193</span>
+<span id="194">194</span>
+<span id="195">195</span>
+<span id="196">196</span>
+<span id="197">197</span>
+<span id="198">198</span>
+<span id="199">199</span>
+<span id="200">200</span>
+<span id="201">201</span>
+<span id="202">202</span>
+<span id="203">203</span>
+<span id="204">204</span>
+<span id="205">205</span>
+<span id="206">206</span>
+<span id="207">207</span>
+<span id="208">208</span>
+<span id="209">209</span>
+<span id="210">210</span>
+<span id="211">211</span>
+<span id="212">212</span>
+<span id="213">213</span>
+<span id="214">214</span>
+<span id="215">215</span>
+<span id="216">216</span>
+<span id="217">217</span>
+<span id="218">218</span>
+<span id="219">219</span>
+<span id="220">220</span>
+<span id="221">221</span>
+<span id="222">222</span>
+<span id="223">223</span>
+<span id="224">224</span>
+<span id="225">225</span>
+<span id="226">226</span>
+<span id="227">227</span>
+<span id="228">228</span>
+<span id="229">229</span>
+<span id="230">230</span>
+<span id="231">231</span>
+<span id="232">232</span>
+<span id="233">233</span>
+<span id="234">234</span>
+<span id="235">235</span>
+<span id="236">236</span>
+<span id="237">237</span>
+<span id="238">238</span>
+<span id="239">239</span>
+<span id="240">240</span>
 </pre><pre class="rust">
 <span class="doccomment">//! Web handlers for the suggestions API.</span>
 
@@ -193,11 +248,14 @@
     <span class="ident">HttpResponse</span>,
 };
 <span class="kw">use</span> <span class="ident">anyhow::Result</span>;
+<span class="kw">use</span> <span class="ident">async_recursion::async_recursion</span>;
 <span class="kw">use</span> <span class="ident">cadence</span>::{<span class="ident">Histogrammed</span>, <span class="ident">StatsdClient</span>};
 <span class="kw">use</span> <span class="ident">merino_adm::remote_settings::RemoteSettingsSuggester</span>;
 <span class="kw">use</span> <span class="ident">merino_cache</span>::{<span class="ident">MemoryCacheSuggester</span>, <span class="ident">RedisCacheSuggester</span>};
-<span class="kw">use</span> <span class="ident">merino_settings</span>::{<span class="ident">CacheType</span>, <span class="ident">Settings</span>};
-<span class="kw">use</span> <span class="ident">merino_suggest</span>::{<span class="ident">DebugProvider</span>, <span class="ident">Suggestion</span>, <span class="ident">SuggestionProvider</span>, <span class="ident">WikiFruit</span>};
+<span class="kw">use</span> <span class="ident">merino_settings</span>::{<span class="ident">providers::SuggestionProviderConfig</span>, <span class="ident">Settings</span>};
+<span class="kw">use</span> <span class="ident">merino_suggest</span>::{
+    <span class="ident">DebugProvider</span>, <span class="ident">Multi</span>, <span class="ident">NullProvider</span>, <span class="ident">Suggestion</span>, <span class="ident">SuggestionProvider</span>, <span class="ident">WikiFruit</span>,
+};
 <span class="kw">use</span> <span class="ident">serde::Serialize</span>;
 <span class="kw">use</span> <span class="ident">tokio::sync::OnceCell</span>;
 <span class="kw">use</span> <span class="ident">tracing_futures::Instrument</span>;
@@ -223,9 +281,9 @@
 <span class="doccomment">/// Suggest content in response to the queried text.</span>
 <span class="attribute">#[<span class="ident">get</span>(<span class="string">&quot;&quot;</span>)]</span>
 <span class="attribute">#[<span class="ident">tracing::instrument</span>(<span class="ident">skip</span>(<span class="ident">suggestion_request</span>, <span class="ident">provider</span>, <span class="ident">settings</span>))]</span>
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">suggest</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(
-    <span class="ident">SuggestionRequestWrapper</span>(<span class="ident">suggestion_request</span>): <span class="ident">SuggestionRequestWrapper</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
-    <span class="ident">provider</span>: <span class="ident">Data</span><span class="op">&lt;</span><span class="ident">SuggestionProviderRef</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">suggest</span>(
+    <span class="ident">SuggestionRequestWrapper</span>(<span class="ident">suggestion_request</span>): <span class="ident">SuggestionRequestWrapper</span>,
+    <span class="ident">provider</span>: <span class="ident">Data</span><span class="op">&lt;</span><span class="ident">SuggestionProviderRef</span><span class="op">&gt;</span>,
     <span class="ident">settings</span>: <span class="ident">Data</span><span class="op">&lt;</span><span class="ident">Settings</span><span class="op">&gt;</span>,
     <span class="ident">metrics_client</span>: <span class="ident">Data</span><span class="op">&lt;</span><span class="ident">StatsdClient</span><span class="op">&gt;</span>,
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">HttpResponse</span>, <span class="ident">HandlerError</span><span class="op">&gt;</span> {
@@ -268,56 +326,24 @@
 }
 
 <span class="doccomment">/// The SuggestionProvider stored in Actix&#39;s app_data.</span>
-<span class="kw">struct</span> <span class="ident">SuggestionProviderRef</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="ident">OnceCell</span><span class="op">&lt;</span><span class="ident">merino_suggest::Multi</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>);
+<span class="kw">struct</span> <span class="ident">SuggestionProviderRef</span>(<span class="ident">OnceCell</span><span class="op">&lt;</span><span class="ident">merino_suggest::Multi</span><span class="op">&gt;</span>);
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">SuggestionProviderRef</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+<span class="kw">impl</span> <span class="ident">SuggestionProviderRef</span> {
     <span class="doccomment">/// Get the provider, or create a new one if it doesn&#39;t exist.</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_or_try_init</span>(
-        <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">settings</span>: <span class="kw-2">&amp;</span><span class="ident">Settings</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">anyhow::Result</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">merino_suggest::Multi</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_or_try_init</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">settings</span>: <span class="kw-2">&amp;</span><span class="ident">Settings</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">anyhow::Result</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">merino_suggest::Multi</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">setup_span</span> <span class="op">=</span> <span class="macro">tracing::info_span!</span>(<span class="string">&quot;suggestion_provider_setup&quot;</span>);
         <span class="self">self</span>.<span class="number">0</span>
             .<span class="ident">get_or_try_init</span>(<span class="op">|</span><span class="op">|</span> {
                 <span class="kw">async</span> {
-                    <span class="kw">let</span> <span class="ident">settings</span> <span class="op">=</span> <span class="ident">settings</span>;
                     <span class="macro">tracing::info!</span>(
                         <span class="ident">r#type</span> <span class="op">=</span> <span class="string">&quot;web.configuring-suggesters&quot;</span>,
                         <span class="string">&quot;Setting up suggestion providers&quot;</span>
                     );
 
-                    <span class="doccomment">/// The number of providers we expect to have, so we usually</span>
-                    <span class="doccomment">/// don&#39;t have to re-allocate the vec.</span>
-                    <span class="kw">const</span> <span class="ident">NUM_PROVIDERS</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">3</span>;
-                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">providers</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">SuggestionProvider</span> <span class="op">+</span> <span class="ident">Send</span> <span class="op">+</span> <span class="ident">Sync</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span>
-                        <span class="ident">Vec::with_capacity</span>(<span class="ident">NUM_PROVIDERS</span>);
-
-                    <span class="kw">if</span> <span class="ident">settings</span>.<span class="ident">providers</span>.<span class="ident">wiki_fruit</span>.<span class="ident">enabled</span> {
-                        <span class="kw">let</span> <span class="ident">wikifruit</span> <span class="op">=</span> <span class="ident">WikiFruit::new_boxed</span>(<span class="ident">settings</span>)<span class="question-mark">?</span>;
-                        <span class="ident">providers</span>.<span class="ident">push</span>(<span class="kw">match</span> <span class="ident">settings</span>.<span class="ident">providers</span>.<span class="ident">wiki_fruit</span>.<span class="ident">cache</span> {
-                            <span class="ident">CacheType::None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">wikifruit</span>,
-                            <span class="ident">CacheType::Redis</span> <span class="op">=</span><span class="op">&gt;</span> {
-                                <span class="ident">RedisCacheSuggester::new_boxed</span>(<span class="ident">settings</span>, <span class="kw-2">*</span><span class="ident">wikifruit</span>).<span class="kw">await</span><span class="question-mark">?</span>
-                            }
-                            <span class="ident">CacheType::Memory</span> <span class="op">=</span><span class="op">&gt;</span> {
-                                <span class="ident">MemoryCacheSuggester::new_boxed</span>(<span class="ident">settings</span>, <span class="kw-2">*</span><span class="ident">wikifruit</span>)
-                            }
-                        });
-                    }
-
-                    <span class="kw">if</span> <span class="ident">settings</span>.<span class="ident">providers</span>.<span class="ident">adm_rs</span>.<span class="ident">enabled</span> {
-                        <span class="kw">let</span> <span class="ident">adm_rs</span> <span class="op">=</span> <span class="ident">RemoteSettingsSuggester::new_boxed</span>(<span class="ident">settings</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-                        <span class="ident">providers</span>.<span class="ident">push</span>(<span class="kw">match</span> <span class="ident">settings</span>.<span class="ident">providers</span>.<span class="ident">adm_rs</span>.<span class="ident">cache</span> {
-                            <span class="ident">CacheType::None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">adm_rs</span>,
-                            <span class="ident">CacheType::Redis</span> <span class="op">=</span><span class="op">&gt;</span> {
-                                <span class="ident">RedisCacheSuggester::new_boxed</span>(<span class="ident">settings</span>, <span class="kw-2">*</span><span class="ident">adm_rs</span>).<span class="kw">await</span><span class="question-mark">?</span>
-                            }
-                            <span class="ident">CacheType::Memory</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">MemoryCacheSuggester::new_boxed</span>(<span class="ident">settings</span>, <span class="kw-2">*</span><span class="ident">adm_rs</span>),
-                        });
-                    }
-
-                    <span class="kw">if</span> <span class="ident">settings</span>.<span class="ident">providers</span>.<span class="ident">enable_debug_provider</span> {
-                        <span class="ident">providers</span>.<span class="ident">push</span>(<span class="ident">DebugProvider::new_boxed</span>(<span class="ident">settings</span>)<span class="question-mark">?</span>);
+                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">providers</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">SuggestionProvider</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span>
+                        <span class="ident">Vec::with_capacity</span>(<span class="ident">settings</span>.<span class="ident">suggestion_providers</span>.<span class="ident">len</span>());
+                    <span class="kw">for</span> <span class="ident">config</span> <span class="kw">in</span> <span class="ident">settings</span>.<span class="ident">suggestion_providers</span>.<span class="ident">values</span>() {
+                        <span class="ident">providers</span>.<span class="ident">push</span>(<span class="ident">make_provider_tree</span>(<span class="ident">settings</span>, <span class="ident">config</span>).<span class="kw">await</span><span class="question-mark">?</span>);
                     }
 
                     <span class="kw">let</span> <span class="ident">multi</span> <span class="op">=</span> <span class="ident">merino_suggest::Multi::new</span>(<span class="ident">providers</span>);
@@ -327,6 +353,42 @@
             })
             .<span class="kw">await</span>
     }
+}
+
+<span class="doccomment">/// Recursive helper to build a tree of providers.</span>
+<span class="attribute">#[<span class="ident">async_recursion</span>]</span>
+<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">make_provider_tree</span>(
+    <span class="ident">settings</span>: <span class="kw-2">&amp;</span><span class="ident">Settings</span>,
+    <span class="ident">config</span>: <span class="kw-2">&amp;</span><span class="ident">SuggestionProviderConfig</span>,
+) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">SuggestionProvider</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="ident">provider</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">SuggestionProvider</span><span class="op">&gt;</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">config</span> {
+        <span class="ident">SuggestionProviderConfig::RemoteSettings</span>(<span class="ident">rs_config</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">RemoteSettingsSuggester::new_boxed</span>(<span class="ident">settings</span>, <span class="ident">rs_config</span>).<span class="kw">await</span><span class="question-mark">?</span>
+        }
+
+        <span class="ident">SuggestionProviderConfig::MemoryCache</span>(<span class="ident">memory_config</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="kw">let</span> <span class="ident">inner</span> <span class="op">=</span> <span class="ident">make_provider_tree</span>(<span class="ident">settings</span>, <span class="ident">memory_config</span>.<span class="ident">inner</span>.<span class="ident">as_ref</span>()).<span class="kw">await</span><span class="question-mark">?</span>;
+            <span class="ident">MemoryCacheSuggester::new_boxed</span>(<span class="ident">memory_config</span>, <span class="ident">inner</span>)
+        }
+
+        <span class="ident">SuggestionProviderConfig::RedisCache</span>(<span class="ident">redis_config</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="kw">let</span> <span class="ident">inner</span> <span class="op">=</span> <span class="ident">make_provider_tree</span>(<span class="ident">settings</span>, <span class="ident">redis_config</span>.<span class="ident">inner</span>.<span class="ident">as_ref</span>()).<span class="kw">await</span><span class="question-mark">?</span>;
+            <span class="ident">RedisCacheSuggester::new_boxed</span>(<span class="ident">settings</span>, <span class="ident">redis_config</span>, <span class="ident">inner</span>).<span class="kw">await</span><span class="question-mark">?</span>
+        }
+
+        <span class="ident">SuggestionProviderConfig::Multiplexer</span>(<span class="ident">multi_config</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">providers</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
+            <span class="kw">for</span> <span class="ident">config</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">multi_config</span>.<span class="ident">providers</span> {
+                <span class="ident">providers</span>.<span class="ident">push</span>(<span class="ident">make_provider_tree</span>(<span class="ident">settings</span>, <span class="ident">config</span>).<span class="kw">await</span><span class="question-mark">?</span>);
+            }
+            <span class="ident">Multi::new_boxed</span>(<span class="ident">providers</span>)
+        }
+
+        <span class="ident">SuggestionProviderConfig::Debug</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">DebugProvider::new_boxed</span>(<span class="ident">settings</span>)<span class="question-mark">?</span>,
+        <span class="ident">SuggestionProviderConfig::WikiFruit</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">WikiFruit::new_boxed</span>(<span class="ident">settings</span>)<span class="question-mark">?</span>,
+        <span class="ident">SuggestionProviderConfig::Null</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Box::new</span>(<span class="ident">NullProvider</span>),
+    };
+    <span class="prelude-val">Ok</span>(<span class="ident">provider</span>)
 }
 
 <span class="doccomment">/// A mapper from the internal schema used by merino-suggest to the expected API.</span>
@@ -367,6 +429,54 @@
         };
 
         <span class="ident">generated</span>.<span class="ident">serialize</span>(<span class="ident">serializer</span>)
+    }
+}
+
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
+<span class="kw">mod</span> <span class="ident">tests</span> {
+    <span class="kw">use</span> <span class="kw">super</span><span class="ident">::make_provider_tree</span>;
+    <span class="kw">use</span> <span class="ident">anyhow::Result</span>;
+    <span class="kw">use</span> <span class="ident">merino_settings</span>::{
+        <span class="ident">providers</span>::{
+            <span class="ident">MemoryCacheConfig</span>, <span class="ident">MultiplexerConfig</span>, <span class="ident">RedisCacheConfig</span>, <span class="ident">SuggestionProviderConfig</span>,
+        },
+        <span class="ident">Settings</span>,
+    };
+
+    <span class="attribute">#[<span class="ident">tokio::test</span>]</span>
+    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">test_providers_single</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">settings</span> <span class="op">=</span> <span class="ident">Settings::load_for_tests</span>();
+        <span class="kw">let</span> <span class="ident">config</span> <span class="op">=</span> <span class="ident">SuggestionProviderConfig::Null</span>;
+        <span class="kw">let</span> <span class="ident">provider_tree</span> <span class="op">=</span> <span class="ident">make_provider_tree</span>(<span class="kw-2">&amp;</span><span class="ident">settings</span>, <span class="kw-2">&amp;</span><span class="ident">config</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="macro">assert_eq!</span>(<span class="ident">provider_tree</span>.<span class="ident">name</span>(), <span class="string">&quot;NullProvider&quot;</span>);
+        <span class="prelude-val">Ok</span>(())
+    }
+
+    <span class="attribute">#[<span class="ident">tokio::test</span>]</span>
+    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">test_providers_complex</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">settings</span> <span class="op">=</span> <span class="ident">Settings::load_for_tests</span>();
+        <span class="ident">settings</span>.<span class="ident">debug</span> <span class="op">=</span> <span class="bool-val">true</span>;
+
+        <span class="kw">let</span> <span class="ident">config</span> <span class="op">=</span> <span class="ident">SuggestionProviderConfig::Multiplexer</span>(<span class="ident">MultiplexerConfig</span> {
+            <span class="ident">providers</span>: <span class="macro">vec!</span>[
+                <span class="ident">SuggestionProviderConfig::Null</span>,
+                <span class="ident">SuggestionProviderConfig::RedisCache</span>(<span class="ident">RedisCacheConfig</span> {
+                    <span class="ident">inner</span>: <span class="ident">Box::new</span>(<span class="ident">SuggestionProviderConfig::MemoryCache</span>(<span class="ident">MemoryCacheConfig</span> {
+                        <span class="ident">inner</span>: <span class="ident">Box::new</span>(<span class="ident">SuggestionProviderConfig::WikiFruit</span>),
+                        ..<span class="ident">Default::default</span>()
+                    })),
+                    ..<span class="ident">Default::default</span>()
+                }),
+                <span class="ident">SuggestionProviderConfig::Null</span>,
+            ],
+        });
+
+        <span class="kw">let</span> <span class="ident">provider_tree</span> <span class="op">=</span> <span class="ident">make_provider_tree</span>(<span class="kw-2">&amp;</span><span class="ident">settings</span>, <span class="kw-2">&amp;</span><span class="ident">config</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="macro">assert_eq!</span>(
+            <span class="ident">provider_tree</span>.<span class="ident">name</span>(),
+            <span class="string">&quot;Multi(NullProvider, RedisCache(MemoryCache(WikiFruit)), NullProvider)&quot;</span>
+        );
+        <span class="prelude-val">Ok</span>(())
     }
 }
 </pre></div>

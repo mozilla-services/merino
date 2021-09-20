@@ -566,11 +566,9 @@
 <span id="566">566</span>
 <span id="567">567</span>
 <span id="568">568</span>
-<span id="569">569</span>
 </pre><pre class="rust">
 <span class="doccomment">//! Types to extract merino data from requests.</span>
 
-<span class="kw">use</span> <span class="ident">std::borrow::Cow</span>;
 <span class="kw">use</span> <span class="ident">std::str::FromStr</span>;
 
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::errors::HandlerError</span>;
@@ -599,9 +597,9 @@
 }
 
 <span class="doccomment">/// An extractor for a [`merino_suggest::SuggestionRequest`].</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">SuggestionRequestWrapper</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="kw">pub</span> <span class="ident">SuggestionRequest</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>);
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">SuggestionRequestWrapper</span>(<span class="kw">pub</span> <span class="ident">SuggestionRequest</span>);
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">FromRequest</span> <span class="kw">for</span> <span class="ident">SuggestionRequestWrapper</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+<span class="kw">impl</span> <span class="ident">FromRequest</span> <span class="kw">for</span> <span class="ident">SuggestionRequestWrapper</span> {
     <span class="kw">type</span> <span class="ident">Config</span> <span class="op">=</span> ();
 
     <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">ActixError</span>;
@@ -632,12 +630,12 @@
             )<span class="question-mark">?</span>;
 
             <span class="prelude-val">Ok</span>(<span class="self">Self</span>(<span class="ident">SuggestionRequest</span> {
-                <span class="ident">query</span>: <span class="ident">query</span>.<span class="ident">into</span>(),
+                <span class="ident">query</span>,
                 <span class="ident">accepts_english</span>: <span class="ident">supported_languages</span>.<span class="ident">includes</span>(<span class="string">&quot;en&quot;</span>, <span class="prelude-val">None</span>),
-                <span class="ident">country</span>: <span class="ident">location</span>.<span class="ident">country</span>.<span class="ident">map</span>(<span class="ident">Cow::from</span>),
-                <span class="ident">region</span>: <span class="ident">location</span>.<span class="ident">region</span>.<span class="ident">map</span>(<span class="ident">Cow::from</span>),
+                <span class="ident">country</span>: <span class="ident">location</span>.<span class="ident">country</span>,
+                <span class="ident">region</span>: <span class="ident">location</span>.<span class="ident">region</span>,
                 <span class="ident">dma</span>: <span class="ident">location</span>.<span class="ident">dma</span>,
-                <span class="ident">city</span>: <span class="ident">location</span>.<span class="ident">city</span>.<span class="ident">map</span>(<span class="ident">Cow::from</span>),
+                <span class="ident">city</span>: <span class="ident">location</span>.<span class="ident">city</span>,
                 <span class="ident">device_info</span>,
             }))
         }

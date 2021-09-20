@@ -497,17 +497,21 @@
 <span id="497">497</span>
 <span id="498">498</span>
 <span id="499">499</span>
+<span id="500">500</span>
+<span id="501">501</span>
+<span id="502">502</span>
 </pre><pre class="rust">
 <span class="doccomment">//! Interactions with Redis.</span>
 
 <span class="kw">mod</span> <span class="ident">domain</span>;
 
-<span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">borrow::Cow</span>, <span class="ident">convert::TryInto</span>, <span class="ident">time::Duration</span>};
+<span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">convert::TryInto</span>, <span class="ident">time::Duration</span>};
 
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">domain::CacheKey</span>, <span class="ident">redis::domain::RedisSuggestions</span>};
-<span class="kw">use</span> <span class="ident">anyhow</span>::{<span class="ident">anyhow</span>, <span class="ident">Context</span>};
+<span class="kw">use</span> <span class="ident">anyhow::Context</span>;
 <span class="kw">use</span> <span class="ident">async_trait::async_trait</span>;
-<span class="kw">use</span> <span class="ident">merino_settings::Settings</span>;
+<span class="kw">use</span> <span class="ident">fix_hidden_lifetime_bug::fix_hidden_lifetime_bug</span>;
+<span class="kw">use</span> <span class="ident">merino_settings</span>::{<span class="ident">providers::RedisCacheConfig</span>, <span class="ident">Settings</span>};
 <span class="kw">use</span> <span class="ident">merino_suggest</span>::{
     <span class="ident">CacheStatus</span>, <span class="ident">SetupError</span>, <span class="ident">SuggestError</span>, <span class="ident">Suggestion</span>, <span class="ident">SuggestionProvider</span>, <span class="ident">SuggestionRequest</span>,
     <span class="ident">SuggestionResponse</span>,
@@ -519,9 +523,9 @@
 <span class="kw">use</span> <span class="self">self</span><span class="ident">::domain::RedisTtl</span>;
 
 <span class="doccomment">/// A suggester that uses Redis to cache previous results.</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Suggester</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span> {
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Suggester</span> {
     <span class="doccomment">/// The suggester to query on cache-miss.</span>
-    <span class="ident">inner</span>: <span class="ident">S</span>,
+    <span class="ident">inner</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">SuggestionProvider</span><span class="op">&gt;</span>,
 
     <span class="doccomment">/// Connection to Redis.</span>
     <span class="ident">redis_connection</span>: <span class="ident">redis::aio::ConnectionManager</span>,
@@ -668,33 +672,35 @@
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span> <span class="ident">Suggester</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="kw">for</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">S</span>: <span class="ident">SuggestionProvider</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
-{
+<span class="kw">impl</span> <span class="ident">Suggester</span> {
     <span class="doccomment">/// Create a Redis suggestion provider from settings that wraps `provider`.</span>
     <span class="doccomment">/// Opens a connection to Redis.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// # Errors</span>
     <span class="doccomment">/// Fails if it cannot connect to Redis.</span>
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">new_boxed</span>(<span class="ident">settings</span>: <span class="kw-2">&amp;</span><span class="ident">Settings</span>, <span class="ident">provider</span>: <span class="ident">S</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">SetupError</span><span class="op">&gt;</span> {
-        <span class="macro">tracing::debug!</span>(<span class="question-mark">?</span><span class="ident">settings</span>.<span class="ident">redis_cache</span>.<span class="ident">url</span>, <span class="string">&quot;Setting up redis connection&quot;</span>);
-        <span class="kw">let</span> <span class="ident">client</span> <span class="op">=</span> <span class="ident">redis::Client::open</span>(<span class="ident">settings</span>.<span class="ident">redis_cache</span>.<span class="ident">url</span>.<span class="ident">clone</span>().<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> {
-            <span class="ident">SetupError::InvalidConfiguration</span>(<span class="macro">anyhow!</span>(<span class="string">&quot;No Redis URL is configured for caching&quot;</span>))
-        })<span class="question-mark">?</span>)
-        .<span class="ident">context</span>(<span class="string">&quot;Setting up Redis client&quot;</span>)
-        .<span class="ident">map_err</span>(<span class="ident">SetupError::Network</span>)<span class="question-mark">?</span>;
+
+    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::manual_async_fn</span>)]</span>
+    <span class="attribute">#[<span class="ident">fix_hidden_lifetime_bug</span>]</span>
+    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">new_boxed</span>(
+        <span class="ident">settings</span>: <span class="kw-2">&amp;</span><span class="ident">Settings</span>,
+        <span class="ident">config</span>: <span class="kw-2">&amp;</span><span class="ident">RedisCacheConfig</span>,
+        <span class="ident">provider</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">SuggestionProvider</span> <span class="op">+</span> <span class="lifetime">&#39;static</span><span class="op">&gt;</span>,
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">SetupError</span><span class="op">&gt;</span> {
+        <span class="macro">tracing::debug!</span>(<span class="question-mark">?</span><span class="ident">settings</span>.<span class="ident">redis</span>.<span class="ident">url</span>, <span class="string">&quot;Setting up redis connection&quot;</span>);
+        <span class="kw">let</span> <span class="ident">client</span> <span class="op">=</span> <span class="ident">redis::Client::open</span>(<span class="ident">settings</span>.<span class="ident">redis</span>.<span class="ident">url</span>.<span class="ident">clone</span>())
+            .<span class="ident">context</span>(<span class="string">&quot;Setting up Redis client&quot;</span>)
+            .<span class="ident">map_err</span>(<span class="ident">SetupError::Network</span>)<span class="question-mark">?</span>;
 
         <span class="kw">let</span> <span class="ident">redis_connection</span> <span class="op">=</span> <span class="ident">redis::aio::ConnectionManager::new</span>(<span class="ident">client</span>)
             .<span class="kw">await</span>
             .<span class="ident">context</span>(<span class="string">&quot;Connecting to Redis&quot;</span>)
             .<span class="ident">map_err</span>(<span class="ident">SetupError::Network</span>)<span class="question-mark">?</span>;
 
-        <span class="prelude-val">Ok</span>(<span class="ident">Box::new</span>(<span class="self">Self</span> {
+        <span class="prelude-val">Ok</span>(<span class="ident">Box::new</span>(<span class="ident">Suggester</span> {
             <span class="ident">inner</span>: <span class="ident">provider</span>,
             <span class="ident">redis_connection</span>,
-            <span class="ident">default_ttl</span>: <span class="ident">settings</span>.<span class="ident">redis_cache</span>.<span class="ident">default_ttl</span>,
-            <span class="ident">default_lock_timeout</span>: <span class="ident">settings</span>.<span class="ident">redis_cache</span>.<span class="ident">default_lock_timeout</span>,
+            <span class="ident">default_ttl</span>: <span class="ident">config</span>.<span class="ident">default_ttl</span>,
+            <span class="ident">default_lock_timeout</span>: <span class="ident">config</span>.<span class="ident">default_lock_timeout</span>,
         }))
     }
 
@@ -844,17 +850,14 @@
 }
 
 <span class="attribute">#[<span class="ident">async_trait</span>]</span>
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">S</span><span class="op">&gt;</span> <span class="ident">SuggestionProvider</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Suggester</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">S</span>: <span class="kw">for</span><span class="op">&lt;</span><span class="lifetime">&#39;b</span><span class="op">&gt;</span> <span class="ident">SuggestionProvider</span><span class="op">&lt;</span><span class="lifetime">&#39;b</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Send</span> <span class="op">+</span> <span class="ident">Sync</span>,
-{
-    <span class="kw">fn</span> <span class="ident">name</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">str</span><span class="op">&gt;</span> {
-        <span class="macro">format!</span>(<span class="string">&quot;RedisCache({})&quot;</span>, <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">name</span>()).<span class="ident">into</span>()
+<span class="kw">impl</span> <span class="ident">SuggestionProvider</span> <span class="kw">for</span> <span class="ident">Suggester</span> {
+    <span class="kw">fn</span> <span class="ident">name</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
+        <span class="macro">format!</span>(<span class="string">&quot;RedisCache({})&quot;</span>, <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">name</span>())
     }
 
     <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">suggest</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">request</span>: <span class="ident">SuggestionRequest</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
+        <span class="ident">request</span>: <span class="ident">SuggestionRequest</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">SuggestionResponse</span>, <span class="ident">SuggestError</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">key</span> <span class="op">=</span> <span class="ident">request</span>.<span class="ident">cache_key</span>();
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rlock</span> <span class="op">=</span> <span class="ident">SimpleRedisLock::from</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">redis_connection</span>);
@@ -899,20 +902,23 @@
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
 <span class="kw">mod</span> <span class="ident">test</span> {
-    <span class="kw">use</span> <span class="ident">http::Uri</span>;
-    <span class="kw">use</span> <span class="ident">merino_suggest</span>::{<span class="ident">Proportion</span>, <span class="ident">Suggestion</span>};
+    <span class="kw">use</span> <span class="ident">std::time::Duration</span>;
 
-    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+    <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::redis</span>::{<span class="ident">domain::RedisSuggestions</span>, <span class="ident">SimpleRedisLock</span>};
+
+    <span class="kw">use</span> <span class="kw">super</span><span class="ident">::SetupError</span>;
+    <span class="kw">use</span> <span class="ident">anyhow::Context</span>;
+    <span class="kw">use</span> <span class="ident">http::Uri</span>;
+    <span class="kw">use</span> <span class="ident">merino_settings::Settings</span>;
+    <span class="kw">use</span> <span class="ident">merino_suggest</span>::{<span class="ident">Proportion</span>, <span class="ident">Suggestion</span>};
 
     <span class="attribute">#[<span class="ident">tokio::test</span>]</span>
     <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">check_cache</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">SetupError</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">settings</span> <span class="op">=</span> <span class="ident">Settings::load_for_tests</span>();
 
-        <span class="kw">let</span> <span class="ident">r_client</span> <span class="op">=</span> <span class="ident">redis::Client::open</span>(<span class="ident">settings</span>.<span class="ident">redis_cache</span>.<span class="ident">url</span>.<span class="ident">clone</span>().<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> {
-            <span class="ident">SetupError::InvalidConfiguration</span>(<span class="macro">anyhow!</span>(<span class="string">&quot;No Redis URL is configured for caching&quot;</span>))
-        })<span class="question-mark">?</span>)
-        .<span class="ident">context</span>(<span class="string">&quot;Setting up Redis client&quot;</span>)
-        .<span class="ident">map_err</span>(<span class="ident">SetupError::Network</span>)<span class="question-mark">?</span>;
+        <span class="kw">let</span> <span class="ident">r_client</span> <span class="op">=</span> <span class="ident">redis::Client::open</span>(<span class="ident">settings</span>.<span class="ident">redis</span>.<span class="ident">url</span>.<span class="ident">clone</span>())
+            .<span class="ident">context</span>(<span class="string">&quot;Setting up Redis client&quot;</span>)
+            .<span class="ident">map_err</span>(<span class="ident">SetupError::Network</span>)<span class="question-mark">?</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">redis_connection</span> <span class="op">=</span> <span class="ident">redis::aio::ConnectionManager::new</span>(<span class="ident">r_client</span>)
             .<span class="kw">await</span>
             .<span class="ident">context</span>(<span class="string">&quot;Connecting to Redis&quot;</span>)

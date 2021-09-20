@@ -268,38 +268,6 @@
 <span id="268">268</span>
 <span id="269">269</span>
 <span id="270">270</span>
-<span id="271">271</span>
-<span id="272">272</span>
-<span id="273">273</span>
-<span id="274">274</span>
-<span id="275">275</span>
-<span id="276">276</span>
-<span id="277">277</span>
-<span id="278">278</span>
-<span id="279">279</span>
-<span id="280">280</span>
-<span id="281">281</span>
-<span id="282">282</span>
-<span id="283">283</span>
-<span id="284">284</span>
-<span id="285">285</span>
-<span id="286">286</span>
-<span id="287">287</span>
-<span id="288">288</span>
-<span id="289">289</span>
-<span id="290">290</span>
-<span id="291">291</span>
-<span id="292">292</span>
-<span id="293">293</span>
-<span id="294">294</span>
-<span id="295">295</span>
-<span id="296">296</span>
-<span id="297">297</span>
-<span id="298">298</span>
-<span id="299">299</span>
-<span id="300">300</span>
-<span id="301">301</span>
-<span id="302">302</span>
 </pre><pre class="rust">
 <span class="doccomment">//! # Merino Settings</span>
 <span class="doccomment">//!</span>
@@ -332,6 +300,7 @@
 <span class="doccomment">//! `config/local.toml`.</span>
 
 <span class="kw">mod</span> <span class="ident">logging</span>;
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">providers</span>;
 <span class="kw">mod</span> <span class="ident">redis</span>;
 
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">logging</span>::{<span class="ident">LogFormat</span>, <span class="ident">LoggingSettings</span>};
@@ -341,8 +310,10 @@
 <span class="kw">use</span> <span class="ident">http::Uri</span>;
 <span class="kw">use</span> <span class="ident">sentry::internals::Dsn</span>;
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
-<span class="kw">use</span> <span class="ident">serde_with</span>::{<span class="ident">serde_as</span>, <span class="ident">DisplayFromStr</span>, <span class="ident">DurationSeconds</span>};
-<span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">net::SocketAddr</span>, <span class="ident">path::PathBuf</span>, <span class="ident">str::FromStr</span>, <span class="ident">time::Duration</span>};
+<span class="kw">use</span> <span class="ident">serde_with</span>::{<span class="ident">serde_as</span>, <span class="ident">DisplayFromStr</span>};
+<span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">collections::HashMap</span>, <span class="ident">net::SocketAddr</span>, <span class="ident">path::PathBuf</span>, <span class="ident">str::FromStr</span>};
+
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::providers::SuggestionProviderConfig</span>;
 
 <span class="doccomment">/// Top level settings object for Merino.</span>
 <span class="attribute">#[<span class="ident">serde_as</span>]</span>
@@ -359,9 +330,8 @@
     <span class="doccomment">/// Settings for the HTTP server.</span>
     <span class="kw">pub</span> <span class="ident">http</span>: <span class="ident">HttpSettings</span>,
 
-    <span class="doccomment">/// Configuration for providers. Each provider has a `enabled` field that</span>
-    <span class="doccomment">/// will control if it is active at all on the server.</span>
-    <span class="kw">pub</span> <span class="ident">providers</span>: <span class="ident">SuggestionProviderSettings</span>,
+    <span class="doccomment">/// Providers to use to generate suggestions</span>
+    <span class="kw">pub</span> <span class="ident">suggestion_providers</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">SuggestionProviderConfig</span><span class="op">&gt;</span>,
 
     <span class="doccomment">/// Logging settings.</span>
     <span class="kw">pub</span> <span class="ident">logging</span>: <span class="ident">LoggingSettings</span>,
@@ -377,16 +347,14 @@
     <span class="attribute">#[<span class="ident">serde_as</span>(<span class="kw">as</span> <span class="op">=</span> <span class="string">&quot;Option&lt;DisplayFromStr&gt;&quot;</span>)]</span>
     <span class="kw">pub</span> <span class="ident">public_documentation</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uri</span><span class="op">&gt;</span>,
 
-    <span class="doccomment">/// Settings for the Redis-based suggestion cache. This can be used by any</span>
-    <span class="doccomment">/// provider by setting the provider&#39;s cache type to &quot;redis&quot;.</span>
-    <span class="kw">pub</span> <span class="ident">redis_cache</span>: <span class="ident">RedisCacheSettings</span>,
+    <span class="doccomment">/// Settings for connecting to Redis.</span>
+    <span class="kw">pub</span> <span class="ident">redis</span>: <span class="ident">RedisSettings</span>,
+
+    <span class="doccomment">/// Settings for connecting to Remote Settings.</span>
+    <span class="kw">pub</span> <span class="ident">remote_settings</span>: <span class="ident">RemoteSettingsGlobalSettings</span>,
 
     <span class="doccomment">/// Settings to use when determining the location associated with requests.</span>
     <span class="kw">pub</span> <span class="ident">location</span>: <span class="ident">LocationSettings</span>,
-
-    <span class="doccomment">/// Settings for the in-memory suggestion cache. This can be used by any</span>
-    <span class="doccomment">/// provider by setting the provider&#39;s cache type to &quot;memory&quot;.</span>
-    <span class="kw">pub</span> <span class="ident">memory_cache</span>: <span class="ident">MemoryCacheSettings</span>,
 }
 
 <span class="doccomment">/// Settings for the HTTP server.</span>
@@ -398,21 +366,6 @@
     <span class="doccomment">/// The number of workers to use. Optional. If no value is provided, the</span>
     <span class="doccomment">/// number of logical cores will be used.</span>
     <span class="kw">pub</span> <span class="ident">workers</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>,
-}
-
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
-<span class="doccomment">/// Settings for individual providers. Each provider should have an `enabled` field.</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">SuggestionProviderSettings</span> {
-    <span class="doccomment">/// Settings for the Ad Marketplace Remote Settings-based provider.</span>
-    <span class="kw">pub</span> <span class="ident">adm_rs</span>: <span class="ident">AdmRsSettings</span>,
-
-    <span class="doccomment">/// Settings for the development provider.</span>
-    <span class="kw">pub</span> <span class="ident">wiki_fruit</span>: <span class="ident">WikiFruitSettings</span>,
-
-    <span class="doccomment">/// Whether to enable the debug provider. This is on by default in</span>
-    <span class="doccomment">/// development environments. It is an error to enable this if the `debug`</span>
-    <span class="doccomment">/// setting isn&#39;t set to true.</span>
-    <span class="kw">pub</span> <span class="ident">enable_debug_provider</span>: <span class="ident">bool</span>,
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
@@ -453,20 +406,21 @@
 
 <span class="attribute">#[<span class="ident">serde_as</span>]</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">RedisCacheSettings</span> {
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">RedisSettings</span> {
     <span class="doccomment">/// The URL to connect to Redis at. Example: `redis://127.0.0.1/db`</span>
-    <span class="attribute">#[<span class="ident">serde_as</span>(<span class="kw">as</span> <span class="op">=</span> <span class="string">&quot;Option&lt;crate::redis::AsConnectionInfo&gt;&quot;</span>)]</span>
-    <span class="kw">pub</span> <span class="ident">url</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">::redis::ConnectionInfo</span><span class="op">&gt;</span>,
+    <span class="attribute">#[<span class="ident">serde_as</span>(<span class="kw">as</span> <span class="op">=</span> <span class="string">&quot;crate::redis::AsConnectionInfo&quot;</span>)]</span>
+    <span class="kw">pub</span> <span class="ident">url</span>: <span class="ident">::redis::ConnectionInfo</span>,
+}
 
-    <span class="attribute">#[<span class="ident">serde_as</span>(<span class="kw">as</span> <span class="op">=</span> <span class="string">&quot;DurationSeconds&quot;</span>)]</span>
-    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;default_ttl_sec&quot;</span>)]</span>
-    <span class="kw">pub</span> <span class="ident">default_ttl</span>: <span class="ident">Duration</span>,
+<span class="attribute">#[<span class="ident">serde_as</span>]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">RemoteSettingsGlobalSettings</span> {
+    <span class="doccomment">/// The path, relative or absolute, to where to store Remote Settings data.</span>
+    <span class="kw">pub</span> <span class="ident">storage_path</span>: <span class="ident">PathBuf</span>,
 
-    <span class="doccomment">/// The default time to try and hold a lock for a response</span>
-    <span class="doccomment">/// from the source on cache refresh/load.</span>
-    <span class="attribute">#[<span class="ident">serde_as</span>(<span class="kw">as</span> <span class="op">=</span> <span class="string">&quot;DurationSeconds&quot;</span>)]</span>
-    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;default_lock_timeout_sec&quot;</span>)]</span>
-    <span class="kw">pub</span> <span class="ident">default_lock_timeout</span>: <span class="ident">Duration</span>,
+    <span class="doccomment">/// The server to sync from. If no value is provided, a default is provided</span>
+    <span class="doccomment">/// by the remote settings client.</span>
+    <span class="kw">pub</span> <span class="ident">server</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
@@ -474,32 +428,6 @@
     <span class="doccomment">/// The location of the maxmind database to use to determine IP location. If</span>
     <span class="doccomment">/// not specified, location information will not be calculated.</span>
     <span class="kw">pub</span> <span class="ident">maxmind_database</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PathBuf</span><span class="op">&gt;</span>,
-}
-
-<span class="attribute">#[<span class="ident">serde_as</span>]</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">MemoryCacheSettings</span> {
-    <span class="doccomment">/// The default TTL to assign to a cache entry if the underlying provider does not provide one.</span>
-    <span class="attribute">#[<span class="ident">serde_as</span>(<span class="kw">as</span> <span class="op">=</span> <span class="string">&quot;DurationSeconds&quot;</span>)]</span>
-    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;default_ttl_sec&quot;</span>)]</span>
-    <span class="kw">pub</span> <span class="ident">default_ttl</span>: <span class="ident">Duration</span>,
-
-    <span class="doccomment">/// The cleanup task will be run with a period equal to this setting. Any</span>
-    <span class="doccomment">/// expired entries will be removed from the cache.</span>
-    <span class="attribute">#[<span class="ident">serde_as</span>(<span class="kw">as</span> <span class="op">=</span> <span class="string">&quot;DurationSeconds&quot;</span>)]</span>
-    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;cleanup_interval_sec&quot;</span>)]</span>
-    <span class="kw">pub</span> <span class="ident">cleanup_interval</span>: <span class="ident">Duration</span>,
-
-    <span class="doccomment">/// While running the cleanup task, at most this many entries will be removed</span>
-    <span class="doccomment">/// before cancelling the task. This should be used to limit the maximum</span>
-    <span class="doccomment">/// amount of time the cleanup task takes.</span>
-    <span class="kw">pub</span> <span class="ident">max_removed_entries</span>: <span class="ident">usize</span>,
-
-    <span class="doccomment">/// The default TTL for in-memory locks to prevent multiple update requests from</span>
-    <span class="doccomment">/// being fired at providers at the same time.</span>
-    <span class="attribute">#[<span class="ident">serde_as</span>(<span class="kw">as</span> <span class="op">=</span> <span class="string">&quot;DurationSeconds&quot;</span>)]</span>
-    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;default_lock_timeout_sec&quot;</span>)]</span>
-    <span class="kw">pub</span> <span class="ident">default_lock_timeout</span>: <span class="ident">Duration</span>,
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
@@ -525,7 +453,7 @@
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
 <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">tag</span> <span class="op">=</span> <span class="string">&quot;mode&quot;</span>, <span class="ident">rename_all</span> <span class="op">=</span> <span class="string">&quot;snake_case&quot;</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">SentrySettings</span> {
-    <span class="ident">Release</span> { <span class="ident">dsn</span>: <span class="ident">Dsn</span> },
+    <span class="ident">Release</span> { <span class="ident">dsn</span>: <span class="ident">Dsn</span>, <span class="ident">env</span>: <span class="ident">String</span> },
     <span class="ident">Debug</span>,
     <span class="ident">Disabled</span>,
 }
@@ -534,7 +462,7 @@
     <span class="doccomment">/// Get the configured DSN.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">dsn</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Dsn</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">SentrySettings::Release</span> { <span class="ident">dsn</span> } <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">dsn</span>.<span class="ident">clone</span>()),
+            <span class="ident">SentrySettings::Release</span> { <span class="ident">dsn</span>, .. } <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">dsn</span>.<span class="ident">clone</span>()),
             <span class="ident">SentrySettings::Debug</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">Dsn::from_str</span>(<span class="string">&quot;https://public@example.com/1&quot;</span>).<span class="ident">unwrap</span>()),
             <span class="ident">SentrySettings::Disabled</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
         }
@@ -546,6 +474,14 @@
             <span class="ident">SentrySettings::Release</span> { .. } <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
             <span class="ident">SentrySettings::Debug</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
             <span class="ident">SentrySettings::Disabled</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
+        }
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">env</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">str</span> {
+        <span class="kw">match</span> <span class="self">self</span> {
+            <span class="ident">SentrySettings::Release</span> { <span class="ident">env</span>, .. } <span class="op">=</span><span class="op">&gt;</span> <span class="ident">env</span>.<span class="ident">as_str</span>(),
+            <span class="ident">SentrySettings::Debug</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;debug&quot;</span>,
+            <span class="ident">SentrySettings::Disabled</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;disabled&quot;</span>,
         }
     }
 }
