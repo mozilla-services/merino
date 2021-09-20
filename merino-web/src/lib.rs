@@ -2,12 +2,11 @@
 
 //! Web server for [Merino](../merino/index.html)'s public API.
 
-mod debug;
-mod dockerflow;
+mod endpoints;
 mod errors;
 mod extractors;
 mod middleware;
-mod suggest;
+mod providers;
 
 use actix_cors::Cors;
 use actix_web::{
@@ -22,6 +21,8 @@ use cadence::StatsdClient;
 use merino_settings::Settings;
 use std::net::TcpListener;
 use tracing_actix_web_mozlog::MozLog;
+
+use crate::providers::SuggestionProviderRef;
 
 /// Run the web server
 ///
@@ -114,18 +115,19 @@ pub fn run(
             .app_data(Data::new((&settings).clone()))
             .app_data(location_config.clone())
             .app_data(Data::new(metrics_client.clone()))
+            .app_data(Data::new(SuggestionProviderRef::new()))
             // Middlewares
             .wrap(moz_log.clone())
             .wrap(middleware::Metrics)
             .wrap(middleware::Sentry)
             .wrap(Cors::permissive())
             // The core functionality of Merino
-            .service(web::scope("api/v1/suggest").configure(suggest::configure))
+            .service(web::scope("api/v1/suggest").configure(endpoints::suggest::configure))
             // Add some debugging views
-            .service(web::scope("debug").configure(debug::configure))
+            .service(web::scope("debug").configure(endpoints::debug::configure))
             .service(root_info)
             // Add the behavior necessary to satisfy Dockerflow.
-            .service(web::scope("").configure(dockerflow::configure))
+            .service(web::scope("").configure(endpoints::dockerflow::configure))
     })
     .listen(listener)?;
 

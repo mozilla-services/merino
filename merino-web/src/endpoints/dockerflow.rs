@@ -35,7 +35,7 @@ fn lbheartbeat(_: HttpRequest) -> HttpResponse {
 fn version(_: HttpRequest) -> HttpResponse {
     HttpResponse::Ok()
         .content_type("application/json")
-        .body(include_str!("../../version.json"))
+        .body(include_str!("../../../version.json"))
 }
 
 /// The status of an individual check, or the whole system, as reported by /__heartbeat__.
