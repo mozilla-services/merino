@@ -1,18 +1,18 @@
 //! Tests Merino's ability to make basic suggestions.
 #![cfg(test)]
 
-use std::collections::HashSet;
-
 use crate::{merino_test_macro, TestingTools};
 use anyhow::Result;
 use httpmock::{Method::GET, MockServer};
+use merino_settings::providers::{RemoteSettingsConfig, SuggestionProviderConfig};
 use reqwest::StatusCode;
 use serde_json::json;
+use std::collections::HashSet;
 
 #[merino_test_macro(|settings| {
     // Wiki fruit is only enabled when debug is true.
     settings.debug = true;
-    settings.providers.wiki_fruit.enabled = true;
+    settings.suggestion_providers.insert("wiki_fruit".to_string(), SuggestionProviderConfig::WikiFruit);
 })]
 async fn suggest_wikifruit_works(TestingTools { test_client, .. }: TestingTools) -> Result<()> {
     let response = test_client.get("/api/v1/suggest?q=apple").send().await?;
@@ -30,7 +30,7 @@ async fn suggest_wikifruit_works(TestingTools { test_client, .. }: TestingTools)
 #[merino_test_macro(|settings| {
     // Wiki fruit is only enabled when debug is true.
     settings.debug = true;
-    settings.providers.wiki_fruit.enabled = true;
+    settings.suggestion_providers.insert("wiki_fruit".to_string(), SuggestionProviderConfig::WikiFruit);
 })]
 async fn test_expected_suggestion_fields(
     TestingTools { test_client, .. }: TestingTools,
@@ -105,7 +105,12 @@ async fn test_expected_variant_fields(
     Ok(())
 }
 
-#[merino_test_macro(|settings| settings.providers.adm_rs.enabled = true )]
+#[merino_test_macro(|settings| {
+    settings.suggestion_providers.insert(
+        "adm".to_string(),
+        SuggestionProviderConfig::RemoteSettings(RemoteSettingsConfig::default())
+    );
+})]
 async fn suggest_adm_rs_works(
     TestingTools {
         test_client,
@@ -158,7 +163,7 @@ fn setup_empty_remote_settings_collection(server: MockServer) {
 #[merino_test_macro(|settings| {
     // Wiki fruit is only enabled when debug is true.
     settings.debug = true;
-    settings.providers.wiki_fruit.enabled = true;
+    settings.suggestion_providers.insert("wiki_fruit".to_string(), SuggestionProviderConfig::WikiFruit);
 })]
 async fn suggest_records_suggestion_metrics(
     TestingTools {

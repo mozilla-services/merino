@@ -4,19 +4,27 @@
 mod redis_tests;
 
 use crate::{merino_test_macro, TestingTools};
-use merino_settings::CacheType;
+use merino_settings::providers::{MemoryCacheConfig, RedisCacheConfig, SuggestionProviderConfig};
 use parameterized::parameterized;
 use reqwest::{header::HeaderValue, StatusCode};
-use std::time::Duration;
 
-#[merino_test_macro(|settings, cache: CacheType| {
+#[merino_test_macro(|settings, cache: &str| {
     settings.debug = true;
-    settings.providers.wiki_fruit.enabled = true;
-    settings.providers.wiki_fruit.cache = cache;
-    settings.redis_cache.default_ttl = Duration::from_secs(600);
-    settings.memory_cache.default_ttl = Duration::from_secs(600);
+    let wiki_fruit = SuggestionProviderConfig::WikiFruit;
+
+    match cache {
+        "redis" => settings.suggestion_providers.insert(
+            "wiki_fruit_redis".to_string(),
+            SuggestionProviderConfig::RedisCache(RedisCacheConfig::with_inner(wiki_fruit)),
+        ),
+        "memory" => settings.suggestion_providers.insert(
+            "wiki_fruit_memory".to_string(),
+            SuggestionProviderConfig::MemoryCache(MemoryCacheConfig::with_inner(wiki_fruit)),
+        ),
+        _ => panic!("unexpected cache {}", cache),
+    };
 })]
-#[parameterized(cache = { CacheType::Redis, CacheType::Memory })]
+#[parameterized(cache = { "redis", "memory" })]
 async fn cache_status_is_reported(TestingTools { test_client, .. }: TestingTools) {
     let url = "/api/v1/suggest?q=apple";
 

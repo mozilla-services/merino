@@ -4,27 +4,13 @@ http:
   listen: "127.0.0.1:8080"
   workers: null
 
-providers:
-  adm_rs:
-    enabled: false
-    storage_path: "./rs-cache"
-    collection: "quicksuggest"
-    cache: none
-  wiki_fruit:
-    enabled: false
-    cache: none
-  enable_debug_provider: false
+suggestion_providers: {}
 
-redis_cache:
-  url: null
-  default_ttl_sec: 900 # 15 minutes
-  default_lock_timeout_sec: 3
+redis:
+  url: redis://127.0.0.1:6379
 
-memory_cache:
-  default_ttl_sec: 900 # 15 minutes
-  default_lock_timeout_sec: 10
-  cleanup_interval_sec: 300 # 5 minutes
-  max_removed_entries: 100000
+remote_settings:
+  storage_path: "./rs-cache"
 
 logging:
   levels: [INFO]

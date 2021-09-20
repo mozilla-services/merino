@@ -29,6 +29,7 @@
 //! `config/local.toml`.
 
 mod logging;
+pub mod providers;
 mod redis;
 
 pub use logging::{LogFormat, LoggingSettings};
@@ -38,8 +39,10 @@ use config::{Config, Environment, File};
 use http::Uri;
 use sentry::internals::Dsn;
 use serde::{Deserialize, Serialize};
-use serde_with::{serde_as, DisplayFromStr, DurationSeconds};
-use std::{net::SocketAddr, path::PathBuf, str::FromStr, time::Duration};
+use serde_with::{serde_as, DisplayFromStr};
+use std::{collections::HashMap, net::SocketAddr, path::PathBuf, str::FromStr};
+
+use crate::providers::SuggestionProviderConfig;
 
 /// Top level settings object for Merino.
 #[serde_as]
@@ -56,9 +59,8 @@ pub struct Settings {
     /// Settings for the HTTP server.
     pub http: HttpSettings,
 
-    /// Configuration for providers. Each provider has a `enabled` field that
-    /// will control if it is active at all on the server.
-    pub providers: SuggestionProviderSettings,
+    /// Providers to use to generate suggestions
+    pub suggestion_providers: HashMap<String, SuggestionProviderConfig>,
 
     /// Logging settings.
     pub logging: LoggingSettings,
@@ -74,16 +76,14 @@ pub struct Settings {
     #[serde_as(as = "Option<DisplayFromStr>")]
     pub public_documentation: Option<Uri>,
 
-    /// Settings for the Redis-based suggestion cache. This can be used by any
-    /// provider by setting the provider's cache type to "redis".
-    pub redis_cache: RedisCacheSettings,
+    /// Settings for connecting to Redis.
+    pub redis: RedisSettings,
+
+    /// Settings for connecting to Remote Settings.
+    pub remote_settings: RemoteSettingsGlobalSettings,
 
     /// Settings to use when determining the location associated with requests.
     pub location: LocationSettings,
-
-    /// Settings for the in-memory suggestion cache. This can be used by any
-    /// provider by setting the provider's cache type to "memory".
-    pub memory_cache: MemoryCacheSettings,
 }
 
 /// Settings for the HTTP server.
@@ -95,21 +95,6 @@ pub struct HttpSettings {
     /// The number of workers to use. Optional. If no value is provided, the
     /// number of logical cores will be used.
     pub workers: Option<usize>,
-}
-
-#[derive(Clone, Debug, Serialize, Deserialize)]
-/// Settings for individual providers. Each provider should have an `enabled` field.
-pub struct SuggestionProviderSettings {
-    /// Settings for the Ad Marketplace Remote Settings-based provider.
-    pub adm_rs: AdmRsSettings,
-
-    /// Settings for the development provider.
-    pub wiki_fruit: WikiFruitSettings,
-
-    /// Whether to enable the debug provider. This is on by default in
-    /// development environments. It is an error to enable this if the `debug`
-    /// setting isn't set to true.
-    pub enable_debug_provider: bool,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -150,20 +135,21 @@ pub struct WikiFruitSettings {
 
 #[serde_as]
 #[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct RedisCacheSettings {
+pub struct RedisSettings {
     /// The URL to connect to Redis at. Example: `redis://127.0.0.1/db`
-    #[serde_as(as = "Option<crate::redis::AsConnectionInfo>")]
-    pub url: Option<::redis::ConnectionInfo>,
+    #[serde_as(as = "crate::redis::AsConnectionInfo")]
+    pub url: ::redis::ConnectionInfo,
+}
 
-    #[serde_as(as = "DurationSeconds")]
-    #[serde(rename = "default_ttl_sec")]
-    pub default_ttl: Duration,
+#[serde_as]
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct RemoteSettingsGlobalSettings {
+    /// The path, relative or absolute, to where to store Remote Settings data.
+    pub storage_path: PathBuf,
 
-    /// The default time to try and hold a lock for a response
-    /// from the source on cache refresh/load.
-    #[serde_as(as = "DurationSeconds")]
-    #[serde(rename = "default_lock_timeout_sec")]
-    pub default_lock_timeout: Duration,
+    /// The server to sync from. If no value is provided, a default is provided
+    /// by the remote settings client.
+    pub server: Option<String>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -171,32 +157,6 @@ pub struct LocationSettings {
     /// The location of the maxmind database to use to determine IP location. If
     /// not specified, location information will not be calculated.
     pub maxmind_database: Option<PathBuf>,
-}
-
-#[serde_as]
-#[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct MemoryCacheSettings {
-    /// The default TTL to assign to a cache entry if the underlying provider does not provide one.
-    #[serde_as(as = "DurationSeconds")]
-    #[serde(rename = "default_ttl_sec")]
-    pub default_ttl: Duration,
-
-    /// The cleanup task will be run with a period equal to this setting. Any
-    /// expired entries will be removed from the cache.
-    #[serde_as(as = "DurationSeconds")]
-    #[serde(rename = "cleanup_interval_sec")]
-    pub cleanup_interval: Duration,
-
-    /// While running the cleanup task, at most this many entries will be removed
-    /// before cancelling the task. This should be used to limit the maximum
-    /// amount of time the cleanup task takes.
-    pub max_removed_entries: usize,
-
-    /// The default TTL for in-memory locks to prevent multiple update requests from
-    /// being fired at providers at the same time.
-    #[serde_as(as = "DurationSeconds")]
-    #[serde(rename = "default_lock_timeout_sec")]
-    pub default_lock_timeout: Duration,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -222,7 +182,7 @@ pub struct MetricsSettings {
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(tag = "mode", rename_all = "snake_case")]
 pub enum SentrySettings {
-    Release { dsn: Dsn },
+    Release { dsn: Dsn, env: String },
     Debug,
     Disabled,
 }
@@ -231,7 +191,7 @@ impl SentrySettings {
     /// Get the configured DSN.
     pub fn dsn(&self) -> Option<Dsn> {
         match self {
-            SentrySettings::Release { dsn } => Some(dsn.clone()),
+            SentrySettings::Release { dsn, .. } => Some(dsn.clone()),
             SentrySettings::Debug => Some(Dsn::from_str("https://public@example.com/1").unwrap()),
             SentrySettings::Disabled => None,
         }
@@ -243,6 +203,14 @@ impl SentrySettings {
             SentrySettings::Release { .. } => false,
             SentrySettings::Debug => true,
             SentrySettings::Disabled => false,
+        }
+    }
+
+    pub fn env(&self) -> &str {
+        match self {
+            SentrySettings::Release { env, .. } => env.as_str(),
+            SentrySettings::Debug => "debug",
+            SentrySettings::Disabled => "disabled",
         }
     }
 }

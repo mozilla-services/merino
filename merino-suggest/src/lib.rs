@@ -8,7 +8,6 @@ mod domain;
 mod multi;
 mod wikifruit;
 
-use std::borrow::Cow;
 use std::fmt::Debug;
 use std::hash::Hash;
 use std::ops::Range;
@@ -38,19 +37,19 @@ pub const FIREFOX_TEST_VERSIONS: Range<u32> = 70..95;
 
 /// A request for suggestions.
 #[derive(Debug, Clone, Hash, Serialize)]
-pub struct SuggestionRequest<'a> {
+pub struct SuggestionRequest {
     /// The text typed by the user.
-    pub query: Cow<'a, str>,
+    pub query: String,
 
     /// Whether or not the request indicated support for English.
     pub accepts_english: bool,
 
     /// Country in ISO 3166-1 alpha-2 format, such as "MX" for Mexico or "IT" for Italy.
-    pub country: Option<Cow<'a, str>>,
+    pub country: Option<String>,
 
     /// Region/region (e.g. a US state) in ISO 3166-2 format, such as "QC"
     /// for Quebec (with country = "CA") or "TX" for Texas (with country = "US").
-    pub region: Option<Cow<'a, str>>,
+    pub region: Option<String>,
 
     /// The Designated Market Area code, as defined by [Nielsen]. Only defined in the US.
     ///
@@ -58,25 +57,22 @@ pub struct SuggestionRequest<'a> {
     pub dma: Option<u16>,
 
     /// City, listed by name such as "Portland" or "Berlin".
-    pub city: Option<Cow<'a, str>>,
+    pub city: Option<String>,
 
     /// The user agent of the request, including OS family, device form factor, and major Firefox
     /// version number.
     pub device_info: DeviceInfo,
 }
 
-impl<'a, F> fake::Dummy<F> for SuggestionRequest<'a> {
+impl<'a, F> fake::Dummy<F> for SuggestionRequest {
     fn dummy_with_rng<R: rand::Rng + ?Sized>(_config: &F, rng: &mut R) -> Self {
         Self {
-            query: Words(1..10)
-                .fake_with_rng::<Vec<String>, R>(rng)
-                .join(" ")
-                .into(),
+            query: Words(1..10).fake_with_rng::<Vec<String>, R>(rng).join(" "),
             accepts_english: Faker.fake(),
-            country: Some(CountryCode().fake::<String>().into()),
-            region: Some(StateAbbr().fake::<String>().into()),
+            country: Some(CountryCode().fake::<String>()),
+            region: Some(StateAbbr().fake::<String>()),
             dma: Some(rng.gen_range(100_u16..1000)),
-            city: Some(CityName().fake::<String>().into()),
+            city: Some(CityName().fake::<String>()),
             device_info: Faker.fake(),
         }
     }
@@ -240,15 +236,26 @@ fn fake_example_url<R: rand::Rng + ?Sized>(rng: &mut R) -> Uri {
 
 /// A backend that can provide suggestions for queries.
 #[async_trait]
-pub trait SuggestionProvider<'a> {
+pub trait SuggestionProvider: Send + Sync {
     /// An operator-visible name for this suggestion provider.
-    fn name(&self) -> Cow<'a, str>;
+    fn name(&self) -> String;
 
     /// Provide suggested results for `query`.
-    async fn suggest(
-        &self,
-        query: SuggestionRequest<'a>,
-    ) -> Result<SuggestionResponse, SuggestError>;
+    async fn suggest(&self, query: SuggestionRequest) -> Result<SuggestionResponse, SuggestError>;
+}
+
+/// A provider that never provides any suggestions
+pub struct NullProvider;
+
+#[async_trait]
+impl SuggestionProvider for NullProvider {
+    fn name(&self) -> String {
+        "NullProvider".into()
+    }
+
+    async fn suggest(&self, _query: SuggestionRequest) -> Result<SuggestionResponse, SuggestError> {
+        Ok(SuggestionResponse::new(vec![]))
+    }
 }
 
 /// Errors that may occur while setting up the provider.

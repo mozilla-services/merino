@@ -1,10 +1,9 @@
 //! Data types specific to caching.
 
 use merino_suggest::SuggestionRequest;
-use std::borrow::Cow;
 
 /// An object that can generate a cache key for itself.
-pub trait CacheKey<'a> {
+pub trait CacheKey {
     /// Generate a cache key for this object. Two objects that have the same
     /// cache key should be functionally identical.
     ///
@@ -12,25 +11,23 @@ pub trait CacheKey<'a> {
     /// type of object they refer to. They should also include a version
     /// indicator. For example: `cache:req:v1:d1bc8d3ba4afc7e1`. Excessively long
     /// key lengths should be avoided. 100 bytes is a good upper bound.
-    fn cache_key(&self) -> Cow<'a, str>;
+    fn cache_key(&self) -> String;
 }
 
-impl<'a> CacheKey<'a> for SuggestionRequest<'a> {
-    fn cache_key(&self) -> Cow<'a, str> {
+impl CacheKey for SuggestionRequest {
+    fn cache_key(&self) -> String {
         let mut hasher = blake3::Hasher::new();
         hasher.update(self.query.as_bytes());
         hasher.update(&[self.accepts_english as u8]);
         hasher.update(self.device_info.to_string().as_bytes());
 
         let hash = hasher.finalize().to_hex();
-        format!("req:v3:{}", hash).into()
+        format!("req:v3:{}", hash)
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use std::borrow::Cow;
-
     use super::CacheKey;
     use fake::{Fake, Faker};
     use merino_suggest::{
@@ -92,12 +89,12 @@ mod tests {
             device_info in device_info_strategy()
         ) {
             let req = SuggestionRequest {
-                query: query.into(),
+                query,
                 accepts_english,
-                country: country.map(Cow::from),
-                region: region.map(Cow::from),
+                country,
+                region,
                 dma,
-                city: city.map(Cow::from),
+                city,
                 device_info,
             };
             const HEX_DIGITS: &str = "0123456789abcdef";
