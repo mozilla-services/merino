@@ -12,7 +12,7 @@ pub fn init_sentry(settings: &Settings) -> Result<sentry::ClientInitGuard> {
         dsn: settings.sentry.dsn(),
         debug: settings.sentry.debug(),
         release: sentry::release_name!(),
-        environment: Some(settings.env.clone().into()),
+        environment: Some(settings.sentry.env().to_string().into()),
         ..Default::default()
     });
 
