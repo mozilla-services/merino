@@ -79,12 +79,7 @@ COPY --from=builder /app/bin /app/bin
 COPY --from=builder /app/version.json /app
 COPY --from=builder /app/config /app/config
 
-ARG HOST=0.0.0.0
-ARG PORT=8080
-ENV MERINO_HTTP__LISTEN="${HOST}:${PORT}"
-
 WORKDIR /app
 USER app
-EXPOSE ${PORT}
 
 CMD ["/app/bin/merino"]

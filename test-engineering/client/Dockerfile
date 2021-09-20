@@ -13,4 +13,4 @@ RUN python -m pip install -r /tmp/requirements.txt
 COPY . /usr/src/client
 WORKDIR /usr/src/client
 
-ENTRYPOINT [ "pytest" ]
+CMD [ "pytest" ]

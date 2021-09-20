@@ -1,6 +1,5 @@
 //! Types to extract merino data from requests.
 
-use std::borrow::Cow;
 use std::str::FromStr;
 
 use crate::errors::HandlerError;
@@ -29,9 +28,9 @@ lazy_static! {
 }
 
 /// An extractor for a [`merino_suggest::SuggestionRequest`].
-pub struct SuggestionRequestWrapper<'a>(pub SuggestionRequest<'a>);
+pub struct SuggestionRequestWrapper(pub SuggestionRequest);
 
-impl<'a> FromRequest for SuggestionRequestWrapper<'a> {
+impl FromRequest for SuggestionRequestWrapper {
     type Config = ();
 
     type Error = ActixError;
@@ -62,12 +61,12 @@ impl<'a> FromRequest for SuggestionRequestWrapper<'a> {
             )?;
 
             Ok(Self(SuggestionRequest {
-                query: query.into(),
+                query,
                 accepts_english: supported_languages.includes("en", None),
-                country: location.country.map(Cow::from),
-                region: location.region.map(Cow::from),
+                country: location.country,
+                region: location.region,
                 dma: location.dma,
-                city: location.city.map(Cow::from),
+                city: location.city,
                 device_info,
             }))
         }
