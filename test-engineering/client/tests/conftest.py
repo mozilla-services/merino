@@ -25,7 +25,7 @@ def pytest_configure(config):
     scenarios = []
     for scenario in loaded_scenarios["scenarios"]:
         scenario_obj = Scenario(**scenario)
-        assert( "this should fail" in scenario_obj.steps[0].response.content.dict())
+        assert( "client_variants" in scenario_obj.steps[0].response.content.dict())
         scenarios.append(scenario_obj)
     config.merino_scenarios = scenarios
 
