@@ -143,3 +143,32 @@ this interaction ping is always sent to the Mozilla-controlled service unless
 the user opts out the telemetry collection of Firefox.
 
 The required behavior for interaction pings is TBD.
+
+## Providers
+
+Endpoint: `/api/v1/providers`
+
+This endpoint gives a list of available providers, along with their
+_availability_. It accepts GET requests and takes no parameters.
+
+### Response
+
+The response will be a JSON object containing the key `providers`, which be a
+map where the keys to this map are the IDs of the provider, and the value are
+provider metadata object. Each provider metadata object will have the following
+format:
+
+- `id` - A string that can be used to identify this provider. This ID can be
+  used for the `providers` field of the suggest API.
+
+- `availability` - A string describing how this provider is used in Merino. It
+  will be one of:
+
+  - `"enabled-by-default"` - This provider will be used for requests that don't
+    specify providers, and it should be provided to the user as a selection that
+    can be turned off.
+  - `"disabled-by-default"` - This provider is not used automatically. It should
+    be provided to the user as a selection that could be turned on.
+  - `"hidden"` - This provider is not used automatically. It should not be
+    provided to the user as an option to turn on. It may be used for debugging
+    or other internal uses. \*/

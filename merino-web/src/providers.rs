@@ -6,14 +6,14 @@ use merino_adm::remote_settings::RemoteSettingsSuggester;
 use merino_cache::{MemoryCacheSuggester, RedisCacheSuggester};
 use merino_settings::{providers::SuggestionProviderConfig, Settings};
 use merino_suggest::{
-    DebugProvider, FixedProvider, Multi, NullProvider, SuggestionProvider, TimeoutProvider,
-    WikiFruit,
+    DebugProvider, FixedProvider, IdMulti, Multi, NullProvider, SuggestionProvider,
+    TimeoutProvider, WikiFruit,
 };
 use tokio::sync::OnceCell;
 use tracing_futures::Instrument;
 
 /// The SuggestionProvider stored in Actix's app_data.
-pub struct SuggestionProviderRef(OnceCell<merino_suggest::Multi>);
+pub struct SuggestionProviderRef(OnceCell<merino_suggest::IdMulti>);
 
 impl SuggestionProviderRef {
     /// Make a new slot to hold providers. Does not initialize any providers.
@@ -22,7 +22,7 @@ impl SuggestionProviderRef {
     }
 
     /// Get the provider, or create a new one if it doesn't exist.
-    pub async fn get_or_try_init(&self, settings: &Settings) -> Result<&Multi> {
+    pub async fn get_or_try_init(&self, settings: &Settings) -> Result<&IdMulti> {
         let setup_span = tracing::info_span!("suggestion_provider_setup");
         self.0
             .get_or_try_init(|| {
@@ -32,13 +32,13 @@ impl SuggestionProviderRef {
                         "Setting up suggestion providers"
                     );
 
-                    let mut providers: Vec<Box<dyn SuggestionProvider>> =
-                        Vec::with_capacity(settings.suggestion_providers.len());
-                    for config in settings.suggestion_providers.values() {
-                        providers.push(make_provider_tree(settings, config).await?);
+                    let mut multi = merino_suggest::IdMulti::default();
+                    // let mut providers: Vec<Box<dyn SuggestionProvider>> =
+                    //     Vec::with_capacity(settings.suggestion_providers.len());
+                    for (name, config) in &settings.suggestion_providers {
+                        multi.add_provider(name, make_provider_tree(settings, config).await?);
                     }
 
-                    let multi = merino_suggest::Multi::new(providers);
                     Ok(multi)
                 }
                 .instrument(setup_span)

@@ -62,7 +62,7 @@ pub enum LogFormat {
 /// with it.
 ///
 ///This struct can be deserialized from either a comma separated string of
-///directives (`"INFO,component1=WARN"), or from a sequence of comma separated
+///directives (`"INFO,component1=WARN"`), or from a sequence of comma separated
 ///strings (`["INFO", "component1=WARN,component2=DEBUG"]`). This is important
 ///because the config files use sequences, but environment variables are always
 ///strings.

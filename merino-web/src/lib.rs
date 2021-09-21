@@ -123,6 +123,7 @@ pub fn run(
             .wrap(Cors::permissive())
             // The core functionality of Merino
             .service(web::scope("api/v1/suggest").configure(endpoints::suggest::configure))
+            .service(web::scope("api/v1/providers").configure(endpoints::providers::configure))
             // Add some debugging views
             .service(web::scope("debug").configure(endpoints::debug::configure))
             .service(root_info)
