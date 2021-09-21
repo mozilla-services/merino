@@ -4,7 +4,7 @@
 //!
 //! This is intended to be used only as the top level provider for the service.
 
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 
 use crate::{CacheStatus, SuggestError, SuggestionProvider, SuggestionRequest, SuggestionResponse};
 use async_trait::async_trait;
@@ -65,6 +65,54 @@ impl IdMulti {
             })
             .collect()
     }
+
+    /// Provide suggested results for `query` using only the providers listed by ID.
+    ///
+    /// # Errors
+    /// Returns an error if any sub providers return an error.
+    pub async fn suggest_from_ids(
+        &self,
+        request: SuggestionRequest,
+        ids: &HashSet<String>,
+    ) -> Result<SuggestionResponse, SuggestError> {
+        // make a Vec<Result<Vec<T>, E>>...
+        let v: Result<Vec<SuggestionResponse>, _> = join_all(
+            self.providers
+                .iter()
+                .filter(|(name, _)| ids.contains(*name))
+                .map(|(name, provider)| {
+                    // Change the provider name to the name of the group specified in the config.
+                    let name = name.clone();
+                    provider.suggest(request.clone()).map_ok(move |mut res| {
+                        res.suggestions
+                            .iter_mut()
+                            .for_each(move |s| s.provider = name.clone());
+                        res
+                    })
+                }),
+        )
+        .await
+        .into_iter()
+        // ...and then transpose it into a Result<Vec<Vec<T>>, E>.
+        .collect();
+        // now flatten it
+        v.map(|mut responses| {
+            let mut rv = responses
+                .pop()
+                .unwrap_or_else(|| SuggestionResponse::new(vec![]));
+
+            for response in responses {
+                rv.suggestions.extend_from_slice(&response.suggestions);
+                rv.cache_status = match (rv.cache_status, response.cache_status) {
+                    (a, b) if a == b => a,
+                    (a, CacheStatus::NoCache) => a,
+                    _ => CacheStatus::Mixed,
+                }
+            }
+
+            rv
+        })
+    }
 }
 
 #[async_trait]
@@ -83,38 +131,7 @@ impl SuggestionProvider for IdMulti {
         &self,
         request: SuggestionRequest,
     ) -> Result<SuggestionResponse, SuggestError> {
-        // make a Vec<Result<Vec<T>, E>>...
-        let v: Result<Vec<SuggestionResponse>, _> =
-            join_all(self.providers.iter().map(|(name, provider)| {
-                // Change the provider name to the name of the group specified in the config.
-                let name = name.clone();
-                provider.suggest(request.clone()).map_ok(move |mut res| {
-                    res.suggestions
-                        .iter_mut()
-                        .for_each(move |s| s.provider = name.clone());
-                    res
-                })
-            }))
-            .await
-            .into_iter()
-            // ...and then transpose it into a Result<Vec<Vec<T>>, E>.
-            .collect();
-        // now flatten it
-        v.map(|mut responses| {
-            let mut rv = responses
-                .pop()
-                .unwrap_or_else(|| SuggestionResponse::new(vec![]));
-
-            for response in responses {
-                rv.suggestions.extend_from_slice(&response.suggestions);
-                rv.cache_status = match (rv.cache_status, response.cache_status) {
-                    (a, b) if a == b => a,
-                    (a, CacheStatus::NoCache) => a,
-                    _ => CacheStatus::Mixed,
-                }
-            }
-
-            rv
-        })
+        let ids: HashSet<_> = self.providers.keys().cloned().collect();
+        self.suggest_from_ids(request, &ids).await
     }
 }

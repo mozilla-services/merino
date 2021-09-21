@@ -22,6 +22,16 @@ and headers.
   input, sent as fast as once per keystroke, though a slower period may be
   appropriate for the user agent.
 
+- `client_variants` - Optional. A comma-separated list of any experiments or
+  rollouts that are affecting the client's Suggest experience. If Merino
+  recognizes any of them it will modify its behavior accordingly.
+
+- `providers` - Optional. A comma-separated list of providers to use for this
+  request. See the `/providers` endpoint below for valid options. If provided,
+  only suggestions from the listed providers will be returned. If not provided,
+  Merino will use a built-in default set of providers. The default set of
+  providers can be seen in the `/providers` endpoint.
+
 ### Headers
 
 - `Accept-Language` - The locale preferences expressed in this header in
@@ -153,8 +163,8 @@ _availability_. It accepts GET requests and takes no parameters.
 
 ### Response
 
-The response will be a JSON object containing the key `providers`, which be a
-map where the keys to this map are the IDs of the provider, and the value are
+The response will be a JSON object containing the key `providers`, which is a
+map where the keys to this map are the IDs of the provider, and the values are
 provider metadata object. Each provider metadata object will have the following
 format:
 
@@ -164,10 +174,10 @@ format:
 - `availability` - A string describing how this provider is used in Merino. It
   will be one of:
 
-  - `"enabled-by-default"` - This provider will be used for requests that don't
+  - `"enabled_by_default"` - This provider will be used for requests that don't
     specify providers, and it should be provided to the user as a selection that
     can be turned off.
-  - `"disabled-by-default"` - This provider is not used automatically. It should
+  - `"disabled_by_default"` - This provider is not used automatically. It should
     be provided to the user as a selection that could be turned on.
   - `"hidden"` - This provider is not used automatically. It should not be
     provided to the user as an option to turn on. It may be used for debugging

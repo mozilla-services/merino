@@ -1,7 +1,7 @@
 //! A suggestion provider that provides a fixed response with a customizable
 //! title.
 //!
-//! It is meant  to be used in development and testing.
+//! It is meant to be used in development and testing.
 
 use anyhow::anyhow;
 use async_trait::async_trait;

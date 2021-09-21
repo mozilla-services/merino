@@ -1,5 +1,7 @@
 //! Web handlers for the suggestions API.
 
+use std::collections::HashSet;
+
 use crate::{
     errors::HandlerError, extractors::SuggestionRequestWrapper, providers::SuggestionProviderRef,
 };
@@ -17,13 +19,12 @@ use serde_with::{rust::StringWithSeparator, serde_as, CommaSeparator};
 
 /// Configure a route to use the Suggest service.
 pub fn configure(config: &mut ServiceConfig) {
-    config
-        .service(suggest);
+    config.service(suggest);
 }
 
 /// Suggest content in response to the queried text.
 #[get("")]
-#[tracing::instrument(skip(suggestion_request, provider, settings))]
+#[tracing::instrument(skip(metrics_client, suggestion_request, provider, settings))]
 async fn suggest(
     SuggestionRequestWrapper(suggestion_request): SuggestionRequestWrapper,
     provider: Data<SuggestionProviderRef>,
@@ -43,13 +44,18 @@ async fn suggest(
             HandlerError::Internal
         })?;
 
-    let response = provider
-        .suggest(suggestion_request)
-        .await
-        .map_err(|error| {
-            tracing::error!(%error, r#type="web.suggest.error", "Error providing suggestions");
-            HandlerError::Internal
-        })?;
+    let response = match &query_parameters.providers {
+        Some(provider_ids) => {
+            provider
+                .suggest_from_ids(suggestion_request, provider_ids)
+                .await
+        }
+        None => provider.suggest(suggestion_request).await,
+    }
+    .map_err(|error| {
+        tracing::error!(%error, r#type="web.suggest.error", "Error providing suggestions");
+        HandlerError::Internal
+    })?;
 
     tracing::debug!(
         r#type = "web.suggest.provided-count",
@@ -79,12 +85,15 @@ async fn suggest(
 
 /// Query parameters
 #[serde_as]
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Default, Deserialize)]
+#[serde(default)]
 struct SuggestQueryParameters {
     #[serde_as(as = "StringWithSeparator::<CommaSeparator, String>")]
-    #[serde(default)]
-    /// Query Paramater for client_variants
+    /// Query parameter for client_variants
     client_variants: Vec<String>,
+    /// Providers to use for this request
+    #[serde_as(as = "Option<StringWithSeparator::<CommaSeparator, String>>")]
+    providers: Option<HashSet<String>>,
 }
 
 /// The response the API generates.
