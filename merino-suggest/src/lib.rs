@@ -5,6 +5,7 @@
 mod debug;
 pub mod device_info;
 mod domain;
+mod fixed;
 mod multi;
 mod timeout;
 mod wikifruit;
@@ -30,6 +31,7 @@ use thiserror::Error;
 
 pub use crate::debug::DebugProvider;
 pub use crate::domain::Proportion;
+pub use crate::fixed::FixedProvider;
 pub use crate::multi::Multi;
 pub use crate::timeout::TimeoutProvider;
 pub use crate::wikifruit::WikiFruit;

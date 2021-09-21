@@ -11,6 +11,7 @@ pub enum SuggestionProviderConfig {
     RedisCache(RedisCacheConfig),
     Multiplexer(MultiplexerConfig),
     Timeout(TimeoutConfig),
+    Fixed(FixedConfig),
     Debug,
     WikiFruit,
     Null,
@@ -116,7 +117,6 @@ impl Default for MemoryCacheConfig {
     }
 }
 
-#[serde_as]
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(default)]
 pub struct RemoteSettingsConfig {
@@ -154,4 +154,10 @@ impl Default for TimeoutConfig {
             inner: Box::new(SuggestionProviderConfig::Null),
         }
     }
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct FixedConfig {
+    /// The value to use in the title of the suggestion.
+    pub value: String,
 }

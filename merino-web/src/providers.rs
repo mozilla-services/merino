@@ -6,7 +6,8 @@ use merino_adm::remote_settings::RemoteSettingsSuggester;
 use merino_cache::{MemoryCacheSuggester, RedisCacheSuggester};
 use merino_settings::{providers::SuggestionProviderConfig, Settings};
 use merino_suggest::{
-    DebugProvider, Multi, NullProvider, SuggestionProvider, TimeoutProvider, WikiFruit,
+    DebugProvider, FixedProvider, Multi, NullProvider, SuggestionProvider, TimeoutProvider,
+    WikiFruit,
 };
 use tokio::sync::OnceCell;
 use tracing_futures::Instrument;
@@ -80,6 +81,9 @@ async fn make_provider_tree(
             TimeoutProvider::new_boxed(timeout_config, inner)
         }
 
+        SuggestionProviderConfig::Fixed(fixed_config) => {
+            FixedProvider::new_boxed(settings, fixed_config)?
+        }
         SuggestionProviderConfig::Debug => DebugProvider::new_boxed(settings)?,
         SuggestionProviderConfig::WikiFruit => WikiFruit::new_boxed(settings)?,
         SuggestionProviderConfig::Null => Box::new(NullProvider),
