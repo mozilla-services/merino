@@ -171,11 +171,9 @@ jobs:
       - run:
           name: Build docs
           command: |
-            cargo doc --document-private-items --workspace
-            # Add a root index.html that redirects to a specific crate's docs.
-            echo '<meta http-equiv="refresh" content="0; URL=./merino/index.html" />' > target/doc/index.html
+            ./dev/make-all-docs.sh
             mkdir workspace
-            cp -r target/doc workspace/
+            cp -r ./book workspace/doc
       - persist_to_workspace:
           root: workspace
           paths:

@@ -15,3 +15,5 @@ $ npm run dev
 
 This will start a server on [localhost:3000](http://localhost:3000) that is
 configured to connect to the default configuration of `merino-web`.
+
+Note, Node 16 or higher is required to run Showroom.
