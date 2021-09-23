@@ -161,8 +161,11 @@ pub struct LocationSettings {
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct MetricsSettings {
-    /// The host and port to send metrics to, such as "127.0.0.1:8125" or "metrics.local:9999".
-    pub sink_address: SocketAddr,
+    /// The host/IP address to send metrics to, such as "127.0.0.1" or "metrics.local".
+    pub sink_host: String,
+
+    /// The port to send metrics to.
+    pub sink_port: u16,
 
     /// Maximum size in kilobytes that the metrics queue can grow to before
     /// locale metrics start to be dropped.

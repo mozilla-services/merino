@@ -91,8 +91,11 @@ where
 
     // Setup metrics
     assert_eq!(
-        settings.metrics.sink_address,
-        "0.0.0.0:0".parse().unwrap(),
+        settings.metrics.sink_host, "0.0.0.0",
+        "Tests cannot change the metrics sink host, since it is ignored"
+    );
+    assert_eq!(
+        settings.metrics.sink_port, 8125,
         "Tests cannot change the metrics sink address, since it is ignored"
     );
     let (metrics_watcher, metrics_client) = MetricsWatcher::new_with_client();
