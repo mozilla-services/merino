@@ -98,13 +98,17 @@ fn init_metrics(settings: &Settings) -> Result<StatsdClient> {
     // production use the buffered version. However, still use the queuing sink,
     // which is run on a different thread. This way we still get the concurrency
     // complexity, in case it causes bugs.
+    let host = (
+        settings.metrics.sink_host.as_str(),
+        settings.metrics.sink_port,
+    );
     let sink = if settings.debug {
-        let udp_sink = cadence::UdpMetricSink::from(settings.metrics.sink_address, socket)
-            .context("setting up debug metrics sink")?;
+        let udp_sink =
+            cadence::UdpMetricSink::from(host, socket).context("setting up debug metrics sink")?;
         QueuingMetricSink::with_capacity(udp_sink, queue_size)
     } else {
-        let udp_sink = BufferedUdpMetricSink::from(settings.metrics.sink_address, socket)
-            .context("setting up metrics sink")?;
+        let udp_sink =
+            BufferedUdpMetricSink::from(host, socket).context("setting up metrics sink")?;
         QueuingMetricSink::with_capacity(udp_sink, queue_size)
     };
 
@@ -115,6 +119,31 @@ fn init_metrics(settings: &Settings) -> Result<StatsdClient> {
         .incr("startup")
         .context("Sending startup metrics ping")?;
 
-    tracing::debug!(sink_address=?settings.metrics.sink_address, ?queue_size, "metrics set up");
+    tracing::debug!(sink_host=?settings.metrics.sink_host, sink_port=?settings.metrics.sink_port, ?queue_size, "metrics set up");
     Ok(client)
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::*;
+
+    #[test]
+    fn test_metrics_sink() {
+        let mut s = Settings::load_for_tests();
+
+        // Use an invalid hostname to make sure things break.
+        s.metrics.sink_host = "#invalid-hostname".to_string();
+        s.metrics.sink_port = 0;
+        assert!(init_metrics(&s).is_err());
+
+        // Use a hostname to set up the metrics sink.
+        s.metrics.sink_host = "localhost".to_string();
+        s.metrics.sink_port = 0;
+        assert!(init_metrics(&s).is_ok());
+
+        // Use an IP to set up the metrics sink.
+        s.metrics.sink_host = "127.0.0.1".to_string();
+        s.metrics.sink_port = 0;
+        assert!(init_metrics(&s).is_ok());
+    }
 }
