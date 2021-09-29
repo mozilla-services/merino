@@ -1,4 +1,3 @@
-/*!
 # Choosing a logging library for Merino
 
 - Status: accepted
@@ -32,12 +31,13 @@ away to nothing.
 
 1. [slog](https://crates.io/crates/slog)
 2. [tracing](https://crates.io/crates/tracing)
+
 - Something from the `log` ecosystem
 
 ## Decision Outcome
 
-Option 2 - Tracing. Although Slog has more momentum at this time, Tracing
-sets us up for a better set of tools long term.
+Option 2 - Tracing. Although Slog has more momentum at this time, Tracing sets
+us up for a better set of tools long term.
 
 ## Pros and Cons of the Options <!-- optional -->
 
@@ -127,4 +127,3 @@ logging. Not being able to attach concrete data to logs makes much of the
 logging tasks much harder.
 
 - Bad, because it lacks structured logging.
-*/

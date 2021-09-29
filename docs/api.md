@@ -1,4 +1,3 @@
-/*!
 # Merino API documentation
 
 This page describes the API endpoints available on Merino.
@@ -26,20 +25,21 @@ and headers.
 ### Headers
 
 - `Accept-Language` - The locale preferences expressed in this header in
-  accordance with [RFC 2616 section 14.4][rfc-2616-14-4] will be used to determine suggestions.
-  Merino maintains a list of supported locales. Merino will choose the
-  locale from it's list that has the highest `q` (quality) value in the
-  user's `Accept-Language` header. Locales with `q=0` will not be used.
+  accordance with [RFC 2616 section 14.4][rfc-2616-14-4] will be used to
+  determine suggestions. Merino maintains a list of supported locales. Merino
+  will choose the locale from it's list that has the highest `q` (quality) value
+  in the user's `Accept-Language` header. Locales with `q=0` will not be used.
 
-  If no locales match, Merino will not return any suggestions. If the
-  header is not included or empty, Merino will default to the `en-US` locale.
+  If no locales match, Merino will not return any suggestions. If the header is
+  not included or empty, Merino will default to the `en-US` locale.
 
   If the highest quality, compatible language produces no suggestion results,
   Merino will return an empty list instead of attempting to query other
   languages.
 
-- `User-Agent` - A user's device form factor, operating system, and browser/Firefox version
-  are detected from the `User-Agent` header included in the request.
+- `User-Agent` - A user's device form factor, operating system, and
+  browser/Firefox version are detected from the `User-Agent` header included in
+  the request.
 
 [rfc-2616-14-4]: https://datatracker.ietf.org/doc/html/rfc2616/#section-14.4
 
@@ -49,30 +49,30 @@ and headers.
   determine location. This location may be as granular as city level, depending
   on server configuration.
 
-  Users that use VPN services will be identified according to the VPN exit
-  node they use, allowing them to change Merino's understanding of their
-  location. VPN exit nodes are often mis-identified in geolocation databases,
-  and may produce unreliable results.
+  Users that use VPN services will be identified according to the VPN exit node
+  they use, allowing them to change Merino's understanding of their location.
+  VPN exit nodes are often mis-identified in geolocation databases, and may
+  produce unreliable results.
 
 ### Response
 
-The response will be a JSON object containing the keys `suggestions`, `client_variants` and `server_variants`.
-`client_variants` will return a list of the strings specified from the `client_variants` parameter in the request
-`server_variants` will return a list of strings
-`suggestions` will be a list of suggestion objects. Each suggestion object will have the
-following keys:
+The response will be a JSON object containing the keys `suggestions`,
+`client_variants` and `server_variants`. `client_variants` will return a list of
+the strings specified from the `client_variants` parameter in the request
+`server_variants` will return a list of strings `suggestions` will be a list of
+suggestion objects. Each suggestion object will have the following keys:
 
-- `block_id` - a number that can be used, along with the `provider` field below, to
-  uniquely identify this suggestion. Two suggestions with the same `provider`
-  and `block_id` should be treated as the same suggestion, even if other
-  fields, such as `click_url` change. Merino will enforce that they are
-  equivalent from a user's point of view.
+- `block_id` - a number that can be used, along with the `provider` field below,
+  to uniquely identify this suggestion. Two suggestions with the same `provider`
+  and `block_id` should be treated as the same suggestion, even if other fields,
+  such as `click_url` change. Merino will enforce that they are equivalent from
+  a user's point of view.
 
 - `full_keyword` - In the case that the query was a partial match to the
   suggestion, this is the completed query that would also match this query. For
   example, if the user was searching for fruit and typed "appl", this field
-  might contain the string "apples". This is suitable to show as a completion
-  of the user's input. This field should be treated as plain text.
+  might contain the string "apples". This is suitable to show as a completion of
+  the user's input. This field should be treated as plain text.
 
 - `title` - The full title of the suggestion resulting from the query. Using the
   example of apples above, this might be "Types of Apples in the Pacific
@@ -85,15 +85,15 @@ following keys:
 - `impression_url` - A provider specified telemetry URL that should be notified
   if the browser shows this suggestion to the user. This is used along with
   `click_url` to monitor the relevancy of suggestions. For more details see
-  [Interaction Pings](#interaction-pings), below. This field may be null, in which
-  case no impression ping is required for this suggestion provider.
+  [Interaction Pings](#interaction-pings), below. This field may be null, in
+  which case no impression ping is required for this suggestion provider.
 
-- `click_url` - A provider specified telemetry URL that should be notified
-  if the user selects this suggestion. This should only be notified as the result
-  of positive user action, and only if the user has navigated to the page specified
-  in the `url` field. For more details see [Interaction Pings](#interaction-pings),
-  below. This field may be null, in which case no click ping is required for this
-  suggestion provider.
+- `click_url` - A provider specified telemetry URL that should be notified if
+  the user selects this suggestion. This should only be notified as the result
+  of positive user action, and only if the user has navigated to the page
+  specified in the `url` field. For more details see
+  [Interaction Pings](#interaction-pings), below. This field may be null, in
+  which case no click ping is required for this suggestion provider.
 
 - `provider` - A string that identifies the source of this suggestion. This can
   be used along with `block_id` to uniquely identify this suggestion. It is not
@@ -126,21 +126,20 @@ results as indicated by these headers.
 - 5xx - Internal server error. Try again later.
 
 <a id="interaction-pings"></a>
+
 ## Interaction Pings
 
-When a Firefox user views or selects a suggestion from Merino, Firefox will
-send an impression or a click ping to a Mozilla-controlled service indicating
-this user interaction. Some suggestion providers may also need that interaction
-data for reporting and relevancy optimization. Firefox will not send the pings
-to those providers directly, rather, it will delegate those to a Mozilla-controlled
+When a Firefox user views or selects a suggestion from Merino, Firefox will send
+an impression or a click ping to a Mozilla-controlled service indicating this
+user interaction. Some suggestion providers may also need that interaction data
+for reporting and relevancy optimization. Firefox will not send the pings to
+those providers directly, rather, it will delegate those to a Mozilla-controlled
 service, by which the interaction pings will be sent to the `impression_url` or
 `click_url` specified by the providers.
 
-If the URL for an interaction ping is not specified (for example, `click_url`
-is `null`), then no ping should be sent to the provider for that action. However,
+If the URL for an interaction ping is not specified (for example, `click_url` is
+`null`), then no ping should be sent to the provider for that action. However,
 this interaction ping is always sent to the Mozilla-controlled service unless
 the user opts out the telemetry collection of Firefox.
 
 The required behavior for interaction pings is TBD.
-
-*/
