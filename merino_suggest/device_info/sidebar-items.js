@@ -1,1 +1,0 @@
-initSidebarItems({"enum":[["Browser","The web browser used to make a suggestion request."],["FormFactor","The form factor of the device that sent a given suggestion request."],["OsFamily","Simplified Operating System Family"]],"struct":[["DeviceInfo","The user agent from a suggestion request."]]});

@@ -1,1 +1,0 @@
-initSidebarItems({"enum":[["SuggestionProviderConfig",""]],"struct":[["MemoryCacheConfig",""],["MultiplexerConfig",""],["RedisCacheConfig",""],["RemoteSettingsConfig",""]]});

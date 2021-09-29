@@ -1,1 +1,0 @@
-initSidebarItems({"struct":[["LocalWaker","A synchronization primitive for task wakeup."]]});

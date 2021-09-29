@@ -1,1 +1,0 @@
-initSidebarItems({"attr":[["parameterized",""]],"macro":[["ide","Attribute macro’s such as ‘parameterized’ do not enable the run tests intent for a module marked as cfg(test) (or a #[test] function for that matter) in Intellij."]]});

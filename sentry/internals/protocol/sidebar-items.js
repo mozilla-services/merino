@@ -1,1 +1,0 @@
-initSidebarItems({"constant":[["LATEST","The latest version of the protocol."]],"mod":[["v7","The current latest sentry protocol version."]]});

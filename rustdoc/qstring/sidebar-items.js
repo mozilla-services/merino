@@ -1,0 +1,1 @@
+initSidebarItems({"enum":[["QValue",""]],"struct":[["QString","A query string. Holds a list of `(key,value)`."]]});

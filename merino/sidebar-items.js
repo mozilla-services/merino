@@ -1,1 +1,0 @@
-initSidebarItems({"fn":[["init_logging","Set up logging for Merino, based on settings and the `RUST_LOG` environment variable."],["init_metrics","Set up metrics for Merino, based on settings."],["main","Primary entry point"]],"mod":[["docs","Merino"],["sentry","Merino integration for Sentry."]]});

@@ -1,1 +1,0 @@
-initSidebarItems({"mod":[["adrs","Architecture Decision Records for Merino"],["api","Merino API documentation"],["dev","Developer documentation for working on Merino"],["showroom","Merino Showroom"],["testing","Testing strategies"]]});

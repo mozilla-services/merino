@@ -1,1 +1,0 @@
-initSidebarItems({"fn":[["Bs",""],["BsAdj",""],["BsNoun",""],["BsVerb",""],["Buzzword",""],["BuzzwordMiddle",""],["BuzzwordTail",""],["CatchPhase",""],["CompanyName",""],["CompanySuffix",""],["Industry",""],["Profession",""]]});

@@ -1,1 +1,0 @@
-initSidebarItems({"mod":[["pipe","Asynchronous in-memory byte buffers aimed at producer-consumer problems."]]});

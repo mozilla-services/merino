@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["CellNumber",""],["PhoneNumber",""]]});

@@ -1,1 +1,0 @@
-initSidebarItems({"struct":[["WikiFruit","A toy suggester to test the system."]]});

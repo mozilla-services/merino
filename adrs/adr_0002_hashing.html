@@ -1,0 +1,316 @@
+<!DOCTYPE HTML>
+<html lang="en" class="sidebar-visible no-js light">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>ADR 0002 - Hashing - Merino Book</title>
+        <!-- Custom HTML head -->
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="../highlight.css">
+        <link rel="stylesheet" href="../tomorrow-night.css">
+        <link rel="stylesheet" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+    </head>
+    <body>
+        <!-- Provide site root to javascript -->
+        <script type="text/javascript">
+            var path_to_root = "../";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script type="text/javascript">
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('no-js')
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add('js');
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var html = document.querySelector('html');
+            var sidebar = 'hidden';
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="../intro.html">Intro</a></li><li class="chapter-item expanded affix "><li class="part-title">General Documentation</li><li class="chapter-item expanded "><a href="../api.html"><strong aria-hidden="true">1.</strong> Using the HTTP API</a></li><li class="chapter-item expanded "><a href="../ops.html"><strong aria-hidden="true">2.</strong> Configuring Merino (Operations)</a></li><li class="chapter-item expanded "><a href="../dev/index.html"><strong aria-hidden="true">3.</strong> Working on the code</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../dev/showroom.html"><strong aria-hidden="true">3.1.</strong> Merino Showroom</a></li><li class="chapter-item expanded "><a href="../dev/testing.html"><strong aria-hidden="true">3.2.</strong> Testing Strategies</a></li><li class="chapter-item expanded "><a href="../dev/dependencies.html"><strong aria-hidden="true">3.3.</strong> Development Dependencies</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Architecture Decision Records</li><li class="chapter-item expanded affix "><a href="../adrs/adr_0001_logging.html">ADR 0001 - Logging</a></li><li class="chapter-item expanded affix "><a href="../adrs/adr_0002_hashing.html" class="active">ADR 0002 - Hashing</a></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky bordered">
+                    <div class="left-buttons">
+                        <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </button>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light (default)</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Merino Book</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script type="text/javascript">
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <p>/*!</p>
+<h1 id="choosing-a-logging-library-for-merino"><a class="header" href="#choosing-a-logging-library-for-merino">Choosing a logging library for Merino</a></h1>
+<ul>
+<li>Status: accepted</li>
+<li>Date: 2021-07-28</li>
+</ul>
+<p>Tracking issue: N/A</p>
+<h2 id="context-and-problem-statement"><a class="header" href="#context-and-problem-statement">Context and Problem Statement</a></h2>
+<p>Merino needs a way to generate cache keys for items it will store in the cache.
+A natural way to do this is by hashing the input, and using the result of the
+hash for the cache key. There are many hash keys available. Which one should
+Merino use?</p>
+<h2 id="decision-drivers"><a class="header" href="#decision-drivers">Decision Drivers</a></h2>
+<ul>
+<li>For Merino's common workloads, generating a hash should be low latency.</li>
+<li>The items that Merino hashes are relatively small, a few dozen bytes plus the
+user's query.</li>
+<li>Hashes should be stable across time (on multiple version of Merino) and space
+(on multiple instances of the same version of Merino).</li>
+<li>HashDoS protection is not a concern.</li>
+</ul>
+<h2 id="considered-options"><a class="header" href="#considered-options">Considered Options</a></h2>
+<ol>
+<li><a href="https://en.wikipedia.org/wiki/SipHash">SipHash</a></li>
+<li><a href="https://crates.io/crates/ahash">aHash</a></li>
+<li><a href="https://crates.io/crates/rustc-hash">rustc-hash (aka FxHasher)</a></li>
+<li><a href="https://crates.io/crates/highway">HighwayHash</a></li>
+<li>sha256 or similar</li>
+<li><a href="https://github.com/BLAKE3-team/BLAKE3">Blake3</a></li>
+</ol>
+<h2 id="decision-outcome"><a class="header" href="#decision-outcome">Decision Outcome</a></h2>
+<p>Chosen option: option 6, Blake3, because it is network-safe, and very fast.</p>
+<h2 id="pros-and-cons-of-the-options"><a class="header" href="#pros-and-cons-of-the-options">Pros and Cons of the Options</a></h2>
+<h3 id="option-1---siphash"><a class="header" href="#option-1---siphash">Option 1 - SipHash</a></h3>
+<ul>
+<li><a href="">https://en.wikipedia.org/wiki/SipHash</a></li>
+<li><a href="">https://doc.rust-lang.org/std/hash/struct.SipHasher.html</a></li>
+</ul>
+<p>SipHash is a non-cryptographic hash algorithm used by default for Rust's hashing
+needs, such as HashMaps. It is designed primarily to be resistent against
+&quot;HashDoS&quot; attacks, in which an attacker can force hash collisions in a system
+and overwhelm data structures like hashmaps and caches. It is faster than most
+cryptographic hashes, such as sha256, but is generally slower than other hashes
+considered.</p>
+<p>In Rust's standard library, the standard way to use SipHash is with
+<code>std::collections::hash_map::DefaultHasher</code>, which is not guaranteed to produce
+stable output over time. Specifically, DefaultHasher may change to hashing
+algorithm besides SipHash in the future.</p>
+<ul>
+<li>Good, because it is widely tested by Rust</li>
+<li>Good, because it is already available in the standard library</li>
+<li>Bad, because it spends resources on hashdos protection, which we don't need</li>
+<li>Bad, because Rust's <code>DefaultHash</code> is the normal way to use it, and
+<code>DefaultHash</code> may change in the future.</li>
+</ul>
+<h3 id="option-2---ahash"><a class="header" href="#option-2---ahash">Option 2 - aHash</a></h3>
+<ul>
+<li><a href="">https://crates.io/crates/ahash</a></li>
+</ul>
+<p>AHash is designed with the explicit purpose of being the fastest HashDOS
+resistant hash available in Rust. It is also designed specifically to be used
+for in-memory hashmaps, and is not guaranteed to be stable over time or space.</p>
+<p>This would be a viable candidate for any case where Merino uses in-memory
+hashmaps that need high performance, but is not suitable for network hashing,
+such as for Redis keys.</p>
+<ul>
+<li>Good, because it is very fast</li>
+<li>Bad, because it is not network-safe</li>
+</ul>
+<h3 id="option-3---rustc-hash-aka-fxhash"><a class="header" href="#option-3---rustc-hash-aka-fxhash">Option 3 - rustc-hash aka FxHash</a></h3>
+<p><a href="">https://crates.io/crates/rustc-hash</a></p>
+<p>This is the hashing algorithm used internally by the Rust compiler, and is used
+in some places in Firefox. It is also not designed to be network safe, though it
+may be by accident. It is comparable in speed to aHash, depending on the input.
+It is not resistant against HashDoS attacks, since it is not a keyed hashing
+algorithm.</p>
+<p>Notably, the aHash hash comparison suite claims that it is easy to accidentally
+produce self-DoS conditions with this hashing algorithm, if the hash inputs are
+not well chosen.</p>
+<ul>
+<li>Good, because it is used in rustc and Firefox</li>
+<li>Good, because it is relatively fast</li>
+<li>Bad, because it is not intended to be network safe</li>
+<li>Bad, because of claims about extreme weakness against DoS, including self-DoS</li>
+</ul>
+<h3 id="option-4---highwayhash"><a class="header" href="#option-4---highwayhash">Option 4 - HighwayHash</a></h3>
+<ul>
+<li><a href="">https://crates.io/crates/highway</a></li>
+<li><a href="">https://github.com/google/highwayhash</a></li>
+</ul>
+<p>HighwayHash is an algorithm developed by Google designed to be network safe,
+strong against DoS attacks, and SIMD-optimized. It is recommended by
+<a href="https://crates.io/crates/ahash">the aHash README</a> as a better choice in
+&quot;network use or in applications which persist hashed values&quot;.</p>
+<p>Notably, HighwayHash is relatively slow for small hash inputs, but relatively
+fast for larger ones (though still not as fast as most non-network-safe
+algorithms). Merino's hash inputs are near the boundary where it starts to be
+faster than it's competition.</p>
+<p>There is a predecessor to HighwayHash, FarmHash (and CityHash before it), that
+are faster for smaller inputs. However, the libraries for these aren't
+maintained anymore.</p>
+<ul>
+<li>Good, because it is relatively fast</li>
+<li>Good, because it is designed to be network-safe</li>
+<li>Good, because it is a &quot;frozen&quot; by Google, and won't change in the future</li>
+<li>Good, because it is actively maintained.</li>
+<li>Bad, because it's relatively slow for smaller keys.</li>
+</ul>
+<h3 id="option-5---sha256-or-similar"><a class="header" href="#option-5---sha256-or-similar">Option 5 - sha256 or similar</a></h3>
+<p>The SHA family of hashes are network and DoS safe. However, due to being
+cryptographic hash functions are notably slower than non-cryptographic hashes.
+For purposes where speed is not an issue, they are exceptionally safe and well
+tested algorithms that should be considered.</p>
+<ul>
+<li>Good, because it is very safe</li>
+<li>Good, because it is very widely used and studied</li>
+<li>Bad, because it is slow</li>
+<li>Bad, because we pay for unneeded features</li>
+</ul>
+<h3 id="option-6---blake3"><a class="header" href="#option-6---blake3">Option 6 - Blake3</a></h3>
+<ul>
+<li><a href="">https://github.com/BLAKE3-team/BLAKE3</a></li>
+</ul>
+<p>Blake3 is a cryptographic hash function designed to be highly parallizable and
+extremely fast. Being a cryptographic hash, it is network-safe, and Hash-DoS
+resistant. It is however much faster than most cryptographic algorithms,
+competing with the other fast algorithms considered here. It is a relatively new
+hash, first published in January of 2020.</p>
+<ul>
+<li>Good, because it is ver safe</li>
+<li>Good, because it very fast</li>
+<li>Good, because it can be parallizable for large payloads</li>
+<li>Bad, because it is relatively young</li>
+</ul>
+<h2 id="other-resources"><a class="header" href="#other-resources">Other resources</a></h2>
+<ul>
+<li><a href="https://nnethercote.github.io/perf-book/hashing.html">The Rust Performance Book :: Hashing</a></li>
+<li><a href="https://github.com/tkaitchuck/aHash/tree/master/compare">aHash's hash comparison suite</a></li>
+<li><a href="https://en.wikipedia.org/wiki/SipHash">SipHash</a></li>
+<li><a href="https://crates.io/crates/ahash">aHash</a></li>
+<li><a href="https://crates.io/crates/rustc-hash">rustc-hash (aka FxHasher)</a></li>
+<li><a href="https://crates.io/crates/highway">HighwayHash</a></li>
+</ul>
+<h3 id="benchmarking-results-for-hashing-128-byte-values"><a class="header" href="#benchmarking-results-for-hashing-128-byte-values">Benchmarking results for hashing 128 byte values</a></h3>
+<p><img src="./images/hash-benchmarks.png" alt="Chart of the performance of various hashing libraries" /></p>
+<p>*/</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../adrs/adr_0001_logging.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../adrs/adr_0001_logging.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+        <script type="text/javascript">
+            window.playground_copyable = true;
+        </script>
+        <script src="../elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../mark.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../searcher.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../highlight.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../book.js" type="text/javascript" charset="utf-8"></script>
+
+        <!-- Custom JS scripts -->
+    </body>
+</html>

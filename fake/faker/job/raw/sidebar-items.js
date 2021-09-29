@@ -1,1 +1,0 @@
-initSidebarItems({"struct":[["Field",""],["Position",""],["Seniority",""],["Title",""]]});

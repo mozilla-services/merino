@@ -1,0 +1,195 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;usr&#x2F;local&#x2F;cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;tracing-actix-web-mozlog-0.3.0&#x2F;src&#x2F;lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg"><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../tracing_actix_web_mozlog/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1"> 1</span>
+<span id="2"> 2</span>
+<span id="3"> 3</span>
+<span id="4"> 4</span>
+<span id="5"> 5</span>
+<span id="6"> 6</span>
+<span id="7"> 7</span>
+<span id="8"> 8</span>
+<span id="9"> 9</span>
+<span id="10">10</span>
+<span id="11">11</span>
+<span id="12">12</span>
+<span id="13">13</span>
+<span id="14">14</span>
+<span id="15">15</span>
+<span id="16">16</span>
+<span id="17">17</span>
+<span id="18">18</span>
+<span id="19">19</span>
+<span id="20">20</span>
+<span id="21">21</span>
+<span id="22">22</span>
+<span id="23">23</span>
+<span id="24">24</span>
+<span id="25">25</span>
+<span id="26">26</span>
+<span id="27">27</span>
+<span id="28">28</span>
+<span id="29">29</span>
+<span id="30">30</span>
+<span id="31">31</span>
+<span id="32">32</span>
+<span id="33">33</span>
+<span id="34">34</span>
+<span id="35">35</span>
+<span id="36">36</span>
+<span id="37">37</span>
+<span id="38">38</span>
+<span id="39">39</span>
+<span id="40">40</span>
+<span id="41">41</span>
+<span id="42">42</span>
+<span id="43">43</span>
+<span id="44">44</span>
+<span id="45">45</span>
+<span id="46">46</span>
+<span id="47">47</span>
+<span id="48">48</span>
+<span id="49">49</span>
+<span id="50">50</span>
+<span id="51">51</span>
+<span id="52">52</span>
+<span id="53">53</span>
+<span id="54">54</span>
+<span id="55">55</span>
+<span id="56">56</span>
+<span id="57">57</span>
+<span id="58">58</span>
+<span id="59">59</span>
+<span id="60">60</span>
+<span id="61">61</span>
+<span id="62">62</span>
+<span id="63">63</span>
+<span id="64">64</span>
+<span id="65">65</span>
+<span id="66">66</span>
+<span id="67">67</span>
+<span id="68">68</span>
+<span id="69">69</span>
+<span id="70">70</span>
+<span id="71">71</span>
+<span id="72">72</span>
+<span id="73">73</span>
+<span id="74">74</span>
+<span id="75">75</span>
+<span id="76">76</span>
+<span id="77">77</span>
+<span id="78">78</span>
+<span id="79">79</span>
+<span id="80">80</span>
+<span id="81">81</span>
+<span id="82">82</span>
+<span id="83">83</span>
+<span id="84">84</span>
+<span id="85">85</span>
+<span id="86">86</span>
+<span id="87">87</span>
+<span id="88">88</span>
+<span id="89">89</span>
+<span id="90">90</span>
+<span id="91">91</span>
+<span id="92">92</span>
+<span id="93">93</span>
+<span id="94">94</span>
+<span id="95">95</span>
+</pre><pre class="rust">
+<span class="doccomment">//! # tracing-actix-web-mozlog</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! Support for [tracing] in [actix-web](https://actix.rs/) apps that target [MozLog][].</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! [MozLog]: https://wiki.mozilla.org/Firefox/Services/Logging</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! This crate provides a Tracing subscriber as well as an Actix web middleware.</span>
+<span class="doccomment">//! Both can be used independently, but using them together implements the full</span>
+<span class="doccomment">//! recommended format for MozLog.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! ## Subscriber</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! To use the subscriber, register it and a [`JsonStorageLayer`] with a</span>
+<span class="doccomment">//! [`tracing_subscriber::Registry`]:</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! ```</span>
+<span class="doccomment">//! use tracing_actix_web_mozlog::{JsonStorageLayer, MozLogFormatLayer};</span>
+<span class="doccomment">//! use tracing_subscriber::layer::SubscriberExt;</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! let subscriber = tracing_subscriber::registry()</span>
+<span class="doccomment">//!     .with(JsonStorageLayer)</span>
+<span class="doccomment">//!     .with(MozLogFormatLayer::new(&quot;service-name&quot;, std::io::stdout));</span>
+<span class="doccomment">//! ```</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! This subscriber can then be registered with tracing using</span>
+<span class="doccomment">//! [`tracing::subscriber::set_global_default`], or any other registration</span>
+<span class="doccomment">//! method. It will manage formatting any events logged in MozLog JSON format.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! Fields defined on the enclosing spans of an event will be included when</span>
+<span class="doccomment">//! logging an event. The event overrides the spans, and inner spans override</span>
+<span class="doccomment">//! outer spans.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! ## Middleware</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! To make sure that the correct Tracing context is captured, it is important to</span>
+<span class="doccomment">//! create the MozLog middleware outside of the `HttpServer::new` closure:</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! ```</span>
+<span class="doccomment">//! use tracing_actix_web_mozlog::MozLog;</span>
+<span class="doccomment">//! use actix_web::{HttpServer, App};</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! let moz_log = MozLog::default();</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! let server = HttpServer::new(move || {</span>
+<span class="doccomment">//!     App::new()</span>
+<span class="doccomment">//!         .wrap(moz_log.clone())</span>
+<span class="doccomment">//! });</span>
+<span class="doccomment">//! ```</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! This middleware will emit `request.summary` events for each request as it is</span>
+<span class="doccomment">//! completed, including timing information.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! ## Message Types</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! MozLog expects all messages to have a type that defines the schema of their</span>
+<span class="doccomment">//! fields. This can be specified with the `type` field while logging events.</span>
+<span class="doccomment">//! Since `type` is a Rust reserved keyword, this can also be specified using a</span>
+<span class="doccomment">//! raw-string-inspired format: `r#type = value`.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! ```rust</span>
+<span class="doccomment">//! let format_error = &quot;...&quot;;</span>
+<span class="doccomment">//! tracing::warn!(</span>
+<span class="doccomment">//!     r#type = &quot;auth.login.invalid-email&quot;,</span>
+<span class="doccomment">//!     %format_error,</span>
+<span class="doccomment">//!     &quot;A user attempted to register using an email in an invalid format&quot;</span>
+<span class="doccomment">//! );</span>
+<span class="doccomment">//! ```</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! Messages that don&#39;t include a `type` field will be assigned a type of</span>
+<span class="doccomment">//! `&lt;unknown&gt;`. If a message contains both a `type` field and a `r#type` field,</span>
+<span class="doccomment">//! the `type` field will take precedence.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! Notably, use of the standard `log` facade&#39;s macros will have an unknown type,</span>
+<span class="doccomment">//! as well as most other logging that originates from libraries.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! ## MozLog extensions</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! In addition to all standard MozLog fields, this crate always adds a `spans`</span>
+<span class="doccomment">//! field to messages. This contains a comma-separated list of the names of the</span>
+<span class="doccomment">//! spans enclosing the event, with the outermost span coming first. Top-level</span>
+<span class="doccomment">//! events will have an empty string for this value.</span>
+
+<span class="attribute">#![<span class="ident">warn</span>(<span class="ident">missing_crate_level_docs</span>)]</span>
+<span class="attribute">#![<span class="ident">warn</span>(<span class="ident">missing_docs</span>)]</span>
+
+<span class="kw">mod</span> <span class="ident">middleware</span>;
+<span class="kw">mod</span> <span class="ident">subscriber</span>;
+
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::middleware::MozLog</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::subscriber</span>::{<span class="ident">MozLogFormatLayer</span>, <span class="ident">MozLogMessage</span>};
+
+<span class="doccomment">/// A layer to collect information about Tracing spans and provide it to other layers.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// This is a re-exported entry from [`tracing_bunyan_formatter`].</span>
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">tracing_bunyan_formatter::JsonStorageLayer</span>;
+</pre></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="tracing_actix_web_mozlog" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
+    <script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script>
+</body></html>

@@ -1,1 +1,0 @@
-initSidebarItems({"attr":[["fix_hidden_lifetime_bug","feature = “proc-macros”See the crate docs for more info."]]});

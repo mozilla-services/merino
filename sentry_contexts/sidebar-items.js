@@ -1,1 +1,0 @@
-initSidebarItems({"struct":[["ContextIntegration","Adds Contexts to Sentry Events."]]});

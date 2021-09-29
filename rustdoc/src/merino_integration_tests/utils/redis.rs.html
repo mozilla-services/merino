@@ -1,0 +1,131 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `merino-integration-tests&#x2F;src&#x2F;utils&#x2F;redis.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>redis.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../merino_integration_tests/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1"> 1</span>
+<span id="2"> 2</span>
+<span id="3"> 3</span>
+<span id="4"> 4</span>
+<span id="5"> 5</span>
+<span id="6"> 6</span>
+<span id="7"> 7</span>
+<span id="8"> 8</span>
+<span id="9"> 9</span>
+<span id="10">10</span>
+<span id="11">11</span>
+<span id="12">12</span>
+<span id="13">13</span>
+<span id="14">14</span>
+<span id="15">15</span>
+<span id="16">16</span>
+<span id="17">17</span>
+<span id="18">18</span>
+<span id="19">19</span>
+<span id="20">20</span>
+<span id="21">21</span>
+<span id="22">22</span>
+<span id="23">23</span>
+<span id="24">24</span>
+<span id="25">25</span>
+<span id="26">26</span>
+<span id="27">27</span>
+<span id="28">28</span>
+<span id="29">29</span>
+<span id="30">30</span>
+<span id="31">31</span>
+<span id="32">32</span>
+<span id="33">33</span>
+<span id="34">34</span>
+<span id="35">35</span>
+<span id="36">36</span>
+<span id="37">37</span>
+<span id="38">38</span>
+<span id="39">39</span>
+<span id="40">40</span>
+<span id="41">41</span>
+<span id="42">42</span>
+<span id="43">43</span>
+<span id="44">44</span>
+<span id="45">45</span>
+<span id="46">46</span>
+<span id="47">47</span>
+<span id="48">48</span>
+<span id="49">49</span>
+<span id="50">50</span>
+<span id="51">51</span>
+<span id="52">52</span>
+<span id="53">53</span>
+<span id="54">54</span>
+<span id="55">55</span>
+<span id="56">56</span>
+<span id="57">57</span>
+<span id="58">58</span>
+<span id="59">59</span>
+<span id="60">60</span>
+<span id="61">61</span>
+<span id="62">62</span>
+<span id="63">63</span>
+</pre><pre class="rust">
+<span class="doccomment">//! Utilities to run tests against a Redis server by using multiple databases to</span>
+<span class="doccomment">//! run tests in parallel.</span>
+
+<span class="kw">use</span> <span class="ident">anyhow</span>::{<span class="ident">ensure</span>, <span class="prelude-ty">Result</span>};
+<span class="kw">use</span> <span class="ident">deadpool::unmanaged</span>::{<span class="ident">Object</span>, <span class="ident">Pool</span>};
+<span class="kw">use</span> <span class="ident">lazy_static::lazy_static</span>;
+<span class="kw">use</span> <span class="ident">redis::ConnectionInfo</span>;
+
+<span class="kw">use</span> <span class="ident">tokio::sync::OnceCell</span>;
+
+<span class="macro">lazy_static!</span> {
+    <span class="kw">static</span> <span class="kw-2">ref</span> <span class="ident">AVAILABLE_DATABASES</span>: <span class="ident">OnceCell</span><span class="op">&lt;</span><span class="ident">Pool</span><span class="op">&lt;</span><span class="ident">i64</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">OnceCell::const_new</span>();
+}
+
+<span class="doccomment">/// Get a connection info that uses an unused database on the Redis server.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// To define &quot;unused&quot;, this assumes that no other programs are using Redis</span>
+<span class="doccomment">/// databases greater than 0. It is safe to run multiple tests in parallel within</span>
+<span class="doccomment">/// one test runner, but not to run multiple test runners.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// The return value contains a connection info to use as normal, and a guard</span>
+<span class="doccomment">/// object. When the guard is dropped, the database used by that connection info</span>
+<span class="doccomment">/// is marked as available again. It is up to the caller to ensure that the</span>
+<span class="doccomment">/// connection info does not outlive the guard.</span>
+<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_temp_db</span>(
+    <span class="ident">connection_info</span>: <span class="kw-2">&amp;</span><span class="ident">ConnectionInfo</span>,
+) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">ConnectionInfo</span>, <span class="ident">Object</span><span class="op">&lt;</span><span class="ident">i64</span><span class="op">&gt;</span>)<span class="op">&gt;</span> {
+    <span class="macro">ensure!</span>(
+        <span class="ident">connection_info</span>.<span class="ident">db</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span>,
+        <span class="string">&quot;template connection must use database 0&quot;</span>
+    );
+
+    <span class="kw">let</span> <span class="ident">pool</span> <span class="op">=</span> <span class="ident">AVAILABLE_DATABASES</span>
+        .<span class="ident">get_or_try_init</span>(<span class="op">|</span><span class="op">|</span> <span class="kw">async</span> {
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">client</span> <span class="op">=</span> <span class="ident">redis::Client::open</span>(<span class="ident">connection_info</span>.<span class="ident">clone</span>())<span class="question-mark">?</span>;
+            <span class="kw">let</span> <span class="ident">response</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">redis::cmd</span>(<span class="string">&quot;CONFIG&quot;</span>)
+                .<span class="ident">arg</span>(<span class="string">&quot;GET&quot;</span>)
+                .<span class="ident">arg</span>(<span class="string">&quot;databases&quot;</span>)
+                .<span class="ident">query</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">client</span>)<span class="question-mark">?</span>;
+
+            <span class="macro">assert_eq!</span>(<span class="ident">response</span>.<span class="ident">len</span>(), <span class="number">2</span>);
+            <span class="macro">assert_eq!</span>(<span class="ident">response</span>[<span class="number">0</span>], <span class="string">&quot;databases&quot;</span>);
+            <span class="kw">let</span> <span class="ident">max_dbs</span> <span class="op">=</span> <span class="ident">response</span>[<span class="number">1</span>].<span class="ident">parse</span>()<span class="question-mark">?</span>;
+
+            <span class="kw">let</span> <span class="ident">db_ids</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">i64</span><span class="op">&gt;</span> <span class="op">=</span> (<span class="number">1</span>..<span class="ident">max_dbs</span>).<span class="ident">collect</span>();
+            <span class="kw">let</span> <span class="ident">pool</span> <span class="op">=</span> <span class="ident">Pool::from</span>(<span class="ident">db_ids</span>);
+            <span class="macro">assert_eq!</span>(<span class="ident">pool</span>.<span class="ident">status</span>().<span class="ident">available</span> <span class="kw">as</span> <span class="ident">i64</span>, <span class="ident">max_dbs</span> <span class="op">-</span> <span class="number">1</span>);
+            <span class="prelude-ty">Result</span>::<span class="op">&lt;</span><span class="kw">_</span>, <span class="ident">anyhow::Error</span><span class="op">&gt;</span><span class="ident">::Ok</span>(<span class="ident">pool</span>)
+        })
+        .<span class="kw">await</span><span class="question-mark">?</span>;
+
+    <span class="kw">let</span> <span class="ident">guard</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">get</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">connection_info</span> <span class="op">=</span> <span class="ident">connection_info</span>.<span class="ident">clone</span>();
+    <span class="ident">connection_info</span>.<span class="ident">db</span> <span class="op">=</span> <span class="kw-2">*</span><span class="ident">guard</span>.<span class="ident">as_ref</span>();
+
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">client</span> <span class="op">=</span>
+        <span class="ident">redis::Client::open</span>(<span class="ident">connection_info</span>.<span class="ident">clone</span>()).<span class="ident">expect</span>(<span class="string">&quot;Couldn&#39;t open Redis connection&quot;</span>);
+    <span class="kw">let</span> <span class="kw">_</span>: () <span class="op">=</span> <span class="ident">redis::cmd</span>(<span class="string">&quot;FLUSHDB&quot;</span>)
+        .<span class="ident">query</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">client</span>)
+        .<span class="ident">expect</span>(<span class="string">&quot;Couldn&#39;t clear test Redis DB&quot;</span>);
+
+    <span class="prelude-val">Ok</span>((<span class="ident">connection_info</span>, <span class="ident">guard</span>))
+}
+</pre></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="merino_integration_tests" data-search-index-js="../../../search-index.js" data-search-js="../../../search.js"></div>
+    <script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script>
+</body></html>

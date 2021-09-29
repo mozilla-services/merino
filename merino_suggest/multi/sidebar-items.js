@@ -1,1 +1,0 @@
-initSidebarItems({"struct":[["Multi","Type alias for the contained suggestion type to save some typing. A provider that aggregates suggestions from multiple suggesters."]]});

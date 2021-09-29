@@ -1,1 +1,0 @@
-initSidebarItems({"struct":[["LogWatcher","Helper to collect events emitted by Tracing and later make assertions about the collected events."],["LogWatcherWriter","A helper that collects log events emitted from Tracing."],["TracingJsonEvent","A deserialization of [`tracing_subscriber::fmt::format::Json`]’s output format."]]});

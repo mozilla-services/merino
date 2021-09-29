@@ -1,0 +1,276 @@
+<!DOCTYPE HTML>
+<html lang="en" class="sidebar-visible no-js light">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Working on the code - Merino Book</title>
+        <!-- Custom HTML head -->
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="../highlight.css">
+        <link rel="stylesheet" href="../tomorrow-night.css">
+        <link rel="stylesheet" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+    </head>
+    <body>
+        <!-- Provide site root to javascript -->
+        <script type="text/javascript">
+            var path_to_root = "../";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script type="text/javascript">
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('no-js')
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add('js');
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var html = document.querySelector('html');
+            var sidebar = 'hidden';
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="../intro.html">Intro</a></li><li class="chapter-item expanded affix "><li class="part-title">General Documentation</li><li class="chapter-item expanded "><a href="../api.html"><strong aria-hidden="true">1.</strong> Using the HTTP API</a></li><li class="chapter-item expanded "><a href="../ops.html"><strong aria-hidden="true">2.</strong> Configuring Merino (Operations)</a></li><li class="chapter-item expanded "><a href="../dev/index.html" class="active"><strong aria-hidden="true">3.</strong> Working on the code</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../dev/showroom.html"><strong aria-hidden="true">3.1.</strong> Merino Showroom</a></li><li class="chapter-item expanded "><a href="../dev/testing.html"><strong aria-hidden="true">3.2.</strong> Testing Strategies</a></li><li class="chapter-item expanded "><a href="../dev/dependencies.html"><strong aria-hidden="true">3.3.</strong> Development Dependencies</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Architecture Decision Records</li><li class="chapter-item expanded affix "><a href="../adrs/adr_0001_logging.html">ADR 0001 - Logging</a></li><li class="chapter-item expanded affix "><a href="../adrs/adr_0002_hashing.html">ADR 0002 - Hashing</a></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky bordered">
+                    <div class="left-buttons">
+                        <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </button>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light (default)</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Merino Book</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script type="text/javascript">
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="developer-documentation-for-working-on-merino"><a class="header" href="#developer-documentation-for-working-on-merino">Developer documentation for working on Merino</a></h1>
+<h2 id="tldr"><a class="header" href="#tldr">tl;dr</a></h2>
+<p>Here are some useful commands when working on Merino.</p>
+<p>Run the main app</p>
+<pre><code>$ docker-compose -f dev/docker-compose.yaml -d
+$ cargo run -p merino
+</code></pre>
+<p>Run tests</p>
+<pre><code>$ docker-compose -f dev/docker-compose.yaml -d
+$ cargo test
+</code></pre>
+<h2 id="rustdoc"><a class="header" href="#rustdoc">Rustdoc</a></h2>
+<p>You can generate documentation, both code level and book level, for Merino and
+all related crates by running <code>./dev/make-all-docs.sh</code>.</p>
+<p>Pre-built code docs are available online at
+<a href="https://mozilla.github.io/merino/rustdoc/">https://mozilla.github.io/merino/rustdoc/</a>.</p>
+<h2 id="local-configuration"><a class="header" href="#local-configuration">Local configuration</a></h2>
+<p>The default configuration of Merino is <code>development</code>, which has human-oriented
+logging and debugging enabled. For settings that you wish to change in the
+development configuration, you have two options, listed below.</p>
+<blockquote>
+<p>For full details, make sure to check out the documentation for [Merino's
+setting system][../settings.md]</p>
+</blockquote>
+<h3 id="update-the-defaults"><a class="header" href="#update-the-defaults">Update the defaults</a></h3>
+<p>If the change you want to make makes the system better for most development
+tasks, consider adding it to <code>config/development.yaml</code>, so that other developers
+can take advantage of it. You can look at <code>config/base.yaml</code>, which defines all
+requires configuration, to see an example of the structure.</p>
+<p>It is not suitable to put secrets in <code>config/development.yaml</code>.</p>
+<h3 id="create-a-local-override"><a class="header" href="#create-a-local-override">Create a local override</a></h3>
+<p>For local changes to adapt to your machine or tastes, you can put the
+configuration in <code>config/local.yaml</code>. These file doesn't exist by default. These
+changes won't be a part of the git history, so it is safe to put secrets here,
+if needed. Importantly, it should never be <em>required</em> to have a <code>local.yaml</code> to
+run Merino in a development setting.</p>
+<h2 id="repository-structure"><a class="header" href="#repository-structure">Repository structure</a></h2>
+<p>This project is structured as a <a href="https://doc.rust-lang.org/book/ch14-03-cargo-workspaces.html">Cargo Workspace</a> that contains one crate for
+each broad area of behavior for Merino. This structure is advantageous because
+the crates can be handled either individually or as a group. When compiling,
+each crate can be compiled in parallel, where dependencies allow, and when
+running tests, each test suite can be run separately or together. This also
+provides an advantage if we choose to re-use any of these crates in other
+projects, or if we publish the crates to Crates.io.</p>
+<h2 id="project-crates"><a class="header" href="#project-crates">Project crates</a></h2>
+<p>This is a brief overview of the crates found in the repository. For more
+details, see the specific crate docs.</p>
+<h3 id="a-hrefrustdocmerinomerinoa"><a class="header" href="#a-hrefrustdocmerinomerinoa"><a href="../rustdoc/merino/"><code>merino</code></a></a></h3>
+<p>This is the main Merino application, and one of the <em>binary</em> crates in the
+repository. It brings together and configures the other crates to create a
+production-like environment for Firefox Suggest.</p>
+<h3 id="a-hrefrustdocmerino_settingsmerino-settingsa"><a class="header" href="#a-hrefrustdocmerino_settingsmerino-settingsa"><a href="../rustdoc/merino_settings/"><code>merino-settings</code></a></a></h3>
+<p>This defines and documents the settings of the application. These settings
+should be initialized by one of the <em>binary</em> crates, and passed into the other
+crates to configure them.</p>
+<h3 id="a-hrefrustdocmerino_webmerino-weba"><a class="header" href="#a-hrefrustdocmerino_webmerino-weba"><a href="../rustdoc/merino_web/"><code>merino-web</code></a></a></h3>
+<p>This crate provides an HTTP API to access Merino, including providing
+observability into the running of the application via that API.</p>
+<h3 id="a-hrefrustdocmerino_suggestmerino-suggesta"><a class="header" href="#a-hrefrustdocmerino_suggestmerino-suggesta"><a href="../rustdoc/merino_suggest/"><code>merino-suggest</code></a></a></h3>
+<p>This is a <em>domain</em> crate that defines the data model and traits needed to
+provide suggestions to Firefox.</p>
+<h3 id="a-hrefrustdocmerino_cachemerino-cachea"><a class="header" href="#a-hrefrustdocmerino_cachemerino-cachea"><a href="../rustdoc/merino_cache/"><code>merino-cache</code></a></a></h3>
+<p>This crate contains domain models and behavior for Merino's caching
+functionality.</p>
+<h3 id="a-hrefrustdocmerino_admmerino-adma"><a class="header" href="#a-hrefrustdocmerino_admmerino-adma"><a href="../rustdoc/merino_adm/"><code>merino-adm</code></a></a></h3>
+<p>This crate provides integration with the AdMarketplace APIs, and implements the
+traits from <code>merino-suggest</code>.</p>
+<h3 id="a-hrefshowroomhtmlmerino-showrooma"><a class="header" href="#a-hrefshowroomhtmlmerino-showrooma"><a href="./showroom.html"><code>merino-showroom</code></a></a></h3>
+<p>This is not a Rust crate, but instead a small Javascript application. It can be
+used to test Merino during development and demos.</p>
+<h3 id="a-hrefrustdocmerino_integration_testsmerino-integration-testsa"><a class="header" href="#a-hrefrustdocmerino_integration_testsmerino-integration-testsa"><a href="../rustdoc/merino_integration_tests/"><code>merino-integration-tests</code></a></a></h3>
+<p>This crate is a separate test system. It works much like <code>merino</code>, in that it
+brings together the other crates to produce a complete Merino environment.
+However, this binary crate produces an application that exercise the service as
+a whole, instead of providing a server to manual test against.</p>
+<h3 id="a-hrefrustdocmerino_integration_tests_macromerino-integration-tests-macroa"><a class="header" href="#a-hrefrustdocmerino_integration_tests_macromerino-integration-tests-macroa"><a href="../rustdoc/merino_integration_tests_macro/"><code>merino-integration-tests-macro</code></a></a></h3>
+<p>This crate provides a procmacro used in <code>merino-integration-tests</code>. Rust
+requires that procmacros be in their own crate.</p>
+<h2 id="recommended-tools"><a class="header" href="#recommended-tools">Recommended Tools</a></h2>
+<ul>
+<li><a href="https://rust-analyzer.github.io/">rust-analyzer</a> - IDE-like tools for many editors. This provides easy access
+to type inference and documentation while editing Rust code, which can make
+the development process much easier.</li>
+<li><a href="https://crates.io/crates/cargo-watch">cargo-watch</a> - A Cargo subcommand that re-runs a task when files change.
+Very useful for things like <code>cargo watch -x clippy</code> or
+<code>cargo watch -x &quot;test -- merino-adm&quot;</code>.</li>
+</ul>
+<h2 id="recommended-reading"><a class="header" href="#recommended-reading">Recommended Reading</a></h2>
+<p>These works have influenced the design of Merino.</p>
+<ul>
+<li>The Contextual Services
+<a href="https://github.com/mozilla-services/skeleton/">Skeleton Actix project</a></li>
+<li><a href="https://www.zero2prod.com/">Zero to Production in Rust</a> by Luca Palmieri</li>
+<li><a href="https://www.youtube.com/watch?v=rAF8mLI0naQ">Error Handling Isn't All About Errors</a>,
+by Jane &quot;<a href="https://twitter.com/yaahc_/">yaahc</a>&quot; Lusby, from RustConf 2020.</li>
+</ul>
+<p>Run dependency servers</p>
+<pre><code>$ cd dev
+$ docker-compose up
+</code></pre>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../ops.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+                            <a rel="next" href="../dev/showroom.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../ops.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+                    <a rel="next" href="../dev/showroom.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+        <script type="text/javascript">
+            window.playground_copyable = true;
+        </script>
+        <script src="../elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../mark.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../searcher.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../highlight.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../book.js" type="text/javascript" charset="utf-8"></script>
+
+        <!-- Custom JS scripts -->
+    </body>
+</html>

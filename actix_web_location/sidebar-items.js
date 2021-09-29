@@ -1,1 +1,0 @@
-initSidebarItems({"enum":[["Error","An error that occurred while providing a location."]],"mod":[["providers","Providers are `actix-web-location`’s abstraction to allow multiple ways of determining location."]],"struct":[["Location","The location information that providers must produce."],["LocationConfig","Configuration for how to determine location from a request."]]});

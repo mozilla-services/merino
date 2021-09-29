@@ -1,1 +1,0 @@
-initSidebarItems({"struct":[["Proportion","Represents a value from 0.0 to 1.0, inclusive. That is: a portion of something that cannot be negative or exceed 100%."]]});

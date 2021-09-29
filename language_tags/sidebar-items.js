@@ -1,1 +1,0 @@
-initSidebarItems({"enum":[["ParseError","Errors returned by `LanguageTag` parsing"],["ValidationError","Errors returned by the `LanguageTag` validation"]],"struct":[["LanguageTag","A language tag as described in RFC 5646."]]});

@@ -1,0 +1,192 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Deadpool Latest Version Build Status"><meta name="keywords" content="rust, rustlang, rust-lang, deadpool"><title>deadpool - Rust</title><link rel="stylesheet" type="text/css" href="../normalize.css"><link rel="stylesheet" type="text/css" href="../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../ayu.css" disabled ><script id="default-settings" ></script><script src="../storage.js"></script><script src="../crates.js"></script><noscript><link rel="stylesheet" href="../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../favicon.svg"><link rel="alternate icon" type="image/png" href="../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../down-arrow.svg");}</style></head><body class="rustdoc mod crate"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../deadpool/index.html'><div class='logo-container rust-logo'><img src='../rust-logo.png' alt='logo'></div></a><h2 class="location">Crate deadpool</h2><div class="block version"><div class="narrow-helper"></div><p>Version 0.8.1</p></div><div class="sidebar-elems"><a id="all-types" href="all.html"><p>See all deadpool's items</p></a><div class="block items"><ul><li><a href="#modules">Modules</a></li><li><a href="#structs">Structs</a></li><li><a href="#enums">Enums</a></li></ul></div><div id="sidebar-vars" data-name="deadpool" data-ty="mod" data-relpath=""></div><script defer src="sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../wheel.svg"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Crate <a class="mod" href="#">deadpool</a><button id="copy-path" onclick="copy_path(this)" title="copy path"><img src="../clipboard.svg" width="19" height="18" alt="Copy item import" title="Copy item import to clipboard"></button></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../src/deadpool/lib.rs.html#1-215" title="goto source code">[src]</a></span></h1><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><h1 id="deadpool-latest-version-build-status" class="section-header"><a href="#deadpool-latest-version-build-status">Deadpool <img src="https://img.shields.io/crates/v/deadpool.svg" alt="Latest Version" /> <img src="https://img.shields.io/github/workflow/status/bikeshedder/deadpool/Rust" alt="Build Status" /></a></h1>
+<p>Deadpool is a dead simple async pool for connections and objects
+of any type.</p>
+<p>This crate provides two implementations:</p>
+<ul>
+<li>
+<p>Managed pool (<code>deadpool::managed::Pool</code>)</p>
+<ul>
+<li>Creates and recycles objects as needed</li>
+<li>Useful for <a href="#database-connection-pools">database connection pools</a></li>
+<li>Enabled via the <code>managed</code> feature in your <code>Cargo.toml</code></li>
+</ul>
+</li>
+<li>
+<p>Unmanaged pool (<code>deadpool::unmanaged::Pool</code>)</p>
+<ul>
+<li>All objects either need to to be created by the user and added to the
+pool manually. It is also possible to create a pool from an existing
+collection of objects.</li>
+<li>Enabled via the <code>unmanaged</code> feature in your <code>Cargo.toml</code></li>
+</ul>
+</li>
+</ul>
+<h2 id="features" class="section-header"><a href="#features">Features</a></h2><table><thead><tr><th>Feature</th><th>Description</th><th>Extra dependencies</th><th>Default</th></tr></thead><tbody>
+<tr><td><code>managed</code></td><td>Enable managed pool implementation</td><td><code>async-trait</code></td><td>yes</td></tr>
+<tr><td><code>unmanaged</code></td><td>Enable unmanaged pool implementation</td><td>-</td><td>yes</td></tr>
+<tr><td><code>config</code></td><td>Enable support for <a href="https://crates.io/crates/config">config</a> crate</td><td><code>config</code>, <code>serde/derive</code></td><td>yes</td></tr>
+<tr><td><code>rt_tokio_1</code></td><td>Enable support for <a href="https://crates.io/crates/tokio">tokio</a> crate</td><td><code>tokio/time</code></td><td>no</td></tr>
+<tr><td><code>rt_async-std_1</code></td><td>Enable support for <a href="https://crates.io/crates/config">async-std</a> crate</td><td><code>async-std</code></td><td>no</td></tr>
+</tbody></table>
+<p>The runtime features (<code>rt_*</code>) are only needed if you need support for
+timeouts. If you try to use timeouts without specifying a runtime at
+pool creation the pool get methods will return an
+<code>PoolError::NoRuntimeSpecified</code> error.</p>
+<h2 id="managed-pool-aka-connection-pool" class="section-header"><a href="#managed-pool-aka-connection-pool">Managed pool (aka. connection pool)</a></h2>
+<p>This is the obvious choice for connection pools of any kind. Deadpool already
+comes with a couple of <a href="#database-connection-pools">database connection pools</a>
+which work out of the box.</p>
+<h3 id="example" class="section-header"><a href="#example">Example</a></h3>
+<div class='information'><div class='tooltip ignore'>ⓘ</div></div><div class="example-wrap"><pre class="rust rust-example-rendered ignore">
+<span class="kw">use</span> <span class="ident">async_trait::async_trait</span>;
+
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
+<span class="kw">enum</span> <span class="ident">Error</span> { <span class="ident">Fail</span> }
+
+<span class="kw">struct</span> <span class="ident">Computer</span> {}
+<span class="kw">struct</span> <span class="ident">Manager</span> {}
+<span class="kw">type</span> <span class="ident">Pool</span> <span class="op">=</span> <span class="ident">deadpool::managed::Pool</span><span class="op">&lt;</span><span class="ident">Manager</span><span class="op">&gt;</span>;
+
+<span class="kw">impl</span> <span class="ident">Computer</span> {
+    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_answer</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">i32</span> {
+        <span class="number">42</span>
+    }
+}
+
+<span class="attribute">#[<span class="ident">async_trait</span>]</span>
+<span class="kw">impl</span> <span class="ident">deadpool::managed::Manager</span> <span class="kw">for</span> <span class="ident">Manager</span> {
+    <span class="kw">type</span> <span class="ident">Type</span> <span class="op">=</span> <span class="ident">Computer</span>;
+    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">Error</span>;
+    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">create</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Computer</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
+        <span class="prelude-val">Ok</span>(<span class="ident">Computer</span> {})
+    }
+    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">recycle</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Computer</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">deadpool::managed::RecycleResult</span><span class="op">&lt;</span><span class="ident">Error</span><span class="op">&gt;</span> {
+        <span class="prelude-val">Ok</span>(())
+    }
+}
+
+<span class="attribute">#[<span class="ident">tokio::main</span>]</span>
+<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">main</span>() {
+    <span class="kw">let</span> <span class="ident">mgr</span> <span class="op">=</span> <span class="ident">Manager</span> {};
+    <span class="kw">let</span> <span class="ident">pool</span> <span class="op">=</span> <span class="ident">Pool::new</span>(<span class="ident">mgr</span>, <span class="number">16</span>);
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">get</span>().<span class="kw">await</span>.<span class="ident">unwrap</span>();
+    <span class="kw">let</span> <span class="ident">answer</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">get_answer</span>().<span class="kw">await</span>;
+    <span class="macro">assert_eq!</span>(<span class="ident">answer</span>, <span class="number">42</span>);
+}</pre></div>
+<h3 id="database-connection-pools" class="section-header"><a href="#database-connection-pools">Database connection pools</a></h3>
+<p>Deadpool supports various database backends by implementing the
+<code>deadpool::managed::Manager</code> trait. The following backends are
+currently supported:</p>
+<table><thead><tr><th>Backend</th><th>Crate</th><th>Latest Version</th></tr></thead><tbody>
+<tr><td><a href="https://crates.io/crates/tokio-postgres">tokio-postgres</a></td><td><a href="https://crates.io/crates/deadpool-postgres">deadpool-postgres</a></td><td><a href="https://crates.io/crates/deadpool-postgres"><img src="https://img.shields.io/crates/v/deadpool-postgres.svg" alt="Latest Version" /></a></td></tr>
+<tr><td><a href="https://crates.io/crates/lapin">lapin</a> (AMQP)</td><td><a href="https://crates.io/crates/deadpool-lapin">deadpool-lapin</a></td><td><a href="https://crates.io/crates/deadpool-lapin"><img src="https://img.shields.io/crates/v/deadpool-lapin.svg" alt="Latest Version" /></a></td></tr>
+<tr><td><a href="https://crates.io/crates/redis">redis</a></td><td><a href="https://crates.io/crates/deadpool-redis">deadpool-redis</a></td><td><a href="https://crates.io/crates/deadpool-redis"><img src="https://img.shields.io/crates/v/deadpool-redis.svg" alt="Latest Version" /></a></td></tr>
+<tr><td><a href="https://crates.io/crates/async-memcached">async-memcached</a></td><td><a href="https://crates.io/crates/deadpool-memcached">deadpool-memcached</a></td><td><a href="https://crates.io/crates/deadpool-memcached"><img src="https://img.shields.io/crates/v/deadpool-memcached.svg" alt="Latest Version" /></a></td></tr>
+<tr><td><a href="https://crates.io/crates/rusqlite">rusqlite</a></td><td><a href="https://crates.io/crates/deadpool-sqlite">deadpool-sqlite</a></td><td><a href="https://crates.io/crates/deadpool-sqlite"><img src="https://img.shields.io/crates/v/deadpool-sqlite.svg" alt="Latest Version" /></a></td></tr>
+</tbody></table>
+<h3 id="reasons-for-yet-another-connection-pool" class="section-header"><a href="#reasons-for-yet-another-connection-pool">Reasons for yet another connection pool</a></h3>
+<p>Deadpool is by no means the only pool implementation available. It does
+things a little different and that is the main reason for it to exist:</p>
+<ul>
+<li>
+<p><strong>Deadpool is compatible with any executor.</strong> Objects are returned to the
+pool using the <code>Drop</code> trait. The health of those objects is checked upon
+next retrieval and not when they are returned. Deadpool never performs any
+actions in the background. This is the reason why deadpool does not need
+to spawn futures and does not rely on a background thread or task of any
+type.</p>
+</li>
+<li>
+<p><strong>Identical startup and runtime behaviour</strong>. When writing long running
+application there usually should be no difference between startup and
+runtime if a database connection is temporarily not available. Nobody
+would expect an application to crash if the database becomes unavailable
+at runtime. So it should not crash on startup either. Creating the pool
+never fails and errors are only ever returned when calling <code>Pool::get()</code>.</p>
+<p>If you really want your application to crash on startup if objects can
+not be created on startup simply call
+<code>pool.get().await.expect(&quot;DB connection failed&quot;)</code> right after creating
+the pool.</p>
+</li>
+<li>
+<p><strong>Deadpool is fast.</strong> Whenever working with locking primitives they are
+held for the shortest duration possible. When returning an object to the
+pool a single mutex is locked and when retrieving objects from the pool
+a Semaphore is used to make this Mutex as little contested as possible.</p>
+</li>
+<li>
+<p><strong>Deadpool is simple.</strong> Dead simple. There is very little API surface.
+The actual code is barely 100 lines of code and lives in the two functions
+<code>Pool::get</code> and <code>Object::drop</code>.</p>
+</li>
+</ul>
+<h3 id="differences-to-other-connection-pool-implementations" class="section-header"><a href="#differences-to-other-connection-pool-implementations">Differences to other connection pool implementations</a></h3>
+<ul>
+<li>
+<p><a href="https://crates.io/crates/r2d2"><code>r2d2</code></a> provides a lot more configuration
+options but only provides a synchroneous interface.</p>
+</li>
+<li>
+<p><a href="https://crates.io/crates/bb8"><code>bb8</code></a> provides an <code>async/.await</code> based
+interface and provides the same configuration options as <code>r2d2</code>. It
+depends on the tokio executor though and the code is more complex.</p>
+</li>
+<li>
+<p><a href="https://crates.io/crates/mobc"><code>mobc</code></a> provides an <code>async/.await</code> based
+interface and provides a lot more configuration options. It requires an
+executor though and the code is a lot more complex.</p>
+</li>
+</ul>
+<h2 id="unmanaged-pool" class="section-header"><a href="#unmanaged-pool">Unmanaged pool</a></h2>
+<p>An unmanaged pool is useful when you can’t write a manager for the objects
+you want to pool or simply don’t want to. This pool implementation is slightly
+faster than the managed pool because it does not use a <code>Manager</code> trait to
+<code>create</code> and <code>recycle</code> objects but leaves it up to the user.</p>
+<h3 id="unmanaged-pool-example" class="section-header"><a href="#unmanaged-pool-example">Unmanaged pool example</a></h3>
+<div class='information'><div class='tooltip ignore'>ⓘ</div></div><div class="example-wrap"><pre class="rust rust-example-rendered ignore">
+<span class="kw">use</span> <span class="ident">deadpool::unmanaged::Pool</span>;
+
+<span class="kw">struct</span> <span class="ident">Computer</span> {}
+
+<span class="kw">impl</span> <span class="ident">Computer</span> {
+    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_answer</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">i32</span> {
+        <span class="number">42</span>
+    }
+}
+
+<span class="attribute">#[<span class="ident">tokio::main</span>]</span>
+<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">main</span>() {
+    <span class="kw">let</span> <span class="ident">pool</span> <span class="op">=</span> <span class="ident">Pool::from</span>(<span class="macro">vec!</span>[
+        <span class="ident">Computer</span> {},
+        <span class="ident">Computer</span> {},
+    ]);
+    <span class="kw">let</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">get</span>().<span class="kw">await</span>.<span class="ident">unwrap</span>();
+    <span class="macro">assert_eq!</span>(<span class="ident">s</span>.<span class="ident">get_answer</span>().<span class="kw">await</span>, <span class="number">42</span>);
+}</pre></div>
+<h2 id="faq" class="section-header"><a href="#faq">FAQ</a></h2><h3 id="why-does-deadpool-depend-on-tokio-i-thought-it-was-runtime-agnostic" class="section-header"><a href="#why-does-deadpool-depend-on-tokio-i-thought-it-was-runtime-agnostic">Why does deadpool depend on <code>tokio</code>? I thought it was runtime agnostic…</a></h3>
+<p>Deadpool depends on <code>tokio::sync::Semaphore</code>. This does <strong>not</strong> mean that
+the tokio runtime or anything else of tokio is being used or will be part
+of your build. You can easily check this by running the following command
+in your own code base:</p>
+<div class="example-wrap"><pre class="language-shell">cargo tree --format &quot;{p} {f}&quot;</pre></div><h2 id="license" class="section-header"><a href="#license">License</a></h2>
+<p>Licensed under either of</p>
+<ul>
+<li>Apache License, Version 2.0 (<a href="LICENSE-APACHE">LICENSE-APACHE</a> or <a href="http://www.apache.org/licenses/LICENSE-2.0)">http://www.apache.org/licenses/LICENSE-2.0)</a></li>
+<li>MIT license (<a href="LICENSE-MIT">LICENSE-MIT</a> or <a href="http://opensource.org/licenses/MIT)">http://opensource.org/licenses/MIT)</a></li>
+</ul>
+<p>at your option.</p>
+</div></details><h2 id="modules" class="section-header"><a href="#modules">Modules</a></h2>
+<div class="item-table"><div class="item-left module-item"><a class="mod" href="managed/index.html" title="deadpool::managed mod">managed</a></div><div class="item-right docblock-short"><p>This module contains the managed version of the pool. Managed meaning
+that it requires a <code>Manager</code> trait which is responsible for creating
+and recycling objects as they are needed.</p>
+</div><div class="item-left module-item"><a class="mod" href="unmanaged/index.html" title="deadpool::unmanaged mod">unmanaged</a></div><div class="item-right docblock-short"><p>This module contains the unmanaged version of the pool. Unmanaged meaning
+that no manager is used to create and recycle objects. Objects either need
+to be created upfront or by adding them using the <code>add</code> or <code>try_add</code>
+methods.</p>
+</div></div><h2 id="structs" class="section-header"><a href="#structs">Structs</a></h2>
+<div class="item-table"><div class="item-left module-item"><a class="struct" href="struct.Status.html" title="deadpool::Status struct">Status</a></div><div class="item-right docblock-short"><p>The current pool status.</p>
+</div></div><h2 id="enums" class="section-header"><a href="#enums">Enums</a></h2>
+<div class="item-table"><div class="item-left module-item"><a class="enum" href="enum.Runtime.html" title="deadpool::Runtime enum">Runtime</a></div><div class="item-right docblock-short"><p>Enumeration for picking a runtime implementation</p>
+</div></div></section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../" data-current-crate="deadpool" data-search-index-js="../search-index.js" data-search-js="../search.js"></div>
+    <script src="../main.js"></script>
+</body></html>
