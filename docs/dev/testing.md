@@ -9,7 +9,7 @@ Unit tests should appear close to the code they are testing, using standard Rust
 unit tests. This is suitable for testing complex behavior at a small scale, with
 fine grained control over the inputs.
 
-```
+```rust
 fn add_two(n: u32) -> u32 {
     n + 2
 }
@@ -33,7 +33,7 @@ in order to test its behavior.
 
 [test-crate]: ../../../merino_integration_tests/
 
-```ignore
+```rust
 #[actix_rt::test]
 async fn lbheartbeat_works() {
     merino_test(
