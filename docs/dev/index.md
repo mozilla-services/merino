@@ -6,14 +6,14 @@ Here are some useful commands when working on Merino.
 
 Run the main app
 
-```
+```shell
 $ docker-compose -f dev/docker-compose.yaml -d
 $ cargo run -p merino
 ```
 
 Run tests
 
-```
+```shell
 $ docker-compose -f dev/docker-compose.yaml -d
 $ cargo test
 ```
@@ -142,7 +142,7 @@ These works have influenced the design of Merino.
 
 Run dependency servers
 
-```
+```shell
 $ cd dev
 $ docker-compose up
 ```
