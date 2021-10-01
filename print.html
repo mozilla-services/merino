@@ -525,11 +525,11 @@ must be specified as the string <code>&quot;null&quot;</code>.</li>
 <h2 id="tldr"><a class="header" href="#tldr">tl;dr</a></h2>
 <p>Here are some useful commands when working on Merino.</p>
 <p>Run the main app</p>
-<pre><code>$ docker-compose -f dev/docker-compose.yaml -d
+<pre><code class="language-shell">$ docker-compose -f dev/docker-compose.yaml -d
 $ cargo run -p merino
 </code></pre>
 <p>Run tests</p>
-<pre><code>$ docker-compose -f dev/docker-compose.yaml -d
+<pre><code class="language-shell">$ docker-compose -f dev/docker-compose.yaml -d
 $ cargo test
 </code></pre>
 <h2 id="rustdoc"><a class="header" href="#rustdoc">Rustdoc</a></h2>
@@ -618,7 +618,7 @@ Very useful for things like <code>cargo watch -x clippy</code> or
 by Jane &quot;<a href="https://twitter.com/yaahc_/">yaahc</a>&quot; Lusby, from RustConf 2020.</li>
 </ul>
 <p>Run dependency servers</p>
-<pre><code>$ cd dev
+<pre><code class="language-shell">$ cd dev
 $ docker-compose up
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="merino-showroom"><a class="header" href="#merino-showroom">Merino Showroom</a></h1>
@@ -641,7 +641,10 @@ Rust integration tests, and Python system tests.</p>
 <p>Unit tests should appear close to the code they are testing, using standard Rust
 unit tests. This is suitable for testing complex behavior at a small scale, with
 fine grained control over the inputs.</p>
-<pre><code>fn add_two(n: u32) -&gt; u32 {
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>fn add_two(n: u32) -&gt; u32 {
     n + 2
 }
 
@@ -652,14 +655,18 @@ mod tests {
         assert_eq!(add_two(3), 5, &quot;it should work&quot;);
     }
 }
-</code></pre>
+<span class="boring">}
+</span></code></pre></pre>
 <h2 id="integration-tests"><a class="header" href="#integration-tests">Integration tests</a></h2>
 <p>Many behaviors are difficult to test as unit tests, especially details like the
 URLs we expose via the web service. To test these parts of Merino, we have
 <a href="dev/../../../merino_integration_tests/"><code>merino-integration-tests</code></a>, which starts a configurable instance
 of Merino with mock data sources. HTTP requests can then be made to that server
 in order to test its behavior.</p>
-<pre><code class="language-ignore">#[actix_rt::test]
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>#[actix_rt::test]
 async fn lbheartbeat_works() {
     merino_test(
         |_| (),
@@ -676,7 +683,8 @@ async fn lbheartbeat_works() {
     )
     .await
 }
-</code></pre>
+<span class="boring">}
+</span></code></pre></pre>
 <p>For more details, see the documentation of the <code>merino-integration-tests</code> crate.</p>
 <h2 id="system-tests"><a class="header" href="#system-tests">System tests</a></h2>
 <p>The tests in the <code>test-engineering</code> directory are system tests that consume
