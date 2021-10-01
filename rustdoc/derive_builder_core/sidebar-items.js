@@ -1,1 +1,0 @@
-initSidebarItems({"fn":[["builder_for_struct","Derive a builder for a struct"]]});

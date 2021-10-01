@@ -130,6 +130,10 @@
 <span id="130">130</span>
 <span id="131">131</span>
 <span id="132">132</span>
+<span id="133">133</span>
+<span id="134">134</span>
+<span id="135">135</span>
+<span id="136">136</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 <span class="kw">use</span> <span class="ident">serde_with</span>::{<span class="ident">serde_as</span>, <span class="ident">DurationSeconds</span>};
@@ -252,6 +256,9 @@
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
 <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">default</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">RemoteSettingsConfig</span> {
+    <span class="doccomment">/// The Remote Settings bucket to read from</span>
+    <span class="kw">pub</span> <span class="ident">bucket</span>: <span class="ident">String</span>,
+
     <span class="doccomment">/// The collection to sync form.</span>
     <span class="kw">pub</span> <span class="ident">collection</span>: <span class="ident">String</span>,
 }
@@ -259,6 +266,7 @@
 <span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">RemoteSettingsConfig</span> {
     <span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="self">Self</span> {
+            <span class="ident">bucket</span>: <span class="string">&quot;main&quot;</span>.<span class="ident">to_string</span>(),
             <span class="ident">collection</span>: <span class="string">&quot;quicksuggest&quot;</span>.<span class="ident">to_string</span>(),
         }
     }

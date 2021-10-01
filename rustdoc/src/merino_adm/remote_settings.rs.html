@@ -429,25 +429,107 @@
 <span id="429">429</span>
 <span id="430">430</span>
 <span id="431">431</span>
+<span id="432">432</span>
+<span id="433">433</span>
+<span id="434">434</span>
+<span id="435">435</span>
+<span id="436">436</span>
+<span id="437">437</span>
+<span id="438">438</span>
+<span id="439">439</span>
+<span id="440">440</span>
+<span id="441">441</span>
+<span id="442">442</span>
+<span id="443">443</span>
+<span id="444">444</span>
+<span id="445">445</span>
+<span id="446">446</span>
+<span id="447">447</span>
+<span id="448">448</span>
+<span id="449">449</span>
+<span id="450">450</span>
+<span id="451">451</span>
+<span id="452">452</span>
+<span id="453">453</span>
+<span id="454">454</span>
+<span id="455">455</span>
+<span id="456">456</span>
+<span id="457">457</span>
+<span id="458">458</span>
+<span id="459">459</span>
+<span id="460">460</span>
+<span id="461">461</span>
+<span id="462">462</span>
+<span id="463">463</span>
+<span id="464">464</span>
+<span id="465">465</span>
+<span id="466">466</span>
+<span id="467">467</span>
+<span id="468">468</span>
+<span id="469">469</span>
+<span id="470">470</span>
+<span id="471">471</span>
+<span id="472">472</span>
+<span id="473">473</span>
+<span id="474">474</span>
+<span id="475">475</span>
+<span id="476">476</span>
+<span id="477">477</span>
+<span id="478">478</span>
+<span id="479">479</span>
+<span id="480">480</span>
+<span id="481">481</span>
+<span id="482">482</span>
+<span id="483">483</span>
+<span id="484">484</span>
+<span id="485">485</span>
+<span id="486">486</span>
+<span id="487">487</span>
+<span id="488">488</span>
+<span id="489">489</span>
+<span id="490">490</span>
+<span id="491">491</span>
+<span id="492">492</span>
+<span id="493">493</span>
+<span id="494">494</span>
+<span id="495">495</span>
+<span id="496">496</span>
+<span id="497">497</span>
+<span id="498">498</span>
+<span id="499">499</span>
+<span id="500">500</span>
+<span id="501">501</span>
+<span id="502">502</span>
+<span id="503">503</span>
+<span id="504">504</span>
+<span id="505">505</span>
+<span id="506">506</span>
+<span id="507">507</span>
+<span id="508">508</span>
+<span id="509">509</span>
+<span id="510">510</span>
+<span id="511">511</span>
+<span id="512">512</span>
+<span id="513">513</span>
+<span id="514">514</span>
+<span id="515">515</span>
 </pre><pre class="rust">
 <span class="doccomment">//! AdM integration that uses the remote-settings provided data.</span>
 
 <span class="kw">use</span> <span class="ident">anyhow</span>::{<span class="ident">anyhow</span>, <span class="ident">Context</span>};
 <span class="kw">use</span> <span class="ident">async_trait::async_trait</span>;
 <span class="kw">use</span> <span class="ident">futures::StreamExt</span>;
-<span class="kw">use</span> <span class="ident">http::Uri</span>;
+<span class="kw">use</span> <span class="ident">http</span>::{<span class="ident">HeaderValue</span>, <span class="ident">Uri</span>};
 <span class="kw">use</span> <span class="ident">lazy_static::lazy_static</span>;
 <span class="kw">use</span> <span class="ident">merino_settings</span>::{<span class="ident">providers::RemoteSettingsConfig</span>, <span class="ident">Settings</span>};
 <span class="kw">use</span> <span class="ident">merino_suggest</span>::{
     <span class="ident">Proportion</span>, <span class="ident">SetupError</span>, <span class="ident">SuggestError</span>, <span class="ident">Suggestion</span>, <span class="ident">SuggestionProvider</span>, <span class="ident">SuggestionRequest</span>,
     <span class="ident">SuggestionResponse</span>,
 };
-<span class="kw">use</span> <span class="ident">remote_settings_client::client::FileStorage</span>;
-<span class="kw">use</span> <span class="ident">serde::Deserialize</span>;
-<span class="kw">use</span> <span class="ident">serde_json::Value</span>;
+<span class="kw">use</span> <span class="ident">reqwest::Response</span>;
+<span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 <span class="kw">use</span> <span class="ident">serde_with</span>::{<span class="ident">serde_as</span>, <span class="ident">DisplayFromStr</span>};
 <span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">collections::HashMap</span>, <span class="ident">convert::TryFrom</span>, <span class="ident">sync::Arc</span>};
-<span class="kw">use</span> <span class="ident">tokio::sync::OnceCell</span>;
 
 <span class="macro">lazy_static!</span> {
     <span class="kw">static</span> <span class="kw-2">ref</span> <span class="ident">NON_SPONSORED_IAB_CATEGORIES</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span><span class="op">&gt;</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="string">&quot;5 - Education&quot;</span>];
@@ -459,10 +541,6 @@
     <span class="doccomment">/// A map from keywords to suggestions that can be provided.</span>
     <span class="ident">suggestions</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">Suggestion</span><span class="op">&gt;</span><span class="op">&gt;</span>,
 }
-
-<span class="doccomment">/// A lazy version of the server settings for the default Remote Settings server.</span>
-<span class="doccomment">/// Should be initialized with `RemoteSettingsServerInfo::fetch`.</span>
-<span class="kw">static</span> <span class="ident">REMOTE_SETTINGS_SERVER_INFO</span>: <span class="ident">OnceCell</span><span class="op">&lt;</span><span class="ident">RemoteSettingsServerInfo</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">OnceCell::const_new</span>();
 
 <span class="kw">impl</span> <span class="ident">RemoteSettingsSuggester</span> {
     <span class="doccomment">/// Make and sync a new suggester.</span>
@@ -492,53 +570,51 @@
         );
         <span class="kw">let</span> <span class="ident">reqwest_client</span> <span class="op">=</span> <span class="ident">reqwest::Client::new</span>();
 
-        <span class="comment">// Set up and sync a Remote Settings client for the quicksuggest collection.</span>
-        <span class="ident">std::fs::create_dir_all</span>(<span class="kw-2">&amp;</span><span class="ident">settings</span>.<span class="ident">remote_settings</span>.<span class="ident">storage_path</span>)
-            .<span class="ident">context</span>(<span class="string">&quot;Creating RemoteSettings file cache&quot;</span>)
-            .<span class="ident">map_err</span>(<span class="ident">SetupError::Io</span>)<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rs_client</span> <span class="op">=</span> {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rs_client_builder</span> <span class="op">=</span> <span class="ident">remote_settings_client::Client::builder</span>()
-                .<span class="ident">collection_name</span>(<span class="kw-2">&amp;</span><span class="ident">config</span>.<span class="ident">collection</span>)
-                .<span class="ident">storage</span>(<span class="ident">Box::new</span>(<span class="ident">FileStorage</span> {
-                    <span class="ident">folder</span>: <span class="ident">settings</span>.<span class="ident">remote_settings</span>.<span class="ident">storage_path</span>.<span class="ident">clone</span>(),
-                    ..<span class="ident">Default::default</span>()
-                }));
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">server</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">settings</span>.<span class="ident">remote_settings</span>.<span class="ident">server</span> {
-                <span class="ident">rs_client_builder</span> <span class="op">=</span> <span class="ident">rs_client_builder</span>.<span class="ident">server_url</span>(<span class="ident">server</span>);
-            }
-            <span class="ident">rs_client_builder</span>
-                .<span class="ident">build</span>()
-                .<span class="ident">context</span>(<span class="string">&quot;Creating RemoteSettings client&quot;</span>)
-                .<span class="ident">map_err</span>(<span class="ident">SetupError::InvalidConfiguration</span>)<span class="question-mark">?</span>
-        };
-
-        <span class="comment">// `.sync()` blocks while doing IO</span>
-        <span class="ident">rs_client</span>
-            .<span class="ident">sync</span>(<span class="prelude-val">None</span>)
-            .<span class="ident">context</span>(<span class="string">&quot;Syncing suggestions from remote settings&quot;</span>)
-            .<span class="ident">map_err</span>(<span class="ident">SetupError::Network</span>)<span class="question-mark">?</span>;
-
         <span class="comment">// Get the base URL to download attachments from.</span>
-        <span class="kw">let</span> <span class="ident">attachment_base_url</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">REMOTE_SETTINGS_SERVER_INFO</span>
-            .<span class="ident">get_or_try_init</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">RemoteSettingsServerInfo::fetch</span>(<span class="kw-2">&amp;</span><span class="ident">reqwest_client</span>))
-            .<span class="kw">await</span><span class="question-mark">?</span>
-            .<span class="ident">attachment_base_url</span>()<span class="question-mark">?</span>;
+        <span class="kw">let</span> <span class="ident">remote_settings_server_info</span> <span class="op">=</span>
+            <span class="ident">RemoteSettingsServerInfo::fetch</span>(<span class="ident">settings</span>, <span class="kw-2">&amp;</span><span class="ident">reqwest_client</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="kw">let</span> <span class="ident">attachment_base_url</span> <span class="op">=</span> <span class="ident">remote_settings_server_info</span>.<span class="ident">attachment_base_url</span>()<span class="question-mark">?</span>;
 
-        <span class="comment">// Get records from Remote Settings, and convert them into a schema instead of using JSON `Value`s.</span>
-        <span class="kw">let</span> <span class="ident">records</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">SuggestRecord</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">rs_client</span>
-            <span class="comment">// `.get()` blocks while doing IO</span>
-            .<span class="ident">get</span>()
-            .<span class="ident">context</span>(<span class="string">&quot;Fetching records from remote settings&quot;</span>)
-            .<span class="ident">map_err</span>(<span class="ident">SetupError::Network</span>)<span class="question-mark">?</span>
-            .<span class="ident">into_iter</span>()
-            .<span class="ident">filter</span>(<span class="op">|</span><span class="ident">r</span><span class="op">|</span> <span class="op">!</span><span class="ident">r</span>.<span class="ident">deleted</span>())
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">r</span><span class="op">|</span> {
-                <span class="kw">let</span> <span class="ident">value</span> <span class="op">=</span> <span class="ident">Value::Object</span>(<span class="ident">r</span>.<span class="ident">as_object</span>().<span class="ident">clone</span>());
-                <span class="op">&lt;</span><span class="ident">SuggestRecord</span> <span class="kw">as</span> <span class="ident">Deserialize</span><span class="op">&gt;</span><span class="ident">::deserialize</span>(<span class="ident">value</span>)
-            })
-            .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw">_</span>, <span class="op">&lt;</span><span class="ident">Value</span> <span class="kw">as</span> <span class="ident">serde::Deserializer</span><span class="op">&gt;</span><span class="ident">::Error</span><span class="op">&gt;</span><span class="op">&gt;</span>()
-            .<span class="ident">context</span>(<span class="string">&quot;Parsing suggestions records&quot;</span>)
-            .<span class="ident">map_err</span>(<span class="ident">SetupError::Format</span>)<span class="question-mark">?</span>;
+        <span class="comment">// Get records from Remote Settings.</span>
+        <span class="kw">let</span> <span class="ident">records</span> <span class="op">=</span> {
+            <span class="kw">let</span> <span class="ident">records_url</span> <span class="op">=</span> <span class="macro">format!</span>(
+                <span class="string">&quot;{}/v1/buckets/{}/collections/{}/records&quot;</span>,
+                <span class="ident">settings</span>.<span class="ident">remote_settings</span>.<span class="ident">server</span>, <span class="ident">config</span>.<span class="ident">bucket</span>, <span class="ident">config</span>.<span class="ident">collection</span>
+            );
+
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">all_records</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">next_url</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">records_url</span>);
+            <span class="kw">while</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">url</span>) <span class="op">=</span> <span class="ident">next_url</span> {
+                <span class="kw">let</span> <span class="ident">records_res</span> <span class="op">=</span> <span class="ident">reqwest_client</span>
+                    .<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">url</span>)
+                    .<span class="ident">send</span>()
+                    .<span class="kw">await</span>
+                    .<span class="ident">and_then</span>(<span class="ident">Response::error_for_status</span>)
+                    .<span class="ident">context</span>(<span class="macro">format!</span>(<span class="string">&quot;Fetching records from remote settings: {}&quot;</span>, <span class="ident">url</span>))
+                    .<span class="ident">map_err</span>(<span class="ident">SetupError::Network</span>)<span class="question-mark">?</span>;
+
+                <span class="ident">next_url</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">records_res</span>
+                    .<span class="ident">headers</span>()
+                    .<span class="ident">get</span>(<span class="string">&quot;Next-Page&quot;</span>)
+                    .<span class="ident">map</span>(<span class="ident">HeaderValue::to_str</span>)
+                {
+                    <span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(<span class="ident">u</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">u</span>.<span class="ident">to_string</span>()),
+                    <span class="prelude-val">Some</span>(<span class="prelude-val">Err</span>(<span class="ident">error</span>)) <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="macro">tracing::warn!</span>(<span class="question-mark">?</span><span class="ident">error</span>, <span class="string">&quot;Invalid Next header from Remote Settings&quot;</span>);
+                        <span class="prelude-val">None</span>
+                    }
+                    <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
+                };
+
+                <span class="kw">let</span> <span class="ident">RecordsResponse</span> { <span class="ident">data</span>: <span class="ident">records</span> } <span class="op">=</span> <span class="ident">records_res</span>
+                    .<span class="ident">json</span>()
+                    .<span class="kw">await</span>
+                    .<span class="ident">context</span>(<span class="string">&quot;Parsing suggestion records&quot;</span>)
+                    .<span class="ident">map_err</span>(<span class="ident">SetupError::Format</span>)<span class="question-mark">?</span>;
+                <span class="ident">all_records</span>.<span class="ident">extend</span>(<span class="ident">records</span>.<span class="ident">into_iter</span>());
+            }
+            <span class="ident">all_records</span>
+        };
 
         <span class="comment">// Sort records by type</span>
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">records_by_type</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">SuggestRecord</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span>
@@ -683,7 +759,7 @@
 }
 
 <span class="doccomment">/// Remote Settings server info</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Deserialize</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Deserialize</span>, <span class="ident">Serialize</span>)]</span>
 <span class="kw">struct</span> <span class="ident">RemoteSettingsServerInfo</span> {
     <span class="doccomment">/// The capabilities the server supports.</span>
     <span class="ident">capabilities</span>: <span class="ident">RemoteSettingsCapabilities</span>,
@@ -691,12 +767,12 @@
 
 <span class="kw">impl</span> <span class="ident">RemoteSettingsServerInfo</span> {
     <span class="doccomment">/// Fetch a copy of the server info from the default Remote Settings server with the provided client.</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">fetch</span>(<span class="ident">client</span>: <span class="kw-2">&amp;</span><span class="ident">reqwest::Client</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">SetupError</span><span class="op">&gt;</span> {
+    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">fetch</span>(<span class="ident">settings</span>: <span class="kw-2">&amp;</span><span class="ident">Settings</span>, <span class="ident">client</span>: <span class="kw-2">&amp;</span><span class="ident">reqwest::Client</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">SetupError</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">client</span>
-            .<span class="ident">get</span>(<span class="ident">remote_settings_client::DEFAULT_SERVER_URL</span>)
+            .<span class="ident">get</span>(<span class="macro">format!</span>(<span class="string">&quot;{}/v1/&quot;</span>, <span class="ident">settings</span>.<span class="ident">remote_settings</span>.<span class="ident">server</span>))
             .<span class="ident">send</span>()
             .<span class="kw">await</span>
-            .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">res</span><span class="op">|</span> <span class="ident">res</span>.<span class="ident">error_for_status</span>())
+            .<span class="ident">and_then</span>(<span class="ident">Response::error_for_status</span>)
             .<span class="ident">context</span>(<span class="string">&quot;Fetching RemoteSettings server info&quot;</span>)
             .<span class="ident">map_err</span>(<span class="ident">SetupError::Network</span>)<span class="question-mark">?</span>;
         <span class="kw">let</span> <span class="ident">server_info</span>: <span class="self">Self</span> <span class="op">=</span> <span class="ident">res</span>
@@ -722,15 +798,22 @@
     }
 }
 
+<span class="doccomment">/// The result of the /records endpoint on a collection.</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Deserialize</span>, <span class="ident">Serialize</span>)]</span>
+<span class="kw">struct</span> <span class="ident">RecordsResponse</span> {
+    <span class="doccomment">/// The records returned.</span>
+    <span class="ident">data</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">SuggestRecord</span><span class="op">&gt;</span>,
+}
+
 <span class="doccomment">/// Remote Settings server capabilities</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Deserialize</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Deserialize</span>, <span class="ident">Serialize</span>)]</span>
 <span class="kw">struct</span> <span class="ident">RemoteSettingsCapabilities</span> {
     <span class="doccomment">/// The attachments capability. `None` if the server does not support attachments.</span>
     <span class="ident">attachments</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">RemoteSettingsAttachmentsCapability</span><span class="op">&gt;</span>,
 }
 
 <span class="doccomment">/// Remote Settings attachments capability</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Deserialize</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Deserialize</span>, <span class="ident">Serialize</span>)]</span>
 <span class="kw">struct</span> <span class="ident">RemoteSettingsAttachmentsCapability</span> {
     <span class="doccomment">/// The URL that attachments&#39; `location` field is relative to</span>
     <span class="ident">base_url</span>: <span class="ident">String</span>,
@@ -740,7 +823,7 @@
 <span class="doccomment">///</span>
 <span class="doccomment">/// This is a non-exhaustive description of the records in the collection, only</span>
 <span class="doccomment">/// including fields needed to retrieve suggestions.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Deserialize</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Deserialize</span>, <span class="ident">Serialize</span>)]</span>
 <span class="kw">struct</span> <span class="ident">SuggestRecord</span> {
     <span class="doccomment">/// Record ID</span>
     <span class="ident">id</span>: <span class="ident">String</span>,
@@ -757,7 +840,7 @@
 <span class="doccomment">///</span>
 <span class="doccomment">/// This is a non-exhaustive description of the records in the collection, only</span>
 <span class="doccomment">/// including fields needed to retrieve suggestions.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Deserialize</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Deserialize</span>, <span class="ident">Serialize</span>)]</span>
 <span class="kw">struct</span> <span class="ident">AttachmentMeta</span> {
     <span class="doccomment">/// The location the attachment can be downloaded from, relative to the</span>
     <span class="doccomment">/// attachment base_url specified in the server capabilities.</span>
@@ -766,7 +849,7 @@
 
 <span class="doccomment">/// A suggestion record from AdM</span>
 <span class="attribute">#[<span class="ident">serde_as</span>]</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Deserialize</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Deserialize</span>, <span class="ident">Serialize</span>)]</span>
 <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::missing_docs_in_private_items</span>)]</span>
 <span class="kw">struct</span> <span class="ident">AdmSuggestion</span> {
     <span class="ident">id</span>: <span class="ident">u32</span>,
@@ -857,6 +940,91 @@
         };
 
         <span class="macro">assert!</span>(<span class="ident">rs_suggester</span>.<span class="ident">suggest</span>(<span class="ident">request</span>).<span class="kw">await</span><span class="question-mark">?</span>.<span class="ident">suggestions</span>.<span class="ident">is_empty</span>());
+
+        <span class="prelude-val">Ok</span>(())
+    }
+
+    <span class="attribute">#[<span class="ident">actix_rt::test</span>]</span>
+    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">test_sync_makes_expected_call</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">anyhow::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">config</span> <span class="op">=</span> <span class="ident">RemoteSettingsConfig::default</span>();
+
+        <span class="kw">let</span> <span class="ident">mock_server</span> <span class="op">=</span> <span class="ident">httpmock::MockServer::start</span>();
+        <span class="kw">let</span> <span class="ident">settings</span> <span class="op">=</span> {
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">settings</span> <span class="op">=</span> <span class="ident">Settings::load_for_tests</span>();
+            <span class="ident">settings</span>.<span class="ident">remote_settings</span>.<span class="ident">server</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;http://{}&quot;</span>, <span class="ident">mock_server</span>.<span class="ident">address</span>());
+            <span class="ident">settings</span>
+        };
+
+        <span class="kw">let</span> <span class="ident">server_info_mock</span> <span class="op">=</span> <span class="ident">mock_server</span>.<span class="ident">mock</span>(<span class="op">|</span><span class="ident">when</span>, <span class="ident">then</span><span class="op">|</span> {
+            <span class="ident">when</span>.<span class="ident">path</span>(<span class="string">&quot;/v1/&quot;</span>);
+            <span class="ident">then</span>.<span class="ident">json_body_obj</span>(<span class="kw-2">&amp;</span><span class="ident">RemoteSettingsServerInfo</span> {
+                <span class="ident">capabilities</span>: <span class="ident">RemoteSettingsCapabilities</span> {
+                    <span class="ident">attachments</span>: <span class="prelude-val">Some</span>(<span class="ident">RemoteSettingsAttachmentsCapability</span> {
+                        <span class="ident">base_url</span>: <span class="ident">settings</span>.<span class="ident">remote_settings</span>.<span class="ident">server</span>.<span class="ident">clone</span>(),
+                    }),
+                },
+            });
+        });
+
+        <span class="kw">let</span> <span class="ident">records_mock</span> <span class="op">=</span> <span class="ident">mock_server</span>.<span class="ident">mock</span>(<span class="op">|</span><span class="ident">when</span>, <span class="ident">then</span><span class="op">|</span> {
+            <span class="ident">when</span>.<span class="ident">path</span>(<span class="macro">format!</span>(
+                <span class="string">&quot;/v1/buckets/{}/collections/{}/records&quot;</span>,
+                <span class="ident">config</span>.<span class="ident">bucket</span>, <span class="ident">config</span>.<span class="ident">collection</span>
+            ));
+            <span class="ident">then</span>.<span class="ident">json_body_obj</span>(<span class="kw-2">&amp;</span><span class="ident">RecordsResponse</span> { <span class="ident">data</span>: <span class="macro">vec!</span>[] });
+        });
+
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">provider</span> <span class="op">=</span> <span class="ident">RemoteSettingsSuggester::default</span>();
+        <span class="ident">provider</span>.<span class="ident">sync</span>(<span class="kw-2">&amp;</span><span class="ident">settings</span>, <span class="kw-2">&amp;</span><span class="ident">config</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+
+        <span class="ident">server_info_mock</span>.<span class="ident">assert</span>();
+        <span class="ident">records_mock</span>.<span class="ident">assert</span>();
+
+        <span class="prelude-val">Ok</span>(())
+    }
+
+    <span class="attribute">#[<span class="ident">actix_rt::test</span>]</span>
+    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">test_sync_two_pages</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">anyhow::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">config</span> <span class="op">=</span> <span class="ident">RemoteSettingsConfig::default</span>();
+
+        <span class="kw">let</span> <span class="ident">mock_server</span> <span class="op">=</span> <span class="ident">httpmock::MockServer::start</span>();
+        <span class="kw">let</span> <span class="ident">settings</span> <span class="op">=</span> {
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">settings</span> <span class="op">=</span> <span class="ident">Settings::load_for_tests</span>();
+            <span class="ident">settings</span>.<span class="ident">remote_settings</span>.<span class="ident">server</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;http://{}&quot;</span>, <span class="ident">mock_server</span>.<span class="ident">address</span>());
+            <span class="ident">settings</span>
+        };
+
+        <span class="kw">let</span> <span class="ident">server_info_mock</span> <span class="op">=</span> <span class="ident">mock_server</span>.<span class="ident">mock</span>(<span class="op">|</span><span class="ident">when</span>, <span class="ident">then</span><span class="op">|</span> {
+            <span class="ident">when</span>.<span class="ident">path</span>(<span class="string">&quot;/v1/&quot;</span>);
+            <span class="ident">then</span>.<span class="ident">status</span>(<span class="number">200</span>).<span class="ident">json_body_obj</span>(<span class="kw-2">&amp;</span><span class="ident">RemoteSettingsServerInfo</span> {
+                <span class="ident">capabilities</span>: <span class="ident">RemoteSettingsCapabilities</span> {
+                    <span class="ident">attachments</span>: <span class="prelude-val">Some</span>(<span class="ident">RemoteSettingsAttachmentsCapability</span> {
+                        <span class="ident">base_url</span>: <span class="ident">settings</span>.<span class="ident">remote_settings</span>.<span class="ident">server</span>.<span class="ident">clone</span>(),
+                    }),
+                },
+            });
+        });
+
+        <span class="kw">let</span> <span class="ident">page_1_mock</span> <span class="op">=</span> <span class="ident">mock_server</span>.<span class="ident">mock</span>(<span class="op">|</span><span class="ident">when</span>, <span class="ident">then</span><span class="op">|</span> {
+            <span class="ident">when</span>.<span class="ident">path</span>(<span class="macro">format!</span>(
+                <span class="string">&quot;/v1/buckets/{}/collections/{}/records&quot;</span>,
+                <span class="ident">config</span>.<span class="ident">bucket</span>, <span class="ident">config</span>.<span class="ident">collection</span>
+            ));
+            <span class="ident">then</span>.<span class="ident">header</span>(<span class="string">&quot;Next-Page&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">mock_server</span>.<span class="ident">url</span>(<span class="string">&quot;/page-2&quot;</span>))
+                .<span class="ident">json_body_obj</span>(<span class="kw-2">&amp;</span><span class="ident">RecordsResponse</span> { <span class="ident">data</span>: <span class="macro">vec!</span>[] });
+        });
+
+        <span class="kw">let</span> <span class="ident">page_2_mock</span> <span class="op">=</span> <span class="ident">mock_server</span>.<span class="ident">mock</span>(<span class="op">|</span><span class="ident">when</span>, <span class="ident">then</span><span class="op">|</span> {
+            <span class="ident">when</span>.<span class="ident">path</span>(<span class="string">&quot;/page-2&quot;</span>);
+            <span class="ident">then</span>.<span class="ident">json_body_obj</span>(<span class="kw-2">&amp;</span><span class="ident">RecordsResponse</span> { <span class="ident">data</span>: <span class="macro">vec!</span>[] });
+        });
+
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">provider</span> <span class="op">=</span> <span class="ident">RemoteSettingsSuggester::default</span>();
+        <span class="ident">provider</span>.<span class="ident">sync</span>(<span class="kw-2">&amp;</span><span class="ident">settings</span>, <span class="kw-2">&amp;</span><span class="ident">config</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+
+        <span class="ident">server_info_mock</span>.<span class="ident">assert</span>();
+        <span class="ident">page_1_mock</span>.<span class="ident">assert</span>();
+        <span class="ident">page_2_mock</span>.<span class="ident">assert</span>();
 
         <span class="prelude-val">Ok</span>(())
     }
