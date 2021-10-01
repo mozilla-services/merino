@@ -12,7 +12,6 @@ use tracing::Level;
 use tracing_actix_web_mozlog::{JsonStorageLayer, MozLogFormatLayer};
 use tracing_log::LogTracer;
 use tracing_subscriber::{layer::SubscriberExt, EnvFilter};
-use viaduct_reqwest::ReqwestBackend;
 
 /// Primary entry point
 #[actix_rt::main]
@@ -21,8 +20,6 @@ async fn main() -> Result<()> {
     let _sentry_guard = crate::sentry::init_sentry(&settings).context("initializing sentry")?;
     init_logging(&settings).context("initializing logging")?;
     let metrics_client = init_metrics(&settings).context("initializing metrics")?;
-
-    viaduct::set_backend(&ReqwestBackend).context("setting viaduct backend")?;
 
     let listener = TcpListener::bind(settings.http.listen).context("Binding port")?;
     merino_web::run(listener, metrics_client, settings)

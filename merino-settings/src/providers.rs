@@ -119,6 +119,9 @@ impl Default for MemoryCacheConfig {
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(default)]
 pub struct RemoteSettingsConfig {
+    /// The Remote Settings bucket to read from
+    pub bucket: String,
+
     /// The collection to sync form.
     pub collection: String,
 }
@@ -126,6 +129,7 @@ pub struct RemoteSettingsConfig {
 impl Default for RemoteSettingsConfig {
     fn default() -> Self {
         Self {
+            bucket: "main".to_string(),
             collection: "quicksuggest".to_string(),
         }
     }

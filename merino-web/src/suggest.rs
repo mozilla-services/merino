@@ -43,7 +43,7 @@ struct SuggestResponse<'a> {
 struct SuggestQueryParameters {
     #[serde_as(as = "StringWithSeparator::<CommaSeparator, String>")]
     #[serde(default)]
-    /// Query Paramater for client_variants
+    /// Query Parameter for client_variants
     client_variants: Vec<String>,
 }
 /// Customizes the output format of [`Suggestion`].
@@ -52,7 +52,7 @@ struct SuggestionWrapper<'a>(&'a Suggestion);
 
 /// Suggest content in response to the queried text.
 #[get("")]
-#[tracing::instrument(skip(suggestion_request, provider, settings))]
+#[tracing::instrument(skip(suggestion_request, provider, metrics_client, settings))]
 async fn suggest(
     SuggestionRequestWrapper(suggestion_request): SuggestionRequestWrapper,
     provider: Data<SuggestionProviderRef>,

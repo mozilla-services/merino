@@ -135,27 +135,9 @@ async fn suggest_adm_rs_works(
 fn setup_empty_remote_settings_collection(server: MockServer) {
     server.mock(|when, then| {
         when.method(GET)
-            .path("/buckets/monitor/collections/changes/changeset");
+            .path("/v1/buckets/main/collections/quicksuggest/records");
         then.status(200).json_body(json!({
-            "metadata": {},
-            "changes": [{
-                "bucket": "main",
-                "collection": "quicksuggest",
-                "last_modified": 0,
-            }],
-            "timestamp": 0,
-            "backoff": null,
-        }));
-    });
-
-    server.mock(|when, then| {
-        when.method(GET)
-            .path("/buckets/main/collections/quicksuggest/changeset");
-        then.status(200).json_body(json!({
-            "metadata": {},
-            "changes": [],
-            "timestamp": 0,
-            "backoff": null,
+            "data": [],
         }));
     });
 }

@@ -122,9 +122,6 @@ Connection to Redis. This is used by the Redis provider cache below.
 Connection to Remote Settings. This is used by the Remote Settings suggestion
 provider below.
 
-- `remote_settings.storage_path` (`MERINO_REMOTE_SETTINGS__STORAGE_PATH`) - The
-  local disk path where the Remote Settings client can store synchronized data
-  to save on future bandwidth.
 - `remote_settings.server` (`MERINO_REMOTE_SETTINGS__SERVER`) - The server to
   sync from. Example: `https://firefox.settings.services.mozilla.com`.
 

@@ -4,13 +4,11 @@ use crate::utils::{logging::LogWatcher, metrics::MetricsWatcher, redis::get_temp
 use httpmock::MockServer;
 use merino_settings::Settings;
 use reqwest::{redirect, Client, ClientBuilder, RequestBuilder};
-use std::{future::Future, net::TcpListener, sync::Once};
+use serde_json::json;
+use std::{future::Future, net::TcpListener};
 use tracing_futures::{Instrument, WithSubscriber};
 
 use tracing_subscriber::{fmt::MakeWriter, layer::SubscriberExt};
-
-/// A marker to track that the viaduct backend has been initialized.
-static VIADUCT_INIT: Once = Once::new();
 
 /// Run a test with a fully configured Merino server.
 ///
@@ -66,7 +64,19 @@ where
 
     // Set up a mock server for Remote Settings to talk to
     let remote_settings_mock = MockServer::start();
-    settings.remote_settings.server = Some(remote_settings_mock.base_url());
+    remote_settings_mock.mock(|when, then| {
+        when.path("/v1/");
+        then.status(200)
+            .header("Content-Type", "application/json")
+            .json_body(json!({
+                "capabilities": {
+                    "attachments": {
+                        "base_url": remote_settings_mock.base_url()
+                    }
+                }
+            }));
+    });
+    settings.remote_settings.server = remote_settings_mock.base_url();
 
     // Set up Redis
     let _redis_connection_guard = match get_temp_db(&settings.redis.url).await {
@@ -82,12 +92,6 @@ where
     };
 
     settings_changer(&mut settings);
-
-    // `remote_settings_client` uses viaduct. Tell viaduct to use reqwest.
-    VIADUCT_INIT.call_once(|| {
-        viaduct::set_backend(&viaduct_reqwest::ReqwestBackend)
-            .expect("Failed to set viaduct backend");
-    });
 
     // Setup metrics
     assert_eq!(
@@ -138,7 +142,7 @@ pub struct TestingTools {
 
     /// A [`httpmock::MockServer`] that remote settings has been configured to use
     /// as its default server. Does not contain mock responses, any needed must
-    /// be adde    /// Start the fully configured application server.
+    /// be added
     ///
     /// The server will listen on a port assigned arbitrarily by the OS. A test HTTP
     /// client that automatically targets the server will be returned.
