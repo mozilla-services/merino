@@ -404,13 +404,13 @@ mod test {
     use crate::redis::{domain::RedisSuggestions, SimpleRedisLock};
 
     use super::SetupError;
-    use anyhow::Context;
+    use anyhow::{anyhow, Context};
     use http::Uri;
     use merino_settings::Settings;
     use merino_suggest::{Proportion, Suggestion};
 
     #[tokio::test]
-    async fn check_cache() -> Result<(), SetupError> {
+    async fn check_cache() -> anyhow::Result<()> {
         let settings = Settings::load_for_tests();
 
         let r_client = redis::Client::open(settings.redis.url.clone())
@@ -423,7 +423,7 @@ mod test {
 
         // try to add an entry:
         let tty = Duration::from_secs(300);
-        let mut rlock = SimpleRedisLock::from(&redis_connection);
+        let mut redis_lock = SimpleRedisLock::from(&redis_connection);
         let test_key = "testKey";
         let uri: Uri = "https://example.com".parse().unwrap();
         let text = "test".to_owned();
@@ -447,33 +447,36 @@ mod test {
         let to_store2: Vec<Suggestion> = [suggestion2].to_vec();
 
         // try a happy path write cycle.
-        let lock = rlock
+        let lock_id = redis_lock
             .lock(test_key, Duration::from_secs(3))
             .await
-            .expect("Could not generate lock")
-            .unwrap();
-        assert!(rlock.is_locked(test_key).await.expect("failed lock check"));
-        assert!(rlock
-            .write_if_locked(test_key, &lock, RedisSuggestions(to_store.clone()), tty)
-            .await
-            .is_ok());
-        assert!(!rlock
+            .context("Could not generate lock")?
+            .ok_or_else(|| anyhow!("No lock in DB"))?;
+        assert!(redis_lock
             .is_locked(test_key)
             .await
-            .expect("Could not check unlocked"));
+            .context("failed lock check")?);
+        assert!(redis_lock
+            .write_if_locked(test_key, &lock_id, RedisSuggestions(to_store.clone()), tty)
+            .await
+            .is_ok());
+        assert!(!redis_lock
+            .is_locked(test_key)
+            .await
+            .context("Could not check unlocked")?);
 
         // test to see if you can re-lock.
-        let lock2 = rlock.lock(test_key, tty).await.unwrap().unwrap();
+        let lock2 = redis_lock.lock(test_key, tty).await.unwrap().unwrap();
         // second lock should fail.
-        assert!(rlock.lock(test_key, tty).await.unwrap().is_none());
+        assert!(redis_lock.lock(test_key, tty).await.unwrap().is_none());
 
         let res1 = redis::Cmd::get(test_key)
             .query_async::<redis::aio::ConnectionManager, String>(&mut redis_connection)
             .await
             .unwrap();
         // trying to write with an old lock should silently fail.
-        assert!(rlock
-            .write_if_locked(test_key, &lock, RedisSuggestions(to_store2.clone()), tty)
+        assert!(redis_lock
+            .write_if_locked(test_key, &lock_id, RedisSuggestions(to_store2.clone()), tty)
             .await
             .is_ok());
         let res2 = redis::Cmd::get(test_key)
@@ -483,14 +486,14 @@ mod test {
         assert_eq!(res1, res2, "cached values should match");
 
         // trying to write with an new lock should work and release the lock.
-        assert!(rlock
+        assert!(redis_lock
             .write_if_locked(test_key, &lock2, RedisSuggestions(to_store2), tty)
             .await
             .is_ok());
-        assert!(!rlock
+        assert!(!redis_lock
             .is_locked(test_key)
             .await
-            .expect("Could not check unlocked"));
+            .context("Could not check unlocked")?);
         let res2 = redis::Cmd::get(test_key)
             .query_async::<redis::aio::ConnectionManager, String>(&mut redis_connection)
             .await
