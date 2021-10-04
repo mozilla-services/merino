@@ -10,6 +10,7 @@ pub enum SuggestionProviderConfig {
     MemoryCache(MemoryCacheConfig),
     RedisCache(RedisCacheConfig),
     Multiplexer(MultiplexerConfig),
+    Timeout(TimeoutConfig),
     Debug,
     WikiFruit,
     Null,
@@ -131,6 +132,26 @@ impl Default for RemoteSettingsConfig {
         Self {
             bucket: "main".to_string(),
             collection: "quicksuggest".to_string(),
+        }
+    }
+}
+
+#[serde_as]
+#[derive(Clone, Debug, Serialize, Deserialize)]
+#[serde(default)]
+pub struct TimeoutConfig {
+    #[serde_as(as = "DurationSeconds")]
+    #[serde(rename = "default_lock_timeout_sec")]
+    pub max_time: Duration,
+
+    pub inner: Box<SuggestionProviderConfig>,
+}
+
+impl Default for TimeoutConfig {
+    fn default() -> Self {
+        Self {
+            max_time: Duration::from_millis(200),
+            inner: Box::new(SuggestionProviderConfig::Null),
         }
     }
 }

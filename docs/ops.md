@@ -163,8 +163,15 @@ These are production providers that generate suggestions.
 These are providers that extend, combine, or otherwise modify other providers.
 
 - Multiplexer - Combines providers from multiple sub-providers.
+
   - `type=multiplexer`
-  - `provider` - A list of other provider configs to draw suggestions from.
+  - `providers` - A list of other provider configs to draw suggestions from.
+
+- Timeout - Returns an empty response if the wrapped provider takes too long to
+  respond.
+
+  - `type=timeout`
+  - `inner` - Another provider configuration to generate suggestions with.
 
 #### Caches
 
