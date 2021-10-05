@@ -304,3 +304,50 @@ impl Settings {
         s.try_into().expect("Could not convert settings")
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use crate::Settings;
+    use anyhow::{Context, Result};
+    use config::{Config, File};
+    use parameterized::parameterized;
+
+    fn load_config_files(files: &[&str]) -> Result<Config> {
+        let mut config = Config::new();
+        for f in files {
+            config
+                .merge(File::with_name(f))
+                .context(format!("Loading config {}", f))?;
+        }
+
+        Ok(config)
+    }
+
+    #[parameterized(config_name = {"ci", "development", "production", "test"})]
+    fn config_loads(config_name: &str) {
+        let mut config =
+            load_config_files(&["../config/base", &format!("../config/{}", config_name)])
+                .expect("could not read config files");
+
+        // config is a required field that should never be set in the provided files.
+        assert!(config.get_str("env").is_err());
+        config
+            .set("env", "config_name")
+            .expect("Could not set value");
+
+        // special case: prod needs sentry manually configured
+        if config_name == "production" {
+            config
+                .set("sentry.dsn", "https://public@example.com/1")
+                .expect("Could not set value")
+                .set("sentry.env", "test")
+                .expect("Could not set value");
+        }
+
+        let settings = config.try_into::<Settings>();
+        if let Err(err) = &settings {
+            println!("Problem while testing {} config: {}", config_name, err);
+        }
+        assert!(settings.is_ok());
+    }
+}
