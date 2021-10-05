@@ -13,7 +13,7 @@ use merino_adm::remote_settings::RemoteSettingsSuggester;
 use merino_cache::{MemoryCacheSuggester, RedisCacheSuggester};
 use merino_settings::{providers::SuggestionProviderConfig, Settings};
 use merino_suggest::{
-    DebugProvider, Multi, NullProvider, Suggestion, SuggestionProvider, WikiFruit,
+    DebugProvider, Multi, NullProvider, Suggestion, SuggestionProvider, TimeoutProvider, WikiFruit,
 };
 use serde::{Deserialize, Serialize};
 use serde_with::{rust::StringWithSeparator, serde_as, CommaSeparator};
@@ -163,6 +163,11 @@ async fn make_provider_tree(
                 providers.push(make_provider_tree(settings, config).await?);
             }
             Multi::new_boxed(providers)
+        }
+
+        SuggestionProviderConfig::Timeout(timeout_config) => {
+            let inner = make_provider_tree(settings, timeout_config.inner.as_ref()).await?;
+            TimeoutProvider::new_boxed(timeout_config, inner)
         }
 
         SuggestionProviderConfig::Debug => DebugProvider::new_boxed(settings)?,
