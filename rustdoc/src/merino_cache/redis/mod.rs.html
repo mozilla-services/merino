@@ -500,6 +500,9 @@
 <span id="500">500</span>
 <span id="501">501</span>
 <span id="502">502</span>
+<span id="503">503</span>
+<span id="504">504</span>
+<span id="505">505</span>
 </pre><pre class="rust">
 <span class="doccomment">//! Interactions with Redis.</span>
 
@@ -907,13 +910,13 @@
     <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::redis</span>::{<span class="ident">domain::RedisSuggestions</span>, <span class="ident">SimpleRedisLock</span>};
 
     <span class="kw">use</span> <span class="kw">super</span><span class="ident">::SetupError</span>;
-    <span class="kw">use</span> <span class="ident">anyhow::Context</span>;
+    <span class="kw">use</span> <span class="ident">anyhow</span>::{<span class="ident">anyhow</span>, <span class="ident">Context</span>};
     <span class="kw">use</span> <span class="ident">http::Uri</span>;
     <span class="kw">use</span> <span class="ident">merino_settings::Settings</span>;
     <span class="kw">use</span> <span class="ident">merino_suggest</span>::{<span class="ident">Proportion</span>, <span class="ident">Suggestion</span>};
 
     <span class="attribute">#[<span class="ident">tokio::test</span>]</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">check_cache</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">SetupError</span><span class="op">&gt;</span> {
+    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">check_cache</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">anyhow::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">settings</span> <span class="op">=</span> <span class="ident">Settings::load_for_tests</span>();
 
         <span class="kw">let</span> <span class="ident">r_client</span> <span class="op">=</span> <span class="ident">redis::Client::open</span>(<span class="ident">settings</span>.<span class="ident">redis</span>.<span class="ident">url</span>.<span class="ident">clone</span>())
@@ -926,7 +929,7 @@
 
         <span class="comment">// try to add an entry:</span>
         <span class="kw">let</span> <span class="ident">tty</span> <span class="op">=</span> <span class="ident">Duration::from_secs</span>(<span class="number">300</span>);
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rlock</span> <span class="op">=</span> <span class="ident">SimpleRedisLock::from</span>(<span class="kw-2">&amp;</span><span class="ident">redis_connection</span>);
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">redis_lock</span> <span class="op">=</span> <span class="ident">SimpleRedisLock::from</span>(<span class="kw-2">&amp;</span><span class="ident">redis_connection</span>);
         <span class="kw">let</span> <span class="ident">test_key</span> <span class="op">=</span> <span class="string">&quot;testKey&quot;</span>;
         <span class="kw">let</span> <span class="ident">uri</span>: <span class="ident">Uri</span> <span class="op">=</span> <span class="string">&quot;https://example.com&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>();
         <span class="kw">let</span> <span class="ident">text</span> <span class="op">=</span> <span class="string">&quot;test&quot;</span>.<span class="ident">to_owned</span>();
@@ -950,33 +953,36 @@
         <span class="kw">let</span> <span class="ident">to_store2</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Suggestion</span><span class="op">&gt;</span> <span class="op">=</span> [<span class="ident">suggestion2</span>].<span class="ident">to_vec</span>();
 
         <span class="comment">// try a happy path write cycle.</span>
-        <span class="kw">let</span> <span class="ident">lock</span> <span class="op">=</span> <span class="ident">rlock</span>
+        <span class="kw">let</span> <span class="ident">lock_id</span> <span class="op">=</span> <span class="ident">redis_lock</span>
             .<span class="ident">lock</span>(<span class="ident">test_key</span>, <span class="ident">Duration::from_secs</span>(<span class="number">3</span>))
             .<span class="kw">await</span>
-            .<span class="ident">expect</span>(<span class="string">&quot;Could not generate lock&quot;</span>)
-            .<span class="ident">unwrap</span>();
-        <span class="macro">assert!</span>(<span class="ident">rlock</span>.<span class="ident">is_locked</span>(<span class="ident">test_key</span>).<span class="kw">await</span>.<span class="ident">expect</span>(<span class="string">&quot;failed lock check&quot;</span>));
-        <span class="macro">assert!</span>(<span class="ident">rlock</span>
-            .<span class="ident">write_if_locked</span>(<span class="ident">test_key</span>, <span class="kw-2">&amp;</span><span class="ident">lock</span>, <span class="ident">RedisSuggestions</span>(<span class="ident">to_store</span>.<span class="ident">clone</span>()), <span class="ident">tty</span>)
-            .<span class="kw">await</span>
-            .<span class="ident">is_ok</span>());
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">rlock</span>
+            .<span class="ident">context</span>(<span class="string">&quot;Could not generate lock&quot;</span>)<span class="question-mark">?</span>
+            .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="macro">anyhow!</span>(<span class="string">&quot;No lock in DB&quot;</span>))<span class="question-mark">?</span>;
+        <span class="macro">assert!</span>(<span class="ident">redis_lock</span>
             .<span class="ident">is_locked</span>(<span class="ident">test_key</span>)
             .<span class="kw">await</span>
-            .<span class="ident">expect</span>(<span class="string">&quot;Could not check unlocked&quot;</span>));
+            .<span class="ident">context</span>(<span class="string">&quot;failed lock check&quot;</span>)<span class="question-mark">?</span>);
+        <span class="macro">assert!</span>(<span class="ident">redis_lock</span>
+            .<span class="ident">write_if_locked</span>(<span class="ident">test_key</span>, <span class="kw-2">&amp;</span><span class="ident">lock_id</span>, <span class="ident">RedisSuggestions</span>(<span class="ident">to_store</span>.<span class="ident">clone</span>()), <span class="ident">tty</span>)
+            .<span class="kw">await</span>
+            .<span class="ident">is_ok</span>());
+        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">redis_lock</span>
+            .<span class="ident">is_locked</span>(<span class="ident">test_key</span>)
+            .<span class="kw">await</span>
+            .<span class="ident">context</span>(<span class="string">&quot;Could not check unlocked&quot;</span>)<span class="question-mark">?</span>);
 
         <span class="comment">// test to see if you can re-lock.</span>
-        <span class="kw">let</span> <span class="ident">lock2</span> <span class="op">=</span> <span class="ident">rlock</span>.<span class="ident">lock</span>(<span class="ident">test_key</span>, <span class="ident">tty</span>).<span class="kw">await</span>.<span class="ident">unwrap</span>().<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">lock2</span> <span class="op">=</span> <span class="ident">redis_lock</span>.<span class="ident">lock</span>(<span class="ident">test_key</span>, <span class="ident">tty</span>).<span class="kw">await</span>.<span class="ident">unwrap</span>().<span class="ident">unwrap</span>();
         <span class="comment">// second lock should fail.</span>
-        <span class="macro">assert!</span>(<span class="ident">rlock</span>.<span class="ident">lock</span>(<span class="ident">test_key</span>, <span class="ident">tty</span>).<span class="kw">await</span>.<span class="ident">unwrap</span>().<span class="ident">is_none</span>());
+        <span class="macro">assert!</span>(<span class="ident">redis_lock</span>.<span class="ident">lock</span>(<span class="ident">test_key</span>, <span class="ident">tty</span>).<span class="kw">await</span>.<span class="ident">unwrap</span>().<span class="ident">is_none</span>());
 
         <span class="kw">let</span> <span class="ident">res1</span> <span class="op">=</span> <span class="ident">redis::Cmd::get</span>(<span class="ident">test_key</span>)
             .<span class="ident">query_async</span>::<span class="op">&lt;</span><span class="ident">redis::aio::ConnectionManager</span>, <span class="ident">String</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">redis_connection</span>)
             .<span class="kw">await</span>
             .<span class="ident">unwrap</span>();
         <span class="comment">// trying to write with an old lock should silently fail.</span>
-        <span class="macro">assert!</span>(<span class="ident">rlock</span>
-            .<span class="ident">write_if_locked</span>(<span class="ident">test_key</span>, <span class="kw-2">&amp;</span><span class="ident">lock</span>, <span class="ident">RedisSuggestions</span>(<span class="ident">to_store2</span>.<span class="ident">clone</span>()), <span class="ident">tty</span>)
+        <span class="macro">assert!</span>(<span class="ident">redis_lock</span>
+            .<span class="ident">write_if_locked</span>(<span class="ident">test_key</span>, <span class="kw-2">&amp;</span><span class="ident">lock_id</span>, <span class="ident">RedisSuggestions</span>(<span class="ident">to_store2</span>.<span class="ident">clone</span>()), <span class="ident">tty</span>)
             .<span class="kw">await</span>
             .<span class="ident">is_ok</span>());
         <span class="kw">let</span> <span class="ident">res2</span> <span class="op">=</span> <span class="ident">redis::Cmd::get</span>(<span class="ident">test_key</span>)
@@ -986,14 +992,14 @@
         <span class="macro">assert_eq!</span>(<span class="ident">res1</span>, <span class="ident">res2</span>, <span class="string">&quot;cached values should match&quot;</span>);
 
         <span class="comment">// trying to write with an new lock should work and release the lock.</span>
-        <span class="macro">assert!</span>(<span class="ident">rlock</span>
+        <span class="macro">assert!</span>(<span class="ident">redis_lock</span>
             .<span class="ident">write_if_locked</span>(<span class="ident">test_key</span>, <span class="kw-2">&amp;</span><span class="ident">lock2</span>, <span class="ident">RedisSuggestions</span>(<span class="ident">to_store2</span>), <span class="ident">tty</span>)
             .<span class="kw">await</span>
             .<span class="ident">is_ok</span>());
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">rlock</span>
+        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">redis_lock</span>
             .<span class="ident">is_locked</span>(<span class="ident">test_key</span>)
             .<span class="kw">await</span>
-            .<span class="ident">expect</span>(<span class="string">&quot;Could not check unlocked&quot;</span>));
+            .<span class="ident">context</span>(<span class="string">&quot;Could not check unlocked&quot;</span>)<span class="question-mark">?</span>);
         <span class="kw">let</span> <span class="ident">res2</span> <span class="op">=</span> <span class="ident">redis::Cmd::get</span>(<span class="ident">test_key</span>)
             .<span class="ident">query_async</span>::<span class="op">&lt;</span><span class="ident">redis::aio::ConnectionManager</span>, <span class="ident">String</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">redis_connection</span>)
             .<span class="kw">await</span>

@@ -134,6 +134,27 @@
 <span id="134">134</span>
 <span id="135">135</span>
 <span id="136">136</span>
+<span id="137">137</span>
+<span id="138">138</span>
+<span id="139">139</span>
+<span id="140">140</span>
+<span id="141">141</span>
+<span id="142">142</span>
+<span id="143">143</span>
+<span id="144">144</span>
+<span id="145">145</span>
+<span id="146">146</span>
+<span id="147">147</span>
+<span id="148">148</span>
+<span id="149">149</span>
+<span id="150">150</span>
+<span id="151">151</span>
+<span id="152">152</span>
+<span id="153">153</span>
+<span id="154">154</span>
+<span id="155">155</span>
+<span id="156">156</span>
+<span id="157">157</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 <span class="kw">use</span> <span class="ident">serde_with</span>::{<span class="ident">serde_as</span>, <span class="ident">DurationSeconds</span>};
@@ -147,6 +168,7 @@
     <span class="ident">MemoryCache</span>(<span class="ident">MemoryCacheConfig</span>),
     <span class="ident">RedisCache</span>(<span class="ident">RedisCacheConfig</span>),
     <span class="ident">Multiplexer</span>(<span class="ident">MultiplexerConfig</span>),
+    <span class="ident">Timeout</span>(<span class="ident">TimeoutConfig</span>),
     <span class="ident">Debug</span>,
     <span class="ident">WikiFruit</span>,
     <span class="ident">Null</span>,
@@ -268,6 +290,26 @@
         <span class="self">Self</span> {
             <span class="ident">bucket</span>: <span class="string">&quot;main&quot;</span>.<span class="ident">to_string</span>(),
             <span class="ident">collection</span>: <span class="string">&quot;quicksuggest&quot;</span>.<span class="ident">to_string</span>(),
+        }
+    }
+}
+
+<span class="attribute">#[<span class="ident">serde_as</span>]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
+<span class="attribute">#[<span class="ident">serde</span>(<span class="ident">default</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">TimeoutConfig</span> {
+    <span class="attribute">#[<span class="ident">serde_as</span>(<span class="kw">as</span> <span class="op">=</span> <span class="string">&quot;DurationSeconds&quot;</span>)]</span>
+    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;default_lock_timeout_sec&quot;</span>)]</span>
+    <span class="kw">pub</span> <span class="ident">max_time</span>: <span class="ident">Duration</span>,
+
+    <span class="kw">pub</span> <span class="ident">inner</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">SuggestionProviderConfig</span><span class="op">&gt;</span>,
+}
+
+<span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">TimeoutConfig</span> {
+    <span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+        <span class="self">Self</span> {
+            <span class="ident">max_time</span>: <span class="ident">Duration::from_millis</span>(<span class="number">200</span>),
+            <span class="ident">inner</span>: <span class="ident">Box::new</span>(<span class="ident">SuggestionProviderConfig::Null</span>),
         }
     }
 }

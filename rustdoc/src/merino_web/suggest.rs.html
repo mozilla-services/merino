@@ -260,6 +260,11 @@
 <span id="260">260</span>
 <span id="261">261</span>
 <span id="262">262</span>
+<span id="263">263</span>
+<span id="264">264</span>
+<span id="265">265</span>
+<span id="266">266</span>
+<span id="267">267</span>
 </pre><pre class="rust">
 <span class="doccomment">//! Web handlers for the suggestions API.</span>
 
@@ -276,7 +281,7 @@
 <span class="kw">use</span> <span class="ident">merino_cache</span>::{<span class="ident">MemoryCacheSuggester</span>, <span class="ident">RedisCacheSuggester</span>};
 <span class="kw">use</span> <span class="ident">merino_settings</span>::{<span class="ident">providers::SuggestionProviderConfig</span>, <span class="ident">Settings</span>};
 <span class="kw">use</span> <span class="ident">merino_suggest</span>::{
-    <span class="ident">DebugProvider</span>, <span class="ident">Multi</span>, <span class="ident">NullProvider</span>, <span class="ident">Suggestion</span>, <span class="ident">SuggestionProvider</span>, <span class="ident">WikiFruit</span>,
+    <span class="ident">DebugProvider</span>, <span class="ident">Multi</span>, <span class="ident">NullProvider</span>, <span class="ident">Suggestion</span>, <span class="ident">SuggestionProvider</span>, <span class="ident">TimeoutProvider</span>, <span class="ident">WikiFruit</span>,
 };
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 <span class="kw">use</span> <span class="ident">serde_with</span>::{<span class="ident">rust::StringWithSeparator</span>, <span class="ident">serde_as</span>, <span class="ident">CommaSeparator</span>};
@@ -426,6 +431,11 @@
                 <span class="ident">providers</span>.<span class="ident">push</span>(<span class="ident">make_provider_tree</span>(<span class="ident">settings</span>, <span class="ident">config</span>).<span class="kw">await</span><span class="question-mark">?</span>);
             }
             <span class="ident">Multi::new_boxed</span>(<span class="ident">providers</span>)
+        }
+
+        <span class="ident">SuggestionProviderConfig::Timeout</span>(<span class="ident">timeout_config</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="kw">let</span> <span class="ident">inner</span> <span class="op">=</span> <span class="ident">make_provider_tree</span>(<span class="ident">settings</span>, <span class="ident">timeout_config</span>.<span class="ident">inner</span>.<span class="ident">as_ref</span>()).<span class="kw">await</span><span class="question-mark">?</span>;
+            <span class="ident">TimeoutProvider::new_boxed</span>(<span class="ident">timeout_config</span>, <span class="ident">inner</span>)
         }
 
         <span class="ident">SuggestionProviderConfig::Debug</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">DebugProvider::new_boxed</span>(<span class="ident">settings</span>)<span class="question-mark">?</span>,

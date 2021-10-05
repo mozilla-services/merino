@@ -1,1 +1,1 @@
-initSidebarItems({"enum":[["SuggestionProviderConfig",""]],"struct":[["MemoryCacheConfig",""],["MultiplexerConfig",""],["RedisCacheConfig",""],["RemoteSettingsConfig",""]]});
+initSidebarItems({"enum":[["SuggestionProviderConfig",""]],"struct":[["MemoryCacheConfig",""],["MultiplexerConfig",""],["RedisCacheConfig",""],["RemoteSettingsConfig",""],["TimeoutConfig",""]]});
