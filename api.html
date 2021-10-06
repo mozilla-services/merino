@@ -147,9 +147,23 @@ bookmarks and history.</p>
 and headers.</p>
 <h3 id="query-parameters"><a class="header" href="#query-parameters">Query Parameters</a></h3>
 <ul>
-<li><code>q</code> - The query that the user has typed. This is expected to be a partial
+<li>
+<p><code>q</code> - The query that the user has typed. This is expected to be a partial
 input, sent as fast as once per keystroke, though a slower period may be
-appropriate for the user agent.</li>
+appropriate for the user agent.</p>
+</li>
+<li>
+<p><code>client_variants</code> - Optional. A comma-separated list of any experiments or
+rollouts that are affecting the client's Suggest experience. If Merino
+recognizes any of them it will modify its behavior accordingly.</p>
+</li>
+<li>
+<p><code>providers</code> - Optional. A comma-separated list of providers to use for this
+request. See the <code>/providers</code> endpoint below for valid options. If provided,
+only suggestions from the listed providers will be returned. If not provided,
+Merino will use a built-in default set of providers. The default set of
+providers can be seen in the <code>/providers</code> endpoint.</p>
+</li>
 </ul>
 <h3 id="headers"><a class="header" href="#headers">Headers</a></h3>
 <ul>
@@ -277,6 +291,35 @@ service, by which the interaction pings will be sent to the <code>impression_url
 this interaction ping is always sent to the Mozilla-controlled service unless
 the user opts out the telemetry collection of Firefox.</p>
 <p>The required behavior for interaction pings is TBD.</p>
+<h2 id="providers"><a class="header" href="#providers">Providers</a></h2>
+<p>Endpoint: <code>/api/v1/providers</code></p>
+<p>This endpoint gives a list of available providers, along with their
+<em>availability</em>. It accepts GET requests and takes no parameters.</p>
+<h3 id="response-1"><a class="header" href="#response-1">Response</a></h3>
+<p>The response will be a JSON object containing the key <code>providers</code>, which is a
+map where the keys to this map are the IDs of the provider, and the values are
+provider metadata object. Each provider metadata object will have the following
+format:</p>
+<ul>
+<li>
+<p><code>id</code> - A string that can be used to identify this provider. This ID can be
+used for the <code>providers</code> field of the suggest API.</p>
+</li>
+<li>
+<p><code>availability</code> - A string describing how this provider is used in Merino. It
+will be one of:</p>
+<ul>
+<li><code>&quot;enabled_by_default&quot;</code> - This provider will be used for requests that don't
+specify providers, and it should be provided to the user as a selection that
+can be turned off.</li>
+<li><code>&quot;disabled_by_default&quot;</code> - This provider is not used automatically. It should
+be provided to the user as a selection that could be turned on.</li>
+<li><code>&quot;hidden&quot;</code> - This provider is not used automatically. It should not be
+provided to the user as an option to turn on. It may be used for debugging
+or other internal uses. */</li>
+</ul>
+</li>
+</ul>
 
                     </main>
 

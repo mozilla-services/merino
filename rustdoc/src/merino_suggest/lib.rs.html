@@ -432,6 +432,22 @@
 <span id="432">432</span>
 <span id="433">433</span>
 <span id="434">434</span>
+<span id="435">435</span>
+<span id="436">436</span>
+<span id="437">437</span>
+<span id="438">438</span>
+<span id="439">439</span>
+<span id="440">440</span>
+<span id="441">441</span>
+<span id="442">442</span>
+<span id="443">443</span>
+<span id="444">444</span>
+<span id="445">445</span>
+<span id="446">446</span>
+<span id="447">447</span>
+<span id="448">448</span>
+<span id="449">449</span>
+<span id="450">450</span>
 </pre><pre class="rust">
 <span class="attribute">#![<span class="ident">warn</span>(<span class="ident">missing_docs</span>, <span class="ident">clippy::missing_docs_in_private_items</span>)]</span>
 
@@ -440,6 +456,8 @@
 <span class="kw">mod</span> <span class="ident">debug</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">device_info</span>;
 <span class="kw">mod</span> <span class="ident">domain</span>;
+<span class="kw">mod</span> <span class="ident">fixed</span>;
+<span class="kw">mod</span> <span class="ident">id_multi</span>;
 <span class="kw">mod</span> <span class="ident">multi</span>;
 <span class="kw">mod</span> <span class="ident">timeout</span>;
 <span class="kw">mod</span> <span class="ident">wikifruit</span>;
@@ -465,6 +483,8 @@
 
 <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::debug::DebugProvider</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::domain::Proportion</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::fixed::FixedProvider</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::id_multi</span>::{<span class="ident">IdMulti</span>, <span class="ident">ProviderDetails</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::multi::Multi</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::timeout::TimeoutProvider</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::wikifruit::WikiFruit</span>;
@@ -679,6 +699,14 @@
 
     <span class="doccomment">/// Provide suggested results for `query`.</span>
     <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">suggest</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">query</span>: <span class="ident">SuggestionRequest</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">SuggestionResponse</span>, <span class="ident">SuggestError</span><span class="op">&gt;</span>;
+
+    <span class="doccomment">/// Return if this provider is null and can be ignored. Providers that set</span>
+    <span class="doccomment">/// this to true should be ignored in any place where suggestions are</span>
+    <span class="doccomment">/// needed. Providers with this set to true likely only serve as a blank</span>
+    <span class="doccomment">/// space where we may need a provider but can&#39;t otherwise supply one.</span>
+    <span class="kw">fn</span> <span class="ident">is_null</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+        <span class="bool-val">false</span>
+    }
 }
 
 <span class="doccomment">/// A provider that never provides any suggestions</span>
@@ -688,6 +716,10 @@
 <span class="kw">impl</span> <span class="ident">SuggestionProvider</span> <span class="kw">for</span> <span class="ident">NullProvider</span> {
     <span class="kw">fn</span> <span class="ident">name</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
         <span class="string">&quot;NullProvider&quot;</span>.<span class="ident">into</span>()
+    }
+
+    <span class="kw">fn</span> <span class="ident">is_null</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+        <span class="bool-val">true</span>
     }
 
     <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">suggest</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">_query</span>: <span class="ident">SuggestionRequest</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">SuggestionResponse</span>, <span class="ident">SuggestError</span><span class="op">&gt;</span> {

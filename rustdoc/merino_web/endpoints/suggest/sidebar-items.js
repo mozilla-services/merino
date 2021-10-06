@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["configure","Configure a route to use the Suggest service."]],"struct":[["SuggestQueryParameters","Query parameters"],["SuggestResponse","The response the API generates."],["SuggestionWrapper","Customizes the output format of [`Suggestion`]."],["suggest","Suggest content in response to the queried text."]]});

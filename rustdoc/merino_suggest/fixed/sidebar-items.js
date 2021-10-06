@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["FixedProvider","A suggester that always provides the same suggestion, with a configurable title."]]});

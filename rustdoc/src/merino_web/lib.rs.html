@@ -153,17 +153,19 @@
 <span id="153">153</span>
 <span id="154">154</span>
 <span id="155">155</span>
+<span id="156">156</span>
+<span id="157">157</span>
+<span id="158">158</span>
 </pre><pre class="rust">
 <span class="attribute">#![<span class="ident">warn</span>(<span class="ident">missing_docs</span>, <span class="ident">clippy::missing_docs_in_private_items</span>)]</span>
 
 <span class="doccomment">//! Web server for [Merino](../merino/index.html)&#39;s public API.</span>
 
-<span class="kw">mod</span> <span class="ident">debug</span>;
-<span class="kw">mod</span> <span class="ident">dockerflow</span>;
+<span class="kw">mod</span> <span class="ident">endpoints</span>;
 <span class="kw">mod</span> <span class="ident">errors</span>;
 <span class="kw">mod</span> <span class="ident">extractors</span>;
 <span class="kw">mod</span> <span class="ident">middleware</span>;
-<span class="kw">mod</span> <span class="ident">suggest</span>;
+<span class="kw">mod</span> <span class="ident">providers</span>;
 
 <span class="kw">use</span> <span class="ident">actix_cors::Cors</span>;
 <span class="kw">use</span> <span class="ident">actix_web</span>::{
@@ -178,6 +180,8 @@
 <span class="kw">use</span> <span class="ident">merino_settings::Settings</span>;
 <span class="kw">use</span> <span class="ident">std::net::TcpListener</span>;
 <span class="kw">use</span> <span class="ident">tracing_actix_web_mozlog::MozLog</span>;
+
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::providers::SuggestionProviderRef</span>;
 
 <span class="doccomment">/// Run the web server</span>
 <span class="doccomment">///</span>
@@ -270,18 +274,20 @@
             .<span class="ident">app_data</span>(<span class="ident">Data::new</span>((<span class="kw-2">&amp;</span><span class="ident">settings</span>).<span class="ident">clone</span>()))
             .<span class="ident">app_data</span>(<span class="ident">location_config</span>.<span class="ident">clone</span>())
             .<span class="ident">app_data</span>(<span class="ident">Data::new</span>(<span class="ident">metrics_client</span>.<span class="ident">clone</span>()))
+            .<span class="ident">app_data</span>(<span class="ident">Data::new</span>(<span class="ident">SuggestionProviderRef::new</span>()))
             <span class="comment">// Middlewares</span>
             .<span class="ident">wrap</span>(<span class="ident">moz_log</span>.<span class="ident">clone</span>())
             .<span class="ident">wrap</span>(<span class="ident">middleware::Metrics</span>)
             .<span class="ident">wrap</span>(<span class="ident">middleware::Sentry</span>)
             .<span class="ident">wrap</span>(<span class="ident">Cors::permissive</span>())
             <span class="comment">// The core functionality of Merino</span>
-            .<span class="ident">service</span>(<span class="ident">web::scope</span>(<span class="string">&quot;api/v1/suggest&quot;</span>).<span class="ident">configure</span>(<span class="ident">suggest::configure</span>))
+            .<span class="ident">service</span>(<span class="ident">web::scope</span>(<span class="string">&quot;api/v1/suggest&quot;</span>).<span class="ident">configure</span>(<span class="ident">endpoints::suggest::configure</span>))
+            .<span class="ident">service</span>(<span class="ident">web::scope</span>(<span class="string">&quot;api/v1/providers&quot;</span>).<span class="ident">configure</span>(<span class="ident">endpoints::providers::configure</span>))
             <span class="comment">// Add some debugging views</span>
-            .<span class="ident">service</span>(<span class="ident">web::scope</span>(<span class="string">&quot;debug&quot;</span>).<span class="ident">configure</span>(<span class="ident">debug::configure</span>))
+            .<span class="ident">service</span>(<span class="ident">web::scope</span>(<span class="string">&quot;debug&quot;</span>).<span class="ident">configure</span>(<span class="ident">endpoints::debug::configure</span>))
             .<span class="ident">service</span>(<span class="ident">root_info</span>)
             <span class="comment">// Add the behavior necessary to satisfy Dockerflow.</span>
-            .<span class="ident">service</span>(<span class="ident">web::scope</span>(<span class="string">&quot;&quot;</span>).<span class="ident">configure</span>(<span class="ident">dockerflow::configure</span>))
+            .<span class="ident">service</span>(<span class="ident">web::scope</span>(<span class="string">&quot;&quot;</span>).<span class="ident">configure</span>(<span class="ident">endpoints::dockerflow::configure</span>))
     })
     .<span class="ident">listen</span>(<span class="ident">listener</span>)<span class="question-mark">?</span>;
 
