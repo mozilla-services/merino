@@ -271,6 +271,18 @@
 <span id="271">271</span>
 <span id="272">272</span>
 <span id="273">273</span>
+<span id="274">274</span>
+<span id="275">275</span>
+<span id="276">276</span>
+<span id="277">277</span>
+<span id="278">278</span>
+<span id="279">279</span>
+<span id="280">280</span>
+<span id="281">281</span>
+<span id="282">282</span>
+<span id="283">283</span>
+<span id="284">284</span>
+<span id="285">285</span>
 </pre><pre class="rust">
 <span class="doccomment">//! # Merino Settings</span>
 <span class="doccomment">//!</span>
@@ -448,19 +460,25 @@
 
 <span class="doccomment">/// Settings for the error and event reporting system Sentry.</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// Uses an enum to maintain invariants. In yaml or environment variable configs, set using one of these patterns:</span>
+<span class="doccomment">/// Uses an enum to maintain invariants. In yaml or environment variable</span>
+<span class="doccomment">/// configs, set using one of these patterns:</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// * mode=release, dsn=https://...</span>
-<span class="doccomment">/// * mode=debug</span>
+<span class="doccomment">/// * mode=release, dsn=https://..., env=stage</span>
+<span class="doccomment">/// * mode=server_debug, dsn=https://..., who=your_name</span>
+<span class="doccomment">/// * mode=local_debug</span>
 <span class="doccomment">/// * mode=disabled</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// In debug mode, events will be logged, but the DSN setting will be ignored.</span>
-<span class="doccomment">/// It will be set to a testing value as recommended by Sentry&#39;s docs.</span>
+<span class="doccomment">/// In local_debug mode, events will be logged, but the DSN setting will be</span>
+<span class="doccomment">/// ignored.  It will be set to a testing value as recommended by Sentry&#39;s docs.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// In server_debug mode, you should configure the DSN to point to a testing</span>
+<span class="doccomment">/// project on a real Sentry instance.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
 <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">tag</span> <span class="op">=</span> <span class="string">&quot;mode&quot;</span>, <span class="ident">rename_all</span> <span class="op">=</span> <span class="string">&quot;snake_case&quot;</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">SentrySettings</span> {
     <span class="ident">Release</span> { <span class="ident">dsn</span>: <span class="ident">Dsn</span>, <span class="ident">env</span>: <span class="ident">String</span> },
-    <span class="ident">Debug</span>,
+    <span class="ident">ServerDebug</span> { <span class="ident">dsn</span>: <span class="ident">Dsn</span>, <span class="ident">who</span>: <span class="ident">String</span> },
+    <span class="ident">LocalDebug</span>,
     <span class="ident">Disabled</span>,
 }
 
@@ -468,8 +486,12 @@
     <span class="doccomment">/// Get the configured DSN.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">dsn</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Dsn</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">SentrySettings::Release</span> { <span class="ident">dsn</span>, .. } <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">dsn</span>.<span class="ident">clone</span>()),
-            <span class="ident">SentrySettings::Debug</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">Dsn::from_str</span>(<span class="string">&quot;https://public@example.com/1&quot;</span>).<span class="ident">unwrap</span>()),
+            <span class="ident">SentrySettings::Release</span> { <span class="ident">dsn</span>, .. } <span class="op">|</span> <span class="ident">SentrySettings::ServerDebug</span> { <span class="ident">dsn</span>, .. } <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="prelude-val">Some</span>(<span class="ident">dsn</span>.<span class="ident">clone</span>())
+            }
+            <span class="ident">SentrySettings::LocalDebug</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(
+                <span class="ident">Dsn::from_str</span>(<span class="string">&quot;https://public@example.com/1&quot;</span>).<span class="ident">expect</span>(<span class="string">&quot;Bug: debug DSN is not valid&quot;</span>),
+            ),
             <span class="ident">SentrySettings::Disabled</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
         }
     }
@@ -478,7 +500,8 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">debug</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
         <span class="kw">match</span> <span class="self">self</span> {
             <span class="ident">SentrySettings::Release</span> { .. } <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
-            <span class="ident">SentrySettings::Debug</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
+            <span class="ident">SentrySettings::ServerDebug</span> { .. } <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
+            <span class="ident">SentrySettings::LocalDebug</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
             <span class="ident">SentrySettings::Disabled</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
         }
     }
@@ -486,7 +509,8 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">env</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">str</span> {
         <span class="kw">match</span> <span class="self">self</span> {
             <span class="ident">SentrySettings::Release</span> { <span class="ident">env</span>, .. } <span class="op">=</span><span class="op">&gt;</span> <span class="ident">env</span>.<span class="ident">as_str</span>(),
-            <span class="ident">SentrySettings::Debug</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;debug&quot;</span>,
+            <span class="ident">SentrySettings::ServerDebug</span> { <span class="ident">who</span>, .. } <span class="op">=</span><span class="op">&gt;</span> <span class="ident">who</span>.<span class="ident">as_str</span>(),
+            <span class="ident">SentrySettings::LocalDebug</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;debug&quot;</span>,
             <span class="ident">SentrySettings::Disabled</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;disabled&quot;</span>,
         }
     }

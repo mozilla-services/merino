@@ -394,17 +394,28 @@ above this, then metrics will be lost. Defaults to 32KB.</p>
 <p>Error reporting via Sentry.</p>
 <ul>
 <li><code>sentry.mode</code> (<code>MERINO_SENTRY__MODE</code>) - The type of Sentry integration to
-enable. One of <code>release</code>, <code>debug</code>, or <code>disabled</code>.</li>
+enable. One of <code>release</code>, <code>server_debug</code>, <code>local_debug</code>, or <code>disabled</code>. The
+two <code>debug</code> settings should only be used for local development.</li>
 </ul>
-<p>If <code>sentry.mode</code> is set to <code>disabled</code>, no Sentry integration will be activated.
-If it is set to <code>debug</code>, the DSN will be set to a testing value recommended by
-Sentry, and extra output will be included in the logs.</p>
 <p>If <code>sentry.mode</code> is set to <code>release</code>, then the following two settings are
 required:</p>
 <ul>
 <li><code>sentry.dsn</code> - Configuration to connect to the Sentry project.</li>
 <li><code>sentry.env</code> - The environment to report to Sentry. Probably &quot;production&quot;,
 &quot;stage&quot;, or &quot;dev&quot;.</li>
+</ul>
+<p>If <code>sentry.mode</code> is set to <code>disabled</code>, no Sentry integration will be activated.
+If it is set to <code>local_debug</code>, the DSN will be set to a testing value
+recommended by Sentry, and extra output will be included in the logs.</p>
+<p>The mode can be set to <code>server_debug</code>, which will allow testing real integration
+with Sentry. Sentry integration and debug logging will be activated. It is
+recommended to use the <a href="https://sentry.prod.mozaws.net/operations/merino-local">merino-local</a> sentry environment.
+See that page for DSN information. The following two settings are required:</p>
+<ul>
+<li><code>sentry.dsn</code> - Configuration to connect to the Sentry project. A testing
+project should be used.</li>
+<li><code>sentry.who</code> - Your username, which will be used as the environment, so that
+you can filter your results out in Sentry's web interface.</li>
 </ul>
 <h3 id="redis"><a class="header" href="#redis">Redis</a></h3>
 <p>Connection to Redis. This is used by the Redis provider cache below.</p>
@@ -541,7 +552,7 @@ $ cargo run -p merino
 <pre><code class="language-shell">$ docker-compose -f dev/docker-compose.yaml -d
 $ cargo test
 </code></pre>
-<h2 id="rustdoc"><a class="header" href="#rustdoc">Rustdoc</a></h2>
+<h2 id="documentation"><a class="header" href="#documentation">Documentation</a></h2>
 <p>You can generate documentation, both code level and book level, for Merino and
 all related crates by running <code>./dev/make-all-docs.sh</code>.</p>
 <p>Pre-built code docs are available online at
