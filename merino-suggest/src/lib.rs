@@ -5,6 +5,8 @@
 mod debug;
 pub mod device_info;
 mod domain;
+mod fixed;
+mod id_multi;
 mod multi;
 mod timeout;
 mod wikifruit;
@@ -30,6 +32,8 @@ use thiserror::Error;
 
 pub use crate::debug::DebugProvider;
 pub use crate::domain::Proportion;
+pub use crate::fixed::FixedProvider;
+pub use crate::id_multi::{IdMulti, ProviderDetails};
 pub use crate::multi::Multi;
 pub use crate::timeout::TimeoutProvider;
 pub use crate::wikifruit::WikiFruit;
@@ -244,6 +248,14 @@ pub trait SuggestionProvider: Send + Sync {
 
     /// Provide suggested results for `query`.
     async fn suggest(&self, query: SuggestionRequest) -> Result<SuggestionResponse, SuggestError>;
+
+    /// Return if this provider is null and can be ignored. Providers that set
+    /// this to true should be ignored in any place where suggestions are
+    /// needed. Providers with this set to true likely only serve as a blank
+    /// space where we may need a provider but can't otherwise supply one.
+    fn is_null(&self) -> bool {
+        false
+    }
 }
 
 /// A provider that never provides any suggestions
@@ -253,6 +265,10 @@ pub struct NullProvider;
 impl SuggestionProvider for NullProvider {
     fn name(&self) -> String {
         "NullProvider".into()
+    }
+
+    fn is_null(&self) -> bool {
+        true
     }
 
     async fn suggest(&self, _query: SuggestionRequest) -> Result<SuggestionResponse, SuggestError> {

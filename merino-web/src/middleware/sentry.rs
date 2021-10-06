@@ -113,8 +113,6 @@ where
 
     #[tracing::instrument(level = "DEBUG", skip(self, req))]
     fn call(&self, req: ServiceRequest) -> Self::Future {
-        // let settings = req.app_data::<Settings>();
-
         // sentry
         let hub = sentry::Hub::current();
         let transaction = if let Some(name) = req.match_name() {

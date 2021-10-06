@@ -4,8 +4,6 @@ use crate::{CacheStatus, SuggestError, SuggestionProvider, SuggestionRequest, Su
 use async_trait::async_trait;
 use futures::future::join_all;
 
-/// Type alias for the contained suggestion type to save some typing.
-
 /// A provider that aggregates suggestions from multiple suggesters.
 pub struct Multi {
     /// The providers to aggregate from.

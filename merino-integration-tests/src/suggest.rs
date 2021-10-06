@@ -1,10 +1,10 @@
 //! Tests Merino's ability to make basic suggestions.
 #![cfg(test)]
 
-use crate::{merino_test_macro, TestingTools};
+use crate::{merino_test_macro, utils::test_tools::TestReqwestClient, TestingTools};
 use anyhow::Result;
 use httpmock::{Method::GET, MockServer};
-use merino_settings::providers::{RemoteSettingsConfig, SuggestionProviderConfig};
+use merino_settings::providers::{FixedConfig, RemoteSettingsConfig, SuggestionProviderConfig};
 use reqwest::StatusCode;
 use serde_json::json;
 use std::collections::HashSet;
@@ -118,7 +118,7 @@ async fn suggest_adm_rs_works(
         ..
     }: TestingTools,
 ) -> Result<()> {
-    setup_empty_remote_settings_collection(remote_settings_mock);
+    setup_empty_remote_settings_collection(&remote_settings_mock).await;
 
     let response = test_client.get("/api/v1/suggest?q=apple").send().await?;
 
@@ -132,14 +132,16 @@ async fn suggest_adm_rs_works(
     Ok(())
 }
 
-fn setup_empty_remote_settings_collection(server: MockServer) {
-    server.mock(|when, then| {
-        when.method(GET)
-            .path("/v1/buckets/main/collections/quicksuggest/records");
-        then.status(200).json_body(json!({
-            "data": [],
-        }));
-    });
+async fn setup_empty_remote_settings_collection(server: &MockServer) {
+    server
+        .mock_async(|when, then| {
+            when.method(GET)
+                .path("/v1/buckets/main/collections/quicksuggest/records");
+            then.status(200).json_body(json!({
+                "data": [],
+            }));
+        })
+        .await;
 }
 
 #[merino_test_macro(|settings| {
@@ -176,5 +178,103 @@ async fn suggest_records_client_variants_metrics(
 
     assert!(metrics_watcher.has_incr("client_variants.one"));
     assert!(metrics_watcher.has_incr("client_variants.two"));
+    Ok(())
+}
+
+#[merino_test_macro(|settings| {
+    // FixedProvider is only allowed when debug is true.
+    settings.debug = true;
+    for color in ["red", "blue", "green"] {
+        settings.suggestion_providers.insert(
+            color.to_uppercase(),
+            SuggestionProviderConfig::Fixed(FixedConfig { value: color.to_string() })
+        );
+    }
+})]
+async fn suggest_provider_id_is_listed(
+    TestingTools { test_client, .. }: TestingTools,
+) -> Result<()> {
+    let response = test_client.get("/api/v1/suggest?q=test").send().await?;
+    assert_eq!(response.status(), StatusCode::OK);
+
+    let body: serde_json::Value = response.json().await?;
+    let returned_providers = body["suggestions"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .map(|s| s["provider"].as_str().unwrap())
+        .collect::<HashSet<_>>();
+    let expected_providers = ["RED", "BLUE", "GREEN"].iter().cloned().collect();
+    assert_eq!(returned_providers, expected_providers);
+
+    Ok(())
+}
+
+#[merino_test_macro(|settings| {
+    // FixedProvider is only allowed when debug is true.
+    settings.debug = true;
+    for color in ["red", "blue", "green"] {
+        settings.suggestion_providers.insert(
+            color.to_string(),
+            SuggestionProviderConfig::Fixed(FixedConfig { value: color.to_string() })
+        );
+    }
+})]
+async fn suggest_providers_can_be_filtered(
+    TestingTools { test_client, .. }: TestingTools,
+) -> Result<()> {
+    async fn test(test_client: &TestReqwestClient, providers: Vec<&str>) -> Result<()> {
+        let url = format!("/api/v1/suggest?q=test&providers={}", providers.join(","));
+        let response = test_client.get(&url).send().await?;
+        assert_eq!(response.status(), StatusCode::OK);
+
+        let body: serde_json::Value = response.json().await?;
+        let returned_providers = body["suggestions"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .map(|s| s["provider"].as_str().unwrap())
+            .collect::<HashSet<_>>();
+        let expected_providers = providers.into_iter().collect();
+        assert_eq!(returned_providers, expected_providers);
+        Ok(())
+    }
+
+    test(&test_client, vec!["red", "blue", "green"]).await?;
+    test(&test_client, vec!["blue", "green"]).await?;
+    test(&test_client, vec!["green", "red"]).await?;
+    test(&test_client, vec!["blue"]).await?;
+    test(&test_client, vec![]).await?;
+
+    Ok(())
+}
+
+#[merino_test_macro(|settings| {
+    // FixedProvider is only allowed when debug is true.
+    settings.debug = true;
+    for color in ["red", "blue", "green"] {
+        settings.suggestion_providers.insert(
+            color.to_string(),
+            SuggestionProviderConfig::Fixed(FixedConfig { value: color.to_string() })
+        );
+    }
+})]
+async fn suggest_providers_are_resilient_to_unknown_providers(
+    TestingTools { test_client, .. }: TestingTools,
+) -> Result<()> {
+    let url = "/api/v1/suggest?q=test&providers=red,blue,orange";
+    let response = test_client.get(url).send().await?;
+    assert_eq!(response.status(), StatusCode::OK);
+
+    let body: serde_json::Value = response.json().await?;
+    let returned_providers = body["suggestions"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .map(|s| s["provider"].as_str().unwrap())
+        .collect::<HashSet<_>>();
+    let expected_providers = ["red", "blue"].iter().cloned().collect();
+    assert_eq!(returned_providers, expected_providers);
+
     Ok(())
 }

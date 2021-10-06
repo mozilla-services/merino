@@ -40,6 +40,7 @@ mod debug;
 mod dockerflow;
 mod general;
 mod logging;
+mod providers;
 mod suggest;
 mod utils;
 
