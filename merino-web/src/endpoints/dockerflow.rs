@@ -149,7 +149,7 @@ async fn test_error(
                 r#type = "dockerflow.error_endpoint",
                 "The __error__ endpoint was called"
             );
-            Err(HandlerError::Internal)
+            Err(HandlerError::internal())
         }
     }
 }

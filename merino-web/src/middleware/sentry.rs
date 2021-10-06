@@ -78,7 +78,7 @@ impl<S> SentryMiddleware<S> {
     fn exception_from_error_with_backtrace(err: &HandlerError) -> sentry::protocol::Exception {
         let mut exception = Self::exception_from_error(err);
         // format the stack trace with alternate debug to get addresses
-        let bt = format!("{:#?}", err);
+        let bt = format!("{:#?}", err.backtrace);
         exception.stacktrace = sentry_backtrace::parse_stacktrace(&bt);
         exception
     }
@@ -107,7 +107,7 @@ where
     fn poll_ready(&self, cx: &mut Context<'_>) -> Poll<Result<(), Self::Error>> {
         self.service.poll_ready(cx).map_err(|error| {
             tracing::error!(?error, "Error polling service");
-            HandlerError::Internal.into()
+            HandlerError::internal().into()
         })
     }
 
@@ -127,10 +127,9 @@ where
         let fut = self.service.call(req);
 
         Box::pin(async move {
-            // let settings = settings.ok_or(HandlerError::Internal)?;
             let response = fut.await.map_err(|error| {
                 tracing::error!(?error, "handler error");
-                HandlerError::Internal
+                HandlerError::internal()
             })?;
             tracing::trace!(?response, "checking response for errors");
 

@@ -60,7 +60,7 @@ where
     fn poll_ready(&self, ctx: &mut Context<'_>) -> std::task::Poll<Result<(), Self::Error>> {
         self.service.poll_ready(ctx).map_err(|error| {
             tracing::error!(?error, "Error polling service from metrics middleware");
-            HandlerError::Internal.into()
+            HandlerError::internal().into()
         })
     }
 
@@ -71,7 +71,7 @@ where
         let fut = self.service.call(req);
 
         Box::pin(async move {
-            let response = fut.await.map_err(|_err| HandlerError::Internal)?;
+            let response = fut.await.map_err(|_err| HandlerError::internal())?;
             if let Some(metrics_client) = metrics_client {
                 let lapsed = Instant::now().duration_since(start);
                 metrics_client
