@@ -32,7 +32,7 @@ async fn list_providers(
                 r#type = "web.suggest.setup-error",
                 "suggester error"
             );
-            HandlerError::Internal
+            HandlerError::internal()
         })?;
 
     let providers = provider

@@ -2,7 +2,7 @@
 
 use std::str::FromStr;
 
-use crate::errors::HandlerError;
+use crate::errors::{HandlerError, HandlerErrorKind};
 use actix_web::{
     dev::Payload,
     http::{header, HeaderValue},
@@ -95,16 +95,16 @@ impl FromRequest for SupportedLanguagesWrapper {
         fn parse_quality_value(quality_value: &str) -> Result<f64, HandlerError> {
             let (_, weight_as_string) = quality_value
                 .split_once('=')
-                .ok_or(HandlerError::MalformedHeader("Accept-Language"))?;
+                .ok_or(HandlerErrorKind::MalformedHeader("Accept-Language"))?;
 
             let weight = weight_as_string
                 .parse::<f64>()
-                .map_err(|_| HandlerError::MalformedHeader("Accept-Language"))?;
+                .map_err(|_| HandlerErrorKind::MalformedHeader("Accept-Language"))?;
 
             if (0.0..=1.0).contains(&weight) {
                 Ok(weight)
             } else {
-                Err(HandlerError::MalformedHeader("Accept-Language"))
+                Err(HandlerErrorKind::MalformedHeader("Accept-Language").into())
             }
         }
 
@@ -150,7 +150,7 @@ impl FromRequest for SupportedLanguagesWrapper {
         let parse_header = || {
             let header = match req.headers().get(header::ACCEPT_LANGUAGE) {
                 Some(header) => header.to_str().map_err::<Self::Error, _>(|_| {
-                    HandlerError::MalformedHeader("Accept-Language").into()
+                    HandlerErrorKind::MalformedHeader("Accept-Language").into()
                 }),
                 None => return Ok(Self(SupportedLanguages::wildcard())),
             }?;
