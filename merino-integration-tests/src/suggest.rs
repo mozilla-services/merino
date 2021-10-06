@@ -118,7 +118,7 @@ async fn suggest_adm_rs_works(
         ..
     }: TestingTools,
 ) -> Result<()> {
-    setup_empty_remote_settings_collection(remote_settings_mock);
+    setup_empty_remote_settings_collection(&remote_settings_mock).await;
 
     let response = test_client.get("/api/v1/suggest?q=apple").send().await?;
 
@@ -132,14 +132,16 @@ async fn suggest_adm_rs_works(
     Ok(())
 }
 
-fn setup_empty_remote_settings_collection(server: MockServer) {
-    server.mock(|when, then| {
-        when.method(GET)
-            .path("/v1/buckets/main/collections/quicksuggest/records");
-        then.status(200).json_body(json!({
-            "data": [],
-        }));
-    });
+async fn setup_empty_remote_settings_collection(server: &MockServer) {
+    server
+        .mock_async(|when, then| {
+            when.method(GET)
+                .path("/v1/buckets/main/collections/quicksuggest/records");
+            then.status(200).json_body(json!({
+                "data": [],
+            }));
+        })
+        .await;
 }
 
 #[merino_test_macro(|settings| {
