@@ -141,6 +141,27 @@ pub struct RedisSettings {
     pub url: ::redis::ConnectionInfo,
 }
 
+impl RedisSettings {
+    #[must_use]
+    pub fn redacted_url(&self) -> String {
+        match (&self.url.username, &self.url.passwd) {
+            (Some(username), Some(_)) => {
+                format!(
+                    "redis://{}:<PASSWORD>@{}/{}",
+                    username, self.url.addr, self.url.db
+                )
+            }
+            (Some(username), None) => {
+                format!("redis://{}@{}/{}", username, self.url.addr, self.url.db)
+            }
+            (None, Some(_password)) => {
+                format!("redis://:<PASSWORD>@{}/{}", self.url.addr, self.url.db)
+            }
+            (None, None) => format!("redis://{}/{}", self.url.addr, self.url.db),
+        }
+    }
+}
+
 #[serde_as]
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct RemoteSettingsGlobalSettings {

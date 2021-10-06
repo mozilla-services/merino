@@ -190,7 +190,10 @@ impl Suggester {
 
         let redis_connection = redis::aio::ConnectionManager::new(client)
             .await
-            .context("Connecting to Redis")
+            .context(format!(
+                "Connecting to Redis at {}",
+                settings.redis.redacted_url(),
+            ))
             .map_err(SetupError::Network)?;
 
         Ok(Box::new(Suggester {
