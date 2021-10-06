@@ -174,19 +174,25 @@ pub struct MetricsSettings {
 
 /// Settings for the error and event reporting system Sentry.
 ///
-/// Uses an enum to maintain invariants. In yaml or environment variable configs, set using one of these patterns:
+/// Uses an enum to maintain invariants. In yaml or environment variable
+/// configs, set using one of these patterns:
 ///
-/// * mode=release, dsn=https://...
-/// * mode=debug
+/// * mode=release, dsn=https://..., env=stage
+/// * mode=server_debug, dsn=https://..., who=your_name
+/// * mode=local_debug
 /// * mode=disabled
 ///
-/// In debug mode, events will be logged, but the DSN setting will be ignored.
-/// It will be set to a testing value as recommended by Sentry's docs.
+/// In local_debug mode, events will be logged, but the DSN setting will be
+/// ignored.  It will be set to a testing value as recommended by Sentry's docs.
+///
+/// In server_debug mode, you should configure the DSN to point to a testing
+/// project on a real Sentry instance.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(tag = "mode", rename_all = "snake_case")]
 pub enum SentrySettings {
     Release { dsn: Dsn, env: String },
-    Debug,
+    ServerDebug { dsn: Dsn, who: String },
+    LocalDebug,
     Disabled,
 }
 
@@ -194,8 +200,12 @@ impl SentrySettings {
     /// Get the configured DSN.
     pub fn dsn(&self) -> Option<Dsn> {
         match self {
-            SentrySettings::Release { dsn, .. } => Some(dsn.clone()),
-            SentrySettings::Debug => Some(Dsn::from_str("https://public@example.com/1").unwrap()),
+            SentrySettings::Release { dsn, .. } | SentrySettings::ServerDebug { dsn, .. } => {
+                Some(dsn.clone())
+            }
+            SentrySettings::LocalDebug => Some(
+                Dsn::from_str("https://public@example.com/1").expect("Bug: debug DSN is not valid"),
+            ),
             SentrySettings::Disabled => None,
         }
     }
@@ -204,7 +214,8 @@ impl SentrySettings {
     pub fn debug(&self) -> bool {
         match self {
             SentrySettings::Release { .. } => false,
-            SentrySettings::Debug => true,
+            SentrySettings::ServerDebug { .. } => true,
+            SentrySettings::LocalDebug => true,
             SentrySettings::Disabled => false,
         }
     }
@@ -212,7 +223,8 @@ impl SentrySettings {
     pub fn env(&self) -> &str {
         match self {
             SentrySettings::Release { env, .. } => env.as_str(),
-            SentrySettings::Debug => "debug",
+            SentrySettings::ServerDebug { who, .. } => who.as_str(),
+            SentrySettings::LocalDebug => "debug",
             SentrySettings::Disabled => "disabled",
         }
     }

@@ -97,11 +97,8 @@ Settings for Statsd/Datadog style metrics reporting.
 Error reporting via Sentry.
 
 - `sentry.mode` (`MERINO_SENTRY__MODE`) - The type of Sentry integration to
-  enable. One of `release`, `debug`, or `disabled`.
-
-If `sentry.mode` is set to `disabled`, no Sentry integration will be activated.
-If it is set to `debug`, the DSN will be set to a testing value recommended by
-Sentry, and extra output will be included in the logs.
+  enable. One of `release`, `server_debug`, `local_debug`, or `disabled`. The
+  two `debug` settings should only be used for local development.
 
 If `sentry.mode` is set to `release`, then the following two settings are
 required:
@@ -109,6 +106,22 @@ required:
 - `sentry.dsn` - Configuration to connect to the Sentry project.
 - `sentry.env` - The environment to report to Sentry. Probably "production",
   "stage", or "dev".
+
+If `sentry.mode` is set to `disabled`, no Sentry integration will be activated.
+If it is set to `local_debug`, the DSN will be set to a testing value
+recommended by Sentry, and extra output will be included in the logs.
+
+The mode can be set to `server_debug`, which will allow testing real integration
+with Sentry. Sentry integration and debug logging will be activated. It is
+recommended to use the [merino-local][sentry-merino-local] sentry environment.
+See that page for DSN information. The following two settings are required:
+
+[sentry-merino-local]: https://sentry.prod.mozaws.net/operations/merino-local
+
+- `sentry.dsn` - Configuration to connect to the Sentry project. A testing
+  project should be used.
+- `sentry.who` - Your username, which will be used as the environment, so that
+  you can filter your results out in Sentry's web interface.
 
 ### Redis
 

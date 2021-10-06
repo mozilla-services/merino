@@ -18,7 +18,7 @@ $ docker-compose -f dev/docker-compose.yaml -d
 $ cargo test
 ```
 
-## Rustdoc
+## Documentation
 
 You can generate documentation, both code level and book level, for Merino and
 all related crates by running `./dev/make-all-docs.sh`.
