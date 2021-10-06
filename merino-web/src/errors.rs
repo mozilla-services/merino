@@ -12,7 +12,9 @@ use thiserror::Error;
 /// The Standard Error for most of Merino
 #[derive(Debug)]
 pub struct HandlerError {
+    /// The wrapped error value.
     kind: HandlerErrorKind,
+    /// The backtrace related to the wrapped error.
     pub(crate) backtrace: Backtrace,
 }
 
@@ -29,6 +31,7 @@ pub enum HandlerErrorKind {
 }
 
 impl HandlerErrorKind {
+    /// Convert the error to an HTTP status code.
     pub fn status_code(&self) -> StatusCode {
         match self {
             Self::Internal => StatusCode::INTERNAL_SERVER_ERROR,
@@ -36,6 +39,7 @@ impl HandlerErrorKind {
         }
     }
 
+    /// Build an HTTP response reporting the error.
     pub fn error_response(&self) -> HttpResponse {
         let mut response = HashMap::new();
         response.insert("error".to_owned(), Value::String(format!("{}", self)));
@@ -51,10 +55,12 @@ impl From<HandlerErrorKind> for actix_web::Error {
 }
 
 impl HandlerError {
+    /// Access the wrapped error.
     pub fn kind(&self) -> &HandlerErrorKind {
         &self.kind
     }
 
+    /// Get an `HandlerError` representing an `Internal` error.
     pub fn internal() -> Self {
         HandlerErrorKind::Internal.into()
     }
