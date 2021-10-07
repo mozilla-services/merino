@@ -41,7 +41,7 @@ async fn suggest(
                 r#type = "web.suggest.setup-error",
                 "suggester error"
             );
-            HandlerError::Internal
+            HandlerError::internal()
         })?;
 
     let response = match &query_parameters.providers {
@@ -54,7 +54,7 @@ async fn suggest(
     }
     .map_err(|error| {
         tracing::error!(%error, r#type="web.suggest.error", "Error providing suggestions");
-        HandlerError::Internal
+        HandlerError::internal()
     })?;
 
     tracing::debug!(
