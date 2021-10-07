@@ -23,7 +23,6 @@ use thiserror::Error;
 pub struct HandlerError {
     // Important: please make sure to update the implementation of
     // std::fmt::Debug for this struct if new fields are added here.
-
     /// The wrapped error value.
     kind: HandlerErrorKind,
     /// The backtrace related to the wrapped error.
