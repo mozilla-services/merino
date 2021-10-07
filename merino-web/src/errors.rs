@@ -3,10 +3,14 @@
 //! This module implements the supporting functionalities to manipulate
 //! [crate::error::HandlerError] to make it esier to send them to Sentry.
 //! The [crate::error::HandlerError] wraps the internal error [crate::error::HandlerErrorKind]
-//! and the related backtrace. Such backtrace is captured when converting from
-//! [crate::error::HandlerErrorKind] to [crate::error::HandlerError] using `into()`.
+//! and a related backtrace.
+//! The corresponding backtrace is captured when the error is created.
+//! This happens automatically when a [crate::error::HandlerErrorKind] is converted into a [crate::error::HandlerError].
+//!
 //! Developers are expected to use [crate::error::HandlerError] as the error type of
-//! their functions and to set the appropriate error by e.g. `Err(HandlerErrorKind::Internal.into())`.
+//! their functions and to set the appropriate error by
+//! * explicitly converting it using `into()`, e.g. `Err(HandlerErrorKind::Internal.into())`,
+//! * implicitly converting it using the question mark operator, e.g. `Err(HandleErrorKind::Interal)?`.
 //!
 //! New errors can be added by extending [crate::error::HandlerErrorKind].
 
