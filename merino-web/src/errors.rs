@@ -10,7 +10,6 @@ use serde_json::Value;
 use thiserror::Error;
 
 /// The Standard Error for most of Merino
-#[derive(Debug)]
 pub struct HandlerError {
     /// The wrapped error value.
     kind: HandlerErrorKind,
@@ -87,6 +86,20 @@ where
 impl fmt::Display for HandlerError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         self.kind.fmt(f)
+    }
+}
+
+impl std::fmt::Debug for HandlerError {
+    fn fmt(&self, fmt: &mut std::fmt::Formatter) -> std::fmt::Result {
+        // Sentry will scan the printed debug information for `HandlerError`
+        // to determine the "event type" to display and to group events by:
+        // to make sure different errors don't get grouped together, we format
+        // the name of this debug struct as `HandlerError/<error name>`.
+        // See `sentry::parse_type_from_debug` used by middleware/sentry.rs
+        fmt.debug_struct(&format!("HandlerError/{:?}", &self.kind))
+            .field("kind", &self.kind)
+            .field("backtrace", &self.backtrace)
+            .finish()
     }
 }
 
