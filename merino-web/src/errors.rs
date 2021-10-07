@@ -1,4 +1,14 @@
 //! Any errors that merino-web might generate, and supporting implementations.
+//!
+//! This module implements the supporting functionalities to manipulate
+//! [crate::error::HandlerError] to make it esier to send them to Sentry.
+//! The [crate::error::HandlerError] wraps the internal error [crate::error::HandlerErrorKind]
+//! and the related backtrace. Such backtrace is captured when converting from
+//! [crate::error::HandlerErrorKind] to [crate::error::HandlerError] using `into()`.
+//! Developers are expected to use [crate::error::HandlerError] as the error type of
+//! their functions and to set the appropriate error by e.g. `Err(HandlerErrorKind::Internal.into())`.
+//!
+//! New errors can be added by extending [crate::error::HandlerErrorKind].
 
 use std::collections::HashMap;
 use std::error::Error;
@@ -11,6 +21,9 @@ use thiserror::Error;
 
 /// The Standard Error for most of Merino
 pub struct HandlerError {
+    // Important: please make sure to update the implementation of
+    // std::fmt::Debug for this struct if new fields are added here.
+
     /// The wrapped error value.
     kind: HandlerErrorKind,
     /// The backtrace related to the wrapped error.
@@ -60,6 +73,9 @@ impl HandlerError {
     }
 
     /// Get an `HandlerError` representing an `Internal` error.
+    ///
+    /// This is a convenience function: the same result can be
+    /// achieved by directly using `HandlerErrorKind::Internal.into()`.
     pub fn internal() -> Self {
         HandlerErrorKind::Internal.into()
     }
