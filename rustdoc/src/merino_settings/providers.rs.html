@@ -161,6 +161,74 @@
 <span id="161">161</span>
 <span id="162">162</span>
 <span id="163">163</span>
+<span id="164">164</span>
+<span id="165">165</span>
+<span id="166">166</span>
+<span id="167">167</span>
+<span id="168">168</span>
+<span id="169">169</span>
+<span id="170">170</span>
+<span id="171">171</span>
+<span id="172">172</span>
+<span id="173">173</span>
+<span id="174">174</span>
+<span id="175">175</span>
+<span id="176">176</span>
+<span id="177">177</span>
+<span id="178">178</span>
+<span id="179">179</span>
+<span id="180">180</span>
+<span id="181">181</span>
+<span id="182">182</span>
+<span id="183">183</span>
+<span id="184">184</span>
+<span id="185">185</span>
+<span id="186">186</span>
+<span id="187">187</span>
+<span id="188">188</span>
+<span id="189">189</span>
+<span id="190">190</span>
+<span id="191">191</span>
+<span id="192">192</span>
+<span id="193">193</span>
+<span id="194">194</span>
+<span id="195">195</span>
+<span id="196">196</span>
+<span id="197">197</span>
+<span id="198">198</span>
+<span id="199">199</span>
+<span id="200">200</span>
+<span id="201">201</span>
+<span id="202">202</span>
+<span id="203">203</span>
+<span id="204">204</span>
+<span id="205">205</span>
+<span id="206">206</span>
+<span id="207">207</span>
+<span id="208">208</span>
+<span id="209">209</span>
+<span id="210">210</span>
+<span id="211">211</span>
+<span id="212">212</span>
+<span id="213">213</span>
+<span id="214">214</span>
+<span id="215">215</span>
+<span id="216">216</span>
+<span id="217">217</span>
+<span id="218">218</span>
+<span id="219">219</span>
+<span id="220">220</span>
+<span id="221">221</span>
+<span id="222">222</span>
+<span id="223">223</span>
+<span id="224">224</span>
+<span id="225">225</span>
+<span id="226">226</span>
+<span id="227">227</span>
+<span id="228">228</span>
+<span id="229">229</span>
+<span id="230">230</span>
+<span id="231">231</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 <span class="kw">use</span> <span class="ident">serde_with</span>::{<span class="ident">serde_as</span>, <span class="ident">DurationSeconds</span>};
@@ -213,10 +281,11 @@
 }
 
 <span class="kw">impl</span> <span class="ident">RedisCacheConfig</span> {
+    <span class="attribute">#[<span class="ident">must_use</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_inner</span>(<span class="ident">inner</span>: <span class="ident">SuggestionProviderConfig</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="self">Self</span> {
             <span class="ident">inner</span>: <span class="ident">Box::new</span>(<span class="ident">inner</span>),
-            ..<span class="ident">Default::default</span>()
+            ..<span class="self">Self</span><span class="ident">::default</span>()
         }
     }
 }
@@ -233,6 +302,7 @@
 
 <span class="attribute">#[<span class="ident">serde_as</span>]</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
+<span class="attribute">#[<span class="ident">serde</span>(<span class="ident">default</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">MemoryCacheConfig</span> {
     <span class="doccomment">/// The default TTL to assign to a cache entry if the underlying provider does not provide one.</span>
     <span class="attribute">#[<span class="ident">serde_as</span>(<span class="kw">as</span> <span class="op">=</span> <span class="string">&quot;DurationSeconds&quot;</span>)]</span>
@@ -261,10 +331,11 @@
 }
 
 <span class="kw">impl</span> <span class="ident">MemoryCacheConfig</span> {
+    <span class="attribute">#[<span class="ident">must_use</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_inner</span>(<span class="ident">inner</span>: <span class="ident">SuggestionProviderConfig</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="self">Self</span> {
             <span class="ident">inner</span>: <span class="ident">Box::new</span>(<span class="ident">inner</span>),
-            ..<span class="ident">Default::default</span>()
+            ..<span class="self">Self</span><span class="ident">::default</span>()
         }
     }
 }
@@ -324,6 +395,71 @@
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">FixedConfig</span> {
     <span class="doccomment">/// The value to use in the title of the suggestion.</span>
     <span class="kw">pub</span> <span class="ident">value</span>: <span class="ident">String</span>,
+}
+
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
+<span class="kw">mod</span> <span class="ident">tests</span> {
+    <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">providers::SuggestionProviderConfig</span>, <span class="ident">Settings</span>};
+    <span class="kw">use</span> <span class="ident">anyhow</span>::{<span class="ident">Context</span>, <span class="prelude-ty">Result</span>};
+    <span class="kw">use</span> <span class="ident">config</span>::{<span class="ident">Config</span>, <span class="ident">File</span>, <span class="ident">Value</span>};
+    <span class="kw">use</span> <span class="ident">serde_json::json</span>;
+
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">provider_defaults_are_optional</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">config</span> <span class="op">=</span> <span class="ident">Config::new</span>();
+        <span class="ident">config</span>.<span class="ident">merge</span>(<span class="ident">File::with_name</span>(<span class="string">&quot;../config/base&quot;</span>))<span class="question-mark">?</span>;
+        <span class="ident">config</span>.<span class="ident">set</span>(<span class="string">&quot;env&quot;</span>, <span class="string">&quot;test&quot;</span>)<span class="question-mark">?</span>;
+
+        <span class="comment">// Providers are allowed to have required fields, if there is no logical</span>
+        <span class="comment">// default. If that&#39;s the case, make sure to add them here. Don&#39;t</span>
+        <span class="comment">// provide any values for fields that are options.</span>
+        <span class="kw">let</span> <span class="ident">value_json</span> <span class="op">=</span> <span class="macro">json!</span>({
+            <span class="string">&quot;memory_cache&quot;</span>: { <span class="string">&quot;type&quot;</span>: <span class="string">&quot;memory_cache&quot;</span> },
+            <span class="string">&quot;remote_settings&quot;</span>: { <span class="string">&quot;type&quot;</span>: <span class="string">&quot;remote_settings&quot;</span>},
+            <span class="string">&quot;redis_cache&quot;</span>: { <span class="string">&quot;type&quot;</span>: <span class="string">&quot;redis_cache&quot;</span>},
+            <span class="string">&quot;multiplexer&quot;</span>: { <span class="string">&quot;type&quot;</span>: <span class="string">&quot;multiplexer&quot;</span> },
+            <span class="string">&quot;debug&quot;</span>: { <span class="string">&quot;type&quot;</span>: <span class="string">&quot;debug&quot;</span>},
+            <span class="string">&quot;wiki_fruit&quot;</span>: { <span class="string">&quot;type&quot;</span>: <span class="string">&quot;wiki_fruit&quot;</span>},
+            <span class="string">&quot;null&quot;</span>: { <span class="string">&quot;type&quot;</span>: <span class="string">&quot;null&quot;</span>},
+            <span class="string">&quot;timeout&quot;</span>: { <span class="string">&quot;type&quot;</span>: <span class="string">&quot;timeout&quot;</span> },
+            <span class="string">&quot;fixed&quot;</span>: { <span class="string">&quot;type&quot;</span>: <span class="string">&quot;fixed&quot;</span>, <span class="string">&quot;value&quot;</span>: <span class="string">&quot;test suggestion&quot;</span> },
+        });
+
+        <span class="kw">let</span> <span class="ident">value_config</span>: <span class="ident">Value</span> <span class="op">=</span> <span class="ident">serde_json::from_value</span>(<span class="ident">value_json</span>.<span class="ident">clone</span>())<span class="question-mark">?</span>;
+        <span class="ident">config</span>.<span class="ident">set</span>(<span class="string">&quot;suggestion_providers&quot;</span>, <span class="ident">value_config</span>)<span class="question-mark">?</span>;
+
+        <span class="kw">let</span> <span class="ident">settings</span> <span class="op">=</span> <span class="ident">config</span>
+            .<span class="ident">try_into</span>::<span class="op">&lt;</span><span class="ident">Settings</span><span class="op">&gt;</span>()
+            .<span class="ident">context</span>(<span class="string">&quot;could not convert settings&quot;</span>)<span class="question-mark">?</span>;
+
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">found_providers</span> <span class="op">=</span> <span class="number">0</span>;
+        <span class="kw">for</span> (<span class="ident">id</span>, <span class="ident">provider</span>) <span class="kw">in</span> <span class="ident">settings</span>.<span class="ident">suggestion_providers</span> {
+            <span class="macro">assert!</span>(<span class="ident">value_json</span>.<span class="ident">get</span>(<span class="ident">id</span>).<span class="ident">is_some</span>());
+
+            <span class="comment">// This match clause helps ensure this test covers all providers. If</span>
+            <span class="comment">// you have to add a case to this match, add it to `value_json`</span>
+            <span class="comment">// above as well so it can be tested.</span>
+            <span class="ident">found_providers</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+            <span class="macro">assert!</span>(
+                <span class="kw">match</span> <span class="ident">provider</span> {
+                    <span class="ident">SuggestionProviderConfig::RemoteSettings</span>(<span class="kw">_</span>)
+                    <span class="op">|</span> <span class="ident">SuggestionProviderConfig::MemoryCache</span>(<span class="kw">_</span>)
+                    <span class="op">|</span> <span class="ident">SuggestionProviderConfig::RedisCache</span>(<span class="kw">_</span>)
+                    <span class="op">|</span> <span class="ident">SuggestionProviderConfig::Multiplexer</span>(<span class="kw">_</span>)
+                    <span class="op">|</span> <span class="ident">SuggestionProviderConfig::Timeout</span>(<span class="kw">_</span>)
+                    <span class="op">|</span> <span class="ident">SuggestionProviderConfig::Debug</span>
+                    <span class="op">|</span> <span class="ident">SuggestionProviderConfig::WikiFruit</span>
+                    <span class="op">|</span> <span class="ident">SuggestionProviderConfig::Fixed</span>(<span class="kw">_</span>)
+                    <span class="op">|</span> <span class="ident">SuggestionProviderConfig::Null</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
+                },
+                <span class="string">&quot;all providers should be recognized&quot;</span>
+            );
+        }
+        <span class="comment">// Likewise, if this number needs to change, make sure to update the rest of the test.</span>
+        <span class="macro">assert_eq!</span>(<span class="ident">found_providers</span>, <span class="number">9</span>);
+
+        <span class="prelude-val">Ok</span>(())
+    }
 }
 </pre></div>
 </section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="merino_settings" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
