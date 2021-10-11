@@ -1,7 +1,7 @@
 # Merino
 
 A service to provide address bar suggestions to Firefox. For more details,
-see the [service docs](https://mozilla-services.github.io/merino/merino/index.html).
+see the [service docs](https://mozilla-services.github.io/merino/index.html).
 
 ## About the Name
 
