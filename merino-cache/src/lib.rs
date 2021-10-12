@@ -2,7 +2,6 @@
 
 //! Manages Merino's cache
 
-mod deduped_map;
 mod domain;
 mod memory;
 mod redis;

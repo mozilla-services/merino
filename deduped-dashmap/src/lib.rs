@@ -1,3 +1,5 @@
+#![warn(missing_docs)]
+
 //! A data structure that can efficiently store many keys that map to a
 //! relatively small number of values.
 
@@ -5,6 +7,7 @@ use dashmap::{mapref::entry::Entry, DashMap};
 use std::collections::hash_map::DefaultHasher;
 use std::fmt::Debug;
 use std::hash::{Hash, Hasher};
+use std::iter::FromIterator;
 
 /// A hashmap that assumes a large number of keys will map to a relatively smaller number of values.
 ///
@@ -12,7 +15,7 @@ use std::hash::{Hash, Hasher};
 /// refcount of the value will be incremented instead of duplicating it.
 ///
 /// Uses DashMap internally
-#[derive(Debug, Default)]
+#[derive(Debug)]
 pub struct DedupedMap<K, M, V>
 where
     K: Eq + Hash,
@@ -53,6 +56,7 @@ where
     V: Hash + Debug + Clone,
 {
     /// Create an empty map.
+    #[must_use]
     pub fn new() -> Self {
         Self {
             storage: DashMap::new(),
@@ -93,6 +97,7 @@ where
     /// count of the storage item it points to will be decremented. If no more
     /// keys refer to the storage item, it will also be removed.
     pub fn remove(&self, key: K) {
+        let key_desc = format!("{:?}", key);
         if let Entry::Occupied(mut occupied_pointer_entry) = self.pointers.entry(key) {
             let pointer = occupied_pointer_entry.get_mut();
             match self.storage.entry(pointer.hash) {
@@ -105,7 +110,7 @@ where
                     }
                 }
                 Entry::Vacant(_) => {
-                    tracing::error!("missing storage entry in memory cache")
+                    tracing::error!(key = %key_desc, "Dangling storage entry");
                 }
             }
         }
@@ -114,17 +119,16 @@ where
     /// Get cloned copies of the metadata and value associated with `key`.
     pub fn get(&self, key: &K) -> Option<(M, V)> {
         match self.pointers.get(key) {
-            Some(pointer_ref) => match self.storage.get(&pointer_ref.hash) {
-                Some(storage_ref) => {
+            Some(pointer_ref) => {
+                if let Some(storage_ref) = self.storage.get(&pointer_ref.hash) {
                     let meta = pointer_ref.meta.clone();
                     let value = storage_ref.value.clone();
                     Some((meta, value))
-                }
-                None => {
-                    tracing::error!(?key, "missing storage entry in memory cache");
+                } else {
+                    tracing::error!(?key, "Dangling storage entry");
                     None
                 }
-            },
+            }
             None => None,
         }
     }
@@ -132,6 +136,7 @@ where
     /// Fetches the total number of storage items in the map.
     ///
     /// This will be at most `self.len_pointers()`.
+    #[must_use]
     pub fn len_storage(&self) -> usize {
         self.storage.len()
     }
@@ -139,6 +144,7 @@ where
     /// Fetches the total number of pointers stored in the map.
     ///
     /// This will be at least `self.len_storage()`.
+    #[must_use]
     pub fn len_pointers(&self) -> usize {
         self.pointers.len()
     }
@@ -189,13 +195,52 @@ where
                     false
                 }
             }
-        })
+        });
     }
 
     /// Checks if the map contains a specific key.
     #[cfg_attr(not(test), allow(dead_code))]
     pub fn contains_key(&self, key: &K) -> bool {
         self.pointers.contains_key(key)
+    }
+}
+
+impl<K, M, V> Default for DedupedMap<K, M, V>
+where
+    K: Eq + Hash,
+    M: Debug,
+    V: Debug,
+{
+    fn default() -> Self {
+        Self {
+            pointers: DashMap::default(),
+            storage: DashMap::default(),
+        }
+    }
+}
+
+impl<K, M, V> FromIterator<(K, M, V)> for DedupedMap<K, M, V>
+where
+    K: Debug + Eq + Hash,
+    M: Clone + Debug,
+    V: Clone + Debug + Eq + Hash,
+{
+    fn from_iter<T: IntoIterator<Item = (K, M, V)>>(iter: T) -> Self {
+        let map = Self::new();
+        for (k, m, v) in iter {
+            map.insert(k, m, v);
+        }
+        map
+    }
+}
+
+impl<K, V> FromIterator<(K, V)> for DedupedMap<K, (), V>
+where
+    K: Debug + Eq + Hash,
+    V: Clone + Debug + Eq + Hash,
+{
+    fn from_iter<T: IntoIterator<Item = (K, V)>>(iter: T) -> Self {
+        iter.into_iter().map(|(k, v)| (k, (), v)).collect()
     }
 }
 
