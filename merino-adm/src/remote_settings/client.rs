@@ -27,199 +27,7 @@ pub struct RemoteSettingsClient {
     /// The base to download attachments from.
     attachment_base_url: Option<Url>,
     /// The client that will be used to make http requests.
-    reqwest_client: Arc<reqwest::Client>,
-}
-
-/// A response from the changeset API.
-#[derive(Debug, Deserialize, Serialize)]
-struct ChangesetResponse {
-    /// The records that have changed.
-    changes: Vec<Record>,
-}
-
-/// A lazy attachment object, representing a value that could be downloaded.
-#[derive(Serialize)]
-pub struct LazyAttachment {
-    /// The URL where the attachment can be downloaded from
-    pub location: Url,
-
-    /// The hash of item that should be downloaded.
-    pub hash: String,
-
-    /// The cached attachment, unparsed.
-    #[serde(skip)]
-    downloaded: RwLock<Option<Vec<u8>>>,
-
-    /// Reqwest client to download attachments with
-    #[serde(skip)]
-    reqwest_client: Arc<reqwest::Client>,
-}
-
-impl Debug for LazyAttachment {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("LazyAttachment")
-            .field("location", &self.location)
-            .field("hash", &self.hash)
-            .field(
-                "downloaded",
-                &self
-                    .downloaded
-                    .try_read()
-                    .map(|guarded| {
-                        if guarded.is_some() {
-                            "<cached download>"
-                        } else {
-                            "<empty>"
-                        }
-                    })
-                    .unwrap_or_else(|err| match err {
-                        std::sync::TryLockError::Poisoned(_) => "<poisoned>",
-                        std::sync::TryLockError::WouldBlock => "<would block>",
-                    }),
-            )
-            .field("reqwest_client", &"<client>")
-            .finish()
-    }
-}
-
-impl LazyAttachment {
-    /// Make a `LazyAttachment` with a builder.
-    fn build() -> LazyAttachmentBuilder {
-        LazyAttachmentBuilder::default()
-    }
-
-    /// Get the attachment associated with this metadata, possibly from a cached copy.
-    pub async fn fetch<'de, A: 'de>(&'de self) -> Result<A, SetupError>
-    where
-        A: DeserializeOwned,
-    {
-        {
-            let downloaded_read_lock = self
-                .downloaded
-                .read()
-                .map_err(|err| SetupError::Io(anyhow!("{}", err)))?;
-            if let Some(downloaded) = &*downloaded_read_lock {
-                tracing::trace!(hash = ?self.hash, "Reusing existing downloaded attachment");
-                let rv: A = serde_json::from_slice(downloaded)
-                    .context("Parsing attachment")
-                    .map_err(SetupError::Format)?;
-                return Ok(rv);
-            }
-        }
-
-        tracing::trace!(hash = %self.hash, url = %self.location.to_string(), "Downloading attachment");
-        let res = self
-            .reqwest_client
-            .get(self.location.clone())
-            .send()
-            .await
-            .and_then(reqwest::Response::error_for_status)
-            .context("downloading attachment request")
-            .map_err(SetupError::Network)?;
-        let bytes = res
-            .bytes()
-            .await
-            .context("downloading attachment")
-            .map_err(SetupError::Network)?
-            .to_vec();
-
-        let mut downloaded_write_lock = self
-            .downloaded
-            .write()
-            .map_err(|err| SetupError::Io(anyhow!("{}", err)))?;
-        *downloaded_write_lock = Some(bytes);
-
-        serde_json::from_slice(
-            downloaded_write_lock
-                .as_ref()
-                .expect("bug: attachment cache not filled"),
-        )
-        .context("Parsing attachment")
-        .map_err(SetupError::Format)
-    }
-}
-
-/// Builder for [`LazyAttachment`].
-#[derive(Debug, Default)]
-#[allow(clippy::missing_docs_in_private_items)]
-struct LazyAttachmentBuilder {
-    attachment_base: Option<Url>,
-    attachment_endpoint: Option<String>,
-    hash: Option<String>,
-    reqwest_client: Option<Arc<reqwest::Client>>,
-}
-
-impl LazyAttachmentBuilder {
-    /// Build the final object, if the previously provided fields are all correct.
-    fn finish(self) -> anyhow::Result<LazyAttachment> {
-        let attachment_url = self
-            .attachment_base
-            .ok_or_else(|| anyhow!("attachment base is required"))?
-            .join(
-                self.attachment_endpoint
-                    .as_ref()
-                    .ok_or_else(|| anyhow!("attachment endpoint is required"))?,
-            )
-            .context("Could not build attachment URL")?;
-
-        Ok(LazyAttachment {
-            location: attachment_url,
-            hash: self.hash.ok_or_else(|| anyhow!("hash is required"))?,
-            downloaded: RwLock::new(None),
-            reqwest_client: self
-                .reqwest_client
-                .unwrap_or_else(|| Arc::new(reqwest::Client::new())),
-        })
-    }
-
-    /// Set the attachment base URL. This ill be combined with `attachment_endpoint`.
-    fn attachment_base(mut self, attachment_base: Url) -> Self {
-        self.attachment_base = Some(attachment_base);
-        self
-    }
-
-    /// Set the attachment URL's path. This will combined with `attachment_base`.
-    fn attachment_endpoint(mut self, attachment_endpoint: String) -> Self {
-        self.attachment_endpoint = Some(attachment_endpoint);
-        self
-    }
-
-    /// Set the expected hash of the contents of this attachment.
-    fn hash(mut self, hash: String) -> Self {
-        self.hash = Some(hash);
-        self
-    }
-
-    /// Provide a reqwest client to make download the attachment with.
-    fn reqwest_client(mut self, reqwest_client: Arc<reqwest::Client>) -> Self {
-        self.reqwest_client = Some(reqwest_client);
-        self
-    }
-}
-
-/// A record in the Remote Settings collection
-#[derive(Debug, Default, Deserialize, Serialize)]
-pub struct Record {
-    /// The Remote Settings ID for this record.
-    pub id: String,
-    /// The last time this record was modified.
-    pub last_modified: u64,
-    /// Whether this record is a tombstone
-    deleted: Option<bool>,
-    /// An attachment for this record, if it exists.
-    #[serde(skip_deserializing)]
-    attachment: Option<Arc<LazyAttachment>>,
-
-    /// Any extra fields on the record.
-    #[serde(flatten)]
-    pub extra: HashMap<String, Value>,
-}
-
-impl Record {
-    /// Get a reference to the attachment related to this record, if it exists.
-    pub fn attachment(&self) -> Option<&LazyAttachment> {
-        self.attachment.as_ref().map(Arc::as_ref)
-    }
+    reqwest_client: reqwest::Client,
 }
 
 impl RemoteSettingsClient {
@@ -241,7 +49,7 @@ impl RemoteSettingsClient {
 
             records: HashMap::new(),
             attachments: HashMap::new(),
-            reqwest_client: Arc::new(reqwest::Client::new()),
+            reqwest_client: reqwest::Client::new(),
         })
     }
 
@@ -258,8 +66,17 @@ impl RemoteSettingsClient {
             .context("Building changeset URL")
             .map_err(SetupError::InvalidConfiguration)?;
         records_url.query_pairs_mut().extend_pairs(&[
+            /* As of 2021-10-14, `_expected` is a [required parameter][0] for the
+             * changeset endpoint, but its value [doesn't matter][1].
+             *
+             * [0]: https://github.com/Kinto/kinto-changes/blob/caa43cca8d0e747756e2cf771f209e3636617663/kinto_changes/views.py#L223
+             * [1]: https://github.com/Kinto/kinto-changes/blob/caa43cca8d0e747756e2cf771f209e3636617663/kinto_changes/views.py#L113-L117
+             */
             ("_expected", "0"),
+            // Request changes after the last one that we've seen.
             ("_since", &format!("\"{}\"", last_modified)),
+            // This order means that if we (for some reason) don't get all
+            // pages, the partial sync is still valid.
             ("sort", "-last_modified"),
         ]);
 
@@ -372,12 +189,10 @@ impl RemoteSettingsClient {
         if let Some(ref attachment_base_url) = self.attachment_base_url {
             Ok(attachment_base_url)
         } else {
-            let server_info = RemoteSettingsServerInfo::fetch(
-                &self.server_url,
-                Arc::as_ref(&self.reqwest_client),
-            )
-            .await
-            .context("Getting server info")?;
+            let server_info =
+                RemoteSettingsServerInfo::fetch(&self.server_url, &self.reqwest_client)
+                    .await
+                    .context("Getting server info")?;
             let s = server_info
                 .attachment_base_url()
                 .context("Getting attachment base url")?;
@@ -387,6 +202,194 @@ impl RemoteSettingsClient {
                 .as_ref()
                 .ok_or_else(|| anyhow!("Bug: attachment_base_url not set"))
         }
+    }
+}
+
+/// A response from the changeset API.
+#[derive(Debug, Deserialize, Serialize)]
+struct ChangesetResponse {
+    /// The records that have changed.
+    changes: Vec<Record>,
+}
+
+/// A lazy attachment object, representing a value that could be downloaded.
+#[derive(Serialize)]
+pub struct LazyAttachment {
+    /// The URL where the attachment can be downloaded from
+    pub location: Url,
+
+    /// The hash of item that should be downloaded.
+    pub hash: String,
+
+    /// The cached attachment, unparsed.
+    #[serde(skip)]
+    downloaded: RwLock<Option<Vec<u8>>>,
+
+    /// Reqwest client to download attachments with
+    #[serde(skip)]
+    reqwest_client: reqwest::Client,
+}
+
+impl Debug for LazyAttachment {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("LazyAttachment")
+            .field("location", &self.location)
+            .field("hash", &self.hash)
+            .field(
+                "downloaded",
+                &self.downloaded.try_read().map_or_else(
+                    |err| match err {
+                        std::sync::TryLockError::Poisoned(_) => "<poisoned>",
+                        std::sync::TryLockError::WouldBlock => "<would block>",
+                    },
+                    |guarded| {
+                        if guarded.is_some() {
+                            "<cached download>"
+                        } else {
+                            "<empty>"
+                        }
+                    },
+                ),
+            )
+            .finish()
+    }
+}
+
+impl LazyAttachment {
+    /// Make a `LazyAttachment` with a builder.
+    fn build() -> LazyAttachmentBuilder {
+        LazyAttachmentBuilder::default()
+    }
+
+    /// Get the attachment associated with this metadata, possibly from a cached copy.
+    pub async fn fetch<'de, A: 'de>(&'de self) -> Result<A, SetupError>
+    where
+        A: DeserializeOwned,
+    {
+        {
+            let downloaded_read_lock = self
+                .downloaded
+                .read()
+                .map_err(|err| SetupError::Io(anyhow!("{}", err)))?;
+            if let Some(downloaded) = &*downloaded_read_lock {
+                tracing::trace!(hash = ?self.hash, "Reusing existing downloaded attachment");
+                let rv: A = serde_json::from_slice(downloaded)
+                    .context("Parsing attachment")
+                    .map_err(SetupError::Format)?;
+                return Ok(rv);
+            }
+        }
+
+        tracing::trace!(hash = %self.hash, url = %self.location.to_string(), "Downloading attachment");
+        let res = self
+            .reqwest_client
+            .get(self.location.clone())
+            .send()
+            .await
+            .and_then(reqwest::Response::error_for_status)
+            .context("downloading attachment request")
+            .map_err(SetupError::Network)?;
+        let bytes = res
+            .bytes()
+            .await
+            .context("downloading attachment")
+            .map_err(SetupError::Network)?
+            .to_vec();
+
+        let mut downloaded_write_lock = self
+            .downloaded
+            .write()
+            .map_err(|err| SetupError::Io(anyhow!("{}", err)))?;
+        *downloaded_write_lock = Some(bytes);
+
+        serde_json::from_slice(
+            downloaded_write_lock
+                .as_ref()
+                .expect("bug: attachment cache not filled"),
+        )
+        .context("Parsing attachment")
+        .map_err(SetupError::Format)
+    }
+}
+
+/// Builder for [`LazyAttachment`].
+#[derive(Debug, Default)]
+#[allow(clippy::missing_docs_in_private_items)]
+struct LazyAttachmentBuilder {
+    attachment_base: Option<Url>,
+    attachment_endpoint: Option<String>,
+    hash: Option<String>,
+    reqwest_client: Option<reqwest::Client>,
+}
+
+impl LazyAttachmentBuilder {
+    /// Build the final object, if the previously provided fields are all correct.
+    fn finish(self) -> anyhow::Result<LazyAttachment> {
+        let attachment_url = self
+            .attachment_base
+            .ok_or_else(|| anyhow!("attachment base is required"))?
+            .join(
+                self.attachment_endpoint
+                    .as_ref()
+                    .ok_or_else(|| anyhow!("attachment endpoint is required"))?,
+            )
+            .context("Could not build attachment URL")?;
+
+        Ok(LazyAttachment {
+            location: attachment_url,
+            hash: self.hash.ok_or_else(|| anyhow!("hash is required"))?,
+            downloaded: RwLock::new(None),
+            reqwest_client: self.reqwest_client.unwrap_or_else(reqwest::Client::new),
+        })
+    }
+
+    /// Set the attachment base URL. This ill be combined with `attachment_endpoint`.
+    fn attachment_base(mut self, attachment_base: Url) -> Self {
+        self.attachment_base = Some(attachment_base);
+        self
+    }
+
+    /// Set the attachment URL's path. This will combined with `attachment_base`.
+    fn attachment_endpoint(mut self, attachment_endpoint: String) -> Self {
+        self.attachment_endpoint = Some(attachment_endpoint);
+        self
+    }
+
+    /// Set the expected hash of the contents of this attachment.
+    fn hash(mut self, hash: String) -> Self {
+        self.hash = Some(hash);
+        self
+    }
+
+    /// Provide a reqwest client to make download the attachment with.
+    fn reqwest_client(mut self, reqwest_client: reqwest::Client) -> Self {
+        self.reqwest_client = Some(reqwest_client);
+        self
+    }
+}
+
+/// A record in the Remote Settings collection
+#[derive(Debug, Default, Deserialize, Serialize)]
+pub struct Record {
+    /// The Remote Settings ID for this record.
+    pub id: String,
+    /// The last time this record was modified.
+    pub last_modified: u64,
+    /// Whether this record is a tombstone
+    deleted: Option<bool>,
+    /// An attachment for this record, if it exists.
+    #[serde(skip_deserializing)]
+    attachment: Option<Arc<LazyAttachment>>,
+
+    /// Any extra fields on the record.
+    #[serde(flatten)]
+    pub extra: HashMap<String, Value>,
+}
+
+impl Record {
+    /// Get a reference to the attachment related to this record, if it exists.
+    pub fn attachment(&self) -> Option<&LazyAttachment> {
+        self.attachment.as_ref().map(Arc::as_ref)
     }
 }
 

@@ -2,8 +2,9 @@
 
 mod client;
 
-use anyhow::anyhow;
+use crate::remote_settings::client::RemoteSettingsClient;
 use async_trait::async_trait;
+use deduped_dashmap::DedupedMap;
 use futures::StreamExt;
 use http::Uri;
 use lazy_static::lazy_static;
@@ -16,8 +17,6 @@ use serde::{Deserialize, Serialize};
 use serde_with::{serde_as, DisplayFromStr};
 use std::{collections::HashMap, sync::Arc};
 
-use crate::remote_settings::client::RemoteSettingsClient;
-
 lazy_static! {
     static ref NON_SPONSORED_IAB_CATEGORIES: Vec<&'static str> = vec!["5 - Education"];
 }
@@ -26,72 +25,100 @@ lazy_static! {
 #[derive(Default)]
 pub struct RemoteSettingsSuggester {
     /// A map from keywords to suggestions that can be provided.
-    suggestions: HashMap<String, Arc<Suggestion>>,
-
-    /// Client used for syncing
-    remote_settings_client: Option<RemoteSettingsClient>,
+    suggestions: Arc<DedupedMap<String, (), Suggestion>>,
 }
 
 impl RemoteSettingsSuggester {
     /// Make and sync a new suggester.
     ///
     /// # Errors
+    /// Returns an error if the settings are invalid for this provider, or if
+    /// the initial sync fails.
     pub async fn new_boxed(
         settings: &Settings,
         config: &RemoteSettingsConfig,
     ) -> Result<Box<Self>, SetupError> {
-        let remote_settings_client = RemoteSettingsClient::new(
+        let mut remote_settings_client = RemoteSettingsClient::new(
             &settings.remote_settings.server,
             config.bucket.clone(),
             config.collection.clone(),
         )?;
-        let mut provider = Self {
-            suggestions: HashMap::new(),
-            remote_settings_client: Some(remote_settings_client),
-        };
-        provider.sync().await?;
-        Ok(Box::new(provider))
+        let suggestions = Arc::new(DedupedMap::new());
+
+        Self::sync(&mut remote_settings_client, &*suggestions).await?;
+
+        {
+            let task_suggestions = Arc::clone(&suggestions);
+            let task_interval = config.resync_interval;
+            let mut task_client = Arc::new(remote_settings_client);
+
+            tokio::spawn(async move {
+                let mut timer = tokio::time::interval(task_interval);
+                // The timer fires immediately, but we don't want to run the
+                // sync function immediately, so wait one tick before starting
+                // the loop.
+                timer.tick().await;
+
+                loop {
+                    timer.tick().await;
+                    let loop_suggestions = &*(Arc::clone(&task_suggestions));
+                    if let Some(loop_client) = Arc::get_mut(&mut task_client) {
+                        if let Err(error) = Self::sync(loop_client, loop_suggestions).await {
+                            tracing::error!(
+                                ?error,
+                                "Error while syncing remote settings suggestions"
+                            );
+                        }
+                    }
+                }
+            });
+        }
+
+        Ok(Box::new(Self { suggestions }))
     }
 
     /// Make a suggester for testing that only includes the given suggestions, and never syncs.
     #[cfg(test)]
-    const fn with_suggestions(suggestions: HashMap<String, Arc<Suggestion>>) -> Self {
+    fn with_suggestions(suggestions: HashMap<String, Suggestion>) -> Self {
+        let deduped = suggestions.into_iter().collect();
         Self {
-            suggestions,
-            remote_settings_client: None,
+            suggestions: Arc::new(deduped),
         }
     }
 
     /// Download suggestions from Remote Settings
     ///
     /// This must be called at least once before any suggestions will be provided
-    #[tracing::instrument(skip(self))]
-    pub async fn sync(&mut self) -> Result<(), SetupError> {
+    #[tracing::instrument(skip(remote_settings_client, suggestions))]
+    pub async fn sync(
+        remote_settings_client: &mut RemoteSettingsClient,
+        suggestions: &DedupedMap<String, (), Suggestion>,
+    ) -> Result<(), SetupError> {
         tracing::info!(
             r#type = "adm.remote-settings.sync-start",
             "Syncing quicksuggest records from Remote Settings"
         );
 
-        let rs_client = self.remote_settings_client.as_mut().ok_or_else(|| {
-            SetupError::InvalidConfiguration(anyhow!(
-                "Cannot sync without a remote_settings_client"
-            ))
-        })?;
-        rs_client.sync().await?;
+        remote_settings_client.sync().await?;
 
         // Download and process all the attachments concurrently
         let mut suggestion_attachments = futures::stream::FuturesUnordered::new();
-        for record in rs_client.records_of_type("data".to_string()) {
+        for record in remote_settings_client.records_of_type("data".to_string()) {
             if let Some(attachment) = record.attachment() {
                 tracing::trace!(?attachment.hash, "Queueing future to fetch attachment");
-                suggestion_attachments.push(attachment.fetch::<Vec<AdmSuggestion>>());
+                suggestion_attachments.push(async move {
+                    (
+                        attachment.hash.clone(),
+                        attachment.fetch::<Vec<AdmSuggestion>>().await,
+                    )
+                });
             }
         }
 
         tracing::trace!("loading suggestions from records");
 
         // Build a map of icon IDs to URLs.
-        let icon_urls: HashMap<_, _> = rs_client
+        let icon_urls: HashMap<_, _> = remote_settings_client
             .records_of_type("icon".to_string())
             .filter_map(|record| {
                 record
@@ -102,11 +129,12 @@ impl RemoteSettingsSuggester {
 
         // Convert the collection of adM suggestion attachments into a lookup
         // table of keyword -> merino suggestion.
-        let mut suggestions = HashMap::new();
-        while let Some(attachment) = suggestion_attachments.next().await {
-            let attachment = attachment?;
-            tracing::trace!(?attachment, "processing attachment");
-            for adm_suggestion in attachment {
+        let mut new_suggestions = HashMap::new();
+        while let Some((attachment_hash, attachment_content)) = suggestion_attachments.next().await
+        {
+            let attachment_suggestions = attachment_content?;
+            tracing::trace!(%attachment_hash, suggestion_count = ?attachment_suggestions.len(), "processing attachment");
+            for adm_suggestion in attachment_suggestions {
                 if adm_suggestion.keywords.is_empty() {
                     tracing::warn!(
                         ?adm_suggestion,
@@ -130,7 +158,7 @@ impl RemoteSettingsSuggester {
                     .expect("No keywords?")
                     .clone();
 
-                let merino_suggestion = Arc::new(Suggestion {
+                let merino_suggestion = Suggestion {
                     id: adm_suggestion.id,
                     title: adm_suggestion.title.clone(),
                     url: adm_suggestion.url.clone(),
@@ -142,21 +170,25 @@ impl RemoteSettingsSuggester {
                         .contains(&adm_suggestion.iab_category.as_str()),
                     icon: icon_url,
                     score: Proportion::from(0.2),
-                });
+                };
                 for keyword in &adm_suggestion.keywords {
-                    suggestions.insert(keyword.clone(), merino_suggestion.clone());
+                    new_suggestions.insert(keyword.clone(), merino_suggestion.clone());
                 }
             }
         }
 
-        if suggestions.is_empty() {
+        if new_suggestions.is_empty() {
             tracing::warn!(
                 r#type = "adm.remote-settings.empty",
                 "No suggestion records found on Remote Settings"
             );
         }
 
-        self.suggestions = suggestions;
+        suggestions.retain(|_, _, _| deduped_dashmap::ControlFlow::Continue(false));
+        for (k, v) in new_suggestions {
+            suggestions.insert(k, (), v);
+        }
+
         tracing::info!(
             r#type = "adm.remote-settings.sync-done",
             "Completed syncing quicksuggest records from Remote Settings"
@@ -178,7 +210,7 @@ impl SuggestionProvider for RemoteSettingsSuggester {
     ) -> Result<SuggestionResponse, SuggestError> {
         let suggestions = if request.accepts_english {
             match self.suggestions.get(&request.query) {
-                Some(suggestion) => vec![suggestion.as_ref().clone()],
+                Some((_, suggestion)) => vec![suggestion],
                 _ => vec![],
             }
         } else {
@@ -222,7 +254,7 @@ struct AdmSuggestion {
 
 #[cfg(test)]
 mod tests {
-    use std::{collections::HashMap, sync::Arc};
+    use std::collections::HashMap;
 
     use fake::{Fake, Faker};
     use http::Uri;
@@ -235,7 +267,7 @@ mod tests {
         let mut suggestions = HashMap::new();
         suggestions.insert(
             "sheep".to_string(),
-            Arc::new(Suggestion {
+            Suggestion {
                 title: "Wikipedia - Sheep".to_string(),
                 url: Uri::from_static("https://en.wikipedia.org/wiki/Sheep"),
                 id: 1,
@@ -246,7 +278,7 @@ mod tests {
                 is_sponsored: false,
                 icon: Uri::from_static("https://en.wikipedia.org/favicon.ico"),
                 score: Proportion::zero(),
-            }),
+            },
         );
         let rs_suggester = RemoteSettingsSuggester::with_suggestions(suggestions);
 
@@ -275,7 +307,7 @@ mod tests {
         let mut suggestions = HashMap::new();
         suggestions.insert(
             "sheep".to_string(),
-            Arc::new(Suggestion {
+            Suggestion {
                 title: "Wikipedia - Sheep".to_string(),
                 url: Uri::from_static("https://en.wikipedia.org/wiki/Sheep"),
                 id: 1,
@@ -286,7 +318,7 @@ mod tests {
                 is_sponsored: false,
                 icon: Uri::from_static("https://en.wikipedia.org/favicon.ico"),
                 score: Proportion::zero(),
-            }),
+            },
         );
         let rs_suggester = RemoteSettingsSuggester::with_suggestions(suggestions);
 
