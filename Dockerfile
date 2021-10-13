@@ -11,6 +11,7 @@ ARG CACHE_BUST="2021-05-13"
 # Pull in the version of cargo-chef we plan to use, so that all the below steps
 # use a consistent set of versions.
 FROM lukemathwalker/cargo-chef:0.1.31-rust-1.54-buster as chef
+ARG CACHE_BUST
 WORKDIR /app
 
 # =============================================================================
@@ -18,30 +19,34 @@ WORKDIR /app
 # be run every time. The output should only change if the dependencies of the
 # project change, or if significant details of the build process change.
 FROM chef as planner
+ARG CACHE_BUST
 COPY . .
 RUN cargo chef prepare --recipe-path recipe.json
 
 # =============================================================================
-# Use the plan from above to build first the dependencies of the project, and
-# then the project itself. The first of these steps should almost always be
-# pulled straight from cache unless dependencies or the build process change.
-FROM chef as builder
+# Use the plan from above to build only the dependencies of the project. This
+# should almost always be pulled straight from cache unless dependencies or the
+# build process change.
+FROM chef as cacher
 ARG CACHE_BUST
-
-# Build dependencies based on the prepared recipe.
 COPY --from=planner /app/recipe.json recipe.json
 RUN cargo chef cook --release --recipe-path recipe.json -p merino
 
-# Now bring in the rest of our sources and build the app itself. This should take
-# advantage of cached dependencies.
+# =============================================================================
+# Now build the project, taking advantage of the cached dependencies from above.
+FROM chef as builder
+ARG CACHE_BUST
+
+RUN mkdir -m 755 bin
 RUN apt-get -qq update && \
     apt-get -qq upgrade
 RUN cargo --version && \
     rustc --version
 COPY . .
-RUN cargo build --release -p merino
+COPY --from=cacher /app/target target
+COPY --from=cacher $CARGO_HOME $CARGO_HOME
 
-RUN mkdir -m 755 bin
+RUN cargo build --release -p merino
 RUN cp /app/target/release/merino /app/bin
 
 # =============================================================================
