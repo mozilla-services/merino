@@ -35,7 +35,6 @@ mod tests {
         SuggestionRequest, FIREFOX_TEST_VERSIONS,
     };
     use proptest::prelude::*;
-    use uuid::Uuid;
 
     /// This test provides a fixed input, and expects a certain cache key to be
     /// produced. This alerts us to any time the cache algorithm changes. If this
@@ -55,7 +54,6 @@ mod tests {
                 form_factor: FormFactor::Desktop,
                 browser: Browser::Firefox(90),
             },
-            request_id: Uuid::new_v4(),
         };
         assert_eq!(
             req.cache_key(),
@@ -98,7 +96,6 @@ mod tests {
                 dma,
                 city,
                 device_info,
-                request_id: Uuid::new_v4(),
             };
             const HEX_DIGITS: &str = "0123456789abcdef";
             let parts: Vec<String> = req.cache_key().split(':').map(ToString::to_string).collect();
