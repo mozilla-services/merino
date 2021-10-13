@@ -30,16 +30,16 @@ ARG CACHE_BUST
 
 # Build dependencies based on the prepared recipe.
 COPY --from=planner /app/recipe.json recipe.json
-RUN cargo chef cook --release --recipe-path recipe.json
+RUN cargo chef cook --release --recipe-path recipe.json -p merino
 
-# Now bring in the rest of our sources and build the app itself. This should tag
+# Now bring in the rest of our sources and build the app itself. This should take
 # advantage of cached dependencies.
 RUN apt-get -qq update && \
     apt-get -qq upgrade
 RUN cargo --version && \
     rustc --version
 COPY . .
-RUN cargo build --release --bin merino
+RUN cargo build --release -p merino
 
 RUN mkdir -m 755 bin
 RUN cp /app/target/release/merino /app/bin
