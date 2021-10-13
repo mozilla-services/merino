@@ -99,9 +99,7 @@ jobs:
           command: |
             mkdir -p /tmp/artifacts
             docker run --rm -v /tmp/artifacts:/artifacts app:planner /bin/cp recipe.json /artifacts/
-      - run:
-          name: Docker cacher stage
-          command: docker build --tag app:cacher --target cacher .
+            sha256sum /artifacts/recipe.json
       - run:
           name: Docker builder stage
           command: docker build --tag app:builder --target builder .
