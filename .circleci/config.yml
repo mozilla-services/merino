@@ -98,7 +98,7 @@ jobs:
           name: Copy recipe.json to artifacts
           command: |
             mkdir -p /tmp/artifacts
-            docker run --rm -v /tmp/artifacts:/artifacts app:planner /bin/cp -vr recipe.json /artifacts/recipe.json
+            docker run --rm -v /tmp/artifacts:/artifacts app:planner cat recipe.json > /tmp/artifacts/recipe.json
             sha256sum /tmp/artifacts/recipe.json
       - run:
           name: Docker builder stage
