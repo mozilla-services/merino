@@ -4,6 +4,7 @@
 
 
 from typing import List
+from uuid import UUID
 
 import pytest
 import requests
@@ -40,7 +41,11 @@ def test_merino(merino_url: str, steps: List[Step]):
         if r.status_code == 200:
             # If the response status code is 200 OK, load the response content
             # into a Python dict and generate a dict from the response model
-            assert r.json() == step.response.content.dict()
+            merino_response = r.json()
+            request_id = merino_response.pop("request_id")
+            assert UUID(request_id)
+            assert merino_response == step.response.content.dict()
+
             continue
 
         if r.status_code == 204:

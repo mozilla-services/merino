@@ -44,7 +44,6 @@ class ResponseContent(BaseModel):
     suggestions: List[Suggestion] = Field(default_factory=list)
     client_variants: List[str] = Field(default_factory=list)
     server_variants: List[str] = Field(default_factory=list)
-    request_id: str
 
 
 class Response(BaseModel):
