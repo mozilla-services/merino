@@ -86,6 +86,22 @@ async fn test_returns_client_variants(
 }
 
 #[merino_test_macro]
+async fn test_returns_request_id(TestingTools { test_client, .. }: TestingTools) -> Result<()> {
+    let response = test_client
+        .get("/api/v1/suggest?q=apple&client_variants=one,two")
+        .send()
+        .await?;
+
+    assert_eq!(response.status(), StatusCode::OK);
+    let body: serde_json::Value = response.json().await?;
+    assert!(
+        body.as_object().unwrap().contains_key("client_variants"),
+        "response should have a request_id"
+    );
+    Ok(())
+}
+
+#[merino_test_macro]
 async fn test_expected_variant_fields(
     TestingTools { test_client, .. }: TestingTools,
 ) -> Result<()> {

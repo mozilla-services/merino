@@ -21,6 +21,7 @@ use merino_suggest::{
 };
 use serde::Deserialize;
 use tokio::try_join;
+use tracing_actix_web::RequestId;
 use woothee::parser::{Parser, WootheeResult};
 
 lazy_static! {

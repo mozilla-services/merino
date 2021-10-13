@@ -29,6 +29,7 @@ use http::Uri;
 use serde::{Deserialize, Serialize};
 use serde_with::{serde_as, DisplayFromStr};
 use thiserror::Error;
+use uuid::Uuid;
 
 pub use crate::debug::DebugProvider;
 pub use crate::domain::Proportion;

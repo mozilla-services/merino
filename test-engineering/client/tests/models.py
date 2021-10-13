@@ -1,7 +1,7 @@
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
-
+import uuid
 from typing import Any, List, Optional, Union
 
 from pydantic import BaseModel, Extra, Field
@@ -44,6 +44,7 @@ class ResponseContent(BaseModel):
     suggestions: List[Suggestion] = Field(default_factory=list)
     client_variants: List[str] = Field(default_factory=list)
     server_variants: List[str] = Field(default_factory=list)
+    request_id: str
 
 
 class Response(BaseModel):

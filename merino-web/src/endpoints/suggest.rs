@@ -5,17 +5,16 @@ use std::collections::HashSet;
 use crate::{
     errors::HandlerError, extractors::SuggestionRequestWrapper, providers::SuggestionProviderRef,
 };
-use actix_web::{
-    get,
-    web::{self, Data, ServiceConfig},
-    HttpResponse,
-};
+use actix_web::{get, web::{self, Data, ServiceConfig}, HttpResponse, HttpRequest};
 use anyhow::Result;
 use cadence::{CountedExt, Histogrammed, StatsdClient};
 use merino_settings::Settings;
 use merino_suggest::{Suggestion, SuggestionProvider};
 use serde::{Deserialize, Serialize};
 use serde_with::{rust::StringWithSeparator, serde_as, CommaSeparator};
+use uuid::Uuid;
+use tracing_actix_web::RequestId;
+
 
 /// Configure a route to use the Suggest service.
 pub fn configure(config: &mut ServiceConfig) {
@@ -31,6 +30,7 @@ async fn suggest(
     settings: Data<Settings>,
     metrics_client: Data<StatsdClient>,
     query_parameters: web::Query<SuggestQueryParameters>,
+    request: HttpRequest,
 ) -> Result<HttpResponse, HandlerError> {
     let provider = provider
         .get_or_try_init(settings.as_ref())
@@ -44,6 +44,8 @@ async fn suggest(
             HandlerError::internal()
         })?;
 
+    let extensions = request.extensions();
+    let request_id: &Uuid = extensions.get::<RequestId>().ok_or_else(HandlerError::internal)?;
     let response = match &query_parameters.providers {
         Some(provider_ids) => {
             provider
@@ -78,6 +80,7 @@ async fn suggest(
             suggestions: response.suggestions.iter().map(SuggestionWrapper).collect(),
             client_variants: query_parameters.client_variants.clone(),
             server_variants: Vec::new(),
+            request_id: *request_id
         });
 
     Ok(res)
@@ -105,6 +108,8 @@ struct SuggestResponse<'a> {
     client_variants: Vec<String>,
     /// An empty list
     server_variants: Vec<String>,
+    /// A request
+    request_id: Uuid,
 }
 
 /// Customizes the output format of [`Suggestion`].
