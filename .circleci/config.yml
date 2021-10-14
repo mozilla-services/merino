@@ -101,6 +101,9 @@ jobs:
             docker run --rm app:planner cat recipe.json > /tmp/artifacts/recipe.json
             sha256sum /tmp/artifacts/recipe.json
       - run:
+          name: Docker dependency cachery stage
+          command: docker build --tag app:builder --target cacher .
+      - run:
           name: Docker builder stage
           command: docker build --tag app:builder --target builder .
       - run:
