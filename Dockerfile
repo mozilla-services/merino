@@ -5,13 +5,13 @@
 # Updating this argument will clear the cache of the package installations
 # below. This will cause a full rebuild, but it is the only way to get package
 # updates with out changing the base image.
-ARG CACHE_BUST="2021-05-13"
+ARG APT_CACHE_BUST="2021-05-13"
 
 # =============================================================================
 # Pull in the version of cargo-chef we plan to use, so that all the below steps
 # use a consistent set of versions.
 FROM lukemathwalker/cargo-chef:0.1.31-rust-1.54-buster as chef
-ARG CACHE_BUST
+ARG APT_CACHE_BUST
 WORKDIR /app
 
 # =============================================================================
@@ -19,7 +19,6 @@ WORKDIR /app
 # be run every time. The output should only change if the dependencies of the
 # project change, or if significant details of the build process change.
 FROM chef as planner
-ARG CACHE_BUST
 COPY . .
 RUN cargo chef prepare --recipe-path recipe.json
 
@@ -28,14 +27,13 @@ RUN cargo chef prepare --recipe-path recipe.json
 # should almost always be pulled straight from cache unless dependencies or the
 # build process change.
 FROM chef as cacher
-ARG CACHE_BUST
 COPY --from=planner /app/recipe.json recipe.json
 RUN cargo chef cook --release --recipe-path recipe.json -p merino
 
 # =============================================================================
 # Now build the project, taking advantage of the cached dependencies from above.
 FROM chef as builder
-ARG CACHE_BUST
+ARG APT_CACHE_BUST
 
 RUN mkdir -m 755 bin
 RUN apt-get -qq update && \
@@ -53,7 +51,7 @@ RUN cp /app/target/release/merino /app/bin
 # Finally prepare a Docker image based on a slim image that only contains the
 # files needed to run the project.
 FROM debian:buster-slim as runtime
-ARG CACHE_BUST
+ARG APT_CACHE_BUST
 
 RUN apt-get -qq update && \
     apt-get -qq upgrade && \
