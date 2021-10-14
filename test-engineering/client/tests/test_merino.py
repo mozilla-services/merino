@@ -4,11 +4,13 @@
 
 
 from typing import List
-from uuid import UUID
 
 import pytest
 import requests
-from models import Step
+from models import ResponseContent, Step
+
+# A set of model fields that we do not want to include in the Python dict representation
+EXCLUDED_FIELDS = {"request_id"}
 
 
 @pytest.fixture(name="merino_url")
@@ -39,12 +41,17 @@ def test_merino(merino_url: str, steps: List[Step]):
         assert r.status_code == step.response.status_code, error_message
 
         if r.status_code == 200:
-            # If the response status code is 200 OK, load the response content
-            # into a Python dict and generate a dict from the response model
-            merino_response = r.json()
-            request_id = merino_response.pop("request_id")
-            assert UUID(request_id)
-            assert merino_response == step.response.content.dict()
+            # If the response status code is 200 OK, create a pydantic model
+            # instance for validating the response content from Merino. Then
+            # generate a dict representation of the model and compare it with
+            # the expected response content for this step in the test scenario.
+            merino_response_content = ResponseContent(**r.json()).dict(
+                exclude=EXCLUDED_FIELDS,
+            )
+            step_response_content = step.response.content.dict(
+                exclude=EXCLUDED_FIELDS,
+            )
+            assert merino_response_content == step_response_content
 
             continue
 
