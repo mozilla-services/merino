@@ -3,6 +3,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 from typing import Any, List, Optional, Union
+from uuid import UUID
 
 from pydantic import BaseModel, Extra, Field
 
@@ -44,6 +45,7 @@ class ResponseContent(BaseModel):
     suggestions: List[Suggestion] = Field(default_factory=list)
     client_variants: List[str] = Field(default_factory=list)
     server_variants: List[str] = Field(default_factory=list)
+    request_id: Optional[UUID] = Field(...)
 
 
 class Response(BaseModel):
