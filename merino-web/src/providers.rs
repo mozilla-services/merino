@@ -2,6 +2,7 @@
 
 use anyhow::Result;
 use async_recursion::async_recursion;
+use cadence::StatsdClient;
 use merino_adm::remote_settings::RemoteSettingsSuggester;
 use merino_cache::{MemoryCacheSuggester, RedisCacheSuggester};
 use merino_settings::{providers::SuggestionProviderConfig, Settings};
@@ -22,7 +23,11 @@ impl SuggestionProviderRef {
     }
 
     /// Get the provider, or create a new one if it doesn't exist.
-    pub async fn get_or_try_init(&self, settings: &Settings) -> Result<&IdMulti> {
+    pub async fn get_or_try_init(
+        &self,
+        settings: &Settings,
+        metrics_client: &StatsdClient,
+    ) -> Result<&IdMulti> {
         let setup_span = tracing::info_span!("suggestion_provider_setup");
         self.0
             .get_or_try_init(|| {
@@ -36,7 +41,10 @@ impl SuggestionProviderRef {
                     // let mut providers: Vec<Box<dyn SuggestionProvider>> =
                     //     Vec::with_capacity(settings.suggestion_providers.len());
                     for (name, config) in &settings.suggestion_providers {
-                        multi.add_provider(name, make_provider_tree(settings, config).await?);
+                        multi.add_provider(
+                            name,
+                            make_provider_tree(settings, config, metrics_client).await?,
+                        );
                     }
 
                     Ok(multi)
@@ -52,6 +60,7 @@ impl SuggestionProviderRef {
 async fn make_provider_tree(
     settings: &Settings,
     config: &SuggestionProviderConfig,
+    metrics_client: &StatsdClient,
 ) -> Result<Box<dyn SuggestionProvider>> {
     let provider: Box<dyn SuggestionProvider> = match config {
         SuggestionProviderConfig::RemoteSettings(rs_config) => {
@@ -59,25 +68,28 @@ async fn make_provider_tree(
         }
 
         SuggestionProviderConfig::MemoryCache(memory_config) => {
-            let inner = make_provider_tree(settings, memory_config.inner.as_ref()).await?;
+            let inner =
+                make_provider_tree(settings, memory_config.inner.as_ref(), metrics_client).await?;
             MemoryCacheSuggester::new_boxed(memory_config, inner)
         }
 
         SuggestionProviderConfig::RedisCache(redis_config) => {
-            let inner = make_provider_tree(settings, redis_config.inner.as_ref()).await?;
+            let inner =
+                make_provider_tree(settings, redis_config.inner.as_ref(), metrics_client).await?;
             RedisCacheSuggester::new_boxed(settings, redis_config, inner).await?
         }
 
         SuggestionProviderConfig::Multiplexer(multi_config) => {
             let mut providers = Vec::new();
             for config in &multi_config.providers {
-                providers.push(make_provider_tree(settings, config).await?);
+                providers.push(make_provider_tree(settings, config, metrics_client).await?);
             }
             Multi::new_boxed(providers)
         }
 
         SuggestionProviderConfig::Timeout(timeout_config) => {
-            let inner = make_provider_tree(settings, timeout_config.inner.as_ref()).await?;
+            let inner =
+                make_provider_tree(settings, timeout_config.inner.as_ref(), metrics_client).await?;
             TimeoutProvider::new_boxed(timeout_config, inner)
         }
 
@@ -86,8 +98,13 @@ async fn make_provider_tree(
         }
 
         SuggestionProviderConfig::KeywordFilter(filter_config) => {
-            let inner = make_provider_tree(settings, filter_config.inner.as_ref()).await?;
-            KeywordFilterProvider::new_boxed(filter_config.suggestion_blocklist.clone(), inner)?
+            let inner =
+                make_provider_tree(settings, filter_config.inner.as_ref(), metrics_client).await?;
+            KeywordFilterProvider::new_boxed(
+                filter_config.suggestion_blocklist.clone(),
+                inner,
+                metrics_client,
+            )?
         }
 
         SuggestionProviderConfig::Debug => DebugProvider::new_boxed(settings)?,
@@ -101,6 +118,7 @@ async fn make_provider_tree(
 mod tests {
     use super::make_provider_tree;
     use anyhow::Result;
+    use cadence::{SpyMetricSink, StatsdClient};
     use merino_settings::{
         providers::{
             MemoryCacheConfig, MultiplexerConfig, RedisCacheConfig, SuggestionProviderConfig,
@@ -112,7 +130,8 @@ mod tests {
     async fn test_providers_single() -> Result<()> {
         let settings = Settings::load_for_tests();
         let config = SuggestionProviderConfig::Null;
-        let provider_tree = make_provider_tree(&settings, &config).await?;
+        let metrics_client = StatsdClient::from_sink("merino-test", SpyMetricSink::new().1);
+        let provider_tree = make_provider_tree(&settings, &config, &metrics_client).await?;
         assert_eq!(provider_tree.name(), "NullProvider");
         Ok(())
     }
@@ -136,7 +155,8 @@ mod tests {
             ],
         });
 
-        let provider_tree = make_provider_tree(&settings, &config).await?;
+        let metrics_client = StatsdClient::from_sink("merino-test", SpyMetricSink::new().1);
+        let provider_tree = make_provider_tree(&settings, &config, &metrics_client).await?;
         assert_eq!(
             provider_tree.name(),
             "Multi(NullProvider, RedisCache(MemoryCache(WikiFruit)), NullProvider)"

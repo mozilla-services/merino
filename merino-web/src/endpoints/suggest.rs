@@ -36,7 +36,7 @@ async fn suggest(
     request: HttpRequest,
 ) -> Result<HttpResponse, HandlerError> {
     let provider = provider
-        .get_or_try_init(settings.as_ref())
+        .get_or_try_init(settings.as_ref(), metrics_client.as_ref())
         .await
         .map_err(|error| {
             tracing::error!(

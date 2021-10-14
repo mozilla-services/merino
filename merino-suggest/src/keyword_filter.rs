@@ -1,10 +1,12 @@
 //! A suggestion provider that filters suggestions from a subprovider.
 
+use std::collections::HashMap;
+
 use crate::{SetupError, SuggestionProvider, SuggestionResponse};
 use anyhow::anyhow;
 use async_trait::async_trait;
+use cadence::{Counted, StatsdClient};
 use regex::{Regex, RegexBuilder};
-use std::collections::HashMap;
 
 /// A combinator provider that filters the results from the wrapped provider
 /// using a blocklist from the settings.
@@ -14,6 +16,9 @@ pub struct KeywordFilterProvider {
 
     /// The provider to pull suggestions from.
     inner: Box<dyn SuggestionProvider>,
+
+    /// The Statsd client used to record statistics.
+    metrics_client: StatsdClient,
 }
 
 impl KeywordFilterProvider {
@@ -21,6 +26,7 @@ impl KeywordFilterProvider {
     pub fn new_boxed(
         blocklist: HashMap<String, String>,
         inner: Box<dyn SuggestionProvider>,
+        metrics_client: &StatsdClient,
     ) -> Result<Box<Self>, SetupError> {
         // Compile the provided blocklist regexes just once.
         let mut compiled_blocklist: HashMap<String, Regex> = HashMap::new();
@@ -43,6 +49,7 @@ impl KeywordFilterProvider {
         Ok(Box::new(Self {
             blocklist: compiled_blocklist,
             inner,
+            metrics_client: metrics_client.clone(),
         }))
     }
 }
@@ -64,14 +71,22 @@ impl SuggestionProvider for KeywordFilterProvider {
             .unwrap_or_else(|_| SuggestionResponse::new(vec![]));
 
         // Some very naive filtering.
-        for filter in &self.blocklist {
+        for (filter_id, filter_regex) in &self.blocklist {
             let initial_suggestions = results.suggestions.len();
-            results.suggestions.retain(|r| !filter.1.is_match(&r.title));
-            // TODO: increment metric
-            println!(
-                "**** DEBUG - Should record {:?} matches",
-                (initial_suggestions - results.suggestions.len())
-            );
+            results
+                .suggestions
+                .retain(|r| !filter_regex.is_match(&r.title));
+
+            let matched_suggestions = initial_suggestions - results.suggestions.len();
+            if matched_suggestions > 0 {
+                self.metrics_client
+                    // Note: the i64 conversion is required because `ToCounterValue` is
+                    // not implemented for `usize`.
+                    .count_with_tags("keywordfilter.match", matched_suggestions as i64)
+                    .with_tag("id", filter_id)
+                    .try_send()
+                    .ok();
+            }
         }
 
         Ok(results)
@@ -84,6 +99,7 @@ mod tests {
         CacheStatus, KeywordFilterProvider, Suggestion, SuggestionProvider, SuggestionResponse,
     };
     use async_trait::async_trait;
+    use cadence::{SpyMetricSink, StatsdClient};
     use fake::{Fake, Faker};
     use std::collections::HashMap;
 
@@ -123,69 +139,95 @@ mod tests {
     #[tokio::test]
     async fn test_provider_filters() {
         let mut blocklist = HashMap::new();
-        blocklist.insert("filter_1".to_string(), regex::Regex::new("test").unwrap());
+        blocklist.insert("filter_1".to_string(), "test".to_string());
 
-        let filter_provider = KeywordFilterProvider {
+        let (rx, sink) = SpyMetricSink::new();
+        let metrics_client = StatsdClient::from_sink("merino-test", sink);
+
+        let filter_provider = KeywordFilterProvider::new_boxed(
             blocklist,
-            inner: Box::new(TestSuggestionsProvider()),
-        };
+            Box::new(TestSuggestionsProvider()),
+            &metrics_client,
+        )
+        .expect("failed to create the keyword filter provider");
+
         let res = filter_provider
             .suggest(Faker.fake())
             .await
             .expect("failed to get suggestion");
-        println!("**** DEBUG - Test Results {:?}", res);
 
         assert_eq!(res.suggestions.len(), 1);
         assert_eq!(res.suggestions[0].provider, "TestSuggestionsProvider()");
         assert_eq!(res.suggestions[0].title, "A suggestion that goes through");
 
-        // TODO: test data collection
+        // Verify that the filtering was properly recorded.
+        assert_eq!(rx.len(), 1);
+        let sent = rx.recv().unwrap();
+        assert_eq!(
+            "merino-test.keywordfilter.match:1|c|#id:filter_1",
+            String::from_utf8(sent).unwrap()
+        );
     }
 
     #[tokio::test]
     async fn test_provider_all_filtered() {
         let mut blocklist = HashMap::new();
-        blocklist.insert("filter_1".to_string(), regex::Regex::new("test").unwrap());
-        blocklist.insert(
-            "filter_2".to_string(),
-            regex::Regex::new("through").unwrap(),
-        );
+        blocklist.insert("filter_1".to_string(), "test".to_string());
+        blocklist.insert("filter_2".to_string(), "through".to_string());
 
-        let filter_provider = KeywordFilterProvider {
+        let (rx, sink) = SpyMetricSink::new();
+        let metrics_client = StatsdClient::from_sink("merino-test", sink);
+
+        let filter_provider = KeywordFilterProvider::new_boxed(
             blocklist,
-            inner: Box::new(TestSuggestionsProvider()),
-        };
+            Box::new(TestSuggestionsProvider()),
+            &metrics_client,
+        )
+        .expect("failed to create the keyword filter provider");
+
         let res = filter_provider
             .suggest(Faker.fake())
             .await
             .expect("failed to get suggestion");
-        println!("**** DEBUG - Test Results {:?}", res);
 
         assert_eq!(res.suggestions.len(), 0);
 
-        // TODO: test data collection
+        // Verify that the filtering was properly recorded.
+        assert_eq!(rx.len(), 2);
+        let collected_data: Vec<String> = rx
+            .iter()
+            .take(2)
+            .map(|x| String::from_utf8(x).unwrap())
+            .collect();
+        assert!(collected_data
+            .contains(&"merino-test.keywordfilter.match:1|c|#id:filter_1".to_string()));
+        assert!(collected_data
+            .contains(&"merino-test.keywordfilter.match:1|c|#id:filter_2".to_string()));
     }
 
     #[tokio::test]
     async fn test_provider_nothing_filtered() {
         let mut blocklist = HashMap::new();
-        blocklist.insert(
-            "filter_1".to_string(),
-            regex::Regex::new("no-match").unwrap(),
-        );
+        blocklist.insert("filter_1".to_string(), "no-match".to_string());
 
-        let filter_provider = KeywordFilterProvider {
+        let (rx, sink) = SpyMetricSink::new();
+        let metrics_client = StatsdClient::from_sink("merino-test", sink);
+
+        let filter_provider = KeywordFilterProvider::new_boxed(
             blocklist,
-            inner: Box::new(TestSuggestionsProvider()),
-        };
+            Box::new(TestSuggestionsProvider()),
+            &metrics_client,
+        )
+        .expect("failed to create the keyword filter provider");
+
         let res = filter_provider
             .suggest(Faker.fake())
             .await
             .expect("failed to get suggestion");
-        println!("**** DEBUG - Test Results {:?}", res);
 
         assert_eq!(res.suggestions.len(), 2);
 
-        // TODO: test data collection
+        // Verify that nothing was recorded.
+        assert!(rx.is_empty());
     }
 }
