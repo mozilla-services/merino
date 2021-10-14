@@ -95,7 +95,7 @@ async fn test_returns_request_id(TestingTools { test_client, .. }: TestingTools)
     assert_eq!(response.status(), StatusCode::OK);
     let body: serde_json::Value = response.json().await?;
     assert!(
-        body.as_object().unwrap().contains_key("client_variants"),
+        body.as_object().unwrap().contains_key("request_id"),
         "response should have a request_id"
     );
     Ok(())
