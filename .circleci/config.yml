@@ -92,18 +92,35 @@ jobs:
           docker_layer_caching: true
       - write-version
       - run:
-          name: Build Docker image
-          command: docker build -t app:build .
+          name: Docker planner stage
+          command: docker build --tag app:planner --target planner .
+      - run:
+          name: Copy recipe.json to artifacts
+          command: |
+            mkdir -p /tmp/artifacts
+            docker run --rm app:planner cat recipe.json > /tmp/artifacts/recipe.json
+            sha256sum /tmp/artifacts/recipe.json
+      - run:
+          name: Docker dependency cacher stage
+          command: docker build --tag app:builder --target cacher .
+      - run:
+          name: Docker builder stage
+          command: docker build --tag app:builder --target builder .
+      - run:
+          name: Docker runtime stage
+          command: docker build --tag app:runtime --target runtime .
       - run:
           name: Save image into workspace
           command: |
-            mkdir -p workspace
-            docker save -o workspace/merino.tar app:build
-            gzip workspace/merino.tar
+            mkdir -p /tmp/workspace
+            docker save -o /tmp/workspace/merino.tar app:runtime
+            gzip /tmp/workspace/merino.tar
       - persist_to_workspace:
-          root: workspace
+          root: /tmp/workspace
           paths:
             - merino.tar.gz
+      - store_artifacts:
+          path: /tmp/artifacts
 
   integration-tests:
     machine:
@@ -153,7 +170,7 @@ jobs:
 
             if [ -n "${DOCKER_TAG}" ]; then
               echo ${DOCKERHUB_REPO}:${DOCKER_TAG}
-              docker tag app:build ${DOCKERHUB_REPO}:${DOCKER_TAG}
+              docker tag app:runtime ${DOCKERHUB_REPO}:${DOCKER_TAG}
               docker images
               docker push "${DOCKERHUB_REPO}:${DOCKER_TAG}"
             else
