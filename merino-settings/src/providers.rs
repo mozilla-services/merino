@@ -1,5 +1,6 @@
 use serde::{Deserialize, Serialize};
 use serde_with::{serde_as, DurationSeconds};
+use std::collections::HashMap;
 use std::time::Duration;
 
 #[serde_as]
@@ -12,6 +13,7 @@ pub enum SuggestionProviderConfig {
     Multiplexer(MultiplexerConfig),
     Timeout(TimeoutConfig),
     Fixed(FixedConfig),
+    KeywordFilter(KeywordFilterConfig),
     Debug,
     WikiFruit,
     Null,
@@ -172,6 +174,25 @@ pub struct FixedConfig {
     pub value: String,
 }
 
+#[derive(Clone, Debug, Serialize, Deserialize)]
+#[serde(default)]
+pub struct KeywordFilterConfig {
+    /// A blocklist to filter suggestions coming providers.
+    pub suggestion_blocklist: HashMap<String, String>,
+
+    /// The filtered provider.
+    pub inner: Box<SuggestionProviderConfig>,
+}
+
+impl Default for KeywordFilterConfig {
+    fn default() -> Self {
+        Self {
+            suggestion_blocklist: HashMap::new(),
+            inner: Box::new(SuggestionProviderConfig::Null),
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use crate::{providers::SuggestionProviderConfig, Settings};
@@ -198,6 +219,7 @@ mod tests {
             "null": { "type": "null"},
             "timeout": { "type": "timeout" },
             "fixed": { "type": "fixed", "value": "test suggestion" },
+            "keyword_filter": { "type": "keyword_filter" },
         });
 
         let value_config: Value = serde_json::from_value(value_json.clone())?;
@@ -222,6 +244,7 @@ mod tests {
                     | SuggestionProviderConfig::RedisCache(_)
                     | SuggestionProviderConfig::Multiplexer(_)
                     | SuggestionProviderConfig::Timeout(_)
+                    | SuggestionProviderConfig::KeywordFilter(_)
                     | SuggestionProviderConfig::Debug
                     | SuggestionProviderConfig::WikiFruit
                     | SuggestionProviderConfig::Fixed(_)
@@ -231,7 +254,7 @@ mod tests {
             );
         }
         // Likewise, if this number needs to change, make sure to update the rest of the test.
-        assert_eq!(found_providers, 9);
+        assert_eq!(found_providers, 10);
 
         Ok(())
     }
