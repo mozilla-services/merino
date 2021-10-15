@@ -5,6 +5,7 @@
 # General Documentation
 
 - [Using the HTTP API](./api.md)
+- [Configuring Firefox and Merino Environments](./firefox.md)
 - [Configuring Merino (Operations)](./ops.md)
 - [Working on the code](./dev/index.md)
   - [Merino Showroom](./dev/showroom.md)
