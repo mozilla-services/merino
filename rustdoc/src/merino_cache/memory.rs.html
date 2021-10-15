@@ -301,8 +301,6 @@
 <span id="301">301</span>
 <span id="302">302</span>
 <span id="303">303</span>
-<span id="304">304</span>
-<span id="305">305</span>
 </pre><pre class="rust">
 <span class="doccomment">//! A cache system that uses local in-memory storage to store a limited number of items.</span>
 <span class="doccomment">//!</span>
@@ -311,11 +309,9 @@
 <span class="doccomment">//! tier maps from those hashes to the responses. In this way, duplicate</span>
 <span class="doccomment">//! responses can be stored only once, even if they are used for many requests.</span>
 
-<span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">deduped_map</span>::{<span class="ident">ControlFlow</span>, <span class="ident">DedupedMap</span>},
-    <span class="ident">domain::CacheKey</span>,
-};
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::domain::CacheKey</span>;
 <span class="kw">use</span> <span class="ident">async_trait::async_trait</span>;
+<span class="kw">use</span> <span class="ident">deduped_dashmap</span>::{<span class="ident">ControlFlow</span>, <span class="ident">DedupedMap</span>};
 <span class="kw">use</span> <span class="ident">lazy_static::lazy_static</span>;
 <span class="kw">use</span> <span class="ident">merino_settings::providers::MemoryCacheConfig</span>;
 <span class="kw">use</span> <span class="ident">merino_suggest</span>::{
@@ -548,7 +544,7 @@
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
 <span class="kw">mod</span> <span class="ident">tests</span> {
     <span class="kw">use</span> <span class="kw">super</span>::{<span class="ident">Suggester</span>, <span class="ident">LOCK_TABLE</span>};
-    <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::deduped_map::DedupedMap</span>;
+    <span class="kw">use</span> <span class="ident">deduped_dashmap::DedupedMap</span>;
     <span class="kw">use</span> <span class="ident">fake</span>::{<span class="ident">Fake</span>, <span class="ident">Faker</span>};
     <span class="kw">use</span> <span class="ident">merino_suggest::Suggestion</span>;
     <span class="kw">use</span> <span class="ident">std</span>::{

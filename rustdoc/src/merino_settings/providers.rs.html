@@ -229,6 +229,13 @@
 <span id="229">229</span>
 <span id="230">230</span>
 <span id="231">231</span>
+<span id="232">232</span>
+<span id="233">233</span>
+<span id="234">234</span>
+<span id="235">235</span>
+<span id="236">236</span>
+<span id="237">237</span>
+<span id="238">238</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 <span class="kw">use</span> <span class="ident">serde_with</span>::{<span class="ident">serde_as</span>, <span class="ident">DurationSeconds</span>};
@@ -352,6 +359,7 @@
     }
 }
 
+<span class="attribute">#[<span class="ident">serde_as</span>]</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
 <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">default</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">RemoteSettingsConfig</span> {
@@ -360,6 +368,11 @@
 
     <span class="doccomment">/// The collection to sync form.</span>
     <span class="kw">pub</span> <span class="ident">collection</span>: <span class="ident">String</span>,
+
+    <span class="doccomment">/// The time between re-syncs of Remote Settings data.</span>
+    <span class="attribute">#[<span class="ident">serde_as</span>(<span class="kw">as</span> <span class="op">=</span> <span class="string">&quot;DurationSeconds&quot;</span>)]</span>
+    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;resync_interval_sec&quot;</span>)]</span>
+    <span class="kw">pub</span> <span class="ident">resync_interval</span>: <span class="ident">Duration</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">RemoteSettingsConfig</span> {
@@ -367,6 +380,7 @@
         <span class="self">Self</span> {
             <span class="ident">bucket</span>: <span class="string">&quot;main&quot;</span>.<span class="ident">to_string</span>(),
             <span class="ident">collection</span>: <span class="string">&quot;quicksuggest&quot;</span>.<span class="ident">to_string</span>(),
+            <span class="ident">resync_interval</span>: <span class="ident">Duration::from_secs</span>(<span class="number">60</span> <span class="op">*</span> <span class="number">60</span> <span class="op">*</span> <span class="number">3</span>), <span class="comment">// 3 hours</span>
         }
     }
 }
