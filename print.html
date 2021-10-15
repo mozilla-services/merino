@@ -76,7 +76,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded affix "><a href="intro.html">Intro</a></li><li class="chapter-item expanded affix "><li class="part-title">General Documentation</li><li class="chapter-item expanded "><a href="api.html"><strong aria-hidden="true">1.</strong> Using the HTTP API</a></li><li class="chapter-item expanded "><a href="ops.html"><strong aria-hidden="true">2.</strong> Configuring Merino (Operations)</a></li><li class="chapter-item expanded "><a href="dev/index.html"><strong aria-hidden="true">3.</strong> Working on the code</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="dev/showroom.html"><strong aria-hidden="true">3.1.</strong> Merino Showroom</a></li><li class="chapter-item expanded "><a href="dev/testing.html"><strong aria-hidden="true">3.2.</strong> Testing Strategies</a></li><li class="chapter-item expanded "><a href="dev/dependencies.html"><strong aria-hidden="true">3.3.</strong> Development Dependencies</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Architecture Decision Records</li><li class="chapter-item expanded affix "><a href="adrs/adr_0001_logging.html">ADR 0001 - Logging</a></li><li class="chapter-item expanded affix "><a href="adrs/adr_0002_hashing.html">ADR 0002 - Hashing</a></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="intro.html">Intro</a></li><li class="chapter-item expanded affix "><li class="part-title">General Documentation</li><li class="chapter-item expanded "><a href="api.html"><strong aria-hidden="true">1.</strong> Using the HTTP API</a></li><li class="chapter-item expanded "><a href="firefox.html"><strong aria-hidden="true">2.</strong> Configuring Firefox and Merino Environments</a></li><li class="chapter-item expanded "><a href="ops.html"><strong aria-hidden="true">3.</strong> Configuring Merino (Operations)</a></li><li class="chapter-item expanded "><a href="dev/index.html"><strong aria-hidden="true">4.</strong> Working on the code</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="dev/showroom.html"><strong aria-hidden="true">4.1.</strong> Merino Showroom</a></li><li class="chapter-item expanded "><a href="dev/testing.html"><strong aria-hidden="true">4.2.</strong> Testing Strategies</a></li><li class="chapter-item expanded "><a href="dev/dependencies.html"><strong aria-hidden="true">4.3.</strong> Development Dependencies</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Architecture Decision Records</li><li class="chapter-item expanded affix "><a href="adrs/adr_0001_logging.html">ADR 0001 - Logging</a></li><li class="chapter-item expanded affix "><a href="adrs/adr_0002_hashing.html">ADR 0002 - Hashing</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -331,6 +331,33 @@ or other internal uses. */</li>
 </ul>
 </li>
 </ul>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="configuring-firefox-and-merino-environments"><a class="header" href="#configuring-firefox-and-merino-environments">Configuring Firefox and Merino Environments</a></h1>
+<p>As of Firefox 93.0, Merino is not enabled by default. To enable it, set the
+Firefox preference <code>browser.urlbar.merino.enabled</code> to <code>true</code>. By default Merino
+will connect to the production environments. This is controlled with the
+<code>browser.urlbar.merino.endpointURL</code> preference. See below for other options.</p>
+<p>You can also query any of the endpoint URLs below with something like</p>
+<pre><code class="language-sh">curl 'https://stage.merino.nonprod.cloudops.mozgcp.net/api/v1/suggest?q=your query'
+</code></pre>
+<h2 id="environments"><a class="header" href="#environments">Environments</a></h2>
+<h3 id="production"><a class="header" href="#production">Production</a></h3>
+<p><em>Endpoint URL</em>: <a href="https://merino.services.mozilla.com/api/v1/suggest">https://merino.services.mozilla.com/api/v1/suggest</a></p>
+<p>The primary environment for end users. Firefox is configured to use this by
+default. As of 2021-10-25, this server is not active yet.</p>
+<p>This environment only deploys manually as a result of operations triggering
+deploys.</p>
+<h3 id="stage"><a class="header" href="#stage">Stage</a></h3>
+<p><em>Endpoint URL</em>: <a href="https://stage.merino.nonprod.cloudops.mozgcp.net/api/v1/suggest">https://stage.merino.nonprod.cloudops.mozgcp.net/api/v1/suggest</a></p>
+<p>This environment is used for manual and load testing of the server. It is not
+guaranteed to be stable or available. It is used as a part of the deploy process
+to verify new releases before they got to production.</p>
+<p>This environment automatically deploys new tags on the Merino repository.</p>
+<h3 id="dev"><a class="header" href="#dev">Dev</a></h3>
+<p><em>Endpoint URL</em>: <a href="https://dev.merino.nonprod.cloudops.mozgcp.net/api/v1/suggest">https://dev.merino.nonprod.cloudops.mozgcp.net/api/v1/suggest</a></p>
+<p>This environment is unstable and is not guaranteed to work. It's primary use is
+as a development area for operations.</p>
+<p>This environment automatically deploys the latest commit to the <code>main</code> branch of
+the repository.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="configuring-merino-operations"><a class="header" href="#configuring-merino-operations">Configuring Merino (Operations)</a></h1>
 <h2 id="settings"><a class="header" href="#settings">Settings</a></h2>
 <p>Merino's settings can be specified in two ways: a YAML file placed in a specific
