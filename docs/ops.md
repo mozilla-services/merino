@@ -138,6 +138,9 @@ provider below.
 - `remote_settings.server` (`MERINO_REMOTE_SETTINGS__SERVER`) - The server to
   sync from. Example: `https://firefox.settings.services.mozilla.com`.
 
+- `remote_settings.sync_interval_sec` - The time between re-syncs of Remote
+  Settings data, in seconds. Defaults to 3 hours.
+
 ### Location
 
 Configuration for determining the location of users.

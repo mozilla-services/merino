@@ -5,11 +5,9 @@
 //! tier maps from those hashes to the responses. In this way, duplicate
 //! responses can be stored only once, even if they are used for many requests.
 
-use crate::{
-    deduped_map::{ControlFlow, DedupedMap},
-    domain::CacheKey,
-};
+use crate::domain::CacheKey;
 use async_trait::async_trait;
+use deduped_dashmap::{ControlFlow, DedupedMap};
 use lazy_static::lazy_static;
 use merino_settings::providers::MemoryCacheConfig;
 use merino_suggest::{
@@ -242,7 +240,7 @@ impl SuggestionProvider for Suggester {
 #[cfg(test)]
 mod tests {
     use super::{Suggester, LOCK_TABLE};
-    use crate::deduped_map::DedupedMap;
+    use deduped_dashmap::DedupedMap;
     use fake::{Fake, Faker};
     use merino_suggest::Suggestion;
     use std::{

@@ -34,6 +34,9 @@ use tracing_subscriber::{fmt::MakeWriter, layer::SubscriberExt};
 ///     ).await
 /// }
 /// ```
+///
+/// # Panics
+/// May panic if tests could not be set up correctly.
 pub async fn merino_test<FSettings, FTest, Fut>(
     settings_changer: FSettings,
     test: FTest,
@@ -45,11 +48,16 @@ where
 {
     let test_span = tracing::info_span!("merino_test", redis_db = tracing::field::Empty);
 
+    // Load settings
+    let mut settings = Settings::load_for_tests();
+
     // Set up logging
     let log_watcher = LogWatcher::default();
     let log_watcher_writer = log_watcher.make_writer();
 
+    let env_filter: tracing_subscriber::EnvFilter = (&settings.logging.levels).into();
     let tracing_subscriber = tracing_subscriber::registry()
+        .with(env_filter)
         .with(
             tracing_subscriber::fmt::layer()
                 .json()
@@ -58,9 +66,6 @@ where
         .with(tracing_subscriber::fmt::layer().pretty().with_test_writer());
 
     let _tracing_subscriber_guard = tracing::subscriber::set_default(tracing_subscriber);
-
-    // Load settings
-    let mut settings = Settings::load_for_tests();
 
     // Set up a mock server for Remote Settings to talk to
     let remote_settings_mock = MockServer::start();

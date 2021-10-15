@@ -120,6 +120,7 @@ impl Default for MemoryCacheConfig {
     }
 }
 
+#[serde_as]
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(default)]
 pub struct RemoteSettingsConfig {
@@ -128,6 +129,11 @@ pub struct RemoteSettingsConfig {
 
     /// The collection to sync form.
     pub collection: String,
+
+    /// The time between re-syncs of Remote Settings data.
+    #[serde_as(as = "DurationSeconds")]
+    #[serde(rename = "resync_interval_sec")]
+    pub resync_interval: Duration,
 }
 
 impl Default for RemoteSettingsConfig {
@@ -135,6 +141,7 @@ impl Default for RemoteSettingsConfig {
         Self {
             bucket: "main".to_string(),
             collection: "quicksuggest".to_string(),
+            resync_interval: Duration::from_secs(60 * 60 * 3), // 3 hours
         }
     }
 }
