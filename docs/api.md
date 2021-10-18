@@ -66,11 +66,17 @@ and headers.
 
 ### Response
 
-The response will be a JSON object containing the keys `suggestions`,
-`client_variants` and `server_variants`. `client_variants` will return a list of
-the strings specified from the `client_variants` parameter in the request
-`server_variants` will return a list of strings `suggestions` will be a list of
-suggestion objects. Each suggestion object will have the following keys:
+#### Response object
+
+The response will be a JSON object containing the following keys:
+
+- `client_variants` - A list of strings specified from the `client_variants`
+  parameter in the request.
+- `server_variants` - A list of strings indicating the server variants.
+- `request_id` - A string identifier identifying every API request sent from Firefox.
+- `suggestions` - A list of suggestion objects described as below.
+
+#### Suggestion object
 
 - `block_id` - a number that can be used, along with the `provider` field below,
   to uniquely identify this suggestion. Two suggestions with the same `provider`
