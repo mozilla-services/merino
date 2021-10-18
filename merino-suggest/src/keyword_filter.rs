@@ -6,13 +6,17 @@ use crate::{SetupError, SuggestionProvider, SuggestionResponse};
 use anyhow::anyhow;
 use async_trait::async_trait;
 use cadence::{Counted, StatsdClient};
-use regex::{Regex, RegexBuilder};
+use regex::{RegexSet, RegexSetBuilder};
 
 /// A combinator provider that filters the results from the wrapped provider
 /// using a blocklist from the settings.
 pub struct KeywordFilterProvider {
-    /// A map linking the filter identifiers to their compiled regexes.
-    blocklist: HashMap<String, regex::Regex>,
+    /// The list of ids for the blocklist rules.
+    blocklist_ids: Vec<String>,
+
+    /// The regex set containing the blocklist rules. Items have
+    /// the same sorting order as `blocklist_ids`.
+    blocklist_rules: RegexSet,
 
     /// The provider to pull suggestions from.
     inner: Box<dyn SuggestionProvider>,
@@ -28,26 +32,17 @@ impl KeywordFilterProvider {
         inner: Box<dyn SuggestionProvider>,
         metrics_client: &StatsdClient,
     ) -> Result<Box<Self>, SetupError> {
-        // Compile the provided blocklist regexes just once.
-        let mut compiled_blocklist: HashMap<String, Regex> = HashMap::new();
-
-        for (filter_id, filter_regex) in &blocklist {
-            if let Ok(r) = RegexBuilder::new(filter_regex)
-                .case_insensitive(true)
-                .build()
-            {
-                compiled_blocklist.insert(filter_id.to_string(), r);
-            } else {
-                return Err(SetupError::InvalidConfiguration(anyhow!(
-                    "KeywordFilterProvider failed to compile regex {} ({})",
-                    filter_id,
-                    filter_regex,
-                )));
-            }
+        let (blocklist_ids, regexes): (Vec<String>, Vec<String>) = blocklist.into_iter().unzip();
+        let regex_set = RegexSetBuilder::new(regexes).case_insensitive(true).build();
+        if regex_set.is_err() {
+            return Err(SetupError::InvalidConfiguration(anyhow!(
+                "KeywordFilterProvider failed to compile the regex set."
+            )));
         }
 
         Ok(Box::new(Self {
-            blocklist: compiled_blocklist,
+            blocklist_ids,
+            blocklist_rules: regex_set.unwrap(),
             inner,
             metrics_client: metrics_client.clone(),
         }))
@@ -70,23 +65,32 @@ impl SuggestionProvider for KeywordFilterProvider {
             .await
             .unwrap_or_else(|_| SuggestionResponse::new(vec![]));
 
-        // Some very naive filtering.
-        for (filter_id, filter_regex) in &self.blocklist {
-            let initial_suggestions = results.suggestions.len();
-            results
-                .suggestions
-                .retain(|r| !filter_regex.is_match(&r.title));
+        let mut reported_hits: HashMap<String, i64> = HashMap::new();
+        results.suggestions.retain(|r| {
+            let matches: Vec<_> = self.blocklist_rules.matches(&r.title).into_iter().collect();
 
-            let matched_suggestions = initial_suggestions - results.suggestions.len();
-            if matched_suggestions > 0 {
-                self.metrics_client
-                    // Note: the i64 conversion is required because `ToCounterValue` is
-                    // not implemented for `usize`.
-                    .count_with_tags("keywordfilter.match", matched_suggestions as i64)
-                    .with_tag("id", filter_id)
-                    .try_send()
-                    .ok();
+            for rule_index in &matches {
+                // The following unwrap is safe: the regex set and blockist ids
+                // were generated at the same time from the same configuration.
+                let rule_id = self.blocklist_ids.get(*rule_index).unwrap();
+                if let Some(k) = reported_hits.get_mut(rule_id) {
+                    *k += 1;
+                } else {
+                    reported_hits.insert(rule_id.to_string(), 1);
+                }
             }
+
+            matches.is_empty()
+        });
+
+        for (id, value) in reported_hits {
+            self.metrics_client
+                // Note: the i64 conversion is required because `ToCounterValue` is
+                // not implemented for `usize`.
+                .count_with_tags("keywordfilter.match", value)
+                .with_tag("id", &id)
+                .try_send()
+                .ok();
         }
 
         Ok(results)
@@ -131,6 +135,12 @@ mod tests {
                         full_keyword: "not matched".to_string(),
                         ..Faker.fake()
                     },
+                    Suggestion {
+                        provider: self.name(),
+                        title: "Another suggestion that goes through".to_string(),
+                        full_keyword: "not matched".to_string(),
+                        ..Faker.fake()
+                    },
                 ],
             })
         }
@@ -156,7 +166,7 @@ mod tests {
             .await
             .expect("failed to get suggestion");
 
-        assert_eq!(res.suggestions.len(), 1);
+        assert_eq!(res.suggestions.len(), 2);
         assert_eq!(res.suggestions[0].provider, "TestSuggestionsProvider()");
         assert_eq!(res.suggestions[0].title, "A suggestion that goes through");
 
@@ -202,7 +212,7 @@ mod tests {
         assert!(collected_data
             .contains(&"merino-test.keywordfilter.match:1|c|#id:filter_1".to_string()));
         assert!(collected_data
-            .contains(&"merino-test.keywordfilter.match:1|c|#id:filter_2".to_string()));
+            .contains(&"merino-test.keywordfilter.match:2|c|#id:filter_2".to_string()));
     }
 
     #[tokio::test]
@@ -225,7 +235,7 @@ mod tests {
             .await
             .expect("failed to get suggestion");
 
-        assert_eq!(res.suggestions.len(), 2);
+        assert_eq!(res.suggestions.len(), 3);
 
         // Verify that nothing was recorded.
         assert!(rx.is_empty());
