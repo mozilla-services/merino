@@ -1,7 +1,7 @@
 # Testing strategies
 
 There are three major testing strategies used in this repository: unit tests,
-Rust integration tests, and Python system tests.
+Rust integration tests, Python system tests, and Python load tests.
 
 ## Unit Tests
 
@@ -62,3 +62,9 @@ Merino's APIs using more opaque techniques. They cannot configure the server per
 test, and are more concerned with external contracts and behavior.
 
 For more details see the README.md file in the `test-engineering` directory.
+
+## Load tests
+
+The tests in the `test-engineering/load-tests` directory are load tests that
+spawn multiple HTTP clients that consume Merino's API. These tests do not run on
+CI. We run them manually to simulate real-world load on the Merino infrastructure.
