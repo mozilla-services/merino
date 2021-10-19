@@ -765,7 +765,7 @@ configured to connect to the default configuration of <code>merino-web</code>.</
 <p>Note, Node 16 or higher is required to run Showroom.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="testing-strategies"><a class="header" href="#testing-strategies">Testing strategies</a></h1>
 <p>There are three major testing strategies used in this repository: unit tests,
-Rust integration tests, and Python system tests.</p>
+Rust integration tests, Python system tests, and Python load tests.</p>
 <h2 id="unit-tests"><a class="header" href="#unit-tests">Unit Tests</a></h2>
 <p>Unit tests should appear close to the code they are testing, using standard Rust
 unit tests. This is suitable for testing complex behavior at a small scale, with
@@ -820,6 +820,10 @@ async fn lbheartbeat_works() {
 Merino's APIs using more opaque techniques. They cannot configure the server per
 test, and are more concerned with external contracts and behavior.</p>
 <p>For more details see the README.md file in the <code>test-engineering</code> directory.</p>
+<h2 id="load-tests"><a class="header" href="#load-tests">Load tests</a></h2>
+<p>The tests in the <code>test-engineering/load-tests</code> directory are load tests that
+spawn multiple HTTP clients that consume Merino's API. These tests do not run on
+CI. We run them manually to simulate real-world load on the Merino infrastructure.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="development-dependencies"><a class="header" href="#development-dependencies">Development Dependencies</a></h1>
 <p>Merino uses a Redis-based caching system, and so requires a Redis instance to
 connect to.</p>
