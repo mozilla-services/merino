@@ -5,68 +5,52 @@
 # Updating this argument will clear the cache of the package installations
 # below. This will cause a full rebuild, but it is the only way to get package
 # updates with out changing the base image.
-ARG CACHE_BUST="2021-05-13"
+ARG APT_CACHE_BUST="2021-05-13"
+
+# =============================================================================
+# Pull in the version of cargo-chef we plan to use, so that all the below steps
+# use a consistent set of versions.
+FROM lukemathwalker/cargo-chef:0.1.31-rust-1.54-buster as chef
+WORKDIR /app
 
 # =============================================================================
 # Analyze the project, and produce a plan to compile its dependcies. This will
 # be run every time. The output should only change if the dependencies of the
 # project change, or if significant details of the build process change.
-
-# Note that this is not actually an alpha version. The image is mistagged. See
-# https://github.com/LukeMathWalker/cargo-chef/issues/86
-FROM lukemathwalker/cargo-chef:0.1.26-alpha.0-rust-1.54-buster as planner
-WORKDIR /app
+FROM chef as planner
 COPY . .
-RUN cargo version | tee cargo-version.txt
 RUN cargo chef prepare --recipe-path recipe.json
 
 # =============================================================================
 # Use the plan from above to build only the dependencies of the project. This
 # should almost always be pulled straight from cache unless dependencies or the
 # build process change.
-
-# Note that this is not actually an alpha version. The image is mistagged. See
-# https://github.com/LukeMathWalker/cargo-chef/issues/86
-FROM lukemathwalker/cargo-chef:0.1.26-alpha.0-rust-1.54-buster as cacher
-WORKDIR /app
-
-COPY --from=planner /app/cargo-version.txt cargo-version.txt
-COPY ./.circleci/check-cargo-version.sh .
-RUN ./check-cargo-version.sh cargo-version.txt
-
+FROM chef as cacher
 COPY --from=planner /app/recipe.json recipe.json
-RUN cargo chef cook --release --recipe-path recipe.json
+RUN cargo chef cook --release --recipe-path recipe.json -p merino
 
 # =============================================================================
-# Now build the project, taking advantage of the cached dependencies from
-# above. The version number here should be the same as the version used by cargo-chef
-FROM rust:1.54 as builder
-WORKDIR /app
-ARG RUST_TOOLCHAIN=stable
-ARG CACHE_BUST
-
-COPY --from=planner /app/cargo-version.txt cargo-version.txt
-COPY ./.circleci/check-cargo-version.sh .
-RUN ./check-cargo-version.sh cargo-version.txt
+# Now build the project, taking advantage of the cached dependencies from above.
+FROM chef as builder
+ARG APT_CACHE_BUST
 
 RUN mkdir -m 755 bin
 RUN apt-get -qq update && \
     apt-get -qq upgrade
-RUN rustup default ${RUST_TOOLCHAIN} && \
-    cargo --version && \
+RUN cargo --version && \
     rustc --version
 COPY . .
 COPY --from=cacher /app/target target
 COPY --from=cacher $CARGO_HOME $CARGO_HOME
 
-RUN cargo build --release --bin merino
+RUN cargo build --release -p merino
 RUN cp /app/target/release/merino /app/bin
 
 # =============================================================================
 # Finally prepare a Docker image based on a slim image that only contains the
 # files needed to run the project.
 FROM debian:buster-slim as runtime
-ARG CACHE_BUST
+ARG APT_CACHE_BUST
 
 RUN apt-get -qq update && \
     apt-get -qq upgrade && \
