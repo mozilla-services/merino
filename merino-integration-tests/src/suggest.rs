@@ -4,10 +4,13 @@
 use crate::{merino_test_macro, utils::test_tools::TestReqwestClient, TestingTools};
 use anyhow::Result;
 use httpmock::{Method::GET, MockServer};
-use merino_settings::providers::{FixedConfig, RemoteSettingsConfig, SuggestionProviderConfig};
+use merino_settings::providers::{
+    FixedConfig, KeywordFilterConfig, MultiplexerConfig, RemoteSettingsConfig,
+    SuggestionProviderConfig,
+};
 use reqwest::StatusCode;
 use serde_json::json;
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
 
 #[merino_test_macro(|settings| {
     // Wiki fruit is only enabled when debug is true.
@@ -364,6 +367,45 @@ async fn suggest_providers_are_resilient_to_unknown_providers(
         .collect::<HashSet<_>>();
     let expected_providers = ["red", "blue"].iter().cloned().collect();
     assert_eq!(returned_providers, expected_providers);
+
+    Ok(())
+}
+
+#[merino_test_macro(|settings| {
+    // FixedProvider is only allowed when debug is true.
+    settings.debug = true;
+    let mut blocklist = HashMap::new();
+    blocklist.insert("no-apple".to_string(), "(a|A)pple".to_string());
+
+    let multiplexer = Box::new(SuggestionProviderConfig::Multiplexer(MultiplexerConfig{
+        providers: vec![
+            SuggestionProviderConfig::Fixed(FixedConfig { value: "apple".to_string() }),
+            SuggestionProviderConfig::Fixed(FixedConfig { value: "anvil".to_string() }),
+            SuggestionProviderConfig::Fixed(FixedConfig { value: "heavymetal".to_string() }),
+        ]
+    }));
+
+    settings.suggestion_providers.insert("keyword_filter".to_string(), SuggestionProviderConfig::KeywordFilter(KeywordFilterConfig {
+        suggestion_blocklist: blocklist,
+        inner: multiplexer,
+    }));
+})]
+async fn suggest_keywordfilter_works(
+    TestingTools {
+        test_client,
+        mut metrics_watcher,
+        ..
+    }: TestingTools,
+) -> Result<()> {
+    let response = test_client.get("/api/v1/suggest?q=apple").send().await?;
+
+    assert_eq!(response.status(), StatusCode::OK);
+    let body: serde_json::Value = response.json().await?;
+    assert_eq!(body["suggestions"].as_array().unwrap().len(), 2);
+    assert_eq!(body["suggestions"][0]["title"], json!("heavymetal"));
+    assert_eq!(body["suggestions"][1]["title"], json!("anvil"));
+
+    assert!(metrics_watcher.has_incr("keywordfilter.match"));
 
     Ok(())
 }

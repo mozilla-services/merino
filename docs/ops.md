@@ -183,11 +183,49 @@ These are providers that extend, combine, or otherwise modify other providers.
   - `type=multiplexer`
   - `providers` - A list of other provider configs to draw suggestions from.
 
+  _Example_:
+
+  ```yaml
+  suggestion_providers:
+    sample_multi:
+      type: multiplexer
+      providers:
+        - fixed:
+          type: fixed
+          value: I'm a banana
+        - debug:
+          type: debug
+  ```
+
 - Timeout - Returns an empty response if the wrapped provider takes too long to
   respond.
 
   - `type=timeout`
   - `inner` - Another provider configuration to generate suggestions with.
+
+- KeywordFilter - Filter the suggestions coming from the wrapped provider with the given blocklist.
+
+  - `type=keyword_filter`
+  - `suggestion_blocklist` - The map used to define the blocklist rules. Each entry contains a rule id and an associated regular expression that reccommended titles are matched against.
+  - `inner` - The wrapped provider to draw suggestions from.
+
+  _Example_:
+
+  ```yaml
+  suggestion_providers:
+    filtered:
+      type: keyword_filter
+      suggestion_blocklist:
+        no_banana: '(Banana|banana|plant)'
+      inner:
+        type: multiplexer
+        providers:
+          - fixed:
+            type: fixed
+            value: I'm a banana
+          - debug:
+            type: debug
+  ```
 
 #### Caches
 
