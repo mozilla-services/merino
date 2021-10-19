@@ -138,17 +138,44 @@
 <span id="138">138</span>
 <span id="139">139</span>
 <span id="140">140</span>
+<span id="141">141</span>
+<span id="142">142</span>
+<span id="143">143</span>
+<span id="144">144</span>
+<span id="145">145</span>
+<span id="146">146</span>
+<span id="147">147</span>
+<span id="148">148</span>
+<span id="149">149</span>
+<span id="150">150</span>
+<span id="151">151</span>
+<span id="152">152</span>
+<span id="153">153</span>
+<span id="154">154</span>
+<span id="155">155</span>
+<span id="156">156</span>
+<span id="157">157</span>
+<span id="158">158</span>
+<span id="159">159</span>
+<span id="160">160</span>
+<span id="161">161</span>
+<span id="162">162</span>
+<span id="163">163</span>
+<span id="164">164</span>
+<span id="165">165</span>
+<span id="166">166</span>
 </pre><pre class="rust">
 <span class="doccomment">//! Tools to manager providers.</span>
 
 <span class="kw">use</span> <span class="ident">anyhow::Result</span>;
 <span class="kw">use</span> <span class="ident">async_recursion::async_recursion</span>;
+<span class="kw">use</span> <span class="ident">cadence::StatsdClient</span>;
 <span class="kw">use</span> <span class="ident">merino_adm::remote_settings::RemoteSettingsSuggester</span>;
 <span class="kw">use</span> <span class="ident">merino_cache</span>::{<span class="ident">MemoryCacheSuggester</span>, <span class="ident">RedisCacheSuggester</span>};
 <span class="kw">use</span> <span class="ident">merino_settings</span>::{<span class="ident">providers::SuggestionProviderConfig</span>, <span class="ident">Settings</span>};
 <span class="kw">use</span> <span class="ident">merino_suggest</span>::{
-    <span class="ident">DebugProvider</span>, <span class="ident">FixedProvider</span>, <span class="ident">IdMulti</span>, <span class="ident">Multi</span>, <span class="ident">NullProvider</span>, <span class="ident">SuggestionProvider</span>,
-    <span class="ident">TimeoutProvider</span>, <span class="ident">WikiFruit</span>,
+    <span class="ident">DebugProvider</span>, <span class="ident">FixedProvider</span>, <span class="ident">IdMulti</span>, <span class="ident">KeywordFilterProvider</span>, <span class="ident">Multi</span>, <span class="ident">NullProvider</span>,
+    <span class="ident">SuggestionProvider</span>, <span class="ident">TimeoutProvider</span>, <span class="ident">WikiFruit</span>,
 };
 <span class="kw">use</span> <span class="ident">tokio::sync::OnceCell</span>;
 <span class="kw">use</span> <span class="ident">tracing_futures::Instrument</span>;
@@ -163,7 +190,11 @@
     }
 
     <span class="doccomment">/// Get the provider, or create a new one if it doesn&#39;t exist.</span>
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_or_try_init</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">settings</span>: <span class="kw-2">&amp;</span><span class="ident">Settings</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">IdMulti</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_or_try_init</span>(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        <span class="ident">settings</span>: <span class="kw-2">&amp;</span><span class="ident">Settings</span>,
+        <span class="ident">metrics_client</span>: <span class="kw-2">&amp;</span><span class="ident">StatsdClient</span>,
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">IdMulti</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">setup_span</span> <span class="op">=</span> <span class="macro">tracing::info_span!</span>(<span class="string">&quot;suggestion_provider_setup&quot;</span>);
         <span class="self">self</span>.<span class="number">0</span>
             .<span class="ident">get_or_try_init</span>(<span class="op">|</span><span class="op">|</span> {
@@ -177,7 +208,10 @@
                     <span class="comment">// let mut providers: Vec&lt;Box&lt;dyn SuggestionProvider&gt;&gt; =</span>
                     <span class="comment">//     Vec::with_capacity(settings.suggestion_providers.len());</span>
                     <span class="kw">for</span> (<span class="ident">name</span>, <span class="ident">config</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">settings</span>.<span class="ident">suggestion_providers</span> {
-                        <span class="ident">multi</span>.<span class="ident">add_provider</span>(<span class="ident">name</span>, <span class="ident">make_provider_tree</span>(<span class="ident">settings</span>, <span class="ident">config</span>).<span class="kw">await</span><span class="question-mark">?</span>);
+                        <span class="ident">multi</span>.<span class="ident">add_provider</span>(
+                            <span class="ident">name</span>,
+                            <span class="ident">make_provider_tree</span>(<span class="ident">settings</span>, <span class="ident">config</span>, <span class="ident">metrics_client</span>).<span class="kw">await</span><span class="question-mark">?</span>,
+                        );
                     }
 
                     <span class="prelude-val">Ok</span>(<span class="ident">multi</span>)
@@ -193,6 +227,7 @@
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">make_provider_tree</span>(
     <span class="ident">settings</span>: <span class="kw-2">&amp;</span><span class="ident">Settings</span>,
     <span class="ident">config</span>: <span class="kw-2">&amp;</span><span class="ident">SuggestionProviderConfig</span>,
+    <span class="ident">metrics_client</span>: <span class="kw-2">&amp;</span><span class="ident">StatsdClient</span>,
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">SuggestionProvider</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">provider</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">SuggestionProvider</span><span class="op">&gt;</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">config</span> {
         <span class="ident">SuggestionProviderConfig::RemoteSettings</span>(<span class="ident">rs_config</span>) <span class="op">=</span><span class="op">&gt;</span> {
@@ -200,31 +235,45 @@
         }
 
         <span class="ident">SuggestionProviderConfig::MemoryCache</span>(<span class="ident">memory_config</span>) <span class="op">=</span><span class="op">&gt;</span> {
-            <span class="kw">let</span> <span class="ident">inner</span> <span class="op">=</span> <span class="ident">make_provider_tree</span>(<span class="ident">settings</span>, <span class="ident">memory_config</span>.<span class="ident">inner</span>.<span class="ident">as_ref</span>()).<span class="kw">await</span><span class="question-mark">?</span>;
+            <span class="kw">let</span> <span class="ident">inner</span> <span class="op">=</span>
+                <span class="ident">make_provider_tree</span>(<span class="ident">settings</span>, <span class="ident">memory_config</span>.<span class="ident">inner</span>.<span class="ident">as_ref</span>(), <span class="ident">metrics_client</span>).<span class="kw">await</span><span class="question-mark">?</span>;
             <span class="ident">MemoryCacheSuggester::new_boxed</span>(<span class="ident">memory_config</span>, <span class="ident">inner</span>)
         }
 
         <span class="ident">SuggestionProviderConfig::RedisCache</span>(<span class="ident">redis_config</span>) <span class="op">=</span><span class="op">&gt;</span> {
-            <span class="kw">let</span> <span class="ident">inner</span> <span class="op">=</span> <span class="ident">make_provider_tree</span>(<span class="ident">settings</span>, <span class="ident">redis_config</span>.<span class="ident">inner</span>.<span class="ident">as_ref</span>()).<span class="kw">await</span><span class="question-mark">?</span>;
+            <span class="kw">let</span> <span class="ident">inner</span> <span class="op">=</span>
+                <span class="ident">make_provider_tree</span>(<span class="ident">settings</span>, <span class="ident">redis_config</span>.<span class="ident">inner</span>.<span class="ident">as_ref</span>(), <span class="ident">metrics_client</span>).<span class="kw">await</span><span class="question-mark">?</span>;
             <span class="ident">RedisCacheSuggester::new_boxed</span>(<span class="ident">settings</span>, <span class="ident">redis_config</span>, <span class="ident">inner</span>).<span class="kw">await</span><span class="question-mark">?</span>
         }
 
         <span class="ident">SuggestionProviderConfig::Multiplexer</span>(<span class="ident">multi_config</span>) <span class="op">=</span><span class="op">&gt;</span> {
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">providers</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
             <span class="kw">for</span> <span class="ident">config</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">multi_config</span>.<span class="ident">providers</span> {
-                <span class="ident">providers</span>.<span class="ident">push</span>(<span class="ident">make_provider_tree</span>(<span class="ident">settings</span>, <span class="ident">config</span>).<span class="kw">await</span><span class="question-mark">?</span>);
+                <span class="ident">providers</span>.<span class="ident">push</span>(<span class="ident">make_provider_tree</span>(<span class="ident">settings</span>, <span class="ident">config</span>, <span class="ident">metrics_client</span>).<span class="kw">await</span><span class="question-mark">?</span>);
             }
             <span class="ident">Multi::new_boxed</span>(<span class="ident">providers</span>)
         }
 
         <span class="ident">SuggestionProviderConfig::Timeout</span>(<span class="ident">timeout_config</span>) <span class="op">=</span><span class="op">&gt;</span> {
-            <span class="kw">let</span> <span class="ident">inner</span> <span class="op">=</span> <span class="ident">make_provider_tree</span>(<span class="ident">settings</span>, <span class="ident">timeout_config</span>.<span class="ident">inner</span>.<span class="ident">as_ref</span>()).<span class="kw">await</span><span class="question-mark">?</span>;
+            <span class="kw">let</span> <span class="ident">inner</span> <span class="op">=</span>
+                <span class="ident">make_provider_tree</span>(<span class="ident">settings</span>, <span class="ident">timeout_config</span>.<span class="ident">inner</span>.<span class="ident">as_ref</span>(), <span class="ident">metrics_client</span>).<span class="kw">await</span><span class="question-mark">?</span>;
             <span class="ident">TimeoutProvider::new_boxed</span>(<span class="ident">timeout_config</span>, <span class="ident">inner</span>)
         }
 
         <span class="ident">SuggestionProviderConfig::Fixed</span>(<span class="ident">fixed_config</span>) <span class="op">=</span><span class="op">&gt;</span> {
             <span class="ident">FixedProvider::new_boxed</span>(<span class="ident">settings</span>, <span class="ident">fixed_config</span>)<span class="question-mark">?</span>
         }
+
+        <span class="ident">SuggestionProviderConfig::KeywordFilter</span>(<span class="ident">filter_config</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="kw">let</span> <span class="ident">inner</span> <span class="op">=</span>
+                <span class="ident">make_provider_tree</span>(<span class="ident">settings</span>, <span class="ident">filter_config</span>.<span class="ident">inner</span>.<span class="ident">as_ref</span>(), <span class="ident">metrics_client</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+            <span class="ident">KeywordFilterProvider::new_boxed</span>(
+                <span class="ident">filter_config</span>.<span class="ident">suggestion_blocklist</span>.<span class="ident">clone</span>(),
+                <span class="ident">inner</span>,
+                <span class="ident">metrics_client</span>,
+            )<span class="question-mark">?</span>
+        }
+
         <span class="ident">SuggestionProviderConfig::Debug</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">DebugProvider::new_boxed</span>(<span class="ident">settings</span>)<span class="question-mark">?</span>,
         <span class="ident">SuggestionProviderConfig::WikiFruit</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">WikiFruit::new_boxed</span>(<span class="ident">settings</span>)<span class="question-mark">?</span>,
         <span class="ident">SuggestionProviderConfig::Null</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Box::new</span>(<span class="ident">NullProvider</span>),
@@ -236,6 +285,7 @@
 <span class="kw">mod</span> <span class="ident">tests</span> {
     <span class="kw">use</span> <span class="kw">super</span><span class="ident">::make_provider_tree</span>;
     <span class="kw">use</span> <span class="ident">anyhow::Result</span>;
+    <span class="kw">use</span> <span class="ident">cadence</span>::{<span class="ident">SpyMetricSink</span>, <span class="ident">StatsdClient</span>};
     <span class="kw">use</span> <span class="ident">merino_settings</span>::{
         <span class="ident">providers</span>::{
             <span class="ident">MemoryCacheConfig</span>, <span class="ident">MultiplexerConfig</span>, <span class="ident">RedisCacheConfig</span>, <span class="ident">SuggestionProviderConfig</span>,
@@ -247,7 +297,8 @@
     <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">test_providers_single</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">settings</span> <span class="op">=</span> <span class="ident">Settings::load_for_tests</span>();
         <span class="kw">let</span> <span class="ident">config</span> <span class="op">=</span> <span class="ident">SuggestionProviderConfig::Null</span>;
-        <span class="kw">let</span> <span class="ident">provider_tree</span> <span class="op">=</span> <span class="ident">make_provider_tree</span>(<span class="kw-2">&amp;</span><span class="ident">settings</span>, <span class="kw-2">&amp;</span><span class="ident">config</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="kw">let</span> <span class="ident">metrics_client</span> <span class="op">=</span> <span class="ident">StatsdClient::from_sink</span>(<span class="string">&quot;merino-test&quot;</span>, <span class="ident">SpyMetricSink::new</span>().<span class="number">1</span>);
+        <span class="kw">let</span> <span class="ident">provider_tree</span> <span class="op">=</span> <span class="ident">make_provider_tree</span>(<span class="kw-2">&amp;</span><span class="ident">settings</span>, <span class="kw-2">&amp;</span><span class="ident">config</span>, <span class="kw-2">&amp;</span><span class="ident">metrics_client</span>).<span class="kw">await</span><span class="question-mark">?</span>;
         <span class="macro">assert_eq!</span>(<span class="ident">provider_tree</span>.<span class="ident">name</span>(), <span class="string">&quot;NullProvider&quot;</span>);
         <span class="prelude-val">Ok</span>(())
     }
@@ -271,7 +322,8 @@
             ],
         });
 
-        <span class="kw">let</span> <span class="ident">provider_tree</span> <span class="op">=</span> <span class="ident">make_provider_tree</span>(<span class="kw-2">&amp;</span><span class="ident">settings</span>, <span class="kw-2">&amp;</span><span class="ident">config</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="kw">let</span> <span class="ident">metrics_client</span> <span class="op">=</span> <span class="ident">StatsdClient::from_sink</span>(<span class="string">&quot;merino-test&quot;</span>, <span class="ident">SpyMetricSink::new</span>().<span class="number">1</span>);
+        <span class="kw">let</span> <span class="ident">provider_tree</span> <span class="op">=</span> <span class="ident">make_provider_tree</span>(<span class="kw-2">&amp;</span><span class="ident">settings</span>, <span class="kw-2">&amp;</span><span class="ident">config</span>, <span class="kw-2">&amp;</span><span class="ident">metrics_client</span>).<span class="kw">await</span><span class="question-mark">?</span>;
         <span class="macro">assert_eq!</span>(
             <span class="ident">provider_tree</span>.<span class="ident">name</span>(),
             <span class="string">&quot;Multi(NullProvider, RedisCache(MemoryCache(WikiFruit)), NullProvider)&quot;</span>

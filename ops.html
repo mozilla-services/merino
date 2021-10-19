@@ -323,6 +323,17 @@ suggestions from.</li>
 <li><code>type=multiplexer</code></li>
 <li><code>providers</code> - A list of other provider configs to draw suggestions from.</li>
 </ul>
+<p><em>Example</em>:</p>
+<pre><code class="language-yaml">suggestion_providers:
+  sample_multi:
+    type: multiplexer
+    providers:
+      - fixed:
+        type: fixed
+        value: I'm a banana
+      - debug:
+        type: debug
+</code></pre>
 </li>
 <li>
 <p>Timeout - Returns an empty response if the wrapped provider takes too long to
@@ -331,6 +342,29 @@ respond.</p>
 <li><code>type=timeout</code></li>
 <li><code>inner</code> - Another provider configuration to generate suggestions with.</li>
 </ul>
+</li>
+<li>
+<p>KeywordFilter - Filter the suggestions coming from the wrapped provider with the given blocklist.</p>
+<ul>
+<li><code>type=keyword_filter</code></li>
+<li><code>suggestion_blocklist</code> - The map used to define the blocklist rules. Each entry contains a rule id and an associated regular expression that reccommended titles are matched against.</li>
+<li><code>inner</code> - The wrapped provider to draw suggestions from.</li>
+</ul>
+<p><em>Example</em>:</p>
+<pre><code class="language-yaml">suggestion_providers:
+  filtered:
+    type: keyword_filter
+    suggestion_blocklist:
+      no_banana: '(Banana|banana|plant)'
+    inner:
+      type: multiplexer
+      providers:
+        - fixed:
+          type: fixed
+          value: I'm a banana
+        - debug:
+          type: debug
+</code></pre>
 </li>
 </ul>
 <h4 id="caches"><a class="header" href="#caches">Caches</a></h4>
