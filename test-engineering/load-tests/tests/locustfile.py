@@ -4,10 +4,11 @@
 
 import os
 from pathlib import Path
-from random import choice
-from typing import Any, Dict, Tuple, List
+from random import choice, randint
+from typing import Any, Dict, List, Tuple
 
 from client_info import DESKTOP_FIREFOX, LOCALES
+from faker import Faker
 from locust import HttpUser, task
 from locust.clients import HttpSession
 from models import ResponseContent
@@ -22,13 +23,6 @@ CLIENT_VARIANTS: str = ""
 
 # Optional. A comma-separated list of providers to use for this request.
 PROVIDERS: str = ""
-
-
-def request_suggestions_for_word(client: HttpSession, word: str) -> None:
-    """Request suggestions for slices of the given word."""
-
-    for query in [word[: i + 1] for i in range(len(word))]:
-        request_suggestions(client, query)
 
 
 def request_suggestions(client: HttpSession, query: str) -> None:
@@ -72,6 +66,10 @@ class MerinoUser(HttpUser):
         # This expects an InstantSuggest_Queries_*.json file from the source-data
         # dir in the quicksuggest-rs repo for the path in RS_QUERIES_FILE
         self.rs_query_groups = load_from_file(Path(os.environ["RS_QUERIES_FILE"]))
+
+        # Create a Faker instance for generating random suggest queries
+        self.faker = Faker(locale="en-US", providers=["faker.providers.lorem"])
+
         return super().on_start()
 
     @task(weight=10)
@@ -81,17 +79,24 @@ class MerinoUser(HttpUser):
         for query in choice(self.rs_query_groups):
             request_suggestions(self.client, query)
 
-    @task(weight=1)
-    def suggest_apple(self) -> None:
-        """Send multiple requests for the word apple."""
-        request_suggestions_for_word(self.client, "apple")
+    @task(weight=90)
+    def faker_suggestions(self) -> None:
+        """Send multiple requests for random queries."""
+
+        # This produces a query between 2 and 4 random words
+        full_query = " ".join(self.faker.words(nb=randint(2, 4)))
+
+        for query in [full_query[: i + 1] for i in range(len(full_query))]:
+            # Send multiple requests for the entire query, but skip spaces
+            if query.endswith(" "):
+                continue
+
+            request_suggestions(self.client, query)
 
     @task(weight=1)
-    def suggest_banana(self) -> None:
-        """Send multiple requests for the word banana."""
-        request_suggestions_for_word(self.client, "banana")
+    def wikifruit_suggestions(self) -> None:
+        """Send multiple requests for random WikiFruit queries."""
 
-    @task(weight=1)
-    def suggest_cherry(self) -> None:
-        """Send multiple requests for the word cherry."""
-        request_suggestions_for_word(self.client, "cherry")
+        # These queries are supported by the WikiFruit provider
+        for fruit in ("apple", "banana", "cherry"):
+            request_suggestions(self.client, fruit)
