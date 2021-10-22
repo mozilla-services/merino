@@ -2,13 +2,16 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+import os
+from pathlib import Path
 from random import choice
-from typing import Any, Dict
+from typing import Any, Dict, Tuple, List
 
 from client_info import DESKTOP_FIREFOX, LOCALES
 from locust import HttpUser, task
 from locust.clients import HttpSession
 from models import ResponseContent
+from rs_queries import load_from_file
 
 # See https://mozilla-services.github.io/merino/api.html#suggest
 SUGGEST_API: str = "/api/v1/suggest"
@@ -62,6 +65,21 @@ def request_suggestions(client: HttpSession, query: str) -> None:
 
 class MerinoUser(HttpUser):
     """User that sends requests to the Merino API."""
+
+    rs_query_groups: List[Tuple[str, ...]]
+
+    def on_start(self):
+        # This expects an InstantSuggest_Queries_*.json file from the source-data
+        # dir in the quicksuggest-rs repo for the path in RS_QUERIES_FILE
+        self.rs_query_groups = load_from_file(Path(os.environ["RS_QUERIES_FILE"]))
+        return super().on_start()
+
+    @task(weight=10)
+    def rs_suggestions(self) -> None:
+        """Send multiple requests for known RS queries."""
+
+        for query in choice(self.rs_query_groups):
+            request_suggestions(self.client, query)
 
     @task(weight=1)
     def suggest_apple(self) -> None:
