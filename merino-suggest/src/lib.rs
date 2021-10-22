@@ -6,7 +6,7 @@ pub mod device_info;
 mod domain;
 mod providers;
 
-use std::fmt::Debug;
+use std::fmt::{self, Debug};
 use std::hash::Hash;
 use std::ops::Range;
 use std::time::Duration;
@@ -61,6 +61,48 @@ pub struct SuggestionRequest {
     /// The user agent of the request, including OS family, device form factor, and major Firefox
     /// version number.
     pub device_info: DeviceInfo,
+}
+
+/// A structure used to safely log the wrapped `SuggestionRequest`
+/// omitting the search query.
+pub struct DebugSuggestionRequest<'a> {
+    /// Whether or not to log the search query.
+    log_query: bool,
+
+    /// The wrapped `SuggestionRequest`.
+    wrapped_suggestion: &'a SuggestionRequest,
+}
+
+impl Debug for DebugSuggestionRequest<'_> {
+    fn fmt(&self, fmt: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let empty_string = String::new();
+        fmt.debug_struct("SuggestionRequest")
+            .field("accepts_english", &self.wrapped_suggestion.accepts_english)
+            .field("city", &self.wrapped_suggestion.city)
+            .field("country", &self.wrapped_suggestion.country)
+            .field("device_info", &self.wrapped_suggestion.device_info)
+            .field("dma", &self.wrapped_suggestion.dma)
+            .field(
+                "query",
+                if self.log_query {
+                    &self.wrapped_suggestion.query
+                } else {
+                    &empty_string
+                },
+            )
+            .field("region", &self.wrapped_suggestion.region)
+            .finish()
+    }
+}
+
+impl SuggestionRequest {
+    /// Return an obect that knows how to debug-print a `SuggestionRequest`.
+    pub fn safe_debug(&self, log_query: bool) -> DebugSuggestionRequest<'_> {
+        DebugSuggestionRequest {
+            log_query,
+            wrapped_suggestion: self,
+        }
+    }
 }
 
 impl<'a, F> fake::Dummy<F> for SuggestionRequest {

@@ -26,7 +26,10 @@ pub fn configure(config: &mut ServiceConfig) {
 
 /// Suggest content in response to the queried text.
 #[get("")]
-#[tracing::instrument(skip(metrics_client, suggestion_request, provider, settings))]
+#[tracing::instrument(
+    skip(metrics_client, suggestion_request, provider, request, settings),
+    fields(suggestion_request)
+)]
 async fn suggest(
     SuggestionRequestWrapper(suggestion_request): SuggestionRequestWrapper,
     provider: Data<SuggestionProviderRef>,
@@ -35,6 +38,11 @@ async fn suggest(
     query_parameters: web::Query<SuggestQueryParameters>,
     request: HttpRequest,
 ) -> Result<HttpResponse, HandlerError> {
+    tracing::Span::current().record(
+        "suggestion_request",
+        &tracing::field::debug(&suggestion_request.safe_debug(settings.log_full_request)),
+    );
+
     let provider = provider
         .get_or_try_init(settings.as_ref(), metrics_client.as_ref())
         .await
