@@ -5,6 +5,7 @@ mod fixed;
 mod id_multi;
 mod keyword_filter;
 mod multi;
+mod stealth;
 mod timeout;
 mod wikifruit;
 
@@ -13,5 +14,6 @@ pub use self::fixed::FixedProvider;
 pub use self::id_multi::{IdMulti, ProviderDetails as IdMultiProviderDetails};
 pub use self::keyword_filter::KeywordFilterProvider;
 pub use self::multi::Multi;
+pub use self::stealth::StealthProvider;
 pub use self::timeout::TimeoutProvider;
 pub use self::wikifruit::WikiFruit;

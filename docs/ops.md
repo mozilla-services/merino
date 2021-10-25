@@ -167,7 +167,7 @@ settings.
 
 These are production providers that generate suggestions.
 
-- _Remote Settings_ Provides suggestions from a RS collection, such as the
+- Remote Settings - Provides suggestions from a RS collection, such as the
   suggestions provided by adM. See also the top level configuration for Remote
   Settings, below.
   - `type=remote_settings`
@@ -226,6 +226,12 @@ These are providers that extend, combine, or otherwise modify other providers.
           - debug:
             type: debug
   ```
+
+- Stealth - Runs another provider, but hides the results. Useful for load
+  testing of new behavior.
+
+  - `type=stealth`
+  - `inner` - Another provider configuration to run.
 
 #### Caches
 

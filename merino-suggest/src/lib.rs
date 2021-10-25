@@ -28,7 +28,7 @@ use thiserror::Error;
 pub use crate::domain::Proportion;
 pub use crate::providers::{
     DebugProvider, FixedProvider, IdMulti, IdMultiProviderDetails, KeywordFilterProvider, Multi,
-    TimeoutProvider, WikiFruit,
+    StealthProvider, TimeoutProvider, WikiFruit,
 };
 
 /// The range of major Firefox version numbers to use for testing.

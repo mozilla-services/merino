@@ -8,7 +8,7 @@ use merino_cache::{MemoryCacheSuggester, RedisCacheSuggester};
 use merino_settings::{providers::SuggestionProviderConfig, Settings};
 use merino_suggest::{
     DebugProvider, FixedProvider, IdMulti, KeywordFilterProvider, Multi, NullProvider,
-    SuggestionProvider, TimeoutProvider, WikiFruit,
+    StealthProvider, SuggestionProvider, TimeoutProvider, WikiFruit,
 };
 use tokio::sync::OnceCell;
 use tracing_futures::Instrument;
@@ -105,6 +105,12 @@ async fn make_provider_tree(
                 inner,
                 metrics_client,
             )?
+        }
+
+        SuggestionProviderConfig::Stealth(filter_config) => {
+            let inner =
+                make_provider_tree(settings, filter_config.inner.as_ref(), metrics_client).await?;
+            StealthProvider::new_boxed(inner)
         }
 
         SuggestionProviderConfig::Debug => DebugProvider::new_boxed(settings)?,
