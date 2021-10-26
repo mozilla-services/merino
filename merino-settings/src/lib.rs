@@ -84,6 +84,12 @@ pub struct Settings {
 
     /// Settings to use when determining the location associated with requests.
     pub location: LocationSettings,
+
+    /// If on, log the entire suggestion request object as a part of the
+    /// tracing log, including the search query. When the setting is
+    /// off, the suggest request object should be logged, but the
+    /// search query should be blank.
+    pub log_full_request: bool,
 }
 
 /// Settings for the HTTP server.

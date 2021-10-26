@@ -41,6 +41,8 @@ The names given below are of the form "`yaml.path` (`ENVIRONMENT_VAR`)"
   root of the server, they will be redirected to this URL. Preferable a public
   wiki page that explains what the server is and does.
 
+- `log_full_request` (`MERINO_LOG_FULL_REQUEST`) - Boolean that enables logging the entire suggestion request object as a part of the tracing log, including the search query. When the setting is false (default), the suggest request object should be logged, but the search query should be blank. Note that access to the collected query logs is restricted.
+
 ### HTTP
 
 Settings for the HTTP server.
