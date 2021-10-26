@@ -441,29 +441,14 @@
 <span id="441">441</span>
 <span id="442">442</span>
 <span id="443">443</span>
-<span id="444">444</span>
-<span id="445">445</span>
-<span id="446">446</span>
-<span id="447">447</span>
-<span id="448">448</span>
-<span id="449">449</span>
-<span id="450">450</span>
-<span id="451">451</span>
-<span id="452">452</span>
 </pre><pre class="rust">
 <span class="attribute">#![<span class="ident">warn</span>(<span class="ident">missing_docs</span>, <span class="ident">clippy::missing_docs_in_private_items</span>)]</span>
 
 <span class="doccomment">//! Suggestion backends for [Merino](../merino/index.html).</span>
-
-<span class="kw">mod</span> <span class="ident">debug</span>;
+<span class="doccomment">//!</span>
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">device_info</span>;
 <span class="kw">mod</span> <span class="ident">domain</span>;
-<span class="kw">mod</span> <span class="ident">fixed</span>;
-<span class="kw">mod</span> <span class="ident">id_multi</span>;
-<span class="kw">mod</span> <span class="ident">keyword_filter</span>;
-<span class="kw">mod</span> <span class="ident">multi</span>;
-<span class="kw">mod</span> <span class="ident">timeout</span>;
-<span class="kw">mod</span> <span class="ident">wikifruit</span>;
+<span class="kw">mod</span> <span class="ident">providers</span>;
 
 <span class="kw">use</span> <span class="ident">std::fmt::Debug</span>;
 <span class="kw">use</span> <span class="ident">std::hash::Hash</span>;
@@ -484,14 +469,11 @@
 <span class="kw">use</span> <span class="ident">serde_with</span>::{<span class="ident">serde_as</span>, <span class="ident">DisplayFromStr</span>};
 <span class="kw">use</span> <span class="ident">thiserror::Error</span>;
 
-<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::debug::DebugProvider</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::domain::Proportion</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::fixed::FixedProvider</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::id_multi</span>::{<span class="ident">IdMulti</span>, <span class="ident">ProviderDetails</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::keyword_filter::KeywordFilterProvider</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::multi::Multi</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::timeout::TimeoutProvider</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::wikifruit::WikiFruit</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::providers</span>::{
+    <span class="ident">DebugProvider</span>, <span class="ident">FixedProvider</span>, <span class="ident">IdMulti</span>, <span class="ident">IdMultiProviderDetails</span>, <span class="ident">KeywordFilterProvider</span>, <span class="ident">Multi</span>,
+    <span class="ident">StealthProvider</span>, <span class="ident">TimeoutProvider</span>, <span class="ident">WikiFruit</span>,
+};
 
 <span class="doccomment">/// The range of major Firefox version numbers to use for testing.</span>
 <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">FIREFOX_TEST_VERSIONS</span>: <span class="ident">Range</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span> <span class="op">=</span> <span class="number">70</span>..<span class="number">95</span>;

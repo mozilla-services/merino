@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["StealthProvider","A provider that runs `inner`, but doesn’t return any results."]]});

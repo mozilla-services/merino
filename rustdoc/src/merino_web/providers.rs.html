@@ -164,6 +164,12 @@
 <span id="164">164</span>
 <span id="165">165</span>
 <span id="166">166</span>
+<span id="167">167</span>
+<span id="168">168</span>
+<span id="169">169</span>
+<span id="170">170</span>
+<span id="171">171</span>
+<span id="172">172</span>
 </pre><pre class="rust">
 <span class="doccomment">//! Tools to manager providers.</span>
 
@@ -175,7 +181,7 @@
 <span class="kw">use</span> <span class="ident">merino_settings</span>::{<span class="ident">providers::SuggestionProviderConfig</span>, <span class="ident">Settings</span>};
 <span class="kw">use</span> <span class="ident">merino_suggest</span>::{
     <span class="ident">DebugProvider</span>, <span class="ident">FixedProvider</span>, <span class="ident">IdMulti</span>, <span class="ident">KeywordFilterProvider</span>, <span class="ident">Multi</span>, <span class="ident">NullProvider</span>,
-    <span class="ident">SuggestionProvider</span>, <span class="ident">TimeoutProvider</span>, <span class="ident">WikiFruit</span>,
+    <span class="ident">StealthProvider</span>, <span class="ident">SuggestionProvider</span>, <span class="ident">TimeoutProvider</span>, <span class="ident">WikiFruit</span>,
 };
 <span class="kw">use</span> <span class="ident">tokio::sync::OnceCell</span>;
 <span class="kw">use</span> <span class="ident">tracing_futures::Instrument</span>;
@@ -272,6 +278,12 @@
                 <span class="ident">inner</span>,
                 <span class="ident">metrics_client</span>,
             )<span class="question-mark">?</span>
+        }
+
+        <span class="ident">SuggestionProviderConfig::Stealth</span>(<span class="ident">filter_config</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="kw">let</span> <span class="ident">inner</span> <span class="op">=</span>
+                <span class="ident">make_provider_tree</span>(<span class="ident">settings</span>, <span class="ident">filter_config</span>.<span class="ident">inner</span>.<span class="ident">as_ref</span>(), <span class="ident">metrics_client</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+            <span class="ident">StealthProvider::new_boxed</span>(<span class="ident">inner</span>)
         }
 
         <span class="ident">SuggestionProviderConfig::Debug</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">DebugProvider::new_boxed</span>(<span class="ident">settings</span>)<span class="question-mark">?</span>,
