@@ -1,16 +1,10 @@
 #![warn(missing_docs, clippy::missing_docs_in_private_items)]
 
 //! Suggestion backends for [Merino](../merino/index.html).
-
-mod debug;
+//!
 pub mod device_info;
 mod domain;
-mod fixed;
-mod id_multi;
-mod keyword_filter;
-mod multi;
-mod timeout;
-mod wikifruit;
+mod providers;
 
 use std::fmt::Debug;
 use std::hash::Hash;
@@ -31,14 +25,11 @@ use serde::{Deserialize, Serialize};
 use serde_with::{serde_as, DisplayFromStr};
 use thiserror::Error;
 
-pub use crate::debug::DebugProvider;
 pub use crate::domain::Proportion;
-pub use crate::fixed::FixedProvider;
-pub use crate::id_multi::{IdMulti, ProviderDetails};
-pub use crate::keyword_filter::KeywordFilterProvider;
-pub use crate::multi::Multi;
-pub use crate::timeout::TimeoutProvider;
-pub use crate::wikifruit::WikiFruit;
+pub use crate::providers::{
+    DebugProvider, FixedProvider, IdMulti, IdMultiProviderDetails, KeywordFilterProvider, Multi,
+    StealthProvider, TimeoutProvider, WikiFruit,
+};
 
 /// The range of major Firefox version numbers to use for testing.
 pub const FIREFOX_TEST_VERSIONS: Range<u32> = 70..95;

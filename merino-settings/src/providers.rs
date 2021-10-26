@@ -14,6 +14,7 @@ pub enum SuggestionProviderConfig {
     Timeout(TimeoutConfig),
     Fixed(FixedConfig),
     KeywordFilter(KeywordFilterConfig),
+    Stealth(StealthConfig),
     Debug,
     WikiFruit,
     Null,
@@ -193,6 +194,21 @@ impl Default for KeywordFilterConfig {
     }
 }
 
+#[derive(Clone, Debug, Serialize, Deserialize)]
+#[serde(default)]
+pub struct StealthConfig {
+    /// The provider to run but not return data from.
+    pub inner: Box<SuggestionProviderConfig>,
+}
+
+impl Default for StealthConfig {
+    fn default() -> Self {
+        Self {
+            inner: Box::new(SuggestionProviderConfig::Null),
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use crate::{providers::SuggestionProviderConfig, Settings};
@@ -220,6 +236,7 @@ mod tests {
             "timeout": { "type": "timeout" },
             "fixed": { "type": "fixed", "value": "test suggestion" },
             "keyword_filter": { "type": "keyword_filter" },
+            "stealth": { "type": "stealth" },
         });
 
         let value_config: Value = serde_json::from_value(value_json.clone())?;
@@ -245,6 +262,7 @@ mod tests {
                     | SuggestionProviderConfig::Multiplexer(_)
                     | SuggestionProviderConfig::Timeout(_)
                     | SuggestionProviderConfig::KeywordFilter(_)
+                    | SuggestionProviderConfig::Stealth(_)
                     | SuggestionProviderConfig::Debug
                     | SuggestionProviderConfig::WikiFruit
                     | SuggestionProviderConfig::Fixed(_)
@@ -254,7 +272,7 @@ mod tests {
             );
         }
         // Likewise, if this number needs to change, make sure to update the rest of the test.
-        assert_eq!(found_providers, 10);
+        assert_eq!(found_providers, 11);
 
         Ok(())
     }
