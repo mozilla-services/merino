@@ -441,6 +441,48 @@
 <span id="441">441</span>
 <span id="442">442</span>
 <span id="443">443</span>
+<span id="444">444</span>
+<span id="445">445</span>
+<span id="446">446</span>
+<span id="447">447</span>
+<span id="448">448</span>
+<span id="449">449</span>
+<span id="450">450</span>
+<span id="451">451</span>
+<span id="452">452</span>
+<span id="453">453</span>
+<span id="454">454</span>
+<span id="455">455</span>
+<span id="456">456</span>
+<span id="457">457</span>
+<span id="458">458</span>
+<span id="459">459</span>
+<span id="460">460</span>
+<span id="461">461</span>
+<span id="462">462</span>
+<span id="463">463</span>
+<span id="464">464</span>
+<span id="465">465</span>
+<span id="466">466</span>
+<span id="467">467</span>
+<span id="468">468</span>
+<span id="469">469</span>
+<span id="470">470</span>
+<span id="471">471</span>
+<span id="472">472</span>
+<span id="473">473</span>
+<span id="474">474</span>
+<span id="475">475</span>
+<span id="476">476</span>
+<span id="477">477</span>
+<span id="478">478</span>
+<span id="479">479</span>
+<span id="480">480</span>
+<span id="481">481</span>
+<span id="482">482</span>
+<span id="483">483</span>
+<span id="484">484</span>
+<span id="485">485</span>
 </pre><pre class="rust">
 <span class="attribute">#![<span class="ident">warn</span>(<span class="ident">missing_docs</span>, <span class="ident">clippy::missing_docs_in_private_items</span>)]</span>
 
@@ -450,7 +492,7 @@
 <span class="kw">mod</span> <span class="ident">domain</span>;
 <span class="kw">mod</span> <span class="ident">providers</span>;
 
-<span class="kw">use</span> <span class="ident">std::fmt::Debug</span>;
+<span class="kw">use</span> <span class="ident">std::fmt</span>::{<span class="self">self</span>, <span class="ident">Debug</span>};
 <span class="kw">use</span> <span class="ident">std::hash::Hash</span>;
 <span class="kw">use</span> <span class="ident">std::ops::Range</span>;
 <span class="kw">use</span> <span class="ident">std::time::Duration</span>;
@@ -505,6 +547,48 @@
     <span class="doccomment">/// The user agent of the request, including OS family, device form factor, and major Firefox</span>
     <span class="doccomment">/// version number.</span>
     <span class="kw">pub</span> <span class="ident">device_info</span>: <span class="ident">DeviceInfo</span>,
+}
+
+<span class="doccomment">/// A structure used to safely log the wrapped `SuggestionRequest`</span>
+<span class="doccomment">/// omitting the search query.</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">DebugSuggestionRequest</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+    <span class="doccomment">/// Whether or not to log the search query.</span>
+    <span class="ident">log_query</span>: <span class="ident">bool</span>,
+
+    <span class="doccomment">/// The wrapped `SuggestionRequest`.</span>
+    <span class="ident">wrapped_suggestion</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">SuggestionRequest</span>,
+}
+
+<span class="kw">impl</span> <span class="ident">Debug</span> <span class="kw">for</span> <span class="ident">DebugSuggestionRequest</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
+        <span class="kw">let</span> <span class="ident">empty_string</span> <span class="op">=</span> <span class="ident">String::new</span>();
+        <span class="ident">fmt</span>.<span class="ident">debug_struct</span>(<span class="string">&quot;SuggestionRequest&quot;</span>)
+            .<span class="ident">field</span>(<span class="string">&quot;accepts_english&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">wrapped_suggestion</span>.<span class="ident">accepts_english</span>)
+            .<span class="ident">field</span>(<span class="string">&quot;city&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">wrapped_suggestion</span>.<span class="ident">city</span>)
+            .<span class="ident">field</span>(<span class="string">&quot;country&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">wrapped_suggestion</span>.<span class="ident">country</span>)
+            .<span class="ident">field</span>(<span class="string">&quot;device_info&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">wrapped_suggestion</span>.<span class="ident">device_info</span>)
+            .<span class="ident">field</span>(<span class="string">&quot;dma&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">wrapped_suggestion</span>.<span class="ident">dma</span>)
+            .<span class="ident">field</span>(
+                <span class="string">&quot;query&quot;</span>,
+                <span class="kw">if</span> <span class="self">self</span>.<span class="ident">log_query</span> {
+                    <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">wrapped_suggestion</span>.<span class="ident">query</span>
+                } <span class="kw">else</span> {
+                    <span class="kw-2">&amp;</span><span class="ident">empty_string</span>
+                },
+            )
+            .<span class="ident">field</span>(<span class="string">&quot;region&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">wrapped_suggestion</span>.<span class="ident">region</span>)
+            .<span class="ident">finish</span>()
+    }
+}
+
+<span class="kw">impl</span> <span class="ident">SuggestionRequest</span> {
+    <span class="doccomment">/// Return an obect that knows how to debug-print a `SuggestionRequest`.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">safe_debug</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">log_query</span>: <span class="ident">bool</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">DebugSuggestionRequest</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span> {
+        <span class="ident">DebugSuggestionRequest</span> {
+            <span class="ident">log_query</span>,
+            <span class="ident">wrapped_suggestion</span>: <span class="self">self</span>,
+        }
+    }
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">F</span><span class="op">&gt;</span> <span class="ident">fake::Dummy</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">SuggestionRequest</span> {
