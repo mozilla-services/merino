@@ -18,6 +18,7 @@ use actix_web::{
 use actix_web_location::{providers::FallbackProvider, Location};
 use anyhow::Context;
 use cadence::StatsdClient;
+use errors::HandlerError;
 use merino_settings::Settings;
 use std::net::TcpListener;
 use tracing_actix_web_mozlog::MozLog;
@@ -110,12 +111,23 @@ pub fn run(
     });
 
     let mut server = HttpServer::new(move || {
+        let suggest_providers = SuggestionProviderRef::new();
+        futures::executor::block_on(async {
+            suggest_providers
+                .init(&settings, &metrics_client.clone())
+                .await
+                .map_err(|e| {
+                    tracing::error!(%e, "Could not initialize the suggest providers");
+                    HandlerError::internal();
+                })
+                .expect("Could not initialize the suggest providers. Please check logging.");
+        });
         App::new()
             // App state
             .app_data(Data::new((&settings).clone()))
             .app_data(location_config.clone())
             .app_data(Data::new(metrics_client.clone()))
-            .app_data(Data::new(SuggestionProviderRef::new()))
+            .app_data(Data::new(suggest_providers))
             // Middlewares
             .wrap(moz_log.clone())
             .wrap(middleware::Metrics)

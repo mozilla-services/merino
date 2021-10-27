@@ -22,6 +22,30 @@ impl SuggestionProviderRef {
         Self(OnceCell::new())
     }
 
+    /// initialize the suggestion providers
+    pub async fn init(
+        &self,
+        settings: &Settings,
+        metrics_client: &StatsdClient,
+    ) -> Result<IdMulti> {
+        tracing::info!(
+            r#type = "web.configuring-suggesters",
+            "Setting up suggestion providers"
+        );
+
+        let mut multi = merino_suggest::IdMulti::default();
+        // let mut providers: Vec<Box<dyn SuggestionProvider>> =
+        //     Vec::with_capacity(settings.suggestion_providers.len());
+        for (name, config) in &settings.suggestion_providers {
+            multi.add_provider(
+                name,
+                make_provider_tree(settings, config, metrics_client).await?,
+            );
+        }
+
+        Ok(multi)
+    }
+
     /// Get the provider, or create a new one if it doesn't exist.
     pub async fn get_or_try_init(
         &self,
@@ -31,25 +55,7 @@ impl SuggestionProviderRef {
         let setup_span = tracing::info_span!("suggestion_provider_setup");
         self.0
             .get_or_try_init(|| {
-                async {
-                    tracing::info!(
-                        r#type = "web.configuring-suggesters",
-                        "Setting up suggestion providers"
-                    );
-
-                    let mut multi = merino_suggest::IdMulti::default();
-                    // let mut providers: Vec<Box<dyn SuggestionProvider>> =
-                    //     Vec::with_capacity(settings.suggestion_providers.len());
-                    for (name, config) in &settings.suggestion_providers {
-                        multi.add_provider(
-                            name,
-                            make_provider_tree(settings, config, metrics_client).await?,
-                        );
-                    }
-
-                    Ok(multi)
-                }
-                .instrument(setup_span)
+                async { self.init(settings, metrics_client).await }.instrument(setup_span)
             })
             .await
     }
