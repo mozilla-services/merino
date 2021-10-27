@@ -88,6 +88,7 @@ impl RemoteSettingsClient {
             let records_res = self
                 .reqwest_client
                 .get(url.clone())
+                .timeout(std::time::Duration::from_secs(3))
                 .send()
                 .await
                 .and_then(Response::error_for_status)

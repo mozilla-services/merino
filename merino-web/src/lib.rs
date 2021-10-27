@@ -6,7 +6,7 @@ mod endpoints;
 mod errors;
 mod extractors;
 mod middleware;
-mod providers;
+pub mod providers;
 
 use actix_cors::Cors;
 use actix_web::{
@@ -86,6 +86,7 @@ pub fn run(
     listener: TcpListener,
     metrics_client: StatsdClient,
     settings: Settings,
+    providers: SuggestionProviderRef,
 ) -> Result<Server, anyhow::Error> {
     let num_workers = settings.http.workers;
 
@@ -115,7 +116,7 @@ pub fn run(
             .app_data(Data::new((&settings).clone()))
             .app_data(location_config.clone())
             .app_data(Data::new(metrics_client.clone()))
-            .app_data(Data::new(SuggestionProviderRef::new()))
+            .app_data(Data::new(providers.clone()))
             // Middlewares
             .wrap(moz_log.clone())
             .wrap(middleware::Metrics)

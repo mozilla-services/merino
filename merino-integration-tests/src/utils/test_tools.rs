@@ -114,8 +114,11 @@ where
     let address = listener.local_addr().unwrap().to_string();
     let redis_client =
         redis::Client::open(settings.redis.url.clone()).expect("Couldn't access redis server");
-    let server =
-        merino_web::run(listener, metrics_client, settings).expect("Failed to start server");
+    let providers = merino_web::providers::SuggestionProviderRef::init(&settings, &metrics_client)
+        .await
+        .expect("Could not create providers");
+    let server = merino_web::run(listener, metrics_client, settings, providers)
+        .expect("Failed to start server");
     let server_handle = tokio::spawn(server.with_current_subscriber());
     let test_client = TestReqwestClient::new(address);
 

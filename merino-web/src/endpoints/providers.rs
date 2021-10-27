@@ -8,8 +8,6 @@ use actix_web::{
     web::{self, Data},
     HttpResponse,
 };
-use cadence::StatsdClient;
-use merino_settings::Settings;
 use merino_suggest::ProviderDetails;
 use serde::Serialize;
 
@@ -22,21 +20,8 @@ pub fn configure(config: &mut web::ServiceConfig) {
 #[get("")]
 async fn list_providers(
     provider: Data<SuggestionProviderRef>,
-    settings: Data<Settings>,
-    metrics_client: Data<StatsdClient>,
 ) -> Result<HttpResponse, HandlerError> {
-    let provider = provider
-        .get_or_try_init(settings.as_ref(), metrics_client.as_ref())
-        .await
-        .map_err(|error| {
-            tracing::error!(
-                ?error,
-                r#type = "web.suggest.setup-error",
-                "suggester error"
-            );
-            HandlerError::internal()
-        })?;
-
+    let provider = provider.0.clone();
     let providers = provider
         .list_providers()
         .into_iter()

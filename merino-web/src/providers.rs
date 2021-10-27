@@ -1,5 +1,7 @@
 //! Tools to manager providers.
 
+use std::sync::Arc;
+
 use anyhow::Result;
 use async_recursion::async_recursion;
 use cadence::StatsdClient;
@@ -10,48 +12,30 @@ use merino_suggest::{
     DebugProvider, FixedProvider, IdMulti, KeywordFilterProvider, Multi, NullProvider,
     SuggestionProvider, TimeoutProvider, WikiFruit,
 };
-use tokio::sync::OnceCell;
-use tracing_futures::Instrument;
 
 /// The SuggestionProvider stored in Actix's app_data.
-pub struct SuggestionProviderRef(OnceCell<merino_suggest::IdMulti>);
+#[derive(Clone)]
+pub struct SuggestionProviderRef(pub Arc<IdMulti>);
 
 impl SuggestionProviderRef {
-    /// Make a new slot to hold providers. Does not initialize any providers.
-    pub fn new() -> Self {
-        Self(OnceCell::new())
-    }
+    /// initialize the suggestion providers
+    pub async fn init(settings: &Settings, metrics_client: &StatsdClient) -> Result<Self> {
+        let mut idm = merino_suggest::IdMulti::default();
 
-    /// Get the provider, or create a new one if it doesn't exist.
-    pub async fn get_or_try_init(
-        &self,
-        settings: &Settings,
-        metrics_client: &StatsdClient,
-    ) -> Result<&IdMulti> {
-        let setup_span = tracing::info_span!("suggestion_provider_setup");
-        self.0
-            .get_or_try_init(|| {
-                async {
-                    tracing::info!(
-                        r#type = "web.configuring-suggesters",
-                        "Setting up suggestion providers"
-                    );
+        let _setup_span = tracing::info_span!("suggestion_provider_setup");
+        tracing::info!(
+            r#type = "web.configuring-suggesters",
+            "Setting up suggestion providers"
+        );
 
-                    let mut multi = merino_suggest::IdMulti::default();
-                    // let mut providers: Vec<Box<dyn SuggestionProvider>> =
-                    //     Vec::with_capacity(settings.suggestion_providers.len());
-                    for (name, config) in &settings.suggestion_providers {
-                        multi.add_provider(
-                            name,
-                            make_provider_tree(settings, config, metrics_client).await?,
-                        );
-                    }
+        for (name, config) in &settings.suggestion_providers {
+            idm.add_provider(
+                name,
+                make_provider_tree(settings, config, metrics_client).await?,
+            );
+        }
 
-                    Ok(multi)
-                }
-                .instrument(setup_span)
-            })
-            .await
+        Ok(Self(Arc::new(idm)))
     }
 }
 
