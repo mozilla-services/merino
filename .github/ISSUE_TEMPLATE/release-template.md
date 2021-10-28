@@ -46,10 +46,17 @@ assignees: ""
 - [ ] Enter {version} for _Tag version_.
 - [ ] Copy/paste the changes from `CHANGELOG.md` into the release description
       omitting the top 2 lines (the name HTML and the version) of the file.
-- [ ] Wait for CircleCI to build and publish the Docker image.
-- [ ] Wait for Merino to be deployed to stage (It happens automatically).
+- [ ] Wait for the CircleCI job `docker-image-publish` to build and publish the
+      Docker image. [You can see all the main branch jobs here][circle-ci-main].
+- [ ] Wait for Merino to be deployed to stage (It happens automatically). You
+      can see version information for stage [at it's `/__version__`
+      endpoint][merino-stage-version]
 - [ ] Update the [release issue template][] with any needed changes.
 - [ ] Close this issue.
 
 [release issue template]:
   https://github.com/mozilla-services/merino/blob/main/.github/ISSUE_TEMPLATE/release-template.md
+[circle-ci-main]:
+  https://app.circleci.com/pipelines/github/mozilla-services/merino?branch=main
+[merino-stage-version]:
+  https://stage.merino.nonprod.cloudops.mozgcp.net/__version__
