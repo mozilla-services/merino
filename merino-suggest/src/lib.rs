@@ -291,6 +291,31 @@ pub trait SuggestionProvider: Send + Sync {
     fn is_null(&self) -> bool {
         false
     }
+
+    /// Generate a set of cache inputs for a given query specific to this
+    /// provider. Any property of the query that affects how suggestions are
+    /// generated should be included.
+    ///
+    /// By default, all properties of the query are used, but providers should
+    /// narrow this to a smaller scope.
+    fn cache_inputs(&self, req: &SuggestionRequest, hasher: &mut blake3::Hasher) {
+        hasher.update(req.query.as_bytes());
+        hasher.update(&[req.accepts_english as u8]);
+        hasher.update(format!("{:?}", req.country).as_bytes());
+        hasher.update(format!("{:?}", req.region).as_bytes());
+        hasher.update(format!("{:?}", req.dma).as_bytes());
+        hasher.update(format!("{:?}", req.city).as_bytes());
+        hasher.update(req.device_info.to_string().as_bytes());
+    }
+
+    /// Use `Self::cache_inputs` to generate a single cache key. This function
+    /// should not normally be overridden by provider implementations.
+    fn cache_key(&self, req: &SuggestionRequest) -> String {
+        let mut hasher = blake3::Hasher::new();
+        hasher.update(self.name().as_bytes());
+        self.cache_inputs(req, &mut hasher);
+        format!("provider:v1:{}", hasher.finalize())
+    }
 }
 
 /// A provider that never provides any suggestions
@@ -481,5 +506,59 @@ mod tests {
 
         // Includes fr-CH
         assert!(supported_languages.includes("fr", Some("ch")));
+    }
+
+    /// A test provider that only considers the request query for caching.
+    struct TestProvider;
+
+    #[async_trait]
+    impl SuggestionProvider for TestProvider {
+        fn name(&self) -> String {
+            "test".to_string()
+        }
+
+        async fn suggest(
+            &self,
+            _query: SuggestionRequest,
+        ) -> Result<SuggestionResponse, SuggestError> {
+            unimplemented!()
+        }
+
+        fn cache_inputs(&self, req: &SuggestionRequest, hasher: &mut blake3::Hasher) {
+            hasher.update(req.query.as_bytes());
+        }
+    }
+
+    #[test]
+    fn cache_key_only_considers_included_inputs() {
+        // 2x2 matrix: one axis is `query from {a, b}`, the other is `accepts_english from {false, true}`
+        let request1 = SuggestionRequest {
+            query: "a".to_string(),
+            accepts_english: true,
+            ..Faker.fake()
+        };
+        let request2 = SuggestionRequest {
+            query: "a".to_string(),
+            accepts_english: false,
+            ..request1.clone()
+        };
+        let request3 = SuggestionRequest {
+            query: "b".to_string(),
+            accepts_english: true,
+            ..request1.clone()
+        };
+        let request4 = SuggestionRequest {
+            query: "b".to_string(),
+            accepts_english: false,
+            ..request1.clone()
+        };
+
+        let provider = TestProvider;
+        // same `query` (a), different `accepts_english`.
+        assert_eq!(provider.cache_key(&request1), provider.cache_key(&request2));
+        // same `query` (b), different `accepts_english`.
+        assert_eq!(provider.cache_key(&request3), provider.cache_key(&request4));
+        // different query, same accepts_english
+        assert_ne!(provider.cache_key(&request1), provider.cache_key(&request3));
     }
 }

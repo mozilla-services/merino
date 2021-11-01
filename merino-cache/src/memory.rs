@@ -5,7 +5,6 @@
 //! tier maps from those hashes to the responses. In this way, duplicate
 //! responses can be stored only once, even if they are used for many requests.
 
-use crate::domain::CacheKey;
 use async_trait::async_trait;
 use deduped_dashmap::{ControlFlow, DedupedMap};
 use lazy_static::lazy_static;
@@ -181,7 +180,7 @@ impl SuggestionProvider for Suggester {
         query: SuggestionRequest,
     ) -> Result<SuggestionResponse, merino_suggest::SuggestError> {
         let now = Instant::now();
-        let key = query.cache_key().to_string();
+        let key = self.cache_key(&query);
         let span = tracing::debug_span!("memory-suggest", ?key);
         async move {
             tracing::debug!("suggesting with memory cache");
