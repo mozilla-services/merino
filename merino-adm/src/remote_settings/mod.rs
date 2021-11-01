@@ -204,6 +204,11 @@ impl SuggestionProvider for RemoteSettingsSuggester {
         "AdmRemoteSettings".into()
     }
 
+    fn cache_inputs(&self, req: &SuggestionRequest, hasher: &mut blake3::Hasher) {
+        hasher.update(&[req.accepts_english as u8]);
+        hasher.update(req.query.as_bytes());
+    }
+
     async fn suggest(
         &self,
         request: SuggestionRequest,

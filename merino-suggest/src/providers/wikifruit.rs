@@ -42,6 +42,10 @@ impl SuggestionProvider for WikiFruit {
         "WikiFruit".to_string()
     }
 
+    fn cache_inputs(&self, req: &SuggestionRequest, hasher: &mut blake3::Hasher) {
+        hasher.update(req.query.as_bytes());
+    }
+
     async fn suggest(
         &self,
         request: SuggestionRequest,

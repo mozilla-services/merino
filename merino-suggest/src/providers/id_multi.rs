@@ -127,6 +127,12 @@ impl SuggestionProvider for IdMulti {
         format!("NamedMulti({})", provider_names)
     }
 
+    fn cache_inputs(&self, req: &SuggestionRequest, hasher: &mut blake3::Hasher) {
+        for provider in self.providers.values() {
+            provider.cache_inputs(req, hasher);
+        }
+    }
+
     async fn suggest(
         &self,
         request: SuggestionRequest,

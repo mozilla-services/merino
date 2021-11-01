@@ -2,9 +2,10 @@
 
 use std::collections::HashMap;
 
-use crate::{SetupError, SuggestionProvider, SuggestionResponse};
-use anyhow::anyhow;
+use crate::{SetupError, SuggestError, SuggestionProvider, SuggestionRequest, SuggestionResponse};
+use anyhow::Context;
 use async_trait::async_trait;
+use blake3::Hash;
 use cadence::{Counted, StatsdClient};
 use regex::{RegexSet, RegexSetBuilder};
 
@@ -17,6 +18,9 @@ pub struct KeywordFilterProvider {
     /// The regex set containing the blocklist rules. Items have
     /// the same sorting order as `blocklist_ids`.
     blocklist_rules: RegexSet,
+
+    /// A hash of all of the rules in this filter, for cache key determination.
+    blocklist_hash: Hash,
 
     /// The provider to pull suggestions from.
     inner: Box<dyn SuggestionProvider>,
@@ -33,16 +37,23 @@ impl KeywordFilterProvider {
         metrics_client: &StatsdClient,
     ) -> Result<Box<Self>, SetupError> {
         let (blocklist_ids, regexes): (Vec<String>, Vec<String>) = blocklist.into_iter().unzip();
-        let regex_set = RegexSetBuilder::new(regexes).case_insensitive(true).build();
-        if regex_set.is_err() {
-            return Err(SetupError::InvalidConfiguration(anyhow!(
-                "KeywordFilterProvider failed to compile the regex set."
-            )));
+
+        let mut hasher = blake3::Hasher::new();
+        for r in &regexes {
+            hasher.update(r.as_bytes());
         }
+        let blocklist_hash = hasher.finalize();
+
+        let blocklist_rules = RegexSetBuilder::new(regexes)
+            .case_insensitive(true)
+            .build()
+            .context("KeywordFilterProvider failed to compile the regex set.")
+            .map_err(SetupError::InvalidConfiguration)?;
 
         Ok(Box::new(Self {
             blocklist_ids,
-            blocklist_rules: regex_set.unwrap(),
+            blocklist_rules,
+            blocklist_hash,
             inner,
             metrics_client: metrics_client.clone(),
         }))
@@ -55,10 +66,12 @@ impl SuggestionProvider for KeywordFilterProvider {
         format!("KeywordFilterProvider({})", self.inner.name())
     }
 
-    async fn suggest(
-        &self,
-        query: crate::SuggestionRequest,
-    ) -> Result<crate::SuggestionResponse, crate::SuggestError> {
+    fn cache_inputs(&self, req: &SuggestionRequest, hasher: &mut blake3::Hasher) {
+        hasher.update(self.blocklist_hash.as_bytes());
+        self.inner.cache_inputs(req, hasher);
+    }
+
+    async fn suggest(&self, query: SuggestionRequest) -> Result<SuggestionResponse, SuggestError> {
         let mut results = self
             .inner
             .suggest(query)
@@ -100,7 +113,8 @@ impl SuggestionProvider for KeywordFilterProvider {
 #[cfg(test)]
 mod tests {
     use crate::{
-        CacheStatus, KeywordFilterProvider, Suggestion, SuggestionProvider, SuggestionResponse,
+        CacheStatus, KeywordFilterProvider, SuggestError, Suggestion, SuggestionProvider,
+        SuggestionRequest, SuggestionResponse,
     };
     use async_trait::async_trait;
     use cadence::{SpyMetricSink, StatsdClient};
@@ -117,8 +131,8 @@ mod tests {
 
         async fn suggest(
             &self,
-            _query: crate::SuggestionRequest,
-        ) -> Result<crate::SuggestionResponse, crate::SuggestError> {
+            _query: SuggestionRequest,
+        ) -> Result<SuggestionResponse, SuggestError> {
             Ok(SuggestionResponse {
                 cache_status: CacheStatus::NoCache,
                 cache_ttl: None,

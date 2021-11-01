@@ -31,6 +31,10 @@ impl SuggestionProvider for TimeoutProvider {
         format!("timeout({})", self.inner.name())
     }
 
+    fn cache_inputs(&self, req: &crate::SuggestionRequest, hasher: &mut blake3::Hasher) {
+        self.inner.cache_inputs(req, hasher);
+    }
+
     async fn suggest(
         &self,
         query: crate::SuggestionRequest,

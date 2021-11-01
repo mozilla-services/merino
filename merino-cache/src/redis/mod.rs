@@ -355,6 +355,10 @@ impl SuggestionProvider for Suggester {
         format!("RedisCache({})", self.inner.name())
     }
 
+    fn cache_inputs(&self, req: &SuggestionRequest, hasher: &mut blake3::Hasher) {
+        self.inner.cache_inputs(req, hasher);
+    }
+
     async fn suggest(
         &self,
         request: SuggestionRequest,

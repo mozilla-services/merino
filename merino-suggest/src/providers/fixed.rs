@@ -42,6 +42,10 @@ impl SuggestionProvider for FixedProvider {
         format!("FixedProvider({})", self.value)
     }
 
+    fn cache_inputs(&self, _req: &SuggestionRequest, _hasher: &mut blake3::Hasher) {
+        // No property of req will change the response
+    }
+
     async fn suggest(
         &self,
         _request: SuggestionRequest,

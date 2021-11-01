@@ -327,6 +327,10 @@ impl SuggestionProvider for NullProvider {
         "NullProvider".into()
     }
 
+    fn cache_inputs(&self, _req: &SuggestionRequest, _hasher: &mut blake3::Hasher) {
+        // No property of req will change the response
+    }
+
     fn is_null(&self) -> bool {
         true
     }

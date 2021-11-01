@@ -34,6 +34,12 @@ impl SuggestionProvider for Multi {
         format!("Multi({})", provider_names)
     }
 
+    fn cache_inputs(&self, req: &SuggestionRequest, hasher: &mut blake3::Hasher) {
+        for provider in &self.providers {
+            provider.cache_inputs(req, hasher);
+        }
+    }
+
     async fn suggest(
         &self,
         request: SuggestionRequest,
