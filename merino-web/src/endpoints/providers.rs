@@ -8,7 +8,7 @@ use actix_web::{
     web::{self, Data},
     HttpResponse,
 };
-use merino_suggest::ProviderDetails;
+use merino_suggest::IdMultiProviderDetails;
 use serde::Serialize;
 
 /// Configure a route to provide details about the available providers.
@@ -37,5 +37,5 @@ async fn list_providers(
 #[derive(Debug, Serialize)]
 struct ListResponse {
     /// details about the providers
-    providers: HashMap<String, ProviderDetails>,
+    providers: HashMap<String, IdMultiProviderDetails>,
 }

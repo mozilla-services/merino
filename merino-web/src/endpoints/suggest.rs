@@ -25,7 +25,10 @@ pub fn configure(config: &mut ServiceConfig) {
 
 /// Suggest content in response to the queried text.
 #[get("")]
-#[tracing::instrument(skip(metrics_client, suggestion_request, provider))]
+#[tracing::instrument(
+    skip(metrics_client, suggestion_request, provider, request),
+    fields(suggestion_request)
+)]
 async fn suggest(
     SuggestionRequestWrapper(suggestion_request): SuggestionRequestWrapper,
     provider: Data<SuggestionProviderRef>,
