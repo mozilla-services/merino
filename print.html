@@ -76,7 +76,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded affix "><a href="intro.html">Intro</a></li><li class="chapter-item expanded affix "><li class="part-title">General Documentation</li><li class="chapter-item expanded "><a href="api.html"><strong aria-hidden="true">1.</strong> Using the HTTP API</a></li><li class="chapter-item expanded "><a href="firefox.html"><strong aria-hidden="true">2.</strong> Configuring Firefox and Merino Environments</a></li><li class="chapter-item expanded "><a href="ops.html"><strong aria-hidden="true">3.</strong> Configuring Merino (Operations)</a></li><li class="chapter-item expanded "><a href="dev/index.html"><strong aria-hidden="true">4.</strong> Working on the code</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="dev/showroom.html"><strong aria-hidden="true">4.1.</strong> Merino Showroom</a></li><li class="chapter-item expanded "><a href="dev/testing.html"><strong aria-hidden="true">4.2.</strong> Testing Strategies</a></li><li class="chapter-item expanded "><a href="dev/dependencies.html"><strong aria-hidden="true">4.3.</strong> Development Dependencies</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Architecture Decision Records</li><li class="chapter-item expanded affix "><a href="adrs/adr_0001_logging.html">ADR 0001 - Logging</a></li><li class="chapter-item expanded affix "><a href="adrs/adr_0002_hashing.html">ADR 0002 - Hashing</a></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="intro.html">Intro</a></li><li class="chapter-item expanded affix "><li class="part-title">General Documentation</li><li class="chapter-item expanded "><a href="api.html"><strong aria-hidden="true">1.</strong> Using the HTTP API</a></li><li class="chapter-item expanded "><a href="firefox.html"><strong aria-hidden="true">2.</strong> Configuring Firefox and Merino Environments</a></li><li class="chapter-item expanded "><a href="ops.html"><strong aria-hidden="true">3.</strong> Configuring Merino (Operations)</a></li><li class="chapter-item expanded "><a href="data.html"><strong aria-hidden="true">4.</strong> Data collection</a></li><li class="chapter-item expanded "><a href="dev/index.html"><strong aria-hidden="true">5.</strong> Working on the code</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="dev/showroom.html"><strong aria-hidden="true">5.1.</strong> Merino Showroom</a></li><li class="chapter-item expanded "><a href="dev/logging-and-metrics.html"><strong aria-hidden="true">5.2.</strong> Logging and Metrics</a></li><li class="chapter-item expanded "><a href="dev/testing.html"><strong aria-hidden="true">5.3.</strong> Testing Strategies</a></li><li class="chapter-item expanded "><a href="dev/dependencies.html"><strong aria-hidden="true">5.4.</strong> Development Dependencies</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Architecture Decision Records</li><li class="chapter-item expanded affix "><a href="adrs/adr_0001_logging.html">ADR 0001 - Logging</a></li><li class="chapter-item expanded affix "><a href="adrs/adr_0002_hashing.html">ADR 0002 - Hashing</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -667,6 +667,77 @@ must be specified as the string <code>&quot;null&quot;</code>.</li>
 </ul>
 </li>
 </ul>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="data-collection"><a class="header" href="#data-collection">Data collection</a></h1>
+<p>This page should list all metrics and logs that Merino is expected to emit in
+production, including what should be done about them, if anything.</p>
+<h2 id="logs"><a class="header" href="#logs">Logs</a></h2>
+<p>This list does not include any <code>DEBUG</code> or <code>TRACE</code> level events, since those are
+not logged by default in production. The events below are grouped by crate, and
+the level and type of the log is listed.</p>
+<h3 id="merino-adm"><a class="header" href="#merino-adm"><code>merino-adm</code></a></h3>
+<ul>
+<li>
+<p><code>INFO adm.remote-settings.sync-start</code> - The Remote Settings provider has
+started syncing records.</p>
+</li>
+<li>
+<p><code>WARN adm.remote-settings.empty</code> - After syncing no records were found in the
+Remote Settings collection.</p>
+</li>
+</ul>
+<h3 id="merino-cache"><a class="header" href="#merino-cache"><code>merino-cache</code></a></h3>
+<ul>
+<li><code>INFO cache.redis.save-error</code> - There was an error while saving a cached
+suggestion to the Redis server.</li>
+</ul>
+<h3 id="merino-web"><a class="header" href="#merino-web"><code>merino-web</code></a></h3>
+<ul>
+<li>
+<p><code>INFO web.configuring-suggesters</code> - A web worker is starting to configure
+local suggesters, which may take some seconds and require network traffic to
+synchronize data.</p>
+</li>
+<li>
+<p><code>ERROR web.suggest.setup-error</code> - There was an error while setting up
+configuration providers. This may be temporary, and future requests will
+attempt to configure providers again.</p>
+</li>
+<li>
+<p><code>ERROR web.suggest.error</code> - There was an error while providing suggestions
+from an otherwise set-up provider. This may represent a network or
+configuration error.</p>
+</li>
+<li>
+<p><code>ERROR dockerflow.error_endpoint</code> - The <code>__error__</code> endpoint of the server was
+called. This is used to test our error reporting system. It is not a cause for
+concern, unless we receive a large amount of these records, in which case some
+outside service is likely malicious or misconfigured.</p>
+</li>
+</ul>
+<h2 id="metrics-1"><a class="header" href="#metrics-1">Metrics</a></h2>
+<ul>
+<li>
+<p><code>startup</code> - A counter incremented at startup, right after metrics are
+initialized, to signal a successful metrics system initialization.</p>
+</li>
+<li>
+<p><code>client_variants.&lt;variant_name&gt;</code> - A counter incremented for each client
+variant present in a query request, incremented when the response is assembled
+with the suggestions.</p>
+</li>
+<li>
+<p><code>request.suggestion-per</code> - A histogram that reports the number of suggestions
+in a response for a given query.</p>
+</li>
+<li>
+<p><code>keywordfilter.match</code> - Report the number of suggestions filtered by the
+filter with the given ID.</p>
+<p><strong>Tags:</strong></p>
+<ul>
+<li><code>id</code> - The filter that was matched.</li>
+</ul>
+</li>
+</ul>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="developer-documentation-for-working-on-merino"><a class="header" href="#developer-documentation-for-working-on-merino">Developer documentation for working on Merino</a></h1>
 <h2 id="tldr"><a class="header" href="#tldr">tl;dr</a></h2>
 <p>Here are some useful commands when working on Merino.</p>
@@ -680,15 +751,16 @@ $ cargo test
 </code></pre>
 <h2 id="documentation"><a class="header" href="#documentation">Documentation</a></h2>
 <p>You can generate documentation, both code level and book level, for Merino and
-all related crates by running <code>./dev/make-all-docs.sh</code>.</p>
+all related crates by running <code>./dev/make-all-docs.sh</code>. You'll need <a href="https://rust-lang.github.io/mdBook/">mdBook</a>,
+which you can get with <code>cargo install mdbook</code>.</p>
 <p><a href="dev//merino/rustdoc/">Pre-built code docs are also available</a>.</p>
 <h2 id="local-configuration"><a class="header" href="#local-configuration">Local configuration</a></h2>
 <p>The default configuration of Merino is <code>development</code>, which has human-oriented
 logging and debugging enabled. For settings that you wish to change in the
 development configuration, you have two options, listed below.</p>
 <blockquote>
-<p>For full details, make sure to check out the documentation for [Merino's
-setting system][../settings.md]</p>
+<p>For full details, make sure to check out the documentation for
+<a href="dev/../ops.html">Merino's setting system</a>.</p>
 </blockquote>
 <h3 id="update-the-defaults"><a class="header" href="#update-the-defaults">Update the defaults</a></h3>
 <p>If the change you want to make makes the system better for most development
@@ -779,6 +851,113 @@ $ npm run dev
 <p>This will start a server on <a href="http://localhost:3000">localhost:3000</a> that is
 configured to connect to the default configuration of <code>merino-web</code>.</p>
 <p>Note, Node 16 or higher is required to run Showroom.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="logging-and-metrics"><a class="header" href="#logging-and-metrics">Logging and Metrics</a></h1>
+<p>To get data out of Merino and into observable systems, we use <em>metrics</em> and
+<em>logging</em>. Each has a unique use case. Note that in general, because of the scale
+we work at, adding a metric or log event in production is not free, and if we
+are careless can end up costing quite a bit. Record what is needed, but don't go
+over board.</p>
+<p>All data collection that happens in production (logging at INFO, WARN, or ERROR
+levels; and metrics) should be documented in <a href="dev/../data.html"><code>docs/data.md</code></a>.</p>
+<h2 id="logging-1"><a class="header" href="#logging-1">Logging</a></h2>
+<p>Merino uses <a href="https://crates.io/crates/tracing">Tracing</a> for logging, which &quot;is a framework for instrumenting
+Rust programs to collect structured, event-based diagnostic information&quot;. Below
+are some notes about using Tracing in Merino, but consider reading their docs
+for more information.</p>
+<p>The basic way to interact with tracing is via the macros <code>tracing::error!</code>,
+<code>tracing::warn!</code>, <code>tracing::info!</code>, <code>tracing::debug!</code>, and <code>tracing::trace!</code>.</p>
+<p>Tracing can output logs in various formats, including a JSON format for
+production. In these docs we'll use a pretty, human readable format that spreads
+logs over multiple lines to include more information in a readable way.</p>
+<h3 id="types"><a class="header" href="#types">Types</a></h3>
+<p>MozLog requires that all messages have a <code>type</code> value. If one is not provided,
+our logging systems use <code>&quot;&lt;unknown&gt;&quot;</code> as a type value. All <code>INFO</code>, <code>WARN</code>, and
+<code>ERROR</code> messages should have a type field, specified like:</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>tracing::warn!(
+  r#type = &quot;suggest.providers.multi.created-empty&quot;,
+  id = %provider.id,
+  &quot;An empty MultiProvider was created&quot;
+);
+<span class="boring">}
+</span></code></pre></pre>
+<p>In general, the log <em>message</em> (&quot;An empty MultiProvider was created&quot;) and the log
+<em>type</em> should both tell the reader what has happened. The difference is that the
+message is for humans and the type is for machines.</p>
+<p>Type should be a dotted path to the file you're working in, with any <code>merino-</code>
+prefix removed, ending in a code specific to the error. This does not strictly
+need to follow the file system hierarchy, and stability over time is more
+important than refactoring.</p>
+<h3 id="levels"><a class="header" href="#levels">Levels</a></h3>
+<p>Tracing provides five log levels that should be familiar. This is what we mean
+by them in Merino:</p>
+<ul>
+<li>
+<p><code>ERROR</code> - There was a problem, and the task was not completable. This usually
+results in a 500 being sent to the user. All error logs encountered in
+production are reported to Sentry and should be considered a bug. If it isn't
+a bug, it shouldn't be logged as an error.</p>
+</li>
+<li>
+<p><code>WARNING</code> - There was a problem, but the task was able to recover. This
+doesn't usually affect what the user sees. Warnings are suitable for
+unexpected but &quot;in-spec&quot; issues, like a sync job not returning an empty set or
+using a deprecated function. These are not reported to Sentry.</p>
+</li>
+<li>
+<p><code>INFO</code> - This is the default level of the production service. Use for logging
+that something happened that isn't a problem. and we care about in production.
+This is the level that Merino uses for it's one-per-request logs and sync
+status messages. Be careful adding new per-request logs at this level, as they
+can be expensive.</p>
+</li>
+<li>
+<p><code>DEBUG</code> - This is the default level for developers running code locally. Use
+this to give insight into how the system is working, but keep in mind that
+this will be on by default, so don't be too noisy. Generally this should
+summarize what's happening, but not give the small details like a log line for
+every iteration of a loop. Since this is off in production, there are no cost
+concerns.</p>
+</li>
+<li>
+<p><code>TRACE</code> - This level is hidden by default in all environments, including
+tests. Add this for very detailed logs of what specific functions or objects
+are doing. To see these logs, you'll need to turn up the logging level for the
+area of the code you're in. See <a href="dev/../ops.html#logging">the logging settings</a> for
+more details. If you add logs to figure out why something isn't working or why
+a test isn't passing, do so at the <code>TRACE</code> level, and consider leaving them in
+the code for future debuggers.</p>
+</li>
+</ul>
+<h3 id="including-data"><a class="header" href="#including-data">Including data</a></h3>
+<p>If you want to log something that includes the contents of a variable, in other
+libraries you might use string interpolation like
+<code>tracing::error!(&quot;could not find file: {}&quot;, file_path)</code>. This works in Tracing,
+but there is a better way:</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>tracing::error!(?file_path, r#type = &quot;file_handler.missing&quot;, &quot;could not find file&quot;);
+<span class="boring">}
+</span></code></pre></pre>
+<p>This would produce a log event like</p>
+<pre><code class="language-log">Oct 27 15:51:35.134 ERROR merino: could not find file, file_path: &quot;an/important/path.txt&quot;, type: &quot;file_handler.missing&quot;
+  at merino/src/file_handler.rs:65
+  in merino::file_handler::load
+</code></pre>
+<p>By including the <code>file_path</code> before the log line, it is included as structured
+data. This will be machine-readable and can be used for better parsing down the
+line. In general, you should prefer structured logging for including data in log
+events.</p>
+<h2 id="metrics-2"><a class="header" href="#metrics-2">Metrics</a></h2>
+<p>Metrics are handled by <a href="https://crates.io/crates/cadence">Cadence</a> in [Statsd][] format
+https://www.datadoghq.com/blog/statsd/.</p>
+<p>Unlike logging, the primary way that metrics reporting can cost a lot is in
+<em>cardinality</em>. The number of metric IDs we have and the combination of tag
+values that we supply. Often the number of individual events doesn't matter as
+much, since multiple events are aggregated together.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="testing-strategies"><a class="header" href="#testing-strategies">Testing strategies</a></h1>
 <p>There are three major testing strategies used in this repository: unit tests,
 Rust integration tests, Python system tests, and Python load tests.</p>
