@@ -40,6 +40,7 @@ use tracing_subscriber::{fmt::MakeWriter, layer::SubscriberExt};
 pub async fn merino_test<FSettings, FTest, Fut>(
     settings_changer: FSettings,
     test: FTest,
+    /*changes: Option<&[&str]>,*/  // This is a proc macro, it's called during build. How to pass this value?
 ) -> Fut::Output
 where
     FSettings: FnOnce(&mut Settings),
@@ -81,7 +82,19 @@ where
                 }
             }));
     });
+    crate::suggest::setup_remote_settings_collection(&remote_settings_mock, &["apple", "banana"]).await;
+    /*
+    if let Some(changes) = changes {
+        crate::suggest::setup_remote_settings_collection(&remote_settings_mock, changes).await;
+    }
+    */
     settings.remote_settings.server = remote_settings_mock.base_url();
+    { // verify that the changes are there.
+        dbg!(&settings.remote_settings.server);
+        let client = reqwest::Client::new();
+        let resp = client.get(format!("{}/v1/buckets/main/collections/quicksuggest/changeset",settings.remote_settings.server)).send().await.expect("shit");
+        dbg!(resp.text().await.expect("no body"));
+    }
 
     // Set up Redis
     let _redis_connection_guard = match get_temp_db(&settings.redis.url).await {

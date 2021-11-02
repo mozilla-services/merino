@@ -179,7 +179,7 @@ async fn suggest_adm_rs_works_content(
     Ok(())
 }
 
-async fn setup_remote_settings_collection(server: &MockServer, suggestions: &[&str]) {
+pub async fn setup_remote_settings_collection(server: &MockServer, suggestions: &[&str]) {
     let mut changes = suggestions
         .iter()
         .map(|s| {
