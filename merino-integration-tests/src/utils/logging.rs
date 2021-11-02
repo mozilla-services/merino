@@ -27,6 +27,7 @@ pub struct LogWatcher {
 
 impl LogWatcher {
     /// Make a new LogWatcher with some events pre-populated. Primarily for testing LogWatcher itself.
+    #[must_use]
     pub fn with_events(events: Vec<TracingJsonEvent>) -> Self {
         Self {
             events,
@@ -52,6 +53,7 @@ impl LogWatcher {
     /// #
     /// // assert!(log_watcher.has(|msg| msg.field_contains("message", "request success")));
     /// ```
+    #[must_use = "LogWatcher::has does not make assertions alone, you probably want to wrap it in assert!()"]
     pub fn has<F>(&mut self, predicate: F) -> bool
     where
         F: FnMut(&TracingJsonEvent) -> bool,
