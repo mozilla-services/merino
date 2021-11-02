@@ -2,7 +2,10 @@
 
 use std::collections::HashMap;
 
-use crate::{SetupError, SuggestError, SuggestionProvider, SuggestionRequest, SuggestionResponse};
+use crate::{
+    CacheInputs, SetupError, SuggestError, SuggestionProvider, SuggestionRequest,
+    SuggestionResponse,
+};
 use anyhow::Context;
 use async_trait::async_trait;
 use blake3::Hash;
@@ -66,9 +69,9 @@ impl SuggestionProvider for KeywordFilterProvider {
         format!("KeywordFilterProvider({})", self.inner.name())
     }
 
-    fn cache_inputs(&self, req: &SuggestionRequest, hasher: &mut blake3::Hasher) {
-        hasher.update(self.blocklist_hash.as_bytes());
-        self.inner.cache_inputs(req, hasher);
+    fn cache_inputs(&self, req: &SuggestionRequest, cache_inputs: &mut Box<dyn CacheInputs>) {
+        cache_inputs.add(self.blocklist_hash.as_bytes());
+        self.inner.cache_inputs(req, cache_inputs);
     }
 
     async fn suggest(&self, query: SuggestionRequest) -> Result<SuggestionResponse, SuggestError> {

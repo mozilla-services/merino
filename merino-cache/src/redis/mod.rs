@@ -10,8 +10,8 @@ use async_trait::async_trait;
 use fix_hidden_lifetime_bug::fix_hidden_lifetime_bug;
 use merino_settings::{providers::RedisCacheConfig, Settings};
 use merino_suggest::{
-    CacheStatus, SetupError, SuggestError, Suggestion, SuggestionProvider, SuggestionRequest,
-    SuggestionResponse,
+    CacheInputs, CacheStatus, SetupError, SuggestError, Suggestion, SuggestionProvider,
+    SuggestionRequest, SuggestionResponse,
 };
 use redis::RedisError;
 use tracing_futures::{Instrument, WithSubscriber};
@@ -355,8 +355,8 @@ impl SuggestionProvider for Suggester {
         format!("RedisCache({})", self.inner.name())
     }
 
-    fn cache_inputs(&self, req: &SuggestionRequest, hasher: &mut blake3::Hasher) {
-        self.inner.cache_inputs(req, hasher);
+    fn cache_inputs(&self, req: &SuggestionRequest, cache_inputs: &mut Box<dyn CacheInputs>) {
+        self.inner.cache_inputs(req, cache_inputs);
     }
 
     async fn suggest(

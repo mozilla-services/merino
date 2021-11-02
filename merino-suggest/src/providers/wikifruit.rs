@@ -11,7 +11,7 @@ use http::Uri;
 use merino_settings::Settings;
 
 use crate::{
-    domain::Proportion, SetupError, SuggestError, Suggestion, SuggestionProvider,
+    domain::Proportion, CacheInputs, SetupError, SuggestError, Suggestion, SuggestionProvider,
     SuggestionRequest, SuggestionResponse,
 };
 
@@ -42,8 +42,8 @@ impl SuggestionProvider for WikiFruit {
         "WikiFruit".to_string()
     }
 
-    fn cache_inputs(&self, req: &SuggestionRequest, hasher: &mut blake3::Hasher) {
-        hasher.update(req.query.as_bytes());
+    fn cache_inputs(&self, req: &SuggestionRequest, cache_inputs: &mut Box<dyn CacheInputs>) {
+        cache_inputs.add(req.query.as_bytes());
     }
 
     async fn suggest(

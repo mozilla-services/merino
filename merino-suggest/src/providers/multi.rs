@@ -1,6 +1,9 @@
 //! Provides a provider-combinator that provides suggestions from multiple sub-providers.
 
-use crate::{CacheStatus, SuggestError, SuggestionProvider, SuggestionRequest, SuggestionResponse};
+use crate::{
+    CacheInputs, CacheStatus, SuggestError, SuggestionProvider, SuggestionRequest,
+    SuggestionResponse,
+};
 use async_trait::async_trait;
 use futures::future::join_all;
 
@@ -34,9 +37,9 @@ impl SuggestionProvider for Multi {
         format!("Multi({})", provider_names)
     }
 
-    fn cache_inputs(&self, req: &SuggestionRequest, hasher: &mut blake3::Hasher) {
+    fn cache_inputs(&self, req: &SuggestionRequest, cache_inputs: &mut Box<dyn CacheInputs>) {
         for provider in &self.providers {
-            provider.cache_inputs(req, hasher);
+            provider.cache_inputs(req, cache_inputs);
         }
     }
 

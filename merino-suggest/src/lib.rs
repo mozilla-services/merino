@@ -25,7 +25,7 @@ use serde::{Deserialize, Serialize};
 use serde_with::{serde_as, DisplayFromStr};
 use thiserror::Error;
 
-pub use crate::domain::Proportion;
+pub use crate::domain::{CacheInputs, Proportion};
 pub use crate::providers::{
     DebugProvider, FixedProvider, IdMulti, IdMultiProviderDetails, KeywordFilterProvider, Multi,
     StealthProvider, TimeoutProvider, WikiFruit,
@@ -298,23 +298,23 @@ pub trait SuggestionProvider: Send + Sync {
     ///
     /// By default, all properties of the query are used, but providers should
     /// narrow this to a smaller scope.
-    fn cache_inputs(&self, req: &SuggestionRequest, hasher: &mut blake3::Hasher) {
-        hasher.update(req.query.as_bytes());
-        hasher.update(&[req.accepts_english as u8]);
-        hasher.update(format!("{:?}", req.country).as_bytes());
-        hasher.update(format!("{:?}", req.region).as_bytes());
-        hasher.update(format!("{:?}", req.dma).as_bytes());
-        hasher.update(format!("{:?}", req.city).as_bytes());
-        hasher.update(req.device_info.to_string().as_bytes());
+    fn cache_inputs(&self, req: &SuggestionRequest, cache_inputs: &mut Box<dyn CacheInputs>) {
+        cache_inputs.add(req.query.as_bytes());
+        cache_inputs.add(&[req.accepts_english as u8]);
+        cache_inputs.add(format!("{:?}", req.country).as_bytes());
+        cache_inputs.add(format!("{:?}", req.region).as_bytes());
+        cache_inputs.add(format!("{:?}", req.dma).as_bytes());
+        cache_inputs.add(format!("{:?}", req.city).as_bytes());
+        cache_inputs.add(req.device_info.to_string().as_bytes());
     }
 
     /// Use `Self::cache_inputs` to generate a single cache key. This function
     /// should not normally be overridden by provider implementations.
     fn cache_key(&self, req: &SuggestionRequest) -> String {
-        let mut hasher = blake3::Hasher::new();
-        hasher.update(self.name().as_bytes());
-        self.cache_inputs(req, &mut hasher);
-        format!("provider:v1:{}", hasher.finalize())
+        let mut cache_inputs = Box::new(blake3::Hasher::new()) as Box<dyn CacheInputs>;
+        cache_inputs.add(self.name().as_bytes());
+        self.cache_inputs(req, &mut cache_inputs);
+        format!("provider:v1:{}", cache_inputs.hash())
     }
 }
 
@@ -327,7 +327,7 @@ impl SuggestionProvider for NullProvider {
         "NullProvider".into()
     }
 
-    fn cache_inputs(&self, _req: &SuggestionRequest, _hasher: &mut blake3::Hasher) {
+    fn cache_inputs(&self, _req: &SuggestionRequest, _hasher: &mut Box<dyn CacheInputs>) {
         // No property of req will change the response
     }
 
@@ -528,8 +528,8 @@ mod tests {
             unimplemented!()
         }
 
-        fn cache_inputs(&self, req: &SuggestionRequest, hasher: &mut blake3::Hasher) {
-            hasher.update(req.query.as_bytes());
+        fn cache_inputs(&self, req: &SuggestionRequest, cache_inputs: &mut Box<dyn CacheInputs>) {
+            cache_inputs.add(req.query.as_bytes());
         }
     }
 

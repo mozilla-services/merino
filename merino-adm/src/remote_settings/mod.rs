@@ -10,8 +10,8 @@ use http::Uri;
 use lazy_static::lazy_static;
 use merino_settings::{providers::RemoteSettingsConfig, Settings};
 use merino_suggest::{
-    Proportion, SetupError, SuggestError, Suggestion, SuggestionProvider, SuggestionRequest,
-    SuggestionResponse,
+    CacheInputs, Proportion, SetupError, SuggestError, Suggestion, SuggestionProvider,
+    SuggestionRequest, SuggestionResponse,
 };
 use serde::{Deserialize, Serialize};
 use serde_with::{serde_as, DisplayFromStr};
@@ -204,9 +204,9 @@ impl SuggestionProvider for RemoteSettingsSuggester {
         "AdmRemoteSettings".into()
     }
 
-    fn cache_inputs(&self, req: &SuggestionRequest, hasher: &mut blake3::Hasher) {
-        hasher.update(&[req.accepts_english as u8]);
-        hasher.update(req.query.as_bytes());
+    fn cache_inputs(&self, req: &SuggestionRequest, cache_inputs: &mut Box<dyn CacheInputs>) {
+        cache_inputs.add(&[req.accepts_english as u8]);
+        cache_inputs.add(req.query.as_bytes());
     }
 
     async fn suggest(

@@ -10,7 +10,7 @@ use deduped_dashmap::{ControlFlow, DedupedMap};
 use lazy_static::lazy_static;
 use merino_settings::providers::MemoryCacheConfig;
 use merino_suggest::{
-    CacheStatus, Suggestion, SuggestionProvider, SuggestionRequest, SuggestionResponse,
+    CacheInputs, CacheStatus, Suggestion, SuggestionProvider, SuggestionRequest, SuggestionResponse,
 };
 use std::{
     collections::HashMap,
@@ -175,8 +175,8 @@ impl SuggestionProvider for Suggester {
         format!("MemoryCache({})", self.inner.name())
     }
 
-    fn cache_inputs(&self, req: &SuggestionRequest, hasher: &mut blake3::Hasher) {
-        self.inner.cache_inputs(req, hasher);
+    fn cache_inputs(&self, req: &SuggestionRequest, cache_inputs: &mut Box<dyn CacheInputs>) {
+        self.inner.cache_inputs(req, cache_inputs);
     }
 
     async fn suggest(

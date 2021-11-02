@@ -1,6 +1,6 @@
 //! Tools to make sure providers don't  cache_status: todo!(), cache_ttl: todo!(), suggestions: todo!() take excessive amounts of time.
 
-use crate::{CacheStatus, SuggestionProvider, SuggestionResponse};
+use crate::{CacheInputs, CacheStatus, SuggestionProvider, SuggestionResponse};
 use async_trait::async_trait;
 use merino_settings::providers::TimeoutConfig;
 use std::time::Duration;
@@ -31,8 +31,12 @@ impl SuggestionProvider for TimeoutProvider {
         format!("timeout({})", self.inner.name())
     }
 
-    fn cache_inputs(&self, req: &crate::SuggestionRequest, hasher: &mut blake3::Hasher) {
-        self.inner.cache_inputs(req, hasher);
+    fn cache_inputs(
+        &self,
+        req: &crate::SuggestionRequest,
+        cache_inputs: &mut Box<dyn CacheInputs>,
+    ) {
+        self.inner.cache_inputs(req, cache_inputs);
     }
 
     async fn suggest(

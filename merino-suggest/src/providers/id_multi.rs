@@ -6,7 +6,10 @@
 
 use std::collections::{HashMap, HashSet};
 
-use crate::{CacheStatus, SuggestError, SuggestionProvider, SuggestionRequest, SuggestionResponse};
+use crate::{
+    CacheInputs, CacheStatus, SuggestError, SuggestionProvider, SuggestionRequest,
+    SuggestionResponse,
+};
 use async_trait::async_trait;
 use futures::{future::join_all, TryFutureExt};
 use serde::Serialize;
@@ -127,9 +130,9 @@ impl SuggestionProvider for IdMulti {
         format!("NamedMulti({})", provider_names)
     }
 
-    fn cache_inputs(&self, req: &SuggestionRequest, hasher: &mut blake3::Hasher) {
+    fn cache_inputs(&self, req: &SuggestionRequest, cache_inputs: &mut Box<dyn CacheInputs>) {
         for provider in self.providers.values() {
-            provider.cache_inputs(req, hasher);
+            provider.cache_inputs(req, cache_inputs);
         }
     }
 
