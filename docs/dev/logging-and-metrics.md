@@ -1,7 +1,7 @@
 # Logging and Metrics
 
 To get data out of Merino and into observable systems, we use _metrics_ and
-_logging_. Each has a unique use case. Not that in general, because of the scale
+_logging_. Each has a unique use case. Note that in general, because of the scale
 we work at, adding a metric or log event in production is not free, and if we
 are careless can end up costing quite a bit. Record what is needed, but don't go
 over board.
