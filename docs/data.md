@@ -24,6 +24,31 @@ the level and type of the log is listed.
 
 ### `merino-web`
 
+- `INFO web.suggest.request` - A suggestion request is being processed. This
+  event will include fields for all relevant details of the request. **Fields:**
+
+  - `query` - If query logging is enabled, the text the user typed. Otherwise
+    and empty string.
+  - `country` - The country the request came from.
+  - `region` - The first country subdivision the request came from.
+  - `city` - The city the request came from.
+  - `dma` - A US-only location description that is larger than city and smaller
+    than states, but does not align to political borders.
+  - `agent` - The original user agent.
+  - `os_family` - Parsed from the user agent. One of "windows", "macos",
+    "linux", "ios", "android", "chrome os", "blackberry", or "other".
+  - `form_factor` - Parsed from the user agent. One of "desktop", "phone",
+    "tablet", or "other"
+  - `browser` - The browser and possibly version detected. Either "Firefox(XX)"
+    where XX is the version, or "Other".
+  - `rid` - The request ID.
+  - `accepts_english` - True if the user's Accept-Language header includes an
+    English locale, false otherwise.
+  - `requested_providers` - A comma separated list of providers requested via
+    the query string, or an empty string if none were requested (in which case
+    the default values would be used).
+  - `client_variants` - Any client variants sent to Merino in the query string.
+
 - `INFO web.configuring-suggesters` - A web worker is starting to configure
   local suggesters, which may take some seconds and require network traffic to
   synchronize data.
