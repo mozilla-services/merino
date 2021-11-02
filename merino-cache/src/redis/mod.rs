@@ -355,7 +355,7 @@ impl SuggestionProvider for Suggester {
         format!("RedisCache({})", self.inner.name())
     }
 
-    fn cache_inputs(&self, req: &SuggestionRequest, cache_inputs: &mut Box<dyn CacheInputs>) {
+    fn cache_inputs(&self, req: &SuggestionRequest, cache_inputs: &mut dyn CacheInputs) {
         self.inner.cache_inputs(req, cache_inputs);
     }
 

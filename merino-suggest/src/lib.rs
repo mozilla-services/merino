@@ -298,7 +298,7 @@ pub trait SuggestionProvider: Send + Sync {
     ///
     /// By default, all properties of the query are used, but providers should
     /// narrow this to a smaller scope.
-    fn cache_inputs(&self, req: &SuggestionRequest, cache_inputs: &mut Box<dyn CacheInputs>) {
+    fn cache_inputs(&self, req: &SuggestionRequest, cache_inputs: &mut dyn CacheInputs) {
         cache_inputs.add(req.query.as_bytes());
         cache_inputs.add(&[req.accepts_english as u8]);
         cache_inputs.add(format!("{:?}", req.country).as_bytes());
@@ -311,7 +311,7 @@ pub trait SuggestionProvider: Send + Sync {
     /// Use `Self::cache_inputs` to generate a single cache key. This function
     /// should not normally be overridden by provider implementations.
     fn cache_key(&self, req: &SuggestionRequest) -> String {
-        let mut cache_inputs = Box::new(blake3::Hasher::new()) as Box<dyn CacheInputs>;
+        let mut cache_inputs = blake3::Hasher::new();
         cache_inputs.add(self.name().as_bytes());
         self.cache_inputs(req, &mut cache_inputs);
         format!("provider:v1:{}", cache_inputs.hash())
@@ -327,7 +327,7 @@ impl SuggestionProvider for NullProvider {
         "NullProvider".into()
     }
 
-    fn cache_inputs(&self, _req: &SuggestionRequest, _hasher: &mut Box<dyn CacheInputs>) {
+    fn cache_inputs(&self, _req: &SuggestionRequest, _hasher: &mut dyn CacheInputs) {
         // No property of req will change the response
     }
 
@@ -528,7 +528,7 @@ mod tests {
             unimplemented!()
         }
 
-        fn cache_inputs(&self, req: &SuggestionRequest, cache_inputs: &mut Box<dyn CacheInputs>) {
+        fn cache_inputs(&self, req: &SuggestionRequest, cache_inputs: &mut dyn CacheInputs) {
             cache_inputs.add(req.query.as_bytes());
         }
     }

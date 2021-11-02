@@ -42,7 +42,7 @@ impl SuggestionProvider for WikiFruit {
         "WikiFruit".to_string()
     }
 
-    fn cache_inputs(&self, req: &SuggestionRequest, cache_inputs: &mut Box<dyn CacheInputs>) {
+    fn cache_inputs(&self, req: &SuggestionRequest, cache_inputs: &mut dyn CacheInputs) {
         cache_inputs.add(req.query.as_bytes());
     }
 

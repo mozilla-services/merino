@@ -69,7 +69,7 @@ impl SuggestionProvider for KeywordFilterProvider {
         format!("KeywordFilterProvider({})", self.inner.name())
     }
 
-    fn cache_inputs(&self, req: &SuggestionRequest, cache_inputs: &mut Box<dyn CacheInputs>) {
+    fn cache_inputs(&self, req: &SuggestionRequest, cache_inputs: &mut dyn CacheInputs) {
         cache_inputs.add(self.blocklist_hash.as_bytes());
         self.inner.cache_inputs(req, cache_inputs);
     }

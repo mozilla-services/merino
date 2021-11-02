@@ -37,7 +37,7 @@ impl SuggestionProvider for Multi {
         format!("Multi({})", provider_names)
     }
 
-    fn cache_inputs(&self, req: &SuggestionRequest, cache_inputs: &mut Box<dyn CacheInputs>) {
+    fn cache_inputs(&self, req: &SuggestionRequest, cache_inputs: &mut dyn CacheInputs) {
         for provider in &self.providers {
             provider.cache_inputs(req, cache_inputs);
         }

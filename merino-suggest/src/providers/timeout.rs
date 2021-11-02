@@ -31,11 +31,7 @@ impl SuggestionProvider for TimeoutProvider {
         format!("timeout({})", self.inner.name())
     }
 
-    fn cache_inputs(
-        &self,
-        req: &crate::SuggestionRequest,
-        cache_inputs: &mut Box<dyn CacheInputs>,
-    ) {
+    fn cache_inputs(&self, req: &crate::SuggestionRequest, cache_inputs: &mut dyn CacheInputs) {
         self.inner.cache_inputs(req, cache_inputs);
     }
 

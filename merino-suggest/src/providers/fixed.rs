@@ -42,7 +42,7 @@ impl SuggestionProvider for FixedProvider {
         format!("FixedProvider({})", self.value)
     }
 
-    fn cache_inputs(&self, _req: &SuggestionRequest, _cache_inputs: &mut Box<dyn CacheInputs>) {
+    fn cache_inputs(&self, _req: &SuggestionRequest, _cache_inputs: &mut dyn CacheInputs) {
         // No property of req will change the response
     }
 

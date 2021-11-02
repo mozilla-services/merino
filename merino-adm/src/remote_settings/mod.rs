@@ -204,7 +204,7 @@ impl SuggestionProvider for RemoteSettingsSuggester {
         "AdmRemoteSettings".into()
     }
 
-    fn cache_inputs(&self, req: &SuggestionRequest, cache_inputs: &mut Box<dyn CacheInputs>) {
+    fn cache_inputs(&self, req: &SuggestionRequest, cache_inputs: &mut dyn CacheInputs) {
         cache_inputs.add(&[req.accepts_english as u8]);
         cache_inputs.add(req.query.as_bytes());
     }
