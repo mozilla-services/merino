@@ -693,6 +693,33 @@ suggestion to the Redis server.</li>
 <h3 id="merino-web"><a class="header" href="#merino-web"><code>merino-web</code></a></h3>
 <ul>
 <li>
+<p><code>INFO web.suggest.request</code> - A suggestion request is being processed. This
+event will include fields for all relevant details of the request. <strong>Fields:</strong></p>
+<ul>
+<li><code>query</code> - If query logging is enabled, the text the user typed. Otherwise
+an empty string.</li>
+<li><code>country</code> - The country the request came from.</li>
+<li><code>region</code> - The first country subdivision the request came from.</li>
+<li><code>city</code> - The city the request came from.</li>
+<li><code>dma</code> - A US-only location description that is larger than city and smaller
+than states, but does not align to political borders.</li>
+<li><code>agent</code> - The original user agent.</li>
+<li><code>os_family</code> - Parsed from the user agent. One of &quot;windows&quot;, &quot;macos&quot;,
+&quot;linux&quot;, &quot;ios&quot;, &quot;android&quot;, &quot;chrome os&quot;, &quot;blackberry&quot;, or &quot;other&quot;.</li>
+<li><code>form_factor</code> - Parsed from the user agent. One of &quot;desktop&quot;, &quot;phone&quot;,
+&quot;tablet&quot;, or &quot;other&quot;</li>
+<li><code>browser</code> - The browser and possibly version detected. Either &quot;Firefox(XX)&quot;
+where XX is the version, or &quot;Other&quot;.</li>
+<li><code>rid</code> - The request ID.</li>
+<li><code>accepts_english</code> - True if the user's Accept-Language header includes an
+English locale, false otherwise.</li>
+<li><code>requested_providers</code> - A comma separated list of providers requested via
+the query string, or an empty string if none were requested (in which case
+the default values would be used).</li>
+<li><code>client_variants</code> - Any client variants sent to Merino in the query string.</li>
+</ul>
+</li>
+<li>
 <p><code>INFO web.configuring-suggesters</code> - A web worker is starting to configure
 local suggesters, which may take some seconds and require network traffic to
 synchronize data.</p>
