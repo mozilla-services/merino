@@ -301,10 +301,10 @@ pub trait SuggestionProvider: Send + Sync {
     fn cache_inputs(&self, req: &SuggestionRequest, cache_inputs: &mut dyn CacheInputs) {
         cache_inputs.add(req.query.as_bytes());
         cache_inputs.add(&[req.accepts_english as u8]);
-        cache_inputs.add(format!("{:?}", req.country).as_bytes());
-        cache_inputs.add(format!("{:?}", req.region).as_bytes());
-        cache_inputs.add(format!("{:?}", req.dma).as_bytes());
-        cache_inputs.add(format!("{:?}", req.city).as_bytes());
+        cache_inputs.add(req.country.as_deref().unwrap_or("<none>").as_bytes());
+        cache_inputs.add(req.region.as_deref().unwrap_or("<none>").as_bytes());
+        cache_inputs.add(&req.dma.map_or([0xFF, 0xFF], u16::to_be_bytes));
+        cache_inputs.add(req.city.as_deref().unwrap_or("<none>").as_bytes());
         cache_inputs.add(req.device_info.to_string().as_bytes());
     }
 
