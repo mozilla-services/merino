@@ -1,6 +1,9 @@
 //! Tests Merino's ability to make basic suggestions.
-#![cfg(test)]
+// Note, setting the following line will cause a compile error. This may be due to the
+// fact that the proc_macro may not be able to locate items.
+//#![cfg(test)]
 
+#![allow(unused_imports)]
 use crate::{merino_test_macro, utils::test_tools::TestReqwestClient, TestingTools};
 use anyhow::Result;
 use httpmock::{Method::GET, MockServer};
@@ -129,16 +132,9 @@ async fn test_expected_variant_fields(
         "adm".to_string(),
         SuggestionProviderConfig::RemoteSettings(RemoteSettingsConfig::default())
     );
+    settings.test_changes = Some(vec![])
 })]
-async fn suggest_adm_rs_works_empty(
-    TestingTools {
-        test_client,
-        remote_settings_mock,
-        ..
-    }: TestingTools,
-) -> Result<()> {
-    setup_remote_settings_collection(&remote_settings_mock, &[]).await;
-
+async fn suggest_adm_rs_works_empty(TestingTools { test_client, .. }: TestingTools) -> Result<()> {
     let response = test_client.get("/api/v1/suggest?q=apple").send().await?;
 
     // Check that the status is 200 OK, and that the body is JSON. The
@@ -156,16 +152,11 @@ async fn suggest_adm_rs_works_empty(
         "adm".to_string(),
         SuggestionProviderConfig::RemoteSettings(RemoteSettingsConfig::default())
     );
+    settings.test_changes = Some(vec!["apple".to_string(), "banana".to_string()]);
 })]
 async fn suggest_adm_rs_works_content(
-    TestingTools {
-        test_client,
-        remote_settings_mock,
-        ..
-    }: TestingTools,
+    TestingTools { test_client, .. }: TestingTools,
 ) -> Result<()> {
-    setup_remote_settings_collection(&remote_settings_mock, &["apple", "banana"]).await;
-
     let response = test_client.get("/api/v1/suggest?q=apple").send().await?;
 
     assert_eq!(response.status(), StatusCode::OK);
@@ -179,6 +170,7 @@ async fn suggest_adm_rs_works_content(
     Ok(())
 }
 
+/// Create the remote settings collection and endpoint from the provided suggestions
 pub async fn setup_remote_settings_collection(server: &MockServer, suggestions: &[&str]) {
     let mut changes = suggestions
         .iter()

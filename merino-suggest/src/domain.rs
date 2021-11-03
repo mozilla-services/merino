@@ -39,6 +39,7 @@ impl Proportion {
     }
 }
 
+/// Define helper impls for float values
 macro_rules! impl_for_float {
     ($type: ty) => {
         impl TryFrom<$type> for Proportion {

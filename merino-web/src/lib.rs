@@ -57,7 +57,10 @@ use crate::providers::SuggestionProviderRef;
 /// let settings = merino_settings::Settings::load()
 ///     .expect("Failed to load settings");
 /// let metrics_client = cadence::StatsdClient::from_sink("merino", cadence::NopMetricSink);
-/// merino_web::run(listener, metrics_client, settings)
+/// let providers = merino_web::providers::SuggestionProviderRef::init(&settings, &metrics_client)
+///                 .await
+///                 .expect("Could not create providers");
+/// let server = merino_web::run(listener, metrics_client, settings, providers)
 ///     .expect("Failed to start server")
 ///     .await
 ///     .expect("Fatal error while running server");
@@ -68,6 +71,7 @@ use crate::providers::SuggestionProviderRef;
 /// requests. This is useful for tests.
 ///
 /// ```no_run
+/// # tokio_test::block_on(async {
 /// use std::net::TcpListener;
 /// use merino_settings::Settings;
 ///
@@ -76,11 +80,15 @@ use crate::providers::SuggestionProviderRef;
 /// let settings = merino_settings::Settings::load()
 ///     .expect("Failed to load settings");
 /// let metrics_client = cadence::StatsdClient::from_sink("merino", cadence::NopMetricSink);
-/// let server = merino_web::run(listener, metrics_client, settings)
+/// let providers = merino_web::providers::SuggestionProviderRef::init(&settings, &metrics_client)
+///                 .await
+///                 .expect("Could not create providers");
+/// let server = merino_web::run(listener, metrics_client, settings, providers)
 ///     .expect("Failed to start server");
 ///
 /// /// The server can be stopped with `join_handle::abort()`, if needed.
 /// let join_handle = tokio::spawn(server);
+/// # })
 /// ```
 pub fn run(
     listener: TcpListener,

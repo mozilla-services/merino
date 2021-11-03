@@ -90,6 +90,12 @@ pub struct Settings {
     /// off, the suggest request object should be logged, but the
     /// search query should be blank.
     pub log_full_request: bool,
+
+    /// Only used for integration tests.
+    // note `#[cfg(test)]` will cause a compile error as the
+    // `merino_test` proc_macro will not be able to find this
+    // field.
+    pub test_changes: Option<Vec<String>>,
 }
 
 /// Settings for the HTTP server.

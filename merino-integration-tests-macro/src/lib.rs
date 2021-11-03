@@ -72,7 +72,6 @@ pub fn merino_test(attributes: TokenStream, item: TokenStream) -> TokenStream {
             .iter()
             .map(|segment| segment.ident.to_string())
             .collect();
-        dbg!(&segment_names);
         (segment_names == vec!["parameterized"])
             || (segment_names == vec!["parameterized", "parameterized"])
     });
@@ -177,8 +176,7 @@ pub fn merino_test(attributes: TokenStream, item: TokenStream) -> TokenStream {
                     // crate here refers to `merino-integration-tests`
                     crate::merino_test(
                         |settings| { #settings_body },
-                        | #testing_tools_arg | async move { #body },
-                        /*|changes| {None}*/
+                        | #testing_tools_arg | async move { #body }
                     ).await
                 })
         }
