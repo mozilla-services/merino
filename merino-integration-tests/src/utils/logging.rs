@@ -1,6 +1,6 @@
 //! Testing utilities to work with logs.
 
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::{
     collections::HashMap,
@@ -27,11 +27,19 @@ pub struct LogWatcher {
 
 impl LogWatcher {
     /// Make a new LogWatcher with some events pre-populated. Primarily for testing LogWatcher itself.
+    #[must_use]
     pub fn with_events(events: Vec<TracingJsonEvent>) -> Self {
         Self {
             events,
             buf: Arc::new(Mutex::new(Vec::new())),
         }
+    }
+
+    /// Iterate over the events collected so far by this log watcher.
+    #[must_use]
+    pub fn events(&mut self) -> std::slice::Iter<TracingJsonEvent> {
+        self.convert_events();
+        self.events.iter()
     }
 
     /// Test if any event this logger received matches `predicate`.
@@ -52,12 +60,12 @@ impl LogWatcher {
     /// #
     /// // assert!(log_watcher.has(|msg| msg.field_contains("message", "request success")));
     /// ```
+    #[must_use = "LogWatcher::has does not make assertions alone, you probably want to wrap it in assert!()"]
     pub fn has<F>(&mut self, predicate: F) -> bool
     where
         F: FnMut(&TracingJsonEvent) -> bool,
     {
-        self.convert_events();
-        self.events.iter().any(predicate)
+        self.events().any(predicate)
     }
 
     /// Iterate through `self.buf` to convert newline separated, completed JSON
@@ -131,7 +139,7 @@ impl Write for LogWatcherWriter {
 }
 
 /// A deserialization of [`tracing_subscriber::fmt::format::Json`]'s output format.
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Serialize)]
 pub struct TracingJsonEvent {
     /// The key-value fields logged on the event, usually including `message`.
     pub fields: HashMap<String, Value>,
@@ -153,8 +161,7 @@ impl TracingJsonEvent {
     {
         self.fields
             .get(field_name)
-            .and_then(|value| value.as_str())
-            .map(|value| value.contains(pat.deref()))
-            .unwrap_or(false)
+            .and_then(serde_json::Value::as_str)
+            .map_or(false, |value| value.contains(&*pat))
     }
 }

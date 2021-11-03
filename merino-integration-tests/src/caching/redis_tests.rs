@@ -153,8 +153,8 @@ async fn missing_ttls_are_re_set(
     let key = keys.into_iter().next().unwrap();
 
     // Remove the TTL from the cached item
-    let _: () = redis::Cmd::persist(&key)
-        .query(&mut redis_client)
+    redis::Cmd::persist(&key)
+        .query::<()>(&mut redis_client)
         .expect("Couldn't write to cache");
 
     // Another request which should succeed.
@@ -170,11 +170,11 @@ async fn missing_ttls_are_re_set(
         Some(&HeaderValue::from_static("hit")),
     );
     // Check that the expected error type was reported in the logs.
-    log_watcher.has(|event| {
-        event.field_contains("message", "not of expected type")
+    assert!(log_watcher.has(|event| {
+        event.field_contains("message", "Value in cache without TTL")
             && matches!(
                 event.fields.get("key"),
                 Some(serde_json::Value::String(k)) if *k == key
             )
-    });
+    }));
 }

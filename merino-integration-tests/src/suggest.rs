@@ -9,8 +9,9 @@ use merino_settings::providers::{
     SuggestionProviderConfig,
 };
 use reqwest::StatusCode;
-use serde_json::json;
+use serde_json::{json, Value};
 use std::collections::{HashMap, HashSet};
+use tracing::Level;
 
 #[merino_test_macro(|settings| {
     // Wiki fruit is only enabled when debug is true.
@@ -406,6 +407,82 @@ async fn suggest_keywordfilter_works(
     assert_eq!(body["suggestions"][1]["title"], json!("anvil"));
 
     assert!(metrics_watcher.has_incr("keywordfilter.match"));
+
+    Ok(())
+}
+
+#[merino_test_macro(|settings| {
+    // This test is valid even with no providers specified.
+    settings.suggestion_providers = HashMap::new();
+    settings.log_full_request = true;
+})]
+async fn suggest_logs_searches_when_requested(
+    TestingTools {
+        mut log_watcher,
+        test_client,
+        ..
+    }: TestingTools,
+) -> Result<()> {
+    // Just a long random value, nothing special.
+    let query = "eec7c3d8-3bf6-11ec-a29b-bbdf015cc865";
+    test_client
+        .get(&format!("/api/v1/suggest?q={}", query))
+        .send()
+        .await?;
+
+    assert!(log_watcher.has(|event| {
+        event.level == Level::INFO
+            && event.fields.get("r#type").and_then(Value::as_str) == Some("web.suggest.request")
+            && event.fields.get("query").and_then(Value::as_str) == Some(query)
+    }));
+
+    // Only log lines tagged with the specified type contain the query
+    for event in log_watcher.events() {
+        // Levels above INFO aren't included in production logging
+        if event.level == Level::DEBUG || event.level == Level::TRACE {
+            continue;
+        }
+        // If the type is correct, the `has` assertion above ensures everything is ok
+        if event.fields.get("r#type") == Some(&Value::String("web.suggest.request".to_string())) {
+            continue;
+        }
+        // If this is a non-request, non-debug/trace log, then it should not have the query anywhere in it
+        let text = serde_json::to_string(&event)?;
+        assert!(!text.contains(query));
+    }
+
+    Ok(())
+}
+
+#[merino_test_macro(|settings| {
+    // This test is valid even with no providers specified.
+    settings.suggestion_providers = HashMap::new();
+    settings.log_full_request = false;
+})]
+async fn suggest_redacts_queries_when_requested(
+    TestingTools {
+        mut log_watcher,
+        test_client,
+        ..
+    }: TestingTools,
+) -> Result<()> {
+    // Just a long random value, nothing special.
+    let query = "eec7c3d8-3bf6-11ec-a29b-bbdf015cc865";
+    test_client
+        .get(&format!("/api/v1/suggest?q={}", query))
+        .send()
+        .await?;
+
+    // Only log lines tagged with the specified type contain the query
+    for event in log_watcher.events() {
+        // Levels above INFO aren't included in production logging
+        if event.level == Level::DEBUG || event.level == Level::TRACE {
+            continue;
+        }
+        // If this is a non-debug/trace log, then it should not have the query anywhere in it
+        let text = serde_json::to_string(&event)?;
+        assert!(!text.contains(query));
+    }
 
     Ok(())
 }
