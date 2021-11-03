@@ -207,7 +207,7 @@ mod tests {
         let task_handle = tokio::spawn(async move {
             let request: SuggestionRequest = Faker.fake();
             multi.suggest(request).await.unwrap();
-            // signal that the request has finished
+            // Signal that the request has finished
             suggestion_result_tx.send(()).unwrap();
         });
 
