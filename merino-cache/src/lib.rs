@@ -2,7 +2,6 @@
 
 //! Manages Merino's cache
 
-mod domain;
 mod memory;
 mod redis;
 

@@ -138,3 +138,21 @@ impl<'de> Deserialize<'de> for Proportion {
         deserializer.deserialize_any(Visitor)
     }
 }
+
+/// Gathers inputs to be hashed to determine a cache key.
+pub trait CacheInputs {
+    /// Add data to the cache key.
+    fn add(&mut self, input: &[u8]);
+    /// Generate a cache key from the collected inputs so far.
+    fn hash(&self) -> String;
+}
+
+impl CacheInputs for blake3::Hasher {
+    fn add(&mut self, input: &[u8]) {
+        self.update(input);
+    }
+
+    fn hash(&self) -> String {
+        self.finalize().to_hex().to_string()
+    }
+}

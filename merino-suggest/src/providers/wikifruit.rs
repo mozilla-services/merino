@@ -11,7 +11,7 @@ use http::Uri;
 use merino_settings::Settings;
 
 use crate::{
-    domain::Proportion, SetupError, SuggestError, Suggestion, SuggestionProvider,
+    domain::Proportion, CacheInputs, SetupError, SuggestError, Suggestion, SuggestionProvider,
     SuggestionRequest, SuggestionResponse,
 };
 
@@ -40,6 +40,10 @@ impl WikiFruit {
 impl SuggestionProvider for WikiFruit {
     fn name(&self) -> String {
         "WikiFruit".to_string()
+    }
+
+    fn cache_inputs(&self, req: &SuggestionRequest, cache_inputs: &mut dyn CacheInputs) {
+        cache_inputs.add(req.query.as_bytes());
     }
 
     async fn suggest(

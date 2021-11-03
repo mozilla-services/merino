@@ -9,8 +9,8 @@ use http::Uri;
 use merino_settings::{providers::FixedConfig, Settings};
 
 use crate::{
-    Proportion, SetupError, SuggestError, Suggestion, SuggestionProvider, SuggestionRequest,
-    SuggestionResponse,
+    CacheInputs, Proportion, SetupError, SuggestError, Suggestion, SuggestionProvider,
+    SuggestionRequest, SuggestionResponse,
 };
 
 /// A suggester that always provides the same suggestion, with a configurable title.
@@ -40,6 +40,10 @@ impl FixedProvider {
 impl SuggestionProvider for FixedProvider {
     fn name(&self) -> String {
         format!("FixedProvider({})", self.value)
+    }
+
+    fn cache_inputs(&self, _req: &SuggestionRequest, _cache_inputs: &mut dyn CacheInputs) {
+        // No property of req will change the response
     }
 
     async fn suggest(

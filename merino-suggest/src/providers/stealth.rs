@@ -1,6 +1,6 @@
 //! A provider that executes an inner provider, but returns no suggestions.
 
-use crate::{SuggestError, SuggestionProvider, SuggestionRequest, SuggestionResponse};
+use crate::{CacheInputs, SuggestError, SuggestionProvider, SuggestionRequest, SuggestionResponse};
 use async_trait::async_trait;
 
 /// A provider that runs `inner`, but doesn't return any results.
@@ -13,6 +13,10 @@ pub struct StealthProvider {
 impl SuggestionProvider for StealthProvider {
     fn name(&self) -> String {
         format!("stealth({})", self.inner.name())
+    }
+
+    fn cache_inputs(&self, req: &SuggestionRequest, cache_inputs: &mut dyn CacheInputs) {
+        self.inner.cache_inputs(req, cache_inputs);
     }
 
     async fn suggest(
