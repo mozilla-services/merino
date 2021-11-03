@@ -206,6 +206,7 @@ fn safe_log_request(
     );
 
     tracing::info!(
+        r#type = "web.suggest.request",
         accepts_english = ?request.accepts_english,
         %city,
         %country,
@@ -217,7 +218,9 @@ fn safe_log_request(
         %query,
         client_variants = %query_params.client_variants.join(","),
         %requested_providers,
-        r#type = "web.suggest.request",
+        // Also includes fields from tracing-actix-web-mozlog, including `rid`
+        // (request ID), `useragent` and `path` (which does not include query
+        // string).
         "handling suggestion request"
     );
 }
