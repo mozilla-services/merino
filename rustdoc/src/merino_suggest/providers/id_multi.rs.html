@@ -144,6 +144,111 @@
 <span id="144">144</span>
 <span id="145">145</span>
 <span id="146">146</span>
+<span id="147">147</span>
+<span id="148">148</span>
+<span id="149">149</span>
+<span id="150">150</span>
+<span id="151">151</span>
+<span id="152">152</span>
+<span id="153">153</span>
+<span id="154">154</span>
+<span id="155">155</span>
+<span id="156">156</span>
+<span id="157">157</span>
+<span id="158">158</span>
+<span id="159">159</span>
+<span id="160">160</span>
+<span id="161">161</span>
+<span id="162">162</span>
+<span id="163">163</span>
+<span id="164">164</span>
+<span id="165">165</span>
+<span id="166">166</span>
+<span id="167">167</span>
+<span id="168">168</span>
+<span id="169">169</span>
+<span id="170">170</span>
+<span id="171">171</span>
+<span id="172">172</span>
+<span id="173">173</span>
+<span id="174">174</span>
+<span id="175">175</span>
+<span id="176">176</span>
+<span id="177">177</span>
+<span id="178">178</span>
+<span id="179">179</span>
+<span id="180">180</span>
+<span id="181">181</span>
+<span id="182">182</span>
+<span id="183">183</span>
+<span id="184">184</span>
+<span id="185">185</span>
+<span id="186">186</span>
+<span id="187">187</span>
+<span id="188">188</span>
+<span id="189">189</span>
+<span id="190">190</span>
+<span id="191">191</span>
+<span id="192">192</span>
+<span id="193">193</span>
+<span id="194">194</span>
+<span id="195">195</span>
+<span id="196">196</span>
+<span id="197">197</span>
+<span id="198">198</span>
+<span id="199">199</span>
+<span id="200">200</span>
+<span id="201">201</span>
+<span id="202">202</span>
+<span id="203">203</span>
+<span id="204">204</span>
+<span id="205">205</span>
+<span id="206">206</span>
+<span id="207">207</span>
+<span id="208">208</span>
+<span id="209">209</span>
+<span id="210">210</span>
+<span id="211">211</span>
+<span id="212">212</span>
+<span id="213">213</span>
+<span id="214">214</span>
+<span id="215">215</span>
+<span id="216">216</span>
+<span id="217">217</span>
+<span id="218">218</span>
+<span id="219">219</span>
+<span id="220">220</span>
+<span id="221">221</span>
+<span id="222">222</span>
+<span id="223">223</span>
+<span id="224">224</span>
+<span id="225">225</span>
+<span id="226">226</span>
+<span id="227">227</span>
+<span id="228">228</span>
+<span id="229">229</span>
+<span id="230">230</span>
+<span id="231">231</span>
+<span id="232">232</span>
+<span id="233">233</span>
+<span id="234">234</span>
+<span id="235">235</span>
+<span id="236">236</span>
+<span id="237">237</span>
+<span id="238">238</span>
+<span id="239">239</span>
+<span id="240">240</span>
+<span id="241">241</span>
+<span id="242">242</span>
+<span id="243">243</span>
+<span id="244">244</span>
+<span id="245">245</span>
+<span id="246">246</span>
+<span id="247">247</span>
+<span id="248">248</span>
+<span id="249">249</span>
+<span id="250">250</span>
+<span id="251">251</span>
 </pre><pre class="rust">
 <span class="doccomment">//! Provides a provider-combinator that contains a set of named providers. It</span>
 <span class="doccomment">//! can list these providers by name, and serve suggestions using only a partial</span>
@@ -289,6 +394,111 @@
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">SuggestionResponse</span>, <span class="ident">SuggestError</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">ids</span>: <span class="ident">HashSet</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">providers</span>.<span class="ident">keys</span>().<span class="ident">cloned</span>().<span class="ident">collect</span>();
         <span class="self">self</span>.<span class="ident">suggest_from_ids</span>(<span class="ident">request</span>, <span class="kw-2">&amp;</span><span class="ident">ids</span>).<span class="kw">await</span>
+    }
+}
+
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
+<span class="kw">mod</span> <span class="ident">tests</span> {
+    <span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
+
+    <span class="kw">use</span> <span class="kw">crate</span>::{
+        <span class="ident">CacheStatus</span>, <span class="ident">IdMulti</span>, <span class="ident">SuggestError</span>, <span class="ident">SuggestionProvider</span>, <span class="ident">SuggestionRequest</span>,
+        <span class="ident">SuggestionResponse</span>,
+    };
+    <span class="kw">use</span> <span class="ident">async_trait::async_trait</span>;
+    <span class="kw">use</span> <span class="ident">fake</span>::{<span class="ident">Fake</span>, <span class="ident">Faker</span>};
+    <span class="kw">use</span> <span class="ident">tokio::sync::oneshot::error::TryRecvError</span>;
+
+    <span class="doccomment">/// A provider that can be externally paused mid-request.</span>
+    <span class="kw">struct</span> <span class="ident">ChannelProvider</span> {
+        <span class="ident">tx</span>: <span class="ident">tokio::sync::mpsc::Sender</span><span class="op">&lt;</span>()<span class="op">&gt;</span>,
+        <span class="ident">rx</span>: <span class="ident">tokio::sync::Mutex</span><span class="op">&lt;</span><span class="ident">tokio::sync::mpsc::Receiver</span><span class="op">&lt;</span>()<span class="op">&gt;</span><span class="op">&gt;</span>,
+    }
+
+    <span class="attribute">#[<span class="ident">async_trait</span>]</span>
+    <span class="kw">impl</span> <span class="ident">SuggestionProvider</span> <span class="kw">for</span> <span class="ident">ChannelProvider</span> {
+        <span class="kw">fn</span> <span class="ident">name</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
+            <span class="string">&quot;channel&quot;</span>.<span class="ident">to_string</span>()
+        }
+
+        <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">suggest</span>(
+            <span class="kw-2">&amp;</span><span class="self">self</span>,
+            <span class="ident">_request</span>: <span class="ident">SuggestionRequest</span>,
+        ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">SuggestionResponse</span>, <span class="ident">SuggestError</span><span class="op">&gt;</span> {
+            <span class="self">self</span>.<span class="ident">tx</span>.<span class="ident">send</span>(()).<span class="kw">await</span>.<span class="ident">unwrap</span>();
+            <span class="self">self</span>.<span class="ident">rx</span>.<span class="ident">lock</span>().<span class="kw">await</span>.<span class="ident">recv</span>().<span class="kw">await</span>.<span class="ident">unwrap</span>();
+
+            <span class="prelude-val">Ok</span>(<span class="ident">SuggestionResponse</span> {
+                <span class="ident">cache_status</span>: <span class="ident">CacheStatus::NoCache</span>,
+                <span class="ident">cache_ttl</span>: <span class="prelude-val">None</span>,
+                <span class="ident">suggestions</span>: <span class="macro">vec!</span>[],
+            })
+        }
+    }
+
+    <span class="attribute">#[<span class="ident">tokio::test</span>]</span>
+    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">multi_is_concurrent</span>() {
+        <span class="comment">// Set up two way communication for two internal providers, and a one shot provider to get the suggestion out of a thread.</span>
+        <span class="kw">let</span> (<span class="ident">prov1_input_tx</span>, <span class="ident">prov1_input_rx</span>) <span class="op">=</span> <span class="ident">tokio::sync::mpsc::channel</span>::<span class="op">&lt;</span>()<span class="op">&gt;</span>(<span class="number">4</span>);
+        <span class="kw">let</span> (<span class="ident">prov1_output_tx</span>, <span class="kw-2">mut</span> <span class="ident">prov1_output_rx</span>) <span class="op">=</span> <span class="ident">tokio::sync::mpsc::channel</span>::<span class="op">&lt;</span>()<span class="op">&gt;</span>(<span class="number">4</span>);
+        <span class="kw">let</span> (<span class="ident">prov2_input_tx</span>, <span class="ident">prov2_input_rx</span>) <span class="op">=</span> <span class="ident">tokio::sync::mpsc::channel</span>::<span class="op">&lt;</span>()<span class="op">&gt;</span>(<span class="number">4</span>);
+        <span class="kw">let</span> (<span class="ident">prov2_output_tx</span>, <span class="kw-2">mut</span> <span class="ident">prov2_output_rx</span>) <span class="op">=</span> <span class="ident">tokio::sync::mpsc::channel</span>::<span class="op">&lt;</span>()<span class="op">&gt;</span>(<span class="number">4</span>);
+        <span class="kw">let</span> (<span class="ident">suggestion_result_tx</span>, <span class="kw-2">mut</span> <span class="ident">suggestion_result_rx</span>) <span class="op">=</span>
+            <span class="ident">tokio::sync::oneshot::channel</span>::<span class="op">&lt;</span>()<span class="op">&gt;</span>();
+
+        <span class="comment">// Set up the providers</span>
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">providers</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="kw">_</span>, <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">SuggestionProvider</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">HashMap::new</span>();
+        <span class="ident">providers</span>.<span class="ident">insert</span>(
+            <span class="string">&quot;1&quot;</span>.<span class="ident">to_string</span>(),
+            <span class="ident">Box::new</span>(<span class="ident">ChannelProvider</span> {
+                <span class="ident">tx</span>: <span class="ident">prov1_output_tx</span>,
+                <span class="ident">rx</span>: <span class="ident">tokio::sync::Mutex::new</span>(<span class="ident">prov1_input_rx</span>),
+            }),
+        );
+        <span class="ident">providers</span>.<span class="ident">insert</span>(
+            <span class="string">&quot;2&quot;</span>.<span class="ident">to_string</span>(),
+            <span class="ident">Box::new</span>(<span class="ident">ChannelProvider</span> {
+                <span class="ident">tx</span>: <span class="ident">prov2_output_tx</span>,
+                <span class="ident">rx</span>: <span class="ident">tokio::sync::Mutex::new</span>(<span class="ident">prov2_input_rx</span>),
+            }),
+        );
+        <span class="kw">let</span> <span class="ident">multi</span> <span class="op">=</span> <span class="ident">IdMulti::new</span>(<span class="ident">providers</span>);
+
+        <span class="comment">// Start a request that will use both prov1 and prov2 via a multi provider.</span>
+        <span class="kw">let</span> <span class="ident">task_handle</span> <span class="op">=</span> <span class="ident">tokio::spawn</span>(<span class="kw">async</span> <span class="kw">move</span> {
+            <span class="kw">let</span> <span class="ident">request</span>: <span class="ident">SuggestionRequest</span> <span class="op">=</span> <span class="ident">Faker</span>.<span class="ident">fake</span>();
+            <span class="ident">multi</span>.<span class="ident">suggest</span>(<span class="ident">request</span>).<span class="kw">await</span>.<span class="ident">unwrap</span>();
+            <span class="comment">// Signal that the request has finished</span>
+            <span class="ident">suggestion_result_tx</span>.<span class="ident">send</span>(()).<span class="ident">unwrap</span>();
+        });
+
+        <span class="comment">// Confirm that both providers have called and have sent a message over</span>
+        <span class="comment">// their output channel (requesting to continue). This is the most</span>
+        <span class="comment">// important assertion, as it demonstrates that both providers have</span>
+        <span class="comment">// started before either of them have finished.</span>
+        <span class="macro">tokio::join!</span>(<span class="ident">prov1_output_rx</span>.<span class="ident">recv</span>(), <span class="ident">prov2_output_rx</span>.<span class="ident">recv</span>());
+
+        <span class="comment">// Make sure no response has been received</span>
+        <span class="macro">assert!</span>(<span class="macro">matches!</span>(
+            <span class="ident">suggestion_result_rx</span>.<span class="ident">try_recv</span>(),
+            <span class="prelude-val">Err</span>(<span class="ident">TryRecvError::Empty</span>)
+        ));
+
+        <span class="comment">// Allow one provider to continue</span>
+        <span class="ident">prov1_input_tx</span>.<span class="ident">send</span>(()).<span class="kw">await</span>.<span class="ident">unwrap</span>();
+
+        <span class="comment">// Make sure no response has been received</span>
+        <span class="macro">assert!</span>(<span class="macro">matches!</span>(
+            <span class="ident">suggestion_result_rx</span>.<span class="ident">try_recv</span>(),
+            <span class="prelude-val">Err</span>(<span class="ident">TryRecvError::Empty</span>)
+        ));
+
+        <span class="comment">// Allow the other provider to continue</span>
+        <span class="ident">prov2_input_tx</span>.<span class="ident">send</span>(()).<span class="kw">await</span>.<span class="ident">unwrap</span>();
+
+        <span class="comment">// Wait for the response.</span>
+        <span class="ident">suggestion_result_rx</span>.<span class="kw">await</span>.<span class="ident">unwrap</span>();
+        <span class="ident">task_handle</span>.<span class="kw">await</span>.<span class="ident">unwrap</span>();
     }
 }
 </pre></div>
