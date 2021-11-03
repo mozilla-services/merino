@@ -28,7 +28,7 @@ the level and type of the log is listed.
   event will include fields for all relevant details of the request. **Fields:**
 
   - `query` - If query logging is enabled, the text the user typed. Otherwise
-    and empty string.
+    an empty string.
   - `country` - The country the request came from.
   - `region` - The first country subdivision the request came from.
   - `city` - The city the request came from.
