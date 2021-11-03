@@ -301,6 +301,9 @@
 <span id="301">301</span>
 <span id="302">302</span>
 <span id="303">303</span>
+<span id="304">304</span>
+<span id="305">305</span>
+<span id="306">306</span>
 </pre><pre class="rust">
 <span class="doccomment">//! A cache system that uses local in-memory storage to store a limited number of items.</span>
 <span class="doccomment">//!</span>
@@ -309,13 +312,12 @@
 <span class="doccomment">//! tier maps from those hashes to the responses. In this way, duplicate</span>
 <span class="doccomment">//! responses can be stored only once, even if they are used for many requests.</span>
 
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::domain::CacheKey</span>;
 <span class="kw">use</span> <span class="ident">async_trait::async_trait</span>;
 <span class="kw">use</span> <span class="ident">deduped_dashmap</span>::{<span class="ident">ControlFlow</span>, <span class="ident">DedupedMap</span>};
 <span class="kw">use</span> <span class="ident">lazy_static::lazy_static</span>;
 <span class="kw">use</span> <span class="ident">merino_settings::providers::MemoryCacheConfig</span>;
 <span class="kw">use</span> <span class="ident">merino_suggest</span>::{
-    <span class="ident">CacheStatus</span>, <span class="ident">Suggestion</span>, <span class="ident">SuggestionProvider</span>, <span class="ident">SuggestionRequest</span>, <span class="ident">SuggestionResponse</span>,
+    <span class="ident">CacheInputs</span>, <span class="ident">CacheStatus</span>, <span class="ident">Suggestion</span>, <span class="ident">SuggestionProvider</span>, <span class="ident">SuggestionRequest</span>, <span class="ident">SuggestionResponse</span>,
 };
 <span class="kw">use</span> <span class="ident">std</span>::{
     <span class="ident">collections::HashMap</span>,
@@ -480,12 +482,16 @@
         <span class="macro">format!</span>(<span class="string">&quot;MemoryCache({})&quot;</span>, <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">name</span>())
     }
 
+    <span class="kw">fn</span> <span class="ident">cache_inputs</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">req</span>: <span class="kw-2">&amp;</span><span class="ident">SuggestionRequest</span>, <span class="ident">cache_inputs</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw">dyn</span> <span class="ident">CacheInputs</span>) {
+        <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">cache_inputs</span>(<span class="ident">req</span>, <span class="ident">cache_inputs</span>);
+    }
+
     <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">suggest</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         <span class="ident">query</span>: <span class="ident">SuggestionRequest</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">SuggestionResponse</span>, <span class="ident">merino_suggest::SuggestError</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">now</span> <span class="op">=</span> <span class="ident">Instant::now</span>();
-        <span class="kw">let</span> <span class="ident">key</span> <span class="op">=</span> <span class="ident">query</span>.<span class="ident">cache_key</span>().<span class="ident">to_string</span>();
+        <span class="kw">let</span> <span class="ident">key</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">cache_key</span>(<span class="kw-2">&amp;</span><span class="ident">query</span>);
         <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="macro">tracing::debug_span!</span>(<span class="string">&quot;memory-suggest&quot;</span>, <span class="question-mark">?</span><span class="ident">key</span>);
         <span class="kw">async</span> <span class="kw">move</span> {
             <span class="macro">tracing::debug!</span>(<span class="string">&quot;suggesting with memory cache&quot;</span>);

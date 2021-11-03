@@ -63,10 +63,22 @@
 <span id="63">63</span>
 <span id="64">64</span>
 <span id="65">65</span>
+<span id="66">66</span>
+<span id="67">67</span>
+<span id="68">68</span>
+<span id="69">69</span>
+<span id="70">70</span>
+<span id="71">71</span>
+<span id="72">72</span>
+<span id="73">73</span>
+<span id="74">74</span>
 </pre><pre class="rust">
 <span class="doccomment">//! Provides a provider-combinator that provides suggestions from multiple sub-providers.</span>
 
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">CacheStatus</span>, <span class="ident">SuggestError</span>, <span class="ident">SuggestionProvider</span>, <span class="ident">SuggestionRequest</span>, <span class="ident">SuggestionResponse</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::{
+    <span class="ident">CacheInputs</span>, <span class="ident">CacheStatus</span>, <span class="ident">SuggestError</span>, <span class="ident">SuggestionProvider</span>, <span class="ident">SuggestionRequest</span>,
+    <span class="ident">SuggestionResponse</span>,
+};
 <span class="kw">use</span> <span class="ident">async_trait::async_trait</span>;
 <span class="kw">use</span> <span class="ident">futures::future::join_all</span>;
 
@@ -98,6 +110,12 @@
             .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>()
             .<span class="ident">join</span>(<span class="string">&quot;, &quot;</span>);
         <span class="macro">format!</span>(<span class="string">&quot;Multi({})&quot;</span>, <span class="ident">provider_names</span>)
+    }
+
+    <span class="kw">fn</span> <span class="ident">cache_inputs</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">req</span>: <span class="kw-2">&amp;</span><span class="ident">SuggestionRequest</span>, <span class="ident">cache_inputs</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw">dyn</span> <span class="ident">CacheInputs</span>) {
+        <span class="kw">for</span> <span class="ident">provider</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">providers</span> {
+            <span class="ident">provider</span>.<span class="ident">cache_inputs</span>(<span class="ident">req</span>, <span class="ident">cache_inputs</span>);
+        }
     }
 
     <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">suggest</span>(

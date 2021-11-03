@@ -333,6 +333,11 @@
 <span id="333">333</span>
 <span id="334">334</span>
 <span id="335">335</span>
+<span id="336">336</span>
+<span id="337">337</span>
+<span id="338">338</span>
+<span id="339">339</span>
+<span id="340">340</span>
 </pre><pre class="rust">
 <span class="doccomment">//! AdM integration that uses the remote-settings provided data.</span>
 
@@ -346,8 +351,8 @@
 <span class="kw">use</span> <span class="ident">lazy_static::lazy_static</span>;
 <span class="kw">use</span> <span class="ident">merino_settings</span>::{<span class="ident">providers::RemoteSettingsConfig</span>, <span class="ident">Settings</span>};
 <span class="kw">use</span> <span class="ident">merino_suggest</span>::{
-    <span class="ident">Proportion</span>, <span class="ident">SetupError</span>, <span class="ident">SuggestError</span>, <span class="ident">Suggestion</span>, <span class="ident">SuggestionProvider</span>, <span class="ident">SuggestionRequest</span>,
-    <span class="ident">SuggestionResponse</span>,
+    <span class="ident">CacheInputs</span>, <span class="ident">Proportion</span>, <span class="ident">SetupError</span>, <span class="ident">SuggestError</span>, <span class="ident">Suggestion</span>, <span class="ident">SuggestionProvider</span>,
+    <span class="ident">SuggestionRequest</span>, <span class="ident">SuggestionResponse</span>,
 };
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 <span class="kw">use</span> <span class="ident">serde_with</span>::{<span class="ident">serde_as</span>, <span class="ident">DisplayFromStr</span>};
@@ -538,6 +543,11 @@
 <span class="kw">impl</span> <span class="ident">SuggestionProvider</span> <span class="kw">for</span> <span class="ident">RemoteSettingsSuggester</span> {
     <span class="kw">fn</span> <span class="ident">name</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
         <span class="string">&quot;AdmRemoteSettings&quot;</span>.<span class="ident">into</span>()
+    }
+
+    <span class="kw">fn</span> <span class="ident">cache_inputs</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">req</span>: <span class="kw-2">&amp;</span><span class="ident">SuggestionRequest</span>, <span class="ident">cache_inputs</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw">dyn</span> <span class="ident">CacheInputs</span>) {
+        <span class="ident">cache_inputs</span>.<span class="ident">add</span>(<span class="kw-2">&amp;</span>[<span class="ident">req</span>.<span class="ident">accepts_english</span> <span class="kw">as</span> <span class="ident">u8</span>]);
+        <span class="ident">cache_inputs</span>.<span class="ident">add</span>(<span class="ident">req</span>.<span class="ident">query</span>.<span class="ident">as_bytes</span>());
     }
 
     <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">suggest</span>(

@@ -105,10 +105,14 @@
 <span id="105">105</span>
 <span id="106">106</span>
 <span id="107">107</span>
+<span id="108">108</span>
+<span id="109">109</span>
+<span id="110">110</span>
+<span id="111">111</span>
 </pre><pre class="rust">
 <span class="doccomment">//! Tools to make sure providers don&#39;t  cache_status: todo!(), cache_ttl: todo!(), suggestions: todo!() take excessive amounts of time.</span>
 
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">CacheStatus</span>, <span class="ident">SuggestionProvider</span>, <span class="ident">SuggestionResponse</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">CacheInputs</span>, <span class="ident">CacheStatus</span>, <span class="ident">SuggestionProvider</span>, <span class="ident">SuggestionResponse</span>};
 <span class="kw">use</span> <span class="ident">async_trait::async_trait</span>;
 <span class="kw">use</span> <span class="ident">merino_settings::providers::TimeoutConfig</span>;
 <span class="kw">use</span> <span class="ident">std::time::Duration</span>;
@@ -137,6 +141,10 @@
 <span class="kw">impl</span> <span class="ident">SuggestionProvider</span> <span class="kw">for</span> <span class="ident">TimeoutProvider</span> {
     <span class="kw">fn</span> <span class="ident">name</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
         <span class="macro">format!</span>(<span class="string">&quot;timeout({})&quot;</span>, <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">name</span>())
+    }
+
+    <span class="kw">fn</span> <span class="ident">cache_inputs</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">req</span>: <span class="kw-2">&amp;</span><span class="kw">crate</span><span class="ident">::SuggestionRequest</span>, <span class="ident">cache_inputs</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw">dyn</span> <span class="ident">CacheInputs</span>) {
+        <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">cache_inputs</span>(<span class="ident">req</span>, <span class="ident">cache_inputs</span>);
     }
 
     <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">suggest</span>(

@@ -483,6 +483,89 @@
 <span id="483">483</span>
 <span id="484">484</span>
 <span id="485">485</span>
+<span id="486">486</span>
+<span id="487">487</span>
+<span id="488">488</span>
+<span id="489">489</span>
+<span id="490">490</span>
+<span id="491">491</span>
+<span id="492">492</span>
+<span id="493">493</span>
+<span id="494">494</span>
+<span id="495">495</span>
+<span id="496">496</span>
+<span id="497">497</span>
+<span id="498">498</span>
+<span id="499">499</span>
+<span id="500">500</span>
+<span id="501">501</span>
+<span id="502">502</span>
+<span id="503">503</span>
+<span id="504">504</span>
+<span id="505">505</span>
+<span id="506">506</span>
+<span id="507">507</span>
+<span id="508">508</span>
+<span id="509">509</span>
+<span id="510">510</span>
+<span id="511">511</span>
+<span id="512">512</span>
+<span id="513">513</span>
+<span id="514">514</span>
+<span id="515">515</span>
+<span id="516">516</span>
+<span id="517">517</span>
+<span id="518">518</span>
+<span id="519">519</span>
+<span id="520">520</span>
+<span id="521">521</span>
+<span id="522">522</span>
+<span id="523">523</span>
+<span id="524">524</span>
+<span id="525">525</span>
+<span id="526">526</span>
+<span id="527">527</span>
+<span id="528">528</span>
+<span id="529">529</span>
+<span id="530">530</span>
+<span id="531">531</span>
+<span id="532">532</span>
+<span id="533">533</span>
+<span id="534">534</span>
+<span id="535">535</span>
+<span id="536">536</span>
+<span id="537">537</span>
+<span id="538">538</span>
+<span id="539">539</span>
+<span id="540">540</span>
+<span id="541">541</span>
+<span id="542">542</span>
+<span id="543">543</span>
+<span id="544">544</span>
+<span id="545">545</span>
+<span id="546">546</span>
+<span id="547">547</span>
+<span id="548">548</span>
+<span id="549">549</span>
+<span id="550">550</span>
+<span id="551">551</span>
+<span id="552">552</span>
+<span id="553">553</span>
+<span id="554">554</span>
+<span id="555">555</span>
+<span id="556">556</span>
+<span id="557">557</span>
+<span id="558">558</span>
+<span id="559">559</span>
+<span id="560">560</span>
+<span id="561">561</span>
+<span id="562">562</span>
+<span id="563">563</span>
+<span id="564">564</span>
+<span id="565">565</span>
+<span id="566">566</span>
+<span id="567">567</span>
+<span id="568">568</span>
 </pre><pre class="rust">
 <span class="attribute">#![<span class="ident">warn</span>(<span class="ident">missing_docs</span>, <span class="ident">clippy::missing_docs_in_private_items</span>)]</span>
 
@@ -511,7 +594,7 @@
 <span class="kw">use</span> <span class="ident">serde_with</span>::{<span class="ident">serde_as</span>, <span class="ident">DisplayFromStr</span>};
 <span class="kw">use</span> <span class="ident">thiserror::Error</span>;
 
-<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::domain::Proportion</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::domain</span>::{<span class="ident">CacheInputs</span>, <span class="ident">Proportion</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::providers</span>::{
     <span class="ident">DebugProvider</span>, <span class="ident">FixedProvider</span>, <span class="ident">IdMulti</span>, <span class="ident">IdMultiProviderDetails</span>, <span class="ident">KeywordFilterProvider</span>, <span class="ident">Multi</span>,
     <span class="ident">StealthProvider</span>, <span class="ident">TimeoutProvider</span>, <span class="ident">WikiFruit</span>,
@@ -777,6 +860,31 @@
     <span class="kw">fn</span> <span class="ident">is_null</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
         <span class="bool-val">false</span>
     }
+
+    <span class="doccomment">/// Generate a set of cache inputs for a given query specific to this</span>
+    <span class="doccomment">/// provider. Any property of the query that affects how suggestions are</span>
+    <span class="doccomment">/// generated should be included.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// By default, all properties of the query are used, but providers should</span>
+    <span class="doccomment">/// narrow this to a smaller scope.</span>
+    <span class="kw">fn</span> <span class="ident">cache_inputs</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">req</span>: <span class="kw-2">&amp;</span><span class="ident">SuggestionRequest</span>, <span class="ident">cache_inputs</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw">dyn</span> <span class="ident">CacheInputs</span>) {
+        <span class="ident">cache_inputs</span>.<span class="ident">add</span>(<span class="ident">req</span>.<span class="ident">query</span>.<span class="ident">as_bytes</span>());
+        <span class="ident">cache_inputs</span>.<span class="ident">add</span>(<span class="kw-2">&amp;</span>[<span class="ident">req</span>.<span class="ident">accepts_english</span> <span class="kw">as</span> <span class="ident">u8</span>]);
+        <span class="ident">cache_inputs</span>.<span class="ident">add</span>(<span class="ident">req</span>.<span class="ident">country</span>.<span class="ident">as_deref</span>().<span class="ident">unwrap_or</span>(<span class="string">&quot;&lt;none&gt;&quot;</span>).<span class="ident">as_bytes</span>());
+        <span class="ident">cache_inputs</span>.<span class="ident">add</span>(<span class="ident">req</span>.<span class="ident">region</span>.<span class="ident">as_deref</span>().<span class="ident">unwrap_or</span>(<span class="string">&quot;&lt;none&gt;&quot;</span>).<span class="ident">as_bytes</span>());
+        <span class="ident">cache_inputs</span>.<span class="ident">add</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>.<span class="ident">dma</span>.<span class="ident">map_or</span>([<span class="number">0xFF</span>, <span class="number">0xFF</span>], <span class="ident">u16::to_be_bytes</span>));
+        <span class="ident">cache_inputs</span>.<span class="ident">add</span>(<span class="ident">req</span>.<span class="ident">city</span>.<span class="ident">as_deref</span>().<span class="ident">unwrap_or</span>(<span class="string">&quot;&lt;none&gt;&quot;</span>).<span class="ident">as_bytes</span>());
+        <span class="ident">cache_inputs</span>.<span class="ident">add</span>(<span class="ident">req</span>.<span class="ident">device_info</span>.<span class="ident">to_string</span>().<span class="ident">as_bytes</span>());
+    }
+
+    <span class="doccomment">/// Use `Self::cache_inputs` to generate a single cache key. This function</span>
+    <span class="doccomment">/// should not normally be overridden by provider implementations.</span>
+    <span class="kw">fn</span> <span class="ident">cache_key</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">req</span>: <span class="kw-2">&amp;</span><span class="ident">SuggestionRequest</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cache_inputs</span> <span class="op">=</span> <span class="ident">blake3::Hasher::new</span>();
+        <span class="ident">cache_inputs</span>.<span class="ident">add</span>(<span class="self">self</span>.<span class="ident">name</span>().<span class="ident">as_bytes</span>());
+        <span class="self">self</span>.<span class="ident">cache_inputs</span>(<span class="ident">req</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">cache_inputs</span>);
+        <span class="macro">format!</span>(<span class="string">&quot;provider:v1:{}&quot;</span>, <span class="ident">cache_inputs</span>.<span class="ident">hash</span>())
+    }
 }
 
 <span class="doccomment">/// A provider that never provides any suggestions</span>
@@ -786,6 +894,10 @@
 <span class="kw">impl</span> <span class="ident">SuggestionProvider</span> <span class="kw">for</span> <span class="ident">NullProvider</span> {
     <span class="kw">fn</span> <span class="ident">name</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
         <span class="string">&quot;NullProvider&quot;</span>.<span class="ident">into</span>()
+    }
+
+    <span class="kw">fn</span> <span class="ident">cache_inputs</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">_req</span>: <span class="kw-2">&amp;</span><span class="ident">SuggestionRequest</span>, <span class="ident">_hasher</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw">dyn</span> <span class="ident">CacheInputs</span>) {
+        <span class="comment">// No property of req will change the response</span>
     }
 
     <span class="kw">fn</span> <span class="ident">is_null</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
@@ -967,6 +1079,60 @@
 
         <span class="comment">// Includes fr-CH</span>
         <span class="macro">assert!</span>(<span class="ident">supported_languages</span>.<span class="ident">includes</span>(<span class="string">&quot;fr&quot;</span>, <span class="prelude-val">Some</span>(<span class="string">&quot;ch&quot;</span>)));
+    }
+
+    <span class="doccomment">/// A test provider that only considers the request query for caching.</span>
+    <span class="kw">struct</span> <span class="ident">TestProvider</span>;
+
+    <span class="attribute">#[<span class="ident">async_trait</span>]</span>
+    <span class="kw">impl</span> <span class="ident">SuggestionProvider</span> <span class="kw">for</span> <span class="ident">TestProvider</span> {
+        <span class="kw">fn</span> <span class="ident">name</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
+            <span class="string">&quot;test&quot;</span>.<span class="ident">to_string</span>()
+        }
+
+        <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">suggest</span>(
+            <span class="kw-2">&amp;</span><span class="self">self</span>,
+            <span class="ident">_query</span>: <span class="ident">SuggestionRequest</span>,
+        ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">SuggestionResponse</span>, <span class="ident">SuggestError</span><span class="op">&gt;</span> {
+            <span class="macro">unimplemented!</span>()
+        }
+
+        <span class="kw">fn</span> <span class="ident">cache_inputs</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">req</span>: <span class="kw-2">&amp;</span><span class="ident">SuggestionRequest</span>, <span class="ident">cache_inputs</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw">dyn</span> <span class="ident">CacheInputs</span>) {
+            <span class="ident">cache_inputs</span>.<span class="ident">add</span>(<span class="ident">req</span>.<span class="ident">query</span>.<span class="ident">as_bytes</span>());
+        }
+    }
+
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">cache_key_only_considers_included_inputs</span>() {
+        <span class="comment">// 2x2 matrix: one axis is `query from {a, b}`, the other is `accepts_english from {false, true}`</span>
+        <span class="kw">let</span> <span class="ident">request1</span> <span class="op">=</span> <span class="ident">SuggestionRequest</span> {
+            <span class="ident">query</span>: <span class="string">&quot;a&quot;</span>.<span class="ident">to_string</span>(),
+            <span class="ident">accepts_english</span>: <span class="bool-val">true</span>,
+            ..<span class="ident">Faker</span>.<span class="ident">fake</span>()
+        };
+        <span class="kw">let</span> <span class="ident">request2</span> <span class="op">=</span> <span class="ident">SuggestionRequest</span> {
+            <span class="ident">query</span>: <span class="string">&quot;a&quot;</span>.<span class="ident">to_string</span>(),
+            <span class="ident">accepts_english</span>: <span class="bool-val">false</span>,
+            ..<span class="ident">request1</span>.<span class="ident">clone</span>()
+        };
+        <span class="kw">let</span> <span class="ident">request3</span> <span class="op">=</span> <span class="ident">SuggestionRequest</span> {
+            <span class="ident">query</span>: <span class="string">&quot;b&quot;</span>.<span class="ident">to_string</span>(),
+            <span class="ident">accepts_english</span>: <span class="bool-val">true</span>,
+            ..<span class="ident">request1</span>.<span class="ident">clone</span>()
+        };
+        <span class="kw">let</span> <span class="ident">request4</span> <span class="op">=</span> <span class="ident">SuggestionRequest</span> {
+            <span class="ident">query</span>: <span class="string">&quot;b&quot;</span>.<span class="ident">to_string</span>(),
+            <span class="ident">accepts_english</span>: <span class="bool-val">false</span>,
+            ..<span class="ident">request1</span>.<span class="ident">clone</span>()
+        };
+
+        <span class="kw">let</span> <span class="ident">provider</span> <span class="op">=</span> <span class="ident">TestProvider</span>;
+        <span class="comment">// same `query` (a), different `accepts_english`.</span>
+        <span class="macro">assert_eq!</span>(<span class="ident">provider</span>.<span class="ident">cache_key</span>(<span class="kw-2">&amp;</span><span class="ident">request1</span>), <span class="ident">provider</span>.<span class="ident">cache_key</span>(<span class="kw-2">&amp;</span><span class="ident">request2</span>));
+        <span class="comment">// same `query` (b), different `accepts_english`.</span>
+        <span class="macro">assert_eq!</span>(<span class="ident">provider</span>.<span class="ident">cache_key</span>(<span class="kw-2">&amp;</span><span class="ident">request3</span>), <span class="ident">provider</span>.<span class="ident">cache_key</span>(<span class="kw-2">&amp;</span><span class="ident">request4</span>));
+        <span class="comment">// different query, same accepts_english</span>
+        <span class="macro">assert_ne!</span>(<span class="ident">provider</span>.<span class="ident">cache_key</span>(<span class="kw-2">&amp;</span><span class="ident">request1</span>), <span class="ident">provider</span>.<span class="ident">cache_key</span>(<span class="kw-2">&amp;</span><span class="ident">request3</span>));
     }
 }
 </pre></div>
