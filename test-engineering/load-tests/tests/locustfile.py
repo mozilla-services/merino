@@ -16,6 +16,7 @@ from locust.clients import HttpSession
 from locust.runners import MasterRunner
 from models import ResponseContent
 
+# TODO: Load logging level from environment variables
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -31,15 +32,15 @@ PROVIDERS: str = ""
 
 # See RemoteSettingsGlobalSettings in
 # https://github.com/mozilla-services/merino/blob/main/merino-settings/src/lib.rs
-KINTO__SERVER_URL = os.environ["LOAD_TESTS__KINTO__SERVER_URL"]
+KINTO__SERVER_URL = os.environ["KINTO__SERVER_URL"]
 
 # See default values in RemoteSettingsConfig in
 # https://github.com/mozilla-services/merino/blob/main/merino-settings/src/providers.rs
-KINTO__BUCKET = os.environ["LOAD_TESTS__KINTO__BUCKET"]
-KINTO__COLLECTION = os.environ["LOAD_TESTS__KINTO__COLLECTION"]
+KINTO__BUCKET = os.environ["KINTO__BUCKET"]
+KINTO__COLLECTION = os.environ["KINTO__COLLECTION"]
 
 # The number of random suggestions stored on each worker
-RS_SUGGESTIONS_COUNT: int = 25
+RS_SUGGESTIONS_COUNT: int = 100
 
 # This will be populated on each worker and
 RS_SUGGESTIONS: List[Dict] = []
@@ -125,7 +126,7 @@ class MerinoUser(HttpUser):
         self.faker = faker.Faker(locale="en-US", providers=["faker.providers.lorem"])
 
         # By this time suggestions are expected to be stored on the worker
-        logger.info(
+        logger.debug(
             "user will be sending queries for suggestions: %s",
             [suggestion["title"] for suggestion in RS_SUGGESTIONS],
         )
@@ -134,12 +135,12 @@ class MerinoUser(HttpUser):
 
     @task(weight=10)
     def rs_suggestions(self) -> None:
-        """Send multiple requests for foo queries."""
+        """Send multiple requests for Remote Settings queries."""
 
         suggestion = choice(RS_SUGGESTIONS)
 
-        for keyword in suggestion["keywords"]:
-            request_suggestions(self.client, keyword)
+        for query in suggestion["keywords"]:
+            request_suggestions(self.client, query)
 
     @task(weight=90)
     def faker_suggestions(self) -> None:
