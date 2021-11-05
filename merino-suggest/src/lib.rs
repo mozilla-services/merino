@@ -319,13 +319,13 @@ pub enum SetupError {
 #[derive(Debug, Error)]
 #[allow(missing_docs, clippy::missing_docs_in_private_items)]
 pub enum SuggestError {
-    #[error("There was a network error while providing suggestions")]
+    #[error("There was a network error while providing suggestions: {0}")]
     Network(#[source] anyhow::Error),
 
-    #[error("There was an error serializing the suggestions")]
+    #[error("There was an error serializing the suggestions: {0}")]
     Serialization(#[source] serde_json::Error),
 
-    #[error("There was an internal error in the suggestion provider")]
+    #[error("There was an internal error in the suggestion provider: {0}")]
     Internal(#[source] anyhow::Error),
 }
 

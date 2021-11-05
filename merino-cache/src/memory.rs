@@ -5,7 +5,9 @@
 //! tier maps from those hashes to the responses. In this way, duplicate
 //! responses can be stored only once, even if they are used for many requests.
 
+use anyhow::anyhow;
 use async_trait::async_trait;
+use cadence::{Histogrammed, StatsdClient};
 use deduped_dashmap::{ControlFlow, DedupedMap};
 use lazy_static::lazy_static;
 use merino_settings::providers::MemoryCacheConfig;
@@ -82,6 +84,9 @@ pub struct Suggester {
     /// The suggester to query on cache-miss.
     inner: Box<dyn SuggestionProvider>,
 
+    /// The Statsd client used to record statistics.
+    metrics_client: StatsdClient,
+
     /// The cached items.
     items: Arc<DedupedMap<String, Instant, Vec<Suggestion>>>,
 
@@ -94,9 +99,11 @@ pub struct Suggester {
 
 impl Suggester {
     /// Create a in-memory suggestion cache from settings that wraps `provider`.
+    #[must_use]
     pub fn new_boxed(
         config: &MemoryCacheConfig,
         provider: Box<dyn SuggestionProvider>,
+        metrics_client: StatsdClient,
     ) -> Box<Self> {
         let items = Arc::new(DedupedMap::new());
 
@@ -118,6 +125,7 @@ impl Suggester {
 
         Box::new(Self {
             inner: provider,
+            metrics_client,
             items,
             default_ttl: config.default_ttl,
             default_lock_timeout: config.default_lock_timeout,
@@ -186,8 +194,11 @@ impl SuggestionProvider for Suggester {
         let now = Instant::now();
         let key = self.cache_key(&query);
         let span = tracing::debug_span!("memory-suggest", ?key);
+
+        // closure for `span`.
         async move {
             tracing::debug!("suggesting with memory cache");
+            let mut rv = None;
 
             match self.items.get(&key) {
                 Some((expiration, _)) if expiration <= now => {
@@ -196,7 +207,7 @@ impl SuggestionProvider for Suggester {
                 }
                 Some((expiration, suggestions)) => {
                     tracing::debug!("cache hit");
-                    return Ok(SuggestionResponse {
+                    rv = Some(SuggestionResponse {
                         cache_status: CacheStatus::Hit,
                         cache_ttl: Some(expiration - now),
                         suggestions,
@@ -207,33 +218,51 @@ impl SuggestionProvider for Suggester {
                 }
             }
 
-            if LOCK_TABLE.is_locked(&key) {
-                // there's a fetch already in progress. Return empty for now.
-                return Ok(SuggestionResponse {
-                    cache_status: CacheStatus::Hit,
-                    cache_ttl: None,
-                    suggestions: Vec::new(),
-                });
+            if rv.is_none() {
+                if LOCK_TABLE.is_locked(&key) {
+                    // there's a fetch already in progress. Return empty for now.
+                    rv = Some(SuggestionResponse {
+                        cache_status: CacheStatus::Hit,
+                        cache_ttl: None,
+                        suggestions: Vec::new(),
+                    });
+                } else {
+                    // handle cache miss or stale cache
+                    let lock = LOCK_TABLE.add_lock(&key, self.default_lock_timeout);
+                    let mut response = self
+                        .inner
+                        .suggest(query)
+                        .await?
+                        // Todo, cache status should be a vec.
+                        .with_cache_status(CacheStatus::Miss);
+
+                    LOCK_TABLE.update(&key, lock, || {
+                        // Update the cache data.
+                        let cache_ttl = response.cache_ttl.get_or_insert(self.default_ttl);
+                        let expiration = now + *cache_ttl;
+                        tracing::debug!(?now, ?expiration, "inserting into cache");
+                        self.items
+                            .insert(key.clone(), expiration, response.suggestions.clone());
+                    });
+
+                    rv = Some(response);
+                }
             }
 
-            // handle cache miss or stale cache
-            let lock = LOCK_TABLE.add_lock(&key, self.default_lock_timeout);
-            let mut response = self
-                .inner
-                .suggest(query)
-                .await?
-                // Todo, cache status should be a vec.
-                .with_cache_status(CacheStatus::Miss);
-
-            LOCK_TABLE.update(&key, lock, || {
-                // Update the cache data.
-                let cache_ttl = response.cache_ttl.get_or_insert(self.default_ttl);
-                let expiration = now + *cache_ttl;
-                tracing::debug!(?now, ?expiration, "inserting into cache");
-                self.items
-                    .insert(key.clone(), expiration, response.suggestions.clone());
-            });
-            Ok(response)
+            if let Some(response) = rv {
+                self.metrics_client
+                    .histogram_with_tags(
+                        "cache.memory.duration-us",
+                        now.elapsed().as_micros() as u64,
+                    )
+                    .with_tag("cache-status", response.cache_status.to_string().as_str())
+                    .send();
+                Ok(response)
+            } else {
+                Err(merino_suggest::SuggestError::Internal(anyhow!(
+                    "No result generated"
+                )))
+            }
         }
         .instrument(span)
         .await
