@@ -178,6 +178,14 @@ pub struct RemoteSettingsGlobalSettings {
     /// - `https://firefox.settings.services.mozilla.com`
     pub server: String,
 
+    /// The bucket to use for Remote Settings providers, if not overridden by
+    /// the provider.
+    pub default_bucket: String,
+
+    /// The collection to use for Remote Settings providers, if not overridden
+    /// by the provider.
+    pub default_collection: String,
+
     /// Only used for integration tests.
     /// This field populates the mock returned remote settings collection
     /// from inside the `merino_test_macro!(|settings| {...}) call.

@@ -127,11 +127,13 @@ impl Default for MemoryCacheConfig {
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(default)]
 pub struct RemoteSettingsConfig {
-    /// The Remote Settings bucket to read from
-    pub bucket: String,
+    /// The Remote Settings bucket to read from. If `None`, the default from the
+    /// global config will be used.
+    pub bucket: Option<String>,
 
-    /// The collection to sync form.
-    pub collection: String,
+    /// The collection to sync form. If `None`, the default from the global
+    /// config will be used.
+    pub collection: Option<String>,
 
     /// The time between re-syncs of Remote Settings data.
     #[serde_as(as = "DurationSeconds")]
@@ -142,8 +144,8 @@ pub struct RemoteSettingsConfig {
 impl Default for RemoteSettingsConfig {
     fn default() -> Self {
         Self {
-            bucket: "main".to_string(),
-            collection: "quicksuggest".to_string(),
+            bucket: None,
+            collection: None,
             resync_interval: Duration::from_secs(60 * 60 * 3), // 3 hours
         }
     }
