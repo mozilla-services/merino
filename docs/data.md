@@ -96,13 +96,19 @@ the level and type of the log is listed.
   in microseconds, that the adM Remote Settings provider took to generate
   suggestions.
 
+  **Tags:**
+
+  - `accepts-english` - If the request included an `Accept-Language` header that
+    accepted any `en-*` locale. Only requests that do are provided with
+    suggestions.
+
 - `cache.memory.duration-us` - A histogram that records the amount of time, in
   microseconds, that the memory cache took to provide a suggestion. Includes the
   time it takes to fallback to the inner provider for cache misses and errors.
 
   **Tags:**
 
-  - `cache-status` - If the request was pulled from the cache or regenerated.
+  - `cache-status` - If the response was pulled from the cache or regenerated.
     `"hit"`, `"miss"`, `"error"`, or `"none"`.
 
 - `cache.redis.duration-us` - A histogram that records the amount of time, in
@@ -111,5 +117,5 @@ the level and type of the log is listed.
 
   **Tags:**
 
-  - `cache-status` - If the request was pulled from the cache or regenerated.
+  - `cache-status` - If the response was pulled from the cache or regenerated.
     `"hit"`, `"miss"`, `"error"`, or `"none"`.

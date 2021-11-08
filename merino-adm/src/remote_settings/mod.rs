@@ -232,11 +232,19 @@ impl SuggestionProvider for RemoteSettingsSuggester {
         });
 
         self.metrics_client
-            .histogram(
+            .histogram_with_tags(
                 "adm.rs.provider.duration-us",
                 start.elapsed().as_micros() as u64,
             )
-            .ok();
+            .with_tag(
+                "accepts-english",
+                if request.accepts_english {
+                    "true"
+                } else {
+                    "false"
+                },
+            )
+            .send();
 
         Ok(suggestions)
     }
