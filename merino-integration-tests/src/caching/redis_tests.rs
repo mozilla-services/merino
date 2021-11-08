@@ -18,13 +18,12 @@ use std::time::Duration;
 async fn responses_are_stored_in_the_cache(
     TestingTools {
         test_client,
-        redis_client,
+        mut redis_client,
         ..
     }: TestingTools,
 ) {
-    let mut redis_client = redis_client;
     let keys_before: Vec<String> = redis_client
-        .keys("*")
+        .keys("provider:v1:*")
         .expect("Could not get keys from redis");
     assert!(keys_before.is_empty());
 
@@ -38,9 +37,12 @@ async fn responses_are_stored_in_the_cache(
     let http_response: Value = response.json().await.expect("response was not json");
     let http_suggestions = http_response["suggestions"].as_array().unwrap();
 
+    // The store into the cache happens out-of-band. Give it a moment to complete.
     tokio::time::sleep(Duration::from_millis(1000)).await;
 
-    let keys_after: Vec<String> = redis_client.keys("*").expect("Could not get keys");
+    let keys_after: Vec<String> = redis_client
+        .keys("provider:v1:*")
+        .expect("Could not get keys");
     tracing::trace!("🗝 set {:?}", &keys_after);
     assert_eq!(keys_after.len(), 1, "an item should be in the cache");
 
@@ -91,12 +93,12 @@ async fn bad_cache_data_is_handled(
         .expect("failed to execute request");
     assert_eq!(response.status(), StatusCode::OK);
 
-    let keys: Vec<String> = redis_client.keys("*").expect("Could not get keys");
-    let key = keys.into_iter().next().unwrap();
+    // Wait for the value to be stored in the cache, checking every 10ms.
+    let key = get_cached_key(&mut redis_client).await.unwrap();
 
     // Mess with the cache, to cause an error
-    let _: () = redis::Cmd::set(&key, 42)
-        .query(&mut redis_client)
+    redis::Cmd::set(&key, 42)
+        .query::<()>(&mut redis_client)
         .expect("Couldn't write to cache");
 
     // Another request which should attempt, and fail, to read from the cache.
@@ -149,8 +151,7 @@ async fn missing_ttls_are_re_set(
         .expect("failed to execute request");
     assert_eq!(response.status(), StatusCode::OK);
 
-    let keys: Vec<String> = redis_client.keys("*").expect("Could not get keys");
-    let key = keys.into_iter().next().unwrap();
+    let key = get_cached_key(&mut redis_client).await.unwrap();
 
     // Remove the TTL from the cached item
     redis::Cmd::persist(&key)
@@ -177,4 +178,22 @@ async fn missing_ttls_are_re_set(
                 Some(serde_json::Value::String(k)) if *k == key
             )
     }));
+}
+
+/// Get the key of an item from the Redis cache. If there are multiple values in the cache, which key is returned is undefined.
+async fn get_cached_key(
+    redis_client: &mut redis::Client,
+) -> Result<String, tokio::time::error::Elapsed> {
+    tokio::time::timeout(Duration::from_millis(1000), async move {
+        loop {
+            let mut keys: Vec<String> = redis_client
+                .keys("provider:v1:*")
+                .expect("Could not get keys");
+            if let Some(key) = keys.pop() {
+                break key;
+            }
+            tokio::time::sleep(Duration::from_millis(10)).await;
+        }
+    })
+    .await
 }
