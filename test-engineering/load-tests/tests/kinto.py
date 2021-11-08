@@ -2,12 +2,14 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-import json
+import logging
 from typing import Dict, List
 
 import kinto_http
 import requests
 from pydantic import BaseModel, Extra
+
+logger = logging.getLogger("load_tests")
 
 
 class KintoSuggestion(BaseModel, extra=Extra.ignore):
@@ -43,17 +45,20 @@ def download_suggestions(client: kinto_http.Client) -> Dict[int, KintoSuggestion
 
         if response.status_code != 200:
             # Ignore unsuccessful requests for now
+            logger.error(
+                "Failed to download attachment for record with ID '%s'. Response status code %s.",
+                record["id"],
+                response.status_code,
+            )
             continue
 
-        # Each attachment is a list of suggestion objects
-        # Each suggestion objects contains a list of keywords
-        attachment = json.loads(response.text)
-
-        # Load into pydantic model to discard all fields we don't care about
+        # Each attachment is a list of suggestion objects and each suggestion
+        # object contains a list of keywords. Load the suggestions into pydantic
+        # model instances to discard all fields which we don't care about here.
         suggestions.update(
             {
                 suggestion_data["id"]: KintoSuggestion(**suggestion_data)
-                for suggestion_data in attachment
+                for suggestion_data in response.json()
             }
         )
 

@@ -4,7 +4,7 @@
 
 import logging
 import os
-from random import choice, choices, randint
+from random import choice, randint
 from typing import Any, Dict, List
 
 import faker
@@ -16,9 +16,10 @@ from locust.clients import HttpSession
 from locust.runners import MasterRunner
 from models import ResponseContent
 
-# TODO: Load logging level from environment variables
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+LOGGING_LEVEL = os.environ["LOAD_TESTS__LOGGING_LEVEL"]
+
+logger = logging.getLogger("load_tests")
+logger.setLevel(int(LOGGING_LEVEL))
 
 # See https://mozilla-services.github.io/merino/api.html#suggest
 SUGGEST_API: str = "/api/v1/suggest"
@@ -39,16 +40,13 @@ KINTO__SERVER_URL = os.environ["KINTO__SERVER_URL"]
 KINTO__BUCKET = os.environ["KINTO__BUCKET"]
 KINTO__COLLECTION = os.environ["KINTO__COLLECTION"]
 
-# The number of random suggestions stored on each worker
-RS_SUGGESTIONS_COUNT: int = 100
-
 # This will be populated on each worker and
 RS_SUGGESTIONS: List[Dict] = []
 
 
 @events.test_start.add_listener
 def on_locust_test_start(environment, **kwargs):
-    """Download suggestions from Kinto and store random suggestions on workers."""
+    """Download suggestions from Kinto and store suggestions on workers."""
 
     if not isinstance(environment.runner, MasterRunner):
         return
@@ -68,7 +66,7 @@ def on_locust_test_start(environment, **kwargs):
     for worker in environment.runner.clients:
         environment.runner.send_message(
             "store_suggestions",
-            data=choices(suggestions, k=RS_SUGGESTIONS_COUNT),
+            data=suggestions,
             client_id=worker,
         )
 
@@ -127,8 +125,8 @@ class MerinoUser(HttpUser):
 
         # By this time suggestions are expected to be stored on the worker
         logger.debug(
-            "user will be sending queries for suggestions: %s",
-            [suggestion["title"] for suggestion in RS_SUGGESTIONS],
+            "user will be sending queries based on the %d stored suggestions",
+            len(RS_SUGGESTIONS),
         )
 
         return super().on_start()
