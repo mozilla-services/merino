@@ -383,7 +383,7 @@ impl SuggestionProvider for Suggester {
             suggestions
         } else if rlock.is_locked(&key).await? {
             tracing::debug!(%key, "cache updating...");
-            // A "pending" review may not yet have content (e.g. it's the initial lookup), otherwise it's a "Hit"
+            // A "pending" review may not yet have content (e.g. it's the initial lookup), otherwise it's a "Hit".
             SuggestionResponse::new(Vec::new()).with_cache_status(CacheStatus::Miss)
         } else if let Some(lock) = rlock.lock(&key, self.default_lock_timeout).await? {
             let response = self

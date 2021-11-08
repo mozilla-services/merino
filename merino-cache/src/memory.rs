@@ -220,14 +220,14 @@ impl SuggestionProvider for Suggester {
 
             if rv.is_none() {
                 if LOCK_TABLE.is_locked(&key) {
-                    // there's a fetch already in progress. Return empty for now.
+                    // There's a fetch already in progress. Return empty for now.
                     rv = Some(SuggestionResponse {
                         cache_status: CacheStatus::Hit,
                         cache_ttl: None,
                         suggestions: Vec::new(),
                     });
                 } else {
-                    // handle cache miss or stale cache
+                    // Handle cache miss or stale cache.
                     let lock = LOCK_TABLE.add_lock(&key, self.default_lock_timeout);
                     let mut response = self
                         .inner
