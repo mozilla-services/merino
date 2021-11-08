@@ -104,7 +104,7 @@ async fn make_provider_tree(
             KeywordFilterProvider::new_boxed(
                 filter_config.suggestion_blocklist.clone(),
                 inner,
-                metrics_client.clone(),
+                metrics_client,
             )?
         }
 

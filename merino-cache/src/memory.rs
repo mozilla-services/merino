@@ -233,7 +233,6 @@ impl SuggestionProvider for Suggester {
                         .inner
                         .suggest(query)
                         .await?
-                        // Todo, cache status should be a vec.
                         .with_cache_status(CacheStatus::Miss);
 
                     LOCK_TABLE.update(&key, lock, || {

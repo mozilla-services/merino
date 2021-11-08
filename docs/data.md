@@ -27,8 +27,8 @@ the level and type of the log is listed.
 - `INFO web.suggest.request` - A suggestion request is being processed. This
   event will include fields for all relevant details of the request. **Fields:**
 
-  - `query` - If query logging is enabled, the text the user typed. Otherwise
-    an empty string.
+  - `query` - If query logging is enabled, the text the user typed. Otherwise an
+    empty string.
   - `country` - The country the request came from.
   - `region` - The first country subdivision the request came from.
   - `city` - The city the request came from.
@@ -68,6 +68,13 @@ the level and type of the log is listed.
 
 ## Metrics
 
+> A note on timers: Statsd timers are measured in milliseconds, and are reported
+> as integers (at least in Cadence). Milliseconds are often not precise enough
+> for the tasks we want to measure in Merino. Instead we use generic histograms
+> to record microsecond times. Metrics recorded in this way should have `-us`
+> appended to their name, to mark the units used (since we shouldn't put the
+> proper unit μs in metric names).
+
 - `startup` - A counter incremented at startup, right after metrics are
   initialized, to signal a successful metrics system initialization.
 
@@ -84,3 +91,25 @@ the level and type of the log is listed.
   **Tags:**
 
   - `id` - The filter that was matched.
+
+- `adm.rs.provider.duration-us` - A histogram that records the amount of time,
+  in microseconds, that the adM Remote Settings provider took to generate
+  suggestions.
+
+- `cache.memory.duration-us` - A histogram that records the amount of time, in
+  microseconds, that the memory cache took to provide a suggestion. Includes the
+  time it takes to fallback to the inner provider for cache misses and errors.
+
+  **Tags:**
+
+  - `cache-status` - If the request was pulled from the cache or regenerated.
+    `"hit"`, `"miss"`, `"error"`, or `"none"`.
+
+- `cache.redis.duration-us` - A histogram that records the amount of time, in
+  microseconds, that the Redis cache took to provide a suggestion. Includes the
+  time it takes to fallback to the inner provider for cache misses and errors.
+
+  **Tags:**
+
+  - `cache-status` - If the request was pulled from the cache or regenerated.
+    `"hit"`, `"miss"`, `"error"`, or `"none"`.

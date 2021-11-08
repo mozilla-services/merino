@@ -233,7 +233,7 @@ impl SuggestionProvider for RemoteSettingsSuggester {
 
         self.metrics_client
             .histogram(
-                "adm.provider.duration-us",
+                "adm.rs.provider.duration-us",
                 start.elapsed().as_micros() as u64,
             )
             .ok();
