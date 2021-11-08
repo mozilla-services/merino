@@ -21,9 +21,12 @@ $ cargo test
 ## Documentation
 
 You can generate documentation, both code level and book level, for Merino and
-all related crates by running `./dev/make-all-docs.sh`.
+all related crates by running `./dev/make-all-docs.sh`. You'll need [mdBook][],
+which you can get with `cargo install mdbook`.
 
 [Pre-built code docs are also available](/merino/rustdoc/).
+
+[mdbook]: https://rust-lang.github.io/mdBook/
 
 ## Local configuration
 
@@ -31,8 +34,8 @@ The default configuration of Merino is `development`, which has human-oriented
 logging and debugging enabled. For settings that you wish to change in the
 development configuration, you have two options, listed below.
 
-> For full details, make sure to check out the documentation for [Merino's
-> setting system][../settings.md]
+> For full details, make sure to check out the documentation for
+> [Merino's setting system](../ops.md).
 
 ### Update the defaults
 

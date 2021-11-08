@@ -4,14 +4,14 @@ mod domain;
 
 use std::{convert::TryInto, time::Duration};
 
-use crate::{domain::CacheKey, redis::domain::RedisSuggestions};
+use crate::redis::domain::RedisSuggestions;
 use anyhow::Context;
 use async_trait::async_trait;
 use fix_hidden_lifetime_bug::fix_hidden_lifetime_bug;
 use merino_settings::{providers::RedisCacheConfig, Settings};
 use merino_suggest::{
-    CacheStatus, SetupError, SuggestError, Suggestion, SuggestionProvider, SuggestionRequest,
-    SuggestionResponse,
+    CacheInputs, CacheStatus, SetupError, SuggestError, Suggestion, SuggestionProvider,
+    SuggestionRequest, SuggestionResponse,
 };
 use redis::RedisError;
 use tracing_futures::{Instrument, WithSubscriber};
@@ -355,11 +355,15 @@ impl SuggestionProvider for Suggester {
         format!("RedisCache({})", self.inner.name())
     }
 
+    fn cache_inputs(&self, req: &SuggestionRequest, cache_inputs: &mut dyn CacheInputs) {
+        self.inner.cache_inputs(req, cache_inputs);
+    }
+
     async fn suggest(
         &self,
         request: SuggestionRequest,
     ) -> Result<SuggestionResponse, SuggestError> {
-        let key = request.cache_key();
+        let key = self.cache_key(&request);
         let mut rlock = SimpleRedisLock::from(&self.redis_connection);
 
         let cache_result = self.get_key(&key).await?;

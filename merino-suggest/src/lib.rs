@@ -6,7 +6,7 @@ pub mod device_info;
 mod domain;
 mod providers;
 
-use std::fmt::{self, Debug};
+use std::fmt::Debug;
 use std::hash::Hash;
 use std::ops::Range;
 use std::time::Duration;
@@ -25,7 +25,7 @@ use serde::{Deserialize, Serialize};
 use serde_with::{serde_as, DisplayFromStr};
 use thiserror::Error;
 
-pub use crate::domain::Proportion;
+pub use crate::domain::{CacheInputs, Proportion};
 pub use crate::providers::{
     DebugProvider, FixedProvider, IdMulti, IdMultiProviderDetails, KeywordFilterProvider, Multi,
     StealthProvider, TimeoutProvider, WikiFruit,
@@ -61,48 +61,6 @@ pub struct SuggestionRequest {
     /// The user agent of the request, including OS family, device form factor, and major Firefox
     /// version number.
     pub device_info: DeviceInfo,
-}
-
-/// A structure used to safely log the wrapped `SuggestionRequest`
-/// omitting the search query.
-pub struct DebugSuggestionRequest<'a> {
-    /// Whether or not to log the search query.
-    log_query: bool,
-
-    /// The wrapped `SuggestionRequest`.
-    wrapped_suggestion: &'a SuggestionRequest,
-}
-
-impl Debug for DebugSuggestionRequest<'_> {
-    fn fmt(&self, fmt: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let empty_string = String::new();
-        fmt.debug_struct("SuggestionRequest")
-            .field("accepts_english", &self.wrapped_suggestion.accepts_english)
-            .field("city", &self.wrapped_suggestion.city)
-            .field("country", &self.wrapped_suggestion.country)
-            .field("device_info", &self.wrapped_suggestion.device_info)
-            .field("dma", &self.wrapped_suggestion.dma)
-            .field(
-                "query",
-                if self.log_query {
-                    &self.wrapped_suggestion.query
-                } else {
-                    &empty_string
-                },
-            )
-            .field("region", &self.wrapped_suggestion.region)
-            .finish()
-    }
-}
-
-impl SuggestionRequest {
-    /// Return an obect that knows how to debug-print a `SuggestionRequest`.
-    pub fn safe_debug(&self, log_query: bool) -> DebugSuggestionRequest<'_> {
-        DebugSuggestionRequest {
-            log_query,
-            wrapped_suggestion: self,
-        }
-    }
 }
 
 impl<'a, F> fake::Dummy<F> for SuggestionRequest {
@@ -291,6 +249,31 @@ pub trait SuggestionProvider: Send + Sync {
     fn is_null(&self) -> bool {
         false
     }
+
+    /// Generate a set of cache inputs for a given query specific to this
+    /// provider. Any property of the query that affects how suggestions are
+    /// generated should be included.
+    ///
+    /// By default, all properties of the query are used, but providers should
+    /// narrow this to a smaller scope.
+    fn cache_inputs(&self, req: &SuggestionRequest, cache_inputs: &mut dyn CacheInputs) {
+        cache_inputs.add(req.query.as_bytes());
+        cache_inputs.add(&[req.accepts_english as u8]);
+        cache_inputs.add(req.country.as_deref().unwrap_or("<none>").as_bytes());
+        cache_inputs.add(req.region.as_deref().unwrap_or("<none>").as_bytes());
+        cache_inputs.add(&req.dma.map_or([0xFF, 0xFF], u16::to_be_bytes));
+        cache_inputs.add(req.city.as_deref().unwrap_or("<none>").as_bytes());
+        cache_inputs.add(req.device_info.to_string().as_bytes());
+    }
+
+    /// Use `Self::cache_inputs` to generate a single cache key. This function
+    /// should not normally be overridden by provider implementations.
+    fn cache_key(&self, req: &SuggestionRequest) -> String {
+        let mut cache_inputs = blake3::Hasher::new();
+        cache_inputs.add(self.name().as_bytes());
+        self.cache_inputs(req, &mut cache_inputs);
+        format!("provider:v1:{}", cache_inputs.hash())
+    }
 }
 
 /// A provider that never provides any suggestions
@@ -300,6 +283,10 @@ pub struct NullProvider;
 impl SuggestionProvider for NullProvider {
     fn name(&self) -> String {
         "NullProvider".into()
+    }
+
+    fn cache_inputs(&self, _req: &SuggestionRequest, _hasher: &mut dyn CacheInputs) {
+        // No property of req will change the response
     }
 
     fn is_null(&self) -> bool {
@@ -481,5 +468,59 @@ mod tests {
 
         // Includes fr-CH
         assert!(supported_languages.includes("fr", Some("ch")));
+    }
+
+    /// A test provider that only considers the request query for caching.
+    struct TestProvider;
+
+    #[async_trait]
+    impl SuggestionProvider for TestProvider {
+        fn name(&self) -> String {
+            "test".to_string()
+        }
+
+        async fn suggest(
+            &self,
+            _query: SuggestionRequest,
+        ) -> Result<SuggestionResponse, SuggestError> {
+            unimplemented!()
+        }
+
+        fn cache_inputs(&self, req: &SuggestionRequest, cache_inputs: &mut dyn CacheInputs) {
+            cache_inputs.add(req.query.as_bytes());
+        }
+    }
+
+    #[test]
+    fn cache_key_only_considers_included_inputs() {
+        // 2x2 matrix: one axis is `query from {a, b}`, the other is `accepts_english from {false, true}`
+        let request1 = SuggestionRequest {
+            query: "a".to_string(),
+            accepts_english: true,
+            ..Faker.fake()
+        };
+        let request2 = SuggestionRequest {
+            query: "a".to_string(),
+            accepts_english: false,
+            ..request1.clone()
+        };
+        let request3 = SuggestionRequest {
+            query: "b".to_string(),
+            accepts_english: true,
+            ..request1.clone()
+        };
+        let request4 = SuggestionRequest {
+            query: "b".to_string(),
+            accepts_english: false,
+            ..request1.clone()
+        };
+
+        let provider = TestProvider;
+        // same `query` (a), different `accepts_english`.
+        assert_eq!(provider.cache_key(&request1), provider.cache_key(&request2));
+        // same `query` (b), different `accepts_english`.
+        assert_eq!(provider.cache_key(&request3), provider.cache_key(&request4));
+        // different query, same accepts_english
+        assert_ne!(provider.cache_key(&request1), provider.cache_key(&request3));
     }
 }
