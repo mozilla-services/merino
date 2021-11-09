@@ -117,11 +117,11 @@ the level and type of the log is listed.
 - `cache.memory.miss` - A counter that is incremented every time the in-memory
   cache is queried and a cached suggestion is not found.
 
-- `cache.memory.pointers_len` - A counter representing the number of entries in the
-  first level of hashing in the in-memory deduped hashmap.
+- `cache.memory.pointers-len` - A counter representing the number of entries in
+  the first level of hashing in the in-memory deduped hashmap.
 
-- `cache.memory.storage_len` - A counter representing the number of entries in the
-  second level of hashing in the in-memory deduped hashmap.
+- `cache.memory.storage-len` - A counter representing the number of entries in
+  the second level of hashing in the in-memory deduped hashmap.
 
 - `cache.redis.duration-us` - A histogram that records the amount of time, in
   microseconds, that the Redis cache took to provide a suggestion. Includes the
@@ -132,8 +132,8 @@ the level and type of the log is listed.
   - `cache-status` - If the response was pulled from the cache or regenerated.
     `"hit"`, `"miss"`, `"error"`, or `"none"`.
 
-- `cache.redis.hit` - A counter that is incremented every time the redis
-  cache is queried and a cached suggestion is found.
+- `cache.redis.hit` - A counter that is incremented every time the redis cache
+  is queried and a cached suggestion is found.
 
-- `cache.redis.miss` - A counter that is incremented every time the redis
-  cache is queried and a cached suggestion is not found.
+- `cache.redis.miss` - A counter that is incremented every time the redis cache
+  is queried and a cached suggestion is not found.

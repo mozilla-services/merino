@@ -7,7 +7,7 @@
 
 use anyhow::anyhow;
 use async_trait::async_trait;
-use cadence::{Counted, CountedExt, Histogrammed, StatsdClient};
+use cadence::{CountedExt, Gauged, Histogrammed, StatsdClient};
 use deduped_dashmap::{ControlFlow, DedupedMap};
 use lazy_static::lazy_static;
 use merino_settings::providers::MemoryCacheConfig;
@@ -178,10 +178,10 @@ impl Suggester {
         );
 
         metrics_client
-            .count("cache.memory.storage_len", items.len_storage() as i64)
+            .gauge("cache.memory.storage-len", items.len_storage() as u64)
             .ok();
         metrics_client
-            .count("cache.memory.pointers_len", items.len_pointers() as i64)
+            .gauge("cache.memory.pointers-len", items.len_pointers() as u64)
             .ok();
     }
 }
