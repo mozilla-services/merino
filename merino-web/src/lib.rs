@@ -6,7 +6,7 @@ mod endpoints;
 mod errors;
 mod extractors;
 mod middleware;
-mod providers;
+pub mod providers;
 
 use actix_cors::Cors;
 use actix_web::{
@@ -57,7 +57,10 @@ use crate::providers::SuggestionProviderRef;
 /// let settings = merino_settings::Settings::load()
 ///     .expect("Failed to load settings");
 /// let metrics_client = cadence::StatsdClient::from_sink("merino", cadence::NopMetricSink);
-/// merino_web::run(listener, metrics_client, settings)
+/// let providers = merino_web::providers::SuggestionProviderRef::init(&settings, &metrics_client)
+///                 .await
+///                 .expect("Could not create providers");
+/// let server = merino_web::run(listener, metrics_client, settings, providers)
 ///     .expect("Failed to start server")
 ///     .await
 ///     .expect("Fatal error while running server");
@@ -68,6 +71,7 @@ use crate::providers::SuggestionProviderRef;
 /// requests. This is useful for tests.
 ///
 /// ```no_run
+/// # tokio_test::block_on(async {
 /// use std::net::TcpListener;
 /// use merino_settings::Settings;
 ///
@@ -76,16 +80,21 @@ use crate::providers::SuggestionProviderRef;
 /// let settings = merino_settings::Settings::load()
 ///     .expect("Failed to load settings");
 /// let metrics_client = cadence::StatsdClient::from_sink("merino", cadence::NopMetricSink);
-/// let server = merino_web::run(listener, metrics_client, settings)
+/// let providers = merino_web::providers::SuggestionProviderRef::init(&settings, &metrics_client)
+///                 .await
+///                 .expect("Could not create providers");
+/// let server = merino_web::run(listener, metrics_client, settings, providers)
 ///     .expect("Failed to start server");
 ///
 /// /// The server can be stopped with `join_handle::abort()`, if needed.
 /// let join_handle = tokio::spawn(server);
+/// # })
 /// ```
 pub fn run(
     listener: TcpListener,
     metrics_client: StatsdClient,
     settings: Settings,
+    providers: SuggestionProviderRef,
 ) -> Result<Server, anyhow::Error> {
     let num_workers = settings.http.workers;
 
@@ -115,7 +124,7 @@ pub fn run(
             .app_data(Data::new((&settings).clone()))
             .app_data(location_config.clone())
             .app_data(Data::new(metrics_client.clone()))
-            .app_data(Data::new(SuggestionProviderRef::new()))
+            .app_data(Data::new(providers.clone()))
             // Middlewares
             .wrap(moz_log.clone())
             .wrap(middleware::Metrics)

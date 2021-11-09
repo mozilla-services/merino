@@ -177,6 +177,14 @@ pub struct RemoteSettingsGlobalSettings {
     /// - `http://127.0.0.1`
     /// - `https://firefox.settings.services.mozilla.com`
     pub server: String,
+
+    /// Only used for integration tests.
+    /// This field populates the mock returned remote settings collection
+    /// from inside the `merino_test_macro!(|settings| {...}) call.
+    // note `#[cfg(test)]` will cause a compile error as the
+    // `merino_test` proc_macro will not be able to find this
+    // field.
+    pub test_changes: Option<Vec<String>>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]

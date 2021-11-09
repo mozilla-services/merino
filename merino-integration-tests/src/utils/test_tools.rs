@@ -1,7 +1,7 @@
 //! Tools for running tests
 
 use crate::utils::{logging::LogWatcher, metrics::MetricsWatcher, redis::get_temp_db};
-use httpmock::MockServer;
+use httpmock::{Method::GET, MockServer};
 use merino_settings::Settings;
 use reqwest::{redirect, Client, ClientBuilder, RequestBuilder};
 use serde_json::json;
@@ -82,6 +82,14 @@ where
             }));
     });
     settings.remote_settings.server = remote_settings_mock.base_url();
+    settings_changer(&mut settings);
+    if let Some(changes) = &settings.remote_settings.test_changes {
+        setup_remote_settings_collection(
+            &remote_settings_mock,
+            &changes.iter().map(String::as_str).collect::<Vec<_>>(),
+        )
+        .await;
+    }
 
     // Set up Redis
     let _redis_connection_guard = match get_temp_db(&settings.redis.url).await {
@@ -95,8 +103,6 @@ where
             None
         }
     };
-
-    settings_changer(&mut settings);
 
     // Setup metrics
     assert_eq!(
@@ -114,8 +120,11 @@ where
     let address = listener.local_addr().unwrap().to_string();
     let redis_client =
         redis::Client::open(settings.redis.url.clone()).expect("Couldn't access redis server");
-    let server =
-        merino_web::run(listener, metrics_client, settings).expect("Failed to start server");
+    let providers = merino_web::providers::SuggestionProviderRef::init(&settings, &metrics_client)
+        .await
+        .expect("Could not create providers");
+    let server = merino_web::run(listener, metrics_client, settings, providers)
+        .expect("Failed to start server");
     let server_handle = tokio::spawn(server.with_current_subscriber());
     let test_client = TestReqwestClient::new(address);
 
@@ -195,5 +204,63 @@ impl TestReqwestClient {
         assert!(path.starts_with('/'));
         let url = format!("http://{}{}", &self.address, path);
         self.client.get(url)
+    }
+}
+
+/// Create the remote settings collection and endpoint from the provided suggestions
+pub async fn setup_remote_settings_collection(server: &MockServer, suggestions: &[&str]) {
+    let mut changes = suggestions
+        .iter()
+        .map(|s| {
+            assert_ne!(*s, "icon");
+            json!({
+                "id": s,
+                "type": "data",
+                "last_modified": 0,
+                "attachment": {
+                    "location": format!("/attachment/data-{}.json", s),
+                    "hash": s,
+                }
+            })
+        })
+        .collect::<Vec<_>>();
+    changes.push(json!({
+        "id": "icon-1",
+        "type": "icon",
+        "last_modified": 0,
+        "attachment": {
+            "location": "/attachment/icon-1.png",
+            "hash": "icon"
+        }
+    }));
+
+    server
+        .mock_async(|when, then| {
+            when.method(GET)
+                .path("/v1/buckets/main/collections/quicksuggest/changeset");
+            then.status(200).json_body(json!({
+                "changes": changes,
+            }));
+        })
+        .await;
+
+    for (idx, s) in suggestions.iter().enumerate() {
+        server
+            .mock_async(|when, then| {
+                when.method(GET)
+                    .path(format!("/attachment/data-{}.json", s));
+                then.status(200).json_body(json!([{
+                    "id": idx,
+                    "url": format!("https://example.com/#url/{}", s),
+                    "click_url": format!("https://example.com/#click/{}", s),
+                    "impression_url": format!("https://example.com/#impression/{}", s),
+                    "iab_category": "5 - Education",
+                    "icon": "1",
+                    "advertiser": "fake",
+                    "title": format!("Suggestion {}", s),
+                    "keywords": [s],
+                }]));
+            })
+            .await;
     }
 }

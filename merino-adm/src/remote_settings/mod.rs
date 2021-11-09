@@ -50,7 +50,6 @@ impl RemoteSettingsSuggester {
         let suggestions = Arc::new(DedupedMap::new());
 
         Self::sync(&mut remote_settings_client, &*suggestions).await?;
-
         {
             let task_suggestions = Arc::clone(&suggestions);
             let task_interval = config.resync_interval;
@@ -106,7 +105,6 @@ impl RemoteSettingsSuggester {
             r#type = "adm.remote-settings.sync-start",
             "Syncing quicksuggest records from Remote Settings"
         );
-
         remote_settings_client.sync().await?;
 
         // Download and process all the attachments concurrently
