@@ -5,7 +5,9 @@
 //! tier maps from those hashes to the responses. In this way, duplicate
 //! responses can be stored only once, even if they are used for many requests.
 
+use anyhow::anyhow;
 use async_trait::async_trait;
+use cadence::{CountedExt, Gauged, Histogrammed, StatsdClient};
 use deduped_dashmap::{ControlFlow, DedupedMap};
 use lazy_static::lazy_static;
 use merino_settings::providers::MemoryCacheConfig;
@@ -82,6 +84,9 @@ pub struct Suggester {
     /// The suggester to query on cache-miss.
     inner: Box<dyn SuggestionProvider>,
 
+    /// The Statsd client used to record statistics.
+    metrics_client: StatsdClient,
+
     /// The cached items.
     items: Arc<DedupedMap<String, Instant, Vec<Suggestion>>>,
 
@@ -94,13 +99,16 @@ pub struct Suggester {
 
 impl Suggester {
     /// Create a in-memory suggestion cache from settings that wraps `provider`.
+    #[must_use]
     pub fn new_boxed(
         config: &MemoryCacheConfig,
         provider: Box<dyn SuggestionProvider>,
+        metrics_client: StatsdClient,
     ) -> Box<Self> {
         let items = Arc::new(DedupedMap::new());
 
         {
+            let metrics = metrics_client.clone();
             let task_items = items.clone();
             let task_interval = config.cleanup_interval;
             tokio::spawn(async move {
@@ -111,13 +119,14 @@ impl Suggester {
                 timer.tick().await;
                 loop {
                     timer.tick().await;
-                    Self::remove_expired_entries(&task_items);
+                    Self::remove_expired_entries(&task_items, &metrics);
                 }
             });
         }
 
         Box::new(Self {
             inner: provider,
+            metrics_client,
             items,
             default_ttl: config.default_ttl,
             default_lock_timeout: config.default_lock_timeout,
@@ -130,6 +139,7 @@ impl Suggester {
     #[tracing::instrument(level = "debug", skip(items))]
     fn remove_expired_entries<K: Eq + Hash + Debug>(
         items: &Arc<DedupedMap<K, Instant, Vec<Suggestion>>>,
+        metrics_client: &StatsdClient,
     ) {
         let start = Instant::now();
         let count_before_storage = items.len_storage();
@@ -166,6 +176,13 @@ impl Suggester {
             ?removed_storage,
             "finished removing expired entries from cache"
         );
+
+        metrics_client
+            .gauge("cache.memory.storage-len", items.len_storage() as u64)
+            .ok();
+        metrics_client
+            .gauge("cache.memory.pointers-len", items.len_pointers() as u64)
+            .ok();
     }
 }
 
@@ -186,8 +203,11 @@ impl SuggestionProvider for Suggester {
         let now = Instant::now();
         let key = self.cache_key(&query);
         let span = tracing::debug_span!("memory-suggest", ?key);
+
+        // closure for `span`.
         async move {
             tracing::debug!("suggesting with memory cache");
+            let mut rv = None;
 
             match self.items.get(&key) {
                 Some((expiration, _)) if expiration <= now => {
@@ -196,7 +216,8 @@ impl SuggestionProvider for Suggester {
                 }
                 Some((expiration, suggestions)) => {
                     tracing::debug!("cache hit");
-                    return Ok(SuggestionResponse {
+                    self.metrics_client.incr("cache.memory.hit").ok();
+                    rv = Some(SuggestionResponse {
                         cache_status: CacheStatus::Hit,
                         cache_ttl: Some(expiration - now),
                         suggestions,
@@ -204,36 +225,54 @@ impl SuggestionProvider for Suggester {
                 }
                 None => {
                     tracing::debug!("cache miss");
+                    self.metrics_client.incr("cache.memory.miss").ok();
                 }
             }
 
-            if LOCK_TABLE.is_locked(&key) {
-                // there's a fetch already in progress. Return empty for now.
-                return Ok(SuggestionResponse {
-                    cache_status: CacheStatus::Hit,
-                    cache_ttl: None,
-                    suggestions: Vec::new(),
-                });
+            if rv.is_none() {
+                if LOCK_TABLE.is_locked(&key) {
+                    // There's a fetch already in progress. Return empty for now.
+                    rv = Some(SuggestionResponse {
+                        cache_status: CacheStatus::Hit,
+                        cache_ttl: None,
+                        suggestions: Vec::new(),
+                    });
+                } else {
+                    // Handle cache miss or stale cache.
+                    let lock = LOCK_TABLE.add_lock(&key, self.default_lock_timeout);
+                    let mut response = self
+                        .inner
+                        .suggest(query)
+                        .await?
+                        .with_cache_status(CacheStatus::Miss);
+
+                    LOCK_TABLE.update(&key, lock, || {
+                        // Update the cache data.
+                        let cache_ttl = response.cache_ttl.get_or_insert(self.default_ttl);
+                        let expiration = now + *cache_ttl;
+                        tracing::debug!(?now, ?expiration, "inserting into cache");
+                        self.items
+                            .insert(key.clone(), expiration, response.suggestions.clone());
+                    });
+
+                    rv = Some(response);
+                }
             }
 
-            // handle cache miss or stale cache
-            let lock = LOCK_TABLE.add_lock(&key, self.default_lock_timeout);
-            let mut response = self
-                .inner
-                .suggest(query)
-                .await?
-                // Todo, cache status should be a vec.
-                .with_cache_status(CacheStatus::Miss);
-
-            LOCK_TABLE.update(&key, lock, || {
-                // Update the cache data.
-                let cache_ttl = response.cache_ttl.get_or_insert(self.default_ttl);
-                let expiration = now + *cache_ttl;
-                tracing::debug!(?now, ?expiration, "inserting into cache");
-                self.items
-                    .insert(key.clone(), expiration, response.suggestions.clone());
-            });
-            Ok(response)
+            if let Some(response) = rv {
+                self.metrics_client
+                    .histogram_with_tags(
+                        "cache.memory.duration-us",
+                        now.elapsed().as_micros() as u64,
+                    )
+                    .with_tag("cache-status", response.cache_status.to_string().as_str())
+                    .send();
+                Ok(response)
+            } else {
+                Err(merino_suggest::SuggestError::Internal(anyhow!(
+                    "No result generated"
+                )))
+            }
         }
         .instrument(span)
         .await
@@ -243,6 +282,7 @@ impl SuggestionProvider for Suggester {
 #[cfg(test)]
 mod tests {
     use super::{Suggester, LOCK_TABLE};
+    use cadence::{SpyMetricSink, StatsdClient};
     use deduped_dashmap::DedupedMap;
     use fake::{Fake, Faker};
     use merino_suggest::Suggestion;
@@ -271,12 +311,27 @@ mod tests {
         assert!(cache.contains_key(&"current".to_owned()));
         assert!(cache.contains_key(&"expired".to_owned()));
 
-        Suggester::remove_expired_entries(&cache);
+        // Provide an inspectable metrics sink to validate the collected data.
+        let (rx, sink) = SpyMetricSink::new();
+        let metrics_client = StatsdClient::from_sink("merino-test", sink);
+
+        Suggester::remove_expired_entries(&cache, &metrics_client);
 
         assert_eq!(cache.len_storage(), 1);
         assert_eq!(cache.len_pointers(), 1);
         assert!(cache.contains_key(&"current".to_owned()));
         assert!(!cache.contains_key(&"expired".to_owned()));
+
+        // Verify the reported metric.
+        assert_eq!(rx.len(), 2);
+        let collected_data: Vec<String> = rx
+            .iter()
+            .take(2)
+            .map(|x| String::from_utf8(x).unwrap())
+            .collect();
+        dbg!(&collected_data);
+        assert!(collected_data.contains(&"merino-test.cache.memory.storage-len:1|g".to_string()));
+        assert!(collected_data.contains(&"merino-test.cache.memory.pointers-len:1|g".to_string()));
     }
 
     #[test]

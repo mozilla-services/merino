@@ -2,11 +2,15 @@
 
 mod domain;
 
-use std::{convert::TryInto, time::Duration};
+use std::{
+    convert::TryInto,
+    time::{Duration, Instant},
+};
 
 use crate::redis::domain::RedisSuggestions;
 use anyhow::Context;
 use async_trait::async_trait;
+use cadence::{CountedExt, Histogrammed, StatsdClient};
 use fix_hidden_lifetime_bug::fix_hidden_lifetime_bug;
 use merino_settings::{providers::RedisCacheConfig, Settings};
 use merino_suggest::{
@@ -26,6 +30,9 @@ pub struct Suggester {
 
     /// Connection to Redis.
     redis_connection: redis::aio::ConnectionManager,
+
+    /// The Statsd client used to record statistics.
+    metrics_client: StatsdClient,
 
     /// The default amount of time a cache entry is valid, unless overridden by
     /// `inner`.
@@ -181,6 +188,7 @@ impl Suggester {
     pub async fn new_boxed(
         settings: &Settings,
         config: &RedisCacheConfig,
+        metrics_client: StatsdClient,
         provider: Box<dyn SuggestionProvider + 'static>,
     ) -> Result<Box<Self>, SetupError> {
         tracing::debug!(?settings.redis.url, "Setting up redis connection");
@@ -196,9 +204,10 @@ impl Suggester {
             ))
             .map_err(SetupError::Network)?;
 
-        Ok(Box::new(Suggester {
+        Ok(Box::new(Self {
             inner: provider,
             redis_connection,
+            metrics_client,
             default_ttl: config.default_ttl,
             default_lock_timeout: config.default_lock_timeout,
         }))
@@ -363,44 +372,50 @@ impl SuggestionProvider for Suggester {
         &self,
         request: SuggestionRequest,
     ) -> Result<SuggestionResponse, SuggestError> {
+        let start = Instant::now();
         let key = self.cache_key(&request);
         let mut rlock = SimpleRedisLock::from(&self.redis_connection);
 
         let cache_result = self.get_key(&key).await?;
 
-        if let CacheCheckResult::Hit(suggestions) = cache_result {
+        let rv = if let CacheCheckResult::Hit(suggestions) = cache_result {
             tracing::debug!(%key, "cache hit");
-            Ok(suggestions)
-        } else {
-            if rlock.is_locked(&key).await? {
-                tracing::debug!(%key, "cache updating...");
-                // A "pending" review may not yet have content (e.g. it's the initial lookup), otherwise it's a "Hit"
-                let response =
-                    SuggestionResponse::new(Vec::new()).with_cache_status(CacheStatus::Miss);
-                return Ok(response);
-            }
-            let response = if let Some(lock) = rlock.lock(&key, self.default_lock_timeout).await? {
-                let response = self
-                    .inner
-                    .suggest(request)
-                    .await?
-                    .with_cache_ttl(self.default_ttl);
+            self.metrics_client.incr("cache.redis.hit").ok();
+            suggestions
+        } else if rlock.is_locked(&key).await? {
+            tracing::debug!(%key, "cache updating...");
+            // A "pending" review may not yet have content (e.g. it's the initial lookup), otherwise it's a "Hit".
+            SuggestionResponse::new(Vec::new()).with_cache_status(CacheStatus::Miss)
+        } else if let Some(lock) = rlock.lock(&key, self.default_lock_timeout).await? {
+            let response = self
+                .inner
+                .suggest(request)
+                .await?
+                .with_cache_ttl(self.default_ttl);
 
-                self.queue_store_key(&key, response.suggestions.clone(), lock)?;
+            self.queue_store_key(&key, response.suggestions.clone(), lock)?;
 
-                if let CacheCheckResult::Miss = cache_result {
-                    tracing::debug!(%key, "cache miss");
-                    response.with_cache_status(CacheStatus::Miss)
-                } else {
-                    debug_assert!(matches!(cache_result, CacheCheckResult::ErrorAsMiss));
-                    tracing::debug!(%key, "cache error treated as miss");
-                    response.with_cache_status(CacheStatus::Error)
-                }
+            if let CacheCheckResult::Miss = cache_result {
+                tracing::debug!(%key, "cache miss");
+                self.metrics_client.incr("cache.redis.miss").ok();
+                response.with_cache_status(CacheStatus::Miss)
             } else {
-                SuggestionResponse::new(Vec::new()).with_cache_status(CacheStatus::Error)
-            };
-            Ok(response)
-        }
+                debug_assert!(matches!(cache_result, CacheCheckResult::ErrorAsMiss));
+                tracing::debug!(%key, "cache error treated as miss");
+                response.with_cache_status(CacheStatus::Error)
+            }
+        } else {
+            SuggestionResponse::new(Vec::new()).with_cache_status(CacheStatus::Error)
+        };
+
+        self.metrics_client
+            .histogram_with_tags(
+                "cache.redis.duration-us",
+                start.elapsed().as_micros() as u64,
+            )
+            .with_tag("cache-status", rv.cache_status.to_string().as_str())
+            .send();
+        Ok(rv)
     }
 }
 

@@ -4,6 +4,7 @@ mod client;
 
 use crate::remote_settings::client::RemoteSettingsClient;
 use async_trait::async_trait;
+use cadence::{Histogrammed, StatsdClient};
 use deduped_dashmap::DedupedMap;
 use futures::StreamExt;
 use http::Uri;
@@ -15,17 +16,19 @@ use merino_suggest::{
 };
 use serde::{Deserialize, Serialize};
 use serde_with::{serde_as, DisplayFromStr};
-use std::{collections::HashMap, sync::Arc};
+use std::{collections::HashMap, sync::Arc, time::Instant};
 
 lazy_static! {
     static ref NON_SPONSORED_IAB_CATEGORIES: Vec<&'static str> = vec!["5 - Education"];
 }
 
 /// Make suggestions based on data in Remote Settings
-#[derive(Default)]
 pub struct RemoteSettingsSuggester {
     /// A map from keywords to suggestions that can be provided.
     suggestions: Arc<DedupedMap<String, (), Suggestion>>,
+
+    /// A map from keywords to suggestions that can be provided.
+    metrics_client: StatsdClient,
 }
 
 impl RemoteSettingsSuggester {
@@ -37,6 +40,7 @@ impl RemoteSettingsSuggester {
     pub async fn new_boxed(
         settings: &Settings,
         config: &RemoteSettingsConfig,
+        metrics_client: StatsdClient,
     ) -> Result<Box<Self>, SetupError> {
         let mut remote_settings_client = RemoteSettingsClient::new(
             &settings.remote_settings.server,
@@ -74,7 +78,10 @@ impl RemoteSettingsSuggester {
             });
         }
 
-        Ok(Box::new(Self { suggestions }))
+        Ok(Box::new(Self {
+            suggestions,
+            metrics_client,
+        }))
     }
 
     /// Make a suggester for testing that only includes the given suggestions, and never syncs.
@@ -83,6 +90,7 @@ impl RemoteSettingsSuggester {
         let deduped = suggestions.into_iter().collect();
         Self {
             suggestions: Arc::new(deduped),
+            metrics_client: StatsdClient::builder("merino", cadence::NopMetricSink).build(),
         }
     }
 
@@ -213,16 +221,32 @@ impl SuggestionProvider for RemoteSettingsSuggester {
         &self,
         request: SuggestionRequest,
     ) -> Result<SuggestionResponse, SuggestError> {
-        let suggestions = if request.accepts_english {
+        let start = Instant::now();
+        let suggestions = SuggestionResponse::new(if request.accepts_english {
             match self.suggestions.get(&request.query) {
                 Some((_, suggestion)) => vec![suggestion],
                 _ => vec![],
             }
         } else {
             vec![]
-        };
+        });
 
-        Ok(SuggestionResponse::new(suggestions))
+        self.metrics_client
+            .histogram_with_tags(
+                "adm.rs.provider.duration-us",
+                start.elapsed().as_micros() as u64,
+            )
+            .with_tag(
+                "accepts-english",
+                if request.accepts_english {
+                    "true"
+                } else {
+                    "false"
+                },
+            )
+            .send();
+
+        Ok(suggestions)
     }
 }
 

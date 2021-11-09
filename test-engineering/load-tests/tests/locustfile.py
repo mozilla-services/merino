@@ -2,17 +2,24 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+import logging
 import os
-from pathlib import Path
 from random import choice, randint
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, List
 
+import faker
+import kinto_http
 from client_info import DESKTOP_FIREFOX, LOCALES
-from faker import Faker
-from locust import HttpUser, task
+from kinto import download_suggestions
+from locust import HttpUser, events, task
 from locust.clients import HttpSession
+from locust.runners import MasterRunner
 from models import ResponseContent
-from rs_queries import load_from_file
+
+LOGGING_LEVEL = os.environ["LOAD_TESTS__LOGGING_LEVEL"]
+
+logger = logging.getLogger("load_tests")
+logger.setLevel(int(LOGGING_LEVEL))
 
 # See https://mozilla-services.github.io/merino/api.html#suggest
 SUGGEST_API: str = "/api/v1/suggest"
@@ -23,6 +30,58 @@ CLIENT_VARIANTS: str = ""
 
 # Optional. A comma-separated list of providers to use for this request.
 PROVIDERS: str = ""
+
+# See RemoteSettingsGlobalSettings in
+# https://github.com/mozilla-services/merino/blob/main/merino-settings/src/lib.rs
+KINTO__SERVER_URL = os.environ["KINTO__SERVER_URL"]
+
+# See default values in RemoteSettingsConfig in
+# https://github.com/mozilla-services/merino/blob/main/merino-settings/src/providers.rs
+KINTO__BUCKET = os.environ["KINTO__BUCKET"]
+KINTO__COLLECTION = os.environ["KINTO__COLLECTION"]
+
+# This will be populated on each worker and
+RS_SUGGESTIONS: List[Dict] = []
+
+
+@events.test_start.add_listener
+def on_locust_test_start(environment, **kwargs):
+    """Download suggestions from Kinto and store suggestions on workers."""
+
+    if not isinstance(environment.runner, MasterRunner):
+        return
+
+    kinto_client = kinto_http.Client(
+        server_url=KINTO__SERVER_URL,
+        bucket=KINTO__BUCKET,
+        collection=KINTO__COLLECTION,
+    )
+
+    kinto_suggestions = download_suggestions(kinto_client)
+
+    suggestions = [suggestion.dict() for suggestion in kinto_suggestions.values()]
+
+    logger.info("download_suggestions: Downloaded %d suggestions", len(suggestions))
+
+    for worker in environment.runner.clients:
+        environment.runner.send_message(
+            "store_suggestions",
+            data=suggestions,
+            client_id=worker,
+        )
+
+
+def store_suggestions(environment, msg, **kwargs):
+    """Modify the module scoped list with suggestions in-place."""
+    logger.info("store_suggestions: Storing %d suggestions", len(msg.data))
+    RS_SUGGESTIONS[:] = msg.data
+
+
+@events.init.add_listener
+def on_locust_init(environment, **kwargs):
+    """Register a message on worker nodes."""
+    if not isinstance(environment.runner, MasterRunner):
+        environment.runner.register_message("store_suggestions", store_suggestions)
 
 
 def request_suggestions(client: HttpSession, query: str) -> None:
@@ -60,23 +119,25 @@ def request_suggestions(client: HttpSession, query: str) -> None:
 class MerinoUser(HttpUser):
     """User that sends requests to the Merino API."""
 
-    rs_query_groups: List[Tuple[str, ...]]
-
     def on_start(self):
-        # This expects an InstantSuggest_Queries_*.json file from the source-data
-        # dir in the quicksuggest-rs repo for the path in RS_QUERIES_FILE
-        self.rs_query_groups = load_from_file(Path(os.environ["RS_QUERIES_FILE"]))
-
         # Create a Faker instance for generating random suggest queries
-        self.faker = Faker(locale="en-US", providers=["faker.providers.lorem"])
+        self.faker = faker.Faker(locale="en-US", providers=["faker.providers.lorem"])
+
+        # By this time suggestions are expected to be stored on the worker
+        logger.debug(
+            "user will be sending queries based on the %d stored suggestions",
+            len(RS_SUGGESTIONS),
+        )
 
         return super().on_start()
 
     @task(weight=10)
     def rs_suggestions(self) -> None:
-        """Send multiple requests for known RS queries."""
+        """Send multiple requests for Remote Settings queries."""
 
-        for query in choice(self.rs_query_groups):
+        suggestion = choice(RS_SUGGESTIONS)
+
+        for query in suggestion["keywords"]:
             request_suggestions(self.client, query)
 
     @task(weight=90)
