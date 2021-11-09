@@ -329,8 +329,9 @@ mod tests {
             .take(2)
             .map(|x| String::from_utf8(x).unwrap())
             .collect();
-        assert!(collected_data.contains(&"merino-test.cache.memory.storage_len:1|c".to_string()));
-        assert!(collected_data.contains(&"merino-test.cache.memory.pointers_len:1|c".to_string()));
+        dbg!(&collected_data);
+        assert!(collected_data.contains(&"merino-test.cache.memory.storage-len:1|g".to_string()));
+        assert!(collected_data.contains(&"merino-test.cache.memory.pointers-len:1|g".to_string()));
     }
 
     #[test]
