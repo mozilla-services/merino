@@ -10,7 +10,7 @@ use std::{
 use crate::redis::domain::RedisSuggestions;
 use anyhow::Context;
 use async_trait::async_trait;
-use cadence::{Histogrammed, StatsdClient};
+use cadence::{CountedExt, Histogrammed, StatsdClient};
 use fix_hidden_lifetime_bug::fix_hidden_lifetime_bug;
 use merino_settings::{providers::RedisCacheConfig, Settings};
 use merino_suggest::{
@@ -380,6 +380,7 @@ impl SuggestionProvider for Suggester {
 
         let rv = if let CacheCheckResult::Hit(suggestions) = cache_result {
             tracing::debug!(%key, "cache hit");
+            self.metrics_client.incr("cache.redis.hit").ok();
             suggestions
         } else if rlock.is_locked(&key).await? {
             tracing::debug!(%key, "cache updating...");
@@ -396,6 +397,7 @@ impl SuggestionProvider for Suggester {
 
             if let CacheCheckResult::Miss = cache_result {
                 tracing::debug!(%key, "cache miss");
+                self.metrics_client.incr("cache.redis.miss").ok();
                 response.with_cache_status(CacheStatus::Miss)
             } else {
                 debug_assert!(matches!(cache_result, CacheCheckResult::ErrorAsMiss));
