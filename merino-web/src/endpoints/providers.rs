@@ -21,7 +21,7 @@ pub fn configure(config: &mut web::ServiceConfig) {
 async fn list_providers(
     provider: Data<SuggestionProviderRef>,
 ) -> Result<HttpResponse, HandlerError> {
-    let provider = provider.0.clone();
+    let provider = &provider.0;
     let providers = provider
         .list_providers()
         .into_iter()
