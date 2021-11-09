@@ -177,9 +177,11 @@ impl Suggester {
             "finished removing expired entries from cache"
         );
 
-        // TODO: should this also account for "pointers"?
         metrics_client
-            .count("cache.memory.count", items.len_storage() as i64)
+            .count("cache.memory.storage_len", items.len_storage() as i64)
+            .ok();
+        metrics_client
+            .count("cache.memory.pointers_len", items.len_pointers() as i64)
             .ok();
     }
 }
@@ -321,12 +323,14 @@ mod tests {
         assert!(!cache.contains_key(&"expired".to_owned()));
 
         // Verify the reported metric.
-        assert_eq!(rx.len(), 1);
-        let sent = rx.recv().unwrap();
-        assert_eq!(
-            "merino-test.cache.memory.count:1|c",
-            String::from_utf8(sent).unwrap()
-        );
+        assert_eq!(rx.len(), 2);
+        let collected_data: Vec<String> = rx
+            .iter()
+            .take(2)
+            .map(|x| String::from_utf8(x).unwrap())
+            .collect();
+        assert!(collected_data.contains(&"merino-test.cache.memory.storage_len:1|c".to_string()));
+        assert!(collected_data.contains(&"merino-test.cache.memory.pointers_len:1|c".to_string()));
     }
 
     #[test]
