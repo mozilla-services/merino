@@ -7,7 +7,7 @@
 
 use anyhow::anyhow;
 use async_trait::async_trait;
-use cadence::{Histogrammed, StatsdClient};
+use cadence::{Counted, CountedExt, Histogrammed, StatsdClient};
 use deduped_dashmap::{ControlFlow, DedupedMap};
 use lazy_static::lazy_static;
 use merino_settings::providers::MemoryCacheConfig;
@@ -108,6 +108,7 @@ impl Suggester {
         let items = Arc::new(DedupedMap::new());
 
         {
+            let metrics = metrics_client.clone();
             let task_items = items.clone();
             let task_interval = config.cleanup_interval;
             tokio::spawn(async move {
@@ -118,7 +119,7 @@ impl Suggester {
                 timer.tick().await;
                 loop {
                     timer.tick().await;
-                    Self::remove_expired_entries(&task_items);
+                    Self::remove_expired_entries(&task_items, &metrics);
                 }
             });
         }
@@ -138,6 +139,7 @@ impl Suggester {
     #[tracing::instrument(level = "debug", skip(items))]
     fn remove_expired_entries<K: Eq + Hash + Debug>(
         items: &Arc<DedupedMap<K, Instant, Vec<Suggestion>>>,
+        metrics_client: &StatsdClient,
     ) {
         let start = Instant::now();
         let count_before_storage = items.len_storage();
@@ -174,6 +176,11 @@ impl Suggester {
             ?removed_storage,
             "finished removing expired entries from cache"
         );
+
+        // TODO: should this also account for "pointers"?
+        metrics_client
+            .count("cache.memory.count", items.len_storage() as i64)
+            .ok();
     }
 }
 
@@ -207,6 +214,7 @@ impl SuggestionProvider for Suggester {
                 }
                 Some((expiration, suggestions)) => {
                     tracing::debug!("cache hit");
+                    self.metrics_client.incr("cache.memory.hit").ok();
                     rv = Some(SuggestionResponse {
                         cache_status: CacheStatus::Hit,
                         cache_ttl: Some(expiration - now),
@@ -215,6 +223,7 @@ impl SuggestionProvider for Suggester {
                 }
                 None => {
                     tracing::debug!("cache miss");
+                    self.metrics_client.incr("cache.memory.miss").ok();
                 }
             }
 
@@ -271,6 +280,7 @@ impl SuggestionProvider for Suggester {
 #[cfg(test)]
 mod tests {
     use super::{Suggester, LOCK_TABLE};
+    use cadence::{SpyMetricSink, StatsdClient};
     use deduped_dashmap::DedupedMap;
     use fake::{Fake, Faker};
     use merino_suggest::Suggestion;
@@ -299,12 +309,24 @@ mod tests {
         assert!(cache.contains_key(&"current".to_owned()));
         assert!(cache.contains_key(&"expired".to_owned()));
 
-        Suggester::remove_expired_entries(&cache);
+        // Provide an inspectable metrics sink to validate the collected data.
+        let (rx, sink) = SpyMetricSink::new();
+        let metrics_client = StatsdClient::from_sink("merino-test", sink);
+
+        Suggester::remove_expired_entries(&cache, &metrics_client);
 
         assert_eq!(cache.len_storage(), 1);
         assert_eq!(cache.len_pointers(), 1);
         assert!(cache.contains_key(&"current".to_owned()));
         assert!(!cache.contains_key(&"expired".to_owned()));
+
+        // Verify the reported metric.
+        assert_eq!(rx.len(), 1);
+        let sent = rx.recv().unwrap();
+        assert_eq!(
+            "merino-test.cache.memory.count:1|c",
+            String::from_utf8(sent).unwrap()
+        );
     }
 
     #[test]

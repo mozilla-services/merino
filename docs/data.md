@@ -102,6 +102,9 @@ the level and type of the log is listed.
     accepted any `en-*` locale. Only requests that do are provided with
     suggestions.
 
+- `cache.memory.count` - A counter that records the number of cached items after
+  expired entries are purged.
+
 - `cache.memory.duration-us` - A histogram that records the amount of time, in
   microseconds, that the memory cache took to provide a suggestion. Includes the
   time it takes to fallback to the inner provider for cache misses and errors.
@@ -110,6 +113,12 @@ the level and type of the log is listed.
 
   - `cache-status` - If the response was pulled from the cache or regenerated.
     `"hit"`, `"miss"`, `"error"`, or `"none"`.
+
+- `cache.memory.hit` - A counter that is incremented every time the in-memory
+  cache is queried and a cached suggestion is found.
+
+- `cache.memory.miss` - A counter that is incremented every time the in-memory
+  cache is queried and a cached suggestion is not found.
 
 - `cache.redis.duration-us` - A histogram that records the amount of time, in
   microseconds, that the Redis cache took to provide a suggestion. Includes the
