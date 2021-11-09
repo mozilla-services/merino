@@ -25,7 +25,7 @@ assignees: ""
     `{major}.{minor}.{patch}` you've specified.
 - [ ] Edit wherever the version is in source (`Cargo.toml` of all crates) so
       that the version number reflects the desired release version.
-- [ ] `clog --setversion {version} --outfile CHANGELOG.md`, verify changes were
+- [ ] `clog --setversion {version} --from-latest-tag --outfile CHANGELOG.md`, verify changes were
       properly accounted for in `CHANGELOG.md`.
 - [ ] `git add CHANGELOG.md Cargo.* */Cargo.*` to add the changes to the new
       release commit.
