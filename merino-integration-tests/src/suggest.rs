@@ -1,6 +1,4 @@
 //! Tests Merino's ability to make basic suggestions.
-// Note, setting the following line will cause a compile error. This may be due to the
-// fact that the proc_macro may not be able to locate items.
 #![cfg(test)]
 
 use crate::{merino_test_macro, utils::test_tools::TestReqwestClient, TestingTools};

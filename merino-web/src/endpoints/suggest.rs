@@ -52,14 +52,14 @@ async fn suggest(
     let request_id: &Uuid = extensions
         .get::<RequestId>()
         .ok_or_else(HandlerError::internal)?;
-    let provider_ref = &provider.clone().0;
+    let id_multi = &provider.0;
     let response = match &query_parameters.providers {
         Some(provider_ids) => {
-            provider_ref
+            id_multi
                 .suggest_from_ids(suggestion_request, provider_ids)
                 .await
         }
-        None => provider_ref.suggest(suggestion_request).await,
+        None => id_multi.suggest(suggestion_request).await,
     }
     .map_err(|error| {
         tracing::error!(%error, r#type="web.suggest.error", "Error providing suggestions");
