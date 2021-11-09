@@ -156,6 +156,15 @@
 <span id="156">156</span>
 <span id="157">157</span>
 <span id="158">158</span>
+<span id="159">159</span>
+<span id="160">160</span>
+<span id="161">161</span>
+<span id="162">162</span>
+<span id="163">163</span>
+<span id="164">164</span>
+<span id="165">165</span>
+<span id="166">166</span>
+<span id="167">167</span>
 </pre><pre class="rust">
 <span class="attribute">#![<span class="ident">warn</span>(<span class="ident">missing_docs</span>, <span class="ident">clippy::missing_docs_in_private_items</span>)]</span>
 
@@ -165,7 +174,7 @@
 <span class="kw">mod</span> <span class="ident">errors</span>;
 <span class="kw">mod</span> <span class="ident">extractors</span>;
 <span class="kw">mod</span> <span class="ident">middleware</span>;
-<span class="kw">mod</span> <span class="ident">providers</span>;
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">providers</span>;
 
 <span class="kw">use</span> <span class="ident">actix_cors::Cors</span>;
 <span class="kw">use</span> <span class="ident">actix_web</span>::{
@@ -216,7 +225,10 @@
 <span class="doccomment">/// let settings = merino_settings::Settings::load()</span>
 <span class="doccomment">///     .expect(&quot;Failed to load settings&quot;);</span>
 <span class="doccomment">/// let metrics_client = cadence::StatsdClient::from_sink(&quot;merino&quot;, cadence::NopMetricSink);</span>
-<span class="doccomment">/// merino_web::run(listener, metrics_client, settings)</span>
+<span class="doccomment">/// let providers = merino_web::providers::SuggestionProviderRef::init(&amp;settings, &amp;metrics_client)</span>
+<span class="doccomment">///                 .await</span>
+<span class="doccomment">///                 .expect(&quot;Could not create providers&quot;);</span>
+<span class="doccomment">/// let server = merino_web::run(listener, metrics_client, settings, providers)</span>
 <span class="doccomment">///     .expect(&quot;Failed to start server&quot;)</span>
 <span class="doccomment">///     .await</span>
 <span class="doccomment">///     .expect(&quot;Fatal error while running server&quot;);</span>
@@ -227,6 +239,7 @@
 <span class="doccomment">/// requests. This is useful for tests.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// ```no_run</span>
+<span class="doccomment">/// # tokio_test::block_on(async {</span>
 <span class="doccomment">/// use std::net::TcpListener;</span>
 <span class="doccomment">/// use merino_settings::Settings;</span>
 <span class="doccomment">///</span>
@@ -235,16 +248,21 @@
 <span class="doccomment">/// let settings = merino_settings::Settings::load()</span>
 <span class="doccomment">///     .expect(&quot;Failed to load settings&quot;);</span>
 <span class="doccomment">/// let metrics_client = cadence::StatsdClient::from_sink(&quot;merino&quot;, cadence::NopMetricSink);</span>
-<span class="doccomment">/// let server = merino_web::run(listener, metrics_client, settings)</span>
+<span class="doccomment">/// let providers = merino_web::providers::SuggestionProviderRef::init(&amp;settings, &amp;metrics_client)</span>
+<span class="doccomment">///                 .await</span>
+<span class="doccomment">///                 .expect(&quot;Could not create providers&quot;);</span>
+<span class="doccomment">/// let server = merino_web::run(listener, metrics_client, settings, providers)</span>
 <span class="doccomment">///     .expect(&quot;Failed to start server&quot;);</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// /// The server can be stopped with `join_handle::abort()`, if needed.</span>
 <span class="doccomment">/// let join_handle = tokio::spawn(server);</span>
+<span class="doccomment">/// # })</span>
 <span class="doccomment">/// ```</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">run</span>(
     <span class="ident">listener</span>: <span class="ident">TcpListener</span>,
     <span class="ident">metrics_client</span>: <span class="ident">StatsdClient</span>,
     <span class="ident">settings</span>: <span class="ident">Settings</span>,
+    <span class="ident">providers</span>: <span class="ident">SuggestionProviderRef</span>,
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Server</span>, <span class="ident">anyhow::Error</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">num_workers</span> <span class="op">=</span> <span class="ident">settings</span>.<span class="ident">http</span>.<span class="ident">workers</span>;
 
@@ -274,7 +292,7 @@
             .<span class="ident">app_data</span>(<span class="ident">Data::new</span>((<span class="kw-2">&amp;</span><span class="ident">settings</span>).<span class="ident">clone</span>()))
             .<span class="ident">app_data</span>(<span class="ident">location_config</span>.<span class="ident">clone</span>())
             .<span class="ident">app_data</span>(<span class="ident">Data::new</span>(<span class="ident">metrics_client</span>.<span class="ident">clone</span>()))
-            .<span class="ident">app_data</span>(<span class="ident">Data::new</span>(<span class="ident">SuggestionProviderRef::new</span>()))
+            .<span class="ident">app_data</span>(<span class="ident">Data::new</span>(<span class="ident">providers</span>.<span class="ident">clone</span>()))
             <span class="comment">// Middlewares</span>
             .<span class="ident">wrap</span>(<span class="ident">moz_log</span>.<span class="ident">clone</span>())
             .<span class="ident">wrap</span>(<span class="ident">middleware::Metrics</span>)

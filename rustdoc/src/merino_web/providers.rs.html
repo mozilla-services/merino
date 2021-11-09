@@ -155,24 +155,10 @@
 <span id="155">155</span>
 <span id="156">156</span>
 <span id="157">157</span>
-<span id="158">158</span>
-<span id="159">159</span>
-<span id="160">160</span>
-<span id="161">161</span>
-<span id="162">162</span>
-<span id="163">163</span>
-<span id="164">164</span>
-<span id="165">165</span>
-<span id="166">166</span>
-<span id="167">167</span>
-<span id="168">168</span>
-<span id="169">169</span>
-<span id="170">170</span>
-<span id="171">171</span>
-<span id="172">172</span>
-<span id="173">173</span>
 </pre><pre class="rust">
 <span class="doccomment">//! Tools to manager providers.</span>
+
+<span class="kw">use</span> <span class="ident">std::sync::Arc</span>;
 
 <span class="kw">use</span> <span class="ident">anyhow::Result</span>;
 <span class="kw">use</span> <span class="ident">async_recursion::async_recursion</span>;
@@ -184,48 +170,30 @@
     <span class="ident">DebugProvider</span>, <span class="ident">FixedProvider</span>, <span class="ident">IdMulti</span>, <span class="ident">KeywordFilterProvider</span>, <span class="ident">Multi</span>, <span class="ident">NullProvider</span>,
     <span class="ident">StealthProvider</span>, <span class="ident">SuggestionProvider</span>, <span class="ident">TimeoutProvider</span>, <span class="ident">WikiFruit</span>,
 };
-<span class="kw">use</span> <span class="ident">tokio::sync::OnceCell</span>;
-<span class="kw">use</span> <span class="ident">tracing_futures::Instrument</span>;
 
 <span class="doccomment">/// The SuggestionProvider stored in Actix&#39;s app_data.</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">SuggestionProviderRef</span>(<span class="ident">OnceCell</span><span class="op">&lt;</span><span class="ident">merino_suggest::IdMulti</span><span class="op">&gt;</span>);
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">SuggestionProviderRef</span>(<span class="kw">pub</span> <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">IdMulti</span><span class="op">&gt;</span>);
 
 <span class="kw">impl</span> <span class="ident">SuggestionProviderRef</span> {
-    <span class="doccomment">/// Make a new slot to hold providers. Does not initialize any providers.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="self">Self</span>(<span class="ident">OnceCell::new</span>())
-    }
+    <span class="doccomment">/// initialize the suggestion providers</span>
+    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">init</span>(<span class="ident">settings</span>: <span class="kw-2">&amp;</span><span class="ident">Settings</span>, <span class="ident">metrics_client</span>: <span class="kw-2">&amp;</span><span class="ident">StatsdClient</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">idm</span> <span class="op">=</span> <span class="ident">merino_suggest::IdMulti::default</span>();
 
-    <span class="doccomment">/// Get the provider, or create a new one if it doesn&#39;t exist.</span>
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_or_try_init</span>(
-        <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">settings</span>: <span class="kw-2">&amp;</span><span class="ident">Settings</span>,
-        <span class="ident">metrics_client</span>: <span class="kw-2">&amp;</span><span class="ident">StatsdClient</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">IdMulti</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">setup_span</span> <span class="op">=</span> <span class="macro">tracing::info_span!</span>(<span class="string">&quot;suggestion_provider_setup&quot;</span>);
-        <span class="self">self</span>.<span class="number">0</span>
-            .<span class="ident">get_or_try_init</span>(<span class="op">|</span><span class="op">|</span> {
-                <span class="kw">async</span> {
-                    <span class="macro">tracing::info!</span>(
-                        <span class="ident">r#type</span> <span class="op">=</span> <span class="string">&quot;web.configuring-suggesters&quot;</span>,
-                        <span class="string">&quot;Setting up suggestion providers&quot;</span>
-                    );
+        <span class="kw">let</span> <span class="ident">_setup_span</span> <span class="op">=</span> <span class="macro">tracing::info_span!</span>(<span class="string">&quot;suggestion_provider_setup&quot;</span>);
+        <span class="macro">tracing::info!</span>(
+            <span class="ident">r#type</span> <span class="op">=</span> <span class="string">&quot;web.configuring-suggesters&quot;</span>,
+            <span class="string">&quot;Setting up suggestion providers&quot;</span>
+        );
 
-                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">multi</span> <span class="op">=</span> <span class="ident">merino_suggest::IdMulti::default</span>();
-                    <span class="comment">// let mut providers: Vec&lt;Box&lt;dyn SuggestionProvider&gt;&gt; =</span>
-                    <span class="comment">//     Vec::with_capacity(settings.suggestion_providers.len());</span>
-                    <span class="kw">for</span> (<span class="ident">name</span>, <span class="ident">config</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">settings</span>.<span class="ident">suggestion_providers</span> {
-                        <span class="ident">multi</span>.<span class="ident">add_provider</span>(
-                            <span class="ident">name</span>,
-                            <span class="ident">make_provider_tree</span>(<span class="ident">settings</span>, <span class="ident">config</span>, <span class="ident">metrics_client</span>).<span class="kw">await</span><span class="question-mark">?</span>,
-                        );
-                    }
+        <span class="kw">for</span> (<span class="ident">name</span>, <span class="ident">config</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">settings</span>.<span class="ident">suggestion_providers</span> {
+            <span class="ident">idm</span>.<span class="ident">add_provider</span>(
+                <span class="ident">name</span>,
+                <span class="ident">make_provider_tree</span>(<span class="ident">settings</span>, <span class="ident">config</span>, <span class="ident">metrics_client</span>).<span class="kw">await</span><span class="question-mark">?</span>,
+            );
+        }
 
-                    <span class="prelude-val">Ok</span>(<span class="ident">multi</span>)
-                }
-                .<span class="ident">instrument</span>(<span class="ident">setup_span</span>)
-            })
-            .<span class="kw">await</span>
+        <span class="prelude-val">Ok</span>(<span class="self">Self</span>(<span class="ident">Arc::new</span>(<span class="ident">idm</span>)))
     }
 }
 

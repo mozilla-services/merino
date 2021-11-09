@@ -39,21 +39,6 @@
 <span id="39">39</span>
 <span id="40">40</span>
 <span id="41">41</span>
-<span id="42">42</span>
-<span id="43">43</span>
-<span id="44">44</span>
-<span id="45">45</span>
-<span id="46">46</span>
-<span id="47">47</span>
-<span id="48">48</span>
-<span id="49">49</span>
-<span id="50">50</span>
-<span id="51">51</span>
-<span id="52">52</span>
-<span id="53">53</span>
-<span id="54">54</span>
-<span id="55">55</span>
-<span id="56">56</span>
 </pre><pre class="rust">
 <span class="doccomment">//! API endpoints to introspect the available providers.</span>
 
@@ -65,8 +50,6 @@
     <span class="ident">web</span>::{<span class="self">self</span>, <span class="ident">Data</span>},
     <span class="ident">HttpResponse</span>,
 };
-<span class="kw">use</span> <span class="ident">cadence::StatsdClient</span>;
-<span class="kw">use</span> <span class="ident">merino_settings::Settings</span>;
 <span class="kw">use</span> <span class="ident">merino_suggest::IdMultiProviderDetails</span>;
 <span class="kw">use</span> <span class="ident">serde::Serialize</span>;
 
@@ -79,21 +62,8 @@
 <span class="attribute">#[<span class="ident">get</span>(<span class="string">&quot;&quot;</span>)]</span>
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">list_providers</span>(
     <span class="ident">provider</span>: <span class="ident">Data</span><span class="op">&lt;</span><span class="ident">SuggestionProviderRef</span><span class="op">&gt;</span>,
-    <span class="ident">settings</span>: <span class="ident">Data</span><span class="op">&lt;</span><span class="ident">Settings</span><span class="op">&gt;</span>,
-    <span class="ident">metrics_client</span>: <span class="ident">Data</span><span class="op">&lt;</span><span class="ident">StatsdClient</span><span class="op">&gt;</span>,
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">HttpResponse</span>, <span class="ident">HandlerError</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">provider</span> <span class="op">=</span> <span class="ident">provider</span>
-        .<span class="ident">get_or_try_init</span>(<span class="ident">settings</span>.<span class="ident">as_ref</span>(), <span class="ident">metrics_client</span>.<span class="ident">as_ref</span>())
-        .<span class="kw">await</span>
-        .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">error</span><span class="op">|</span> {
-            <span class="macro">tracing::error!</span>(
-                <span class="question-mark">?</span><span class="ident">error</span>,
-                <span class="ident">r#type</span> <span class="op">=</span> <span class="string">&quot;web.suggest.setup-error&quot;</span>,
-                <span class="string">&quot;suggester error&quot;</span>
-            );
-            <span class="ident">HandlerError::internal</span>()
-        })<span class="question-mark">?</span>;
-
+    <span class="kw">let</span> <span class="ident">provider</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">provider</span>.<span class="number">0</span>;
     <span class="kw">let</span> <span class="ident">providers</span> <span class="op">=</span> <span class="ident">provider</span>
         .<span class="ident">list_providers</span>()
         .<span class="ident">into_iter</span>()

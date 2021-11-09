@@ -357,6 +357,14 @@
 <span id="357">357</span>
 <span id="358">358</span>
 <span id="359">359</span>
+<span id="360">360</span>
+<span id="361">361</span>
+<span id="362">362</span>
+<span id="363">363</span>
+<span id="364">364</span>
+<span id="365">365</span>
+<span id="366">366</span>
+<span id="367">367</span>
 </pre><pre class="rust">
 <span class="doccomment">//! # Merino Settings</span>
 <span class="doccomment">//!</span>
@@ -537,6 +545,14 @@
     <span class="doccomment">/// - `http://127.0.0.1`</span>
     <span class="doccomment">/// - `https://firefox.settings.services.mozilla.com`</span>
     <span class="kw">pub</span> <span class="ident">server</span>: <span class="ident">String</span>,
+
+    <span class="doccomment">/// Only used for integration tests.</span>
+    <span class="doccomment">/// This field populates the mock returned remote settings collection</span>
+    <span class="doccomment">/// from inside the `merino_test_macro!(|settings| {...}) call.</span>
+    <span class="comment">// note `#[cfg(test)]` will cause a compile error as the</span>
+    <span class="comment">// `merino_test` proc_macro will not be able to find this</span>
+    <span class="comment">// field.</span>
+    <span class="kw">pub</span> <span class="ident">test_changes</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span>,
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>

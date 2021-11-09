@@ -132,6 +132,8 @@
 <span id="132">132</span>
 <span id="133">133</span>
 <span id="134">134</span>
+<span id="135">135</span>
+<span id="136">136</span>
 </pre><pre class="rust">
 <span class="doccomment">//! A web API and associated tools to power Firefox Suggest.</span>
 
@@ -142,6 +144,7 @@
 <span class="kw">use</span> <span class="ident">anyhow</span>::{<span class="ident">Context</span>, <span class="prelude-ty">Result</span>};
 <span class="kw">use</span> <span class="ident">cadence</span>::{<span class="ident">BufferedUdpMetricSink</span>, <span class="ident">CountedExt</span>, <span class="ident">QueuingMetricSink</span>, <span class="ident">StatsdClient</span>};
 <span class="kw">use</span> <span class="ident">merino_settings</span>::{<span class="ident">LogFormat</span>, <span class="ident">Settings</span>};
+<span class="kw">use</span> <span class="ident">merino_web::providers::SuggestionProviderRef</span>;
 <span class="kw">use</span> <span class="ident">std::net</span>::{<span class="ident">TcpListener</span>, <span class="ident">UdpSocket</span>};
 <span class="kw">use</span> <span class="ident">tracing::Level</span>;
 <span class="kw">use</span> <span class="ident">tracing_actix_web_mozlog</span>::{<span class="ident">JsonStorageLayer</span>, <span class="ident">MozLogFormatLayer</span>};
@@ -156,12 +159,13 @@
     <span class="ident">init_logging</span>(<span class="kw-2">&amp;</span><span class="ident">settings</span>).<span class="ident">context</span>(<span class="string">&quot;initializing logging&quot;</span>)<span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">metrics_client</span> <span class="op">=</span> <span class="ident">init_metrics</span>(<span class="kw-2">&amp;</span><span class="ident">settings</span>).<span class="ident">context</span>(<span class="string">&quot;initializing metrics&quot;</span>)<span class="question-mark">?</span>;
 
+    <span class="kw">let</span> <span class="ident">providers</span> <span class="op">=</span> <span class="ident">SuggestionProviderRef::init</span>(<span class="kw-2">&amp;</span><span class="ident">settings</span>, <span class="kw-2">&amp;</span><span class="ident">metrics_client</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+
     <span class="kw">let</span> <span class="ident">listener</span> <span class="op">=</span> <span class="ident">TcpListener::bind</span>(<span class="ident">settings</span>.<span class="ident">http</span>.<span class="ident">listen</span>).<span class="ident">context</span>(<span class="string">&quot;Binding port&quot;</span>)<span class="question-mark">?</span>;
-    <span class="ident">merino_web::run</span>(<span class="ident">listener</span>, <span class="ident">metrics_client</span>, <span class="ident">settings</span>)
+    <span class="ident">merino_web::run</span>(<span class="ident">listener</span>, <span class="ident">metrics_client</span>, <span class="ident">settings</span>, <span class="ident">providers</span>)
         .<span class="ident">context</span>(<span class="string">&quot;Starting merino-web server&quot;</span>)<span class="question-mark">?</span>
         .<span class="kw">await</span>
         .<span class="ident">context</span>(<span class="string">&quot;Running merino-web server&quot;</span>)<span class="question-mark">?</span>;
-
     <span class="prelude-val">Ok</span>(())
 }
 
