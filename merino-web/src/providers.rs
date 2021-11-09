@@ -64,19 +64,20 @@ async fn make_provider_tree(
 ) -> Result<Box<dyn SuggestionProvider>> {
     let provider: Box<dyn SuggestionProvider> = match config {
         SuggestionProviderConfig::RemoteSettings(rs_config) => {
-            RemoteSettingsSuggester::new_boxed(settings, rs_config).await?
+            RemoteSettingsSuggester::new_boxed(settings, rs_config, metrics_client.clone()).await?
         }
 
         SuggestionProviderConfig::MemoryCache(memory_config) => {
             let inner =
                 make_provider_tree(settings, memory_config.inner.as_ref(), metrics_client).await?;
-            MemoryCacheSuggester::new_boxed(memory_config, inner)
+            MemoryCacheSuggester::new_boxed(memory_config, inner, metrics_client.clone())
         }
 
         SuggestionProviderConfig::RedisCache(redis_config) => {
             let inner =
                 make_provider_tree(settings, redis_config.inner.as_ref(), metrics_client).await?;
-            RedisCacheSuggester::new_boxed(settings, redis_config, inner).await?
+            RedisCacheSuggester::new_boxed(settings, redis_config, metrics_client.clone(), inner)
+                .await?
         }
 
         SuggestionProviderConfig::Multiplexer(multi_config) => {
