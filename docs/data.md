@@ -128,3 +128,9 @@ the level and type of the log is listed.
 
   - `cache-status` - If the response was pulled from the cache or regenerated.
     `"hit"`, `"miss"`, `"error"`, or `"none"`.
+
+- `cache.redis.hit` - A counter that is incremented every time the redis
+  cache is queried and a cached suggestion is found.
+
+- `cache.redis.miss` - A counter that is incremented every time the redis
+  cache is queried and a cached suggestion is not found.
