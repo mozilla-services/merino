@@ -1,3 +1,28 @@
+<a name="v0.4.0"></a>
+## v0.4.0 (2021-11-09)
+
+
+#### Bug Fixes
+
+*   log sugestion request data with proper MozLog type information ([014f27c8](014f27c8))
+
+#### Features
+
+*   initialize suggestion providers at start up [CONSVC-1247] (#193) ([e1c2561c](e1c2561c), closes [#127](127))
+*   instrument cache hit and misses (#208) ([3df72ed1](3df72ed1))
+*   Add duration-us metrics to RedisCache, MemoryCache, and RemoteSettings providers ([f6338aeb](f6338aeb))
+*   add SuggestionRequest to tracing logs ([803ff69a](803ff69a))
+*   implement a provider that filters results by keywords ([3ffcf693](3ffcf693))
+* **suggest:**
+  *  Suggestion providers can their own cache keys ([2864e187](2864e187))
+  *  Add Stealth provider combinator ([03c66161](03c66161), closes [#181](181))
+
+#### Performance
+
+*   Specify minimum set of cache inputs needed for every provider ([22784bcc](22784bcc))
+
+
+
 <a name="0.3.0"></a>
 
 # 0.3.0 (2021-10-15)
