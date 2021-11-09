@@ -696,8 +696,8 @@ suggestion to the Redis server.</li>
 <p><code>INFO web.suggest.request</code> - A suggestion request is being processed. This
 event will include fields for all relevant details of the request. <strong>Fields:</strong></p>
 <ul>
-<li><code>query</code> - If query logging is enabled, the text the user typed. Otherwise
-an empty string.</li>
+<li><code>query</code> - If query logging is enabled, the text the user typed. Otherwise an
+empty string.</li>
 <li><code>country</code> - The country the request came from.</li>
 <li><code>region</code> - The first country subdivision the request came from.</li>
 <li><code>city</code> - The city the request came from.</li>
@@ -742,6 +742,14 @@ outside service is likely malicious or misconfigured.</p>
 </li>
 </ul>
 <h2 id="metrics-1"><a class="header" href="#metrics-1">Metrics</a></h2>
+<blockquote>
+<p>A note on timers: Statsd timers are measured in milliseconds, and are reported
+as integers (at least in Cadence). Milliseconds are often not precise enough
+for the tasks we want to measure in Merino. Instead we use generic histograms
+to record microsecond times. Metrics recorded in this way should have <code>-us</code>
+appended to their name, to mark the units used (since we shouldn't put the
+proper unit μs in metric names).</p>
+</blockquote>
 <ul>
 <li>
 <p><code>startup</code> - A counter incremented at startup, right after metrics are
@@ -762,6 +770,37 @@ filter with the given ID.</p>
 <p><strong>Tags:</strong></p>
 <ul>
 <li><code>id</code> - The filter that was matched.</li>
+</ul>
+</li>
+<li>
+<p><code>adm.rs.provider.duration-us</code> - A histogram that records the amount of time,
+in microseconds, that the adM Remote Settings provider took to generate
+suggestions.</p>
+<p><strong>Tags:</strong></p>
+<ul>
+<li><code>accepts-english</code> - If the request included an <code>Accept-Language</code> header that
+accepted any <code>en-*</code> locale. Only requests that do are provided with
+suggestions.</li>
+</ul>
+</li>
+<li>
+<p><code>cache.memory.duration-us</code> - A histogram that records the amount of time, in
+microseconds, that the memory cache took to provide a suggestion. Includes the
+time it takes to fallback to the inner provider for cache misses and errors.</p>
+<p><strong>Tags:</strong></p>
+<ul>
+<li><code>cache-status</code> - If the response was pulled from the cache or regenerated.
+<code>&quot;hit&quot;</code>, <code>&quot;miss&quot;</code>, <code>&quot;error&quot;</code>, or <code>&quot;none&quot;</code>.</li>
+</ul>
+</li>
+<li>
+<p><code>cache.redis.duration-us</code> - A histogram that records the amount of time, in
+microseconds, that the Redis cache took to provide a suggestion. Includes the
+time it takes to fallback to the inner provider for cache misses and errors.</p>
+<p><strong>Tags:</strong></p>
+<ul>
+<li><code>cache-status</code> - If the response was pulled from the cache or regenerated.
+<code>&quot;hit&quot;</code>, <code>&quot;miss&quot;</code>, <code>&quot;error&quot;</code>, or <code>&quot;none&quot;</code>.</li>
 </ul>
 </li>
 </ul>

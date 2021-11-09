@@ -170,6 +170,7 @@
 <span id="170">170</span>
 <span id="171">171</span>
 <span id="172">172</span>
+<span id="173">173</span>
 </pre><pre class="rust">
 <span class="doccomment">//! Tools to manager providers.</span>
 
@@ -237,19 +238,20 @@
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">SuggestionProvider</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">provider</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">SuggestionProvider</span><span class="op">&gt;</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">config</span> {
         <span class="ident">SuggestionProviderConfig::RemoteSettings</span>(<span class="ident">rs_config</span>) <span class="op">=</span><span class="op">&gt;</span> {
-            <span class="ident">RemoteSettingsSuggester::new_boxed</span>(<span class="ident">settings</span>, <span class="ident">rs_config</span>).<span class="kw">await</span><span class="question-mark">?</span>
+            <span class="ident">RemoteSettingsSuggester::new_boxed</span>(<span class="ident">settings</span>, <span class="ident">rs_config</span>, <span class="ident">metrics_client</span>.<span class="ident">clone</span>()).<span class="kw">await</span><span class="question-mark">?</span>
         }
 
         <span class="ident">SuggestionProviderConfig::MemoryCache</span>(<span class="ident">memory_config</span>) <span class="op">=</span><span class="op">&gt;</span> {
             <span class="kw">let</span> <span class="ident">inner</span> <span class="op">=</span>
                 <span class="ident">make_provider_tree</span>(<span class="ident">settings</span>, <span class="ident">memory_config</span>.<span class="ident">inner</span>.<span class="ident">as_ref</span>(), <span class="ident">metrics_client</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-            <span class="ident">MemoryCacheSuggester::new_boxed</span>(<span class="ident">memory_config</span>, <span class="ident">inner</span>)
+            <span class="ident">MemoryCacheSuggester::new_boxed</span>(<span class="ident">memory_config</span>, <span class="ident">inner</span>, <span class="ident">metrics_client</span>.<span class="ident">clone</span>())
         }
 
         <span class="ident">SuggestionProviderConfig::RedisCache</span>(<span class="ident">redis_config</span>) <span class="op">=</span><span class="op">&gt;</span> {
             <span class="kw">let</span> <span class="ident">inner</span> <span class="op">=</span>
                 <span class="ident">make_provider_tree</span>(<span class="ident">settings</span>, <span class="ident">redis_config</span>.<span class="ident">inner</span>.<span class="ident">as_ref</span>(), <span class="ident">metrics_client</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-            <span class="ident">RedisCacheSuggester::new_boxed</span>(<span class="ident">settings</span>, <span class="ident">redis_config</span>, <span class="ident">inner</span>).<span class="kw">await</span><span class="question-mark">?</span>
+            <span class="ident">RedisCacheSuggester::new_boxed</span>(<span class="ident">settings</span>, <span class="ident">redis_config</span>, <span class="ident">metrics_client</span>.<span class="ident">clone</span>(), <span class="ident">inner</span>)
+                .<span class="kw">await</span><span class="question-mark">?</span>
         }
 
         <span class="ident">SuggestionProviderConfig::Multiplexer</span>(<span class="ident">multi_config</span>) <span class="op">=</span><span class="op">&gt;</span> {

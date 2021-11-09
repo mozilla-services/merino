@@ -304,6 +304,34 @@
 <span id="304">304</span>
 <span id="305">305</span>
 <span id="306">306</span>
+<span id="307">307</span>
+<span id="308">308</span>
+<span id="309">309</span>
+<span id="310">310</span>
+<span id="311">311</span>
+<span id="312">312</span>
+<span id="313">313</span>
+<span id="314">314</span>
+<span id="315">315</span>
+<span id="316">316</span>
+<span id="317">317</span>
+<span id="318">318</span>
+<span id="319">319</span>
+<span id="320">320</span>
+<span id="321">321</span>
+<span id="322">322</span>
+<span id="323">323</span>
+<span id="324">324</span>
+<span id="325">325</span>
+<span id="326">326</span>
+<span id="327">327</span>
+<span id="328">328</span>
+<span id="329">329</span>
+<span id="330">330</span>
+<span id="331">331</span>
+<span id="332">332</span>
+<span id="333">333</span>
+<span id="334">334</span>
 </pre><pre class="rust">
 <span class="doccomment">//! A cache system that uses local in-memory storage to store a limited number of items.</span>
 <span class="doccomment">//!</span>
@@ -312,7 +340,9 @@
 <span class="doccomment">//! tier maps from those hashes to the responses. In this way, duplicate</span>
 <span class="doccomment">//! responses can be stored only once, even if they are used for many requests.</span>
 
+<span class="kw">use</span> <span class="ident">anyhow::anyhow</span>;
 <span class="kw">use</span> <span class="ident">async_trait::async_trait</span>;
+<span class="kw">use</span> <span class="ident">cadence</span>::{<span class="ident">Histogrammed</span>, <span class="ident">StatsdClient</span>};
 <span class="kw">use</span> <span class="ident">deduped_dashmap</span>::{<span class="ident">ControlFlow</span>, <span class="ident">DedupedMap</span>};
 <span class="kw">use</span> <span class="ident">lazy_static::lazy_static</span>;
 <span class="kw">use</span> <span class="ident">merino_settings::providers::MemoryCacheConfig</span>;
@@ -389,6 +419,9 @@
     <span class="doccomment">/// The suggester to query on cache-miss.</span>
     <span class="ident">inner</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">SuggestionProvider</span><span class="op">&gt;</span>,
 
+    <span class="doccomment">/// The Statsd client used to record statistics.</span>
+    <span class="ident">metrics_client</span>: <span class="ident">StatsdClient</span>,
+
     <span class="doccomment">/// The cached items.</span>
     <span class="ident">items</span>: <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">DedupedMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">Instant</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Suggestion</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>,
 
@@ -401,9 +434,11 @@
 
 <span class="kw">impl</span> <span class="ident">Suggester</span> {
     <span class="doccomment">/// Create a in-memory suggestion cache from settings that wraps `provider`.</span>
+    <span class="attribute">#[<span class="ident">must_use</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_boxed</span>(
         <span class="ident">config</span>: <span class="kw-2">&amp;</span><span class="ident">MemoryCacheConfig</span>,
         <span class="ident">provider</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">SuggestionProvider</span><span class="op">&gt;</span>,
+        <span class="ident">metrics_client</span>: <span class="ident">StatsdClient</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">items</span> <span class="op">=</span> <span class="ident">Arc::new</span>(<span class="ident">DedupedMap::new</span>());
 
@@ -425,6 +460,7 @@
 
         <span class="ident">Box::new</span>(<span class="self">Self</span> {
             <span class="ident">inner</span>: <span class="ident">provider</span>,
+            <span class="ident">metrics_client</span>,
             <span class="ident">items</span>,
             <span class="ident">default_ttl</span>: <span class="ident">config</span>.<span class="ident">default_ttl</span>,
             <span class="ident">default_lock_timeout</span>: <span class="ident">config</span>.<span class="ident">default_lock_timeout</span>,
@@ -493,8 +529,11 @@
         <span class="kw">let</span> <span class="ident">now</span> <span class="op">=</span> <span class="ident">Instant::now</span>();
         <span class="kw">let</span> <span class="ident">key</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">cache_key</span>(<span class="kw-2">&amp;</span><span class="ident">query</span>);
         <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="macro">tracing::debug_span!</span>(<span class="string">&quot;memory-suggest&quot;</span>, <span class="question-mark">?</span><span class="ident">key</span>);
+
+        <span class="comment">// closure for `span`.</span>
         <span class="kw">async</span> <span class="kw">move</span> {
             <span class="macro">tracing::debug!</span>(<span class="string">&quot;suggesting with memory cache&quot;</span>);
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rv</span> <span class="op">=</span> <span class="prelude-val">None</span>;
 
             <span class="kw">match</span> <span class="self">self</span>.<span class="ident">items</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">key</span>) {
                 <span class="prelude-val">Some</span>((<span class="ident">expiration</span>, <span class="kw">_</span>)) <span class="kw">if</span> <span class="ident">expiration</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident">now</span> <span class="op">=</span><span class="op">&gt;</span> {
@@ -503,7 +542,7 @@
                 }
                 <span class="prelude-val">Some</span>((<span class="ident">expiration</span>, <span class="ident">suggestions</span>)) <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="macro">tracing::debug!</span>(<span class="string">&quot;cache hit&quot;</span>);
-                    <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">SuggestionResponse</span> {
+                    <span class="ident">rv</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">SuggestionResponse</span> {
                         <span class="ident">cache_status</span>: <span class="ident">CacheStatus::Hit</span>,
                         <span class="ident">cache_ttl</span>: <span class="prelude-val">Some</span>(<span class="ident">expiration</span> <span class="op">-</span> <span class="ident">now</span>),
                         <span class="ident">suggestions</span>,
@@ -514,33 +553,50 @@
                 }
             }
 
-            <span class="kw">if</span> <span class="ident">LOCK_TABLE</span>.<span class="ident">is_locked</span>(<span class="kw-2">&amp;</span><span class="ident">key</span>) {
-                <span class="comment">// there&#39;s a fetch already in progress. Return empty for now.</span>
-                <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">SuggestionResponse</span> {
-                    <span class="ident">cache_status</span>: <span class="ident">CacheStatus::Hit</span>,
-                    <span class="ident">cache_ttl</span>: <span class="prelude-val">None</span>,
-                    <span class="ident">suggestions</span>: <span class="ident">Vec::new</span>(),
-                });
+            <span class="kw">if</span> <span class="ident">rv</span>.<span class="ident">is_none</span>() {
+                <span class="kw">if</span> <span class="ident">LOCK_TABLE</span>.<span class="ident">is_locked</span>(<span class="kw-2">&amp;</span><span class="ident">key</span>) {
+                    <span class="comment">// There&#39;s a fetch already in progress. Return empty for now.</span>
+                    <span class="ident">rv</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">SuggestionResponse</span> {
+                        <span class="ident">cache_status</span>: <span class="ident">CacheStatus::Hit</span>,
+                        <span class="ident">cache_ttl</span>: <span class="prelude-val">None</span>,
+                        <span class="ident">suggestions</span>: <span class="ident">Vec::new</span>(),
+                    });
+                } <span class="kw">else</span> {
+                    <span class="comment">// Handle cache miss or stale cache.</span>
+                    <span class="kw">let</span> <span class="ident">lock</span> <span class="op">=</span> <span class="ident">LOCK_TABLE</span>.<span class="ident">add_lock</span>(<span class="kw-2">&amp;</span><span class="ident">key</span>, <span class="self">self</span>.<span class="ident">default_lock_timeout</span>);
+                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">response</span> <span class="op">=</span> <span class="self">self</span>
+                        .<span class="ident">inner</span>
+                        .<span class="ident">suggest</span>(<span class="ident">query</span>)
+                        .<span class="kw">await</span><span class="question-mark">?</span>
+                        .<span class="ident">with_cache_status</span>(<span class="ident">CacheStatus::Miss</span>);
+
+                    <span class="ident">LOCK_TABLE</span>.<span class="ident">update</span>(<span class="kw-2">&amp;</span><span class="ident">key</span>, <span class="ident">lock</span>, <span class="op">|</span><span class="op">|</span> {
+                        <span class="comment">// Update the cache data.</span>
+                        <span class="kw">let</span> <span class="ident">cache_ttl</span> <span class="op">=</span> <span class="ident">response</span>.<span class="ident">cache_ttl</span>.<span class="ident">get_or_insert</span>(<span class="self">self</span>.<span class="ident">default_ttl</span>);
+                        <span class="kw">let</span> <span class="ident">expiration</span> <span class="op">=</span> <span class="ident">now</span> <span class="op">+</span> <span class="kw-2">*</span><span class="ident">cache_ttl</span>;
+                        <span class="macro">tracing::debug!</span>(<span class="question-mark">?</span><span class="ident">now</span>, <span class="question-mark">?</span><span class="ident">expiration</span>, <span class="string">&quot;inserting into cache&quot;</span>);
+                        <span class="self">self</span>.<span class="ident">items</span>
+                            .<span class="ident">insert</span>(<span class="ident">key</span>.<span class="ident">clone</span>(), <span class="ident">expiration</span>, <span class="ident">response</span>.<span class="ident">suggestions</span>.<span class="ident">clone</span>());
+                    });
+
+                    <span class="ident">rv</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">response</span>);
+                }
             }
 
-            <span class="comment">// handle cache miss or stale cache</span>
-            <span class="kw">let</span> <span class="ident">lock</span> <span class="op">=</span> <span class="ident">LOCK_TABLE</span>.<span class="ident">add_lock</span>(<span class="kw-2">&amp;</span><span class="ident">key</span>, <span class="self">self</span>.<span class="ident">default_lock_timeout</span>);
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">response</span> <span class="op">=</span> <span class="self">self</span>
-                .<span class="ident">inner</span>
-                .<span class="ident">suggest</span>(<span class="ident">query</span>)
-                .<span class="kw">await</span><span class="question-mark">?</span>
-                <span class="comment">// Todo, cache status should be a vec.</span>
-                .<span class="ident">with_cache_status</span>(<span class="ident">CacheStatus::Miss</span>);
-
-            <span class="ident">LOCK_TABLE</span>.<span class="ident">update</span>(<span class="kw-2">&amp;</span><span class="ident">key</span>, <span class="ident">lock</span>, <span class="op">|</span><span class="op">|</span> {
-                <span class="comment">// Update the cache data.</span>
-                <span class="kw">let</span> <span class="ident">cache_ttl</span> <span class="op">=</span> <span class="ident">response</span>.<span class="ident">cache_ttl</span>.<span class="ident">get_or_insert</span>(<span class="self">self</span>.<span class="ident">default_ttl</span>);
-                <span class="kw">let</span> <span class="ident">expiration</span> <span class="op">=</span> <span class="ident">now</span> <span class="op">+</span> <span class="kw-2">*</span><span class="ident">cache_ttl</span>;
-                <span class="macro">tracing::debug!</span>(<span class="question-mark">?</span><span class="ident">now</span>, <span class="question-mark">?</span><span class="ident">expiration</span>, <span class="string">&quot;inserting into cache&quot;</span>);
-                <span class="self">self</span>.<span class="ident">items</span>
-                    .<span class="ident">insert</span>(<span class="ident">key</span>.<span class="ident">clone</span>(), <span class="ident">expiration</span>, <span class="ident">response</span>.<span class="ident">suggestions</span>.<span class="ident">clone</span>());
-            });
-            <span class="prelude-val">Ok</span>(<span class="ident">response</span>)
+            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">response</span>) <span class="op">=</span> <span class="ident">rv</span> {
+                <span class="self">self</span>.<span class="ident">metrics_client</span>
+                    .<span class="ident">histogram_with_tags</span>(
+                        <span class="string">&quot;cache.memory.duration-us&quot;</span>,
+                        <span class="ident">now</span>.<span class="ident">elapsed</span>().<span class="ident">as_micros</span>() <span class="kw">as</span> <span class="ident">u64</span>,
+                    )
+                    .<span class="ident">with_tag</span>(<span class="string">&quot;cache-status&quot;</span>, <span class="ident">response</span>.<span class="ident">cache_status</span>.<span class="ident">to_string</span>().<span class="ident">as_str</span>())
+                    .<span class="ident">send</span>();
+                <span class="prelude-val">Ok</span>(<span class="ident">response</span>)
+            } <span class="kw">else</span> {
+                <span class="prelude-val">Err</span>(<span class="ident">merino_suggest::SuggestError::Internal</span>(<span class="macro">anyhow!</span>(
+                    <span class="string">&quot;No result generated&quot;</span>
+                )))
+            }
         }
         .<span class="ident">instrument</span>(<span class="ident">span</span>)
         .<span class="kw">await</span>
