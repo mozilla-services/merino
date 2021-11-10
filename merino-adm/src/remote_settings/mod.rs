@@ -462,7 +462,7 @@ mod tests {
                     "one two three".to_string(),
                 ]
             ),
-            "one two tree"
+            "one two three"
         );
     }
 }
