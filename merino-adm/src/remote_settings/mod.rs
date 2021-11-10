@@ -157,28 +157,30 @@ impl RemoteSettingsSuggester {
                     continue;
                 };
 
-                let full_keyword = adm_suggestion
-                    .keywords
-                    .iter()
-                    .max_by_key(|kw| kw.len())
-                    .expect("No keywords?")
-                    .clone();
-
                 let merino_suggestion = Suggestion {
                     id: adm_suggestion.id,
                     title: adm_suggestion.title.clone(),
                     url: adm_suggestion.url.clone(),
                     impression_url: adm_suggestion.impression_url.clone(),
                     click_url: adm_suggestion.click_url.clone(),
-                    full_keyword,
+                    full_keyword: String::new(),
                     provider: adm_suggestion.advertiser.clone(),
                     is_sponsored: !NON_SPONSORED_IAB_CATEGORIES
                         .contains(&adm_suggestion.iab_category.as_str()),
                     icon: icon_url,
                     score: Proportion::from(0.2),
                 };
+
                 for keyword in &adm_suggestion.keywords {
-                    new_suggestions.insert(keyword.clone(), merino_suggestion.clone());
+                    let full_keyword = Self::get_full_keyword(keyword, &adm_suggestion.keywords);
+
+                    new_suggestions.insert(
+                        keyword.clone(),
+                        Suggestion {
+                            full_keyword,
+                            ..merino_suggestion.clone()
+                        },
+                    );
                 }
             }
         }
@@ -201,6 +203,41 @@ impl RemoteSettingsSuggester {
         );
 
         Ok(())
+    }
+
+    /// Gets the "full keyword" (the suggested completion) for a query. The data
+    /// from adM doesn't include this data directly, so we make our own based on
+    /// the available keywords.
+    ///
+    /// 1. Find the first keyword phrase that has more words than the query. Use
+    ///    its first `query_num_words` words as the full keyword. e.g., if the
+    ///    query is `"moz"` and `all_keywords` is `["moz", "mozi", "mozil",
+    ///    "mozill", "mozilla", "mozilla firefox"]`, pick `"mozilla firefox"`,
+    ///    pop off the `"firefox"` and use `"mozilla"` as the full keyword.
+    /// 2. If there isn't any keyword phrase with more words, then pick the
+    ///    longest phrase. e.g., pick `"`mozilla" in the previous example
+    ///    (assuming the `"mozilla firefox"` phrase isn't there). That might be
+    ///    the query itself.
+    ///
+    fn get_full_keyword(partial_query: &str, all_keywords: &[String]) -> String {
+        let query_num_words = partial_query.split_whitespace().count();
+
+        // heuristic 1: more words
+        if let Some(longer_keyword_words) = all_keywords
+            .iter()
+            .map(|keyword| keyword.split_whitespace().collect::<Vec<_>>())
+            .find(|split_words| split_words.len() > query_num_words)
+        {
+            longer_keyword_words[..query_num_words].join(" ")
+        } else {
+            // heuristic 2 - longest phrase with partial query as a prefix
+            all_keywords
+                .iter()
+                .filter(|keyword| keyword.starts_with(partial_query))
+                .cloned()
+                .max_by_key(String::len)
+                .unwrap_or_else(|| partial_query.to_string())
+        }
     }
 }
 
@@ -358,5 +395,74 @@ mod tests {
         assert!(rs_suggester.suggest(request).await?.suggestions.is_empty());
 
         Ok(())
+    }
+
+    #[test]
+    fn get_full_keyword_matches_doc_heuristic_1() {
+        assert_eq!(
+            RemoteSettingsSuggester::get_full_keyword(
+                "moz",
+                &[
+                    "moz".to_string(),
+                    "mozi".to_string(),
+                    "mozil".to_string(),
+                    "mozill".to_string(),
+                    "mozilla".to_string(),
+                    "mozilla firefox".to_string(),
+                ]
+            ),
+            "mozilla"
+        );
+        assert_eq!(
+            RemoteSettingsSuggester::get_full_keyword(
+                "one t",
+                &[
+                    "one".to_string(),
+                    "one t".to_string(),
+                    "one tw".to_string(),
+                    "one two".to_string(),
+                    "one two t".to_string(),
+                    "one two th".to_string(),
+                    "one two thr".to_string(),
+                    "one two thre".to_string(),
+                    "one two three".to_string(),
+                ]
+            ),
+            "one two"
+        );
+    }
+
+    #[test]
+    fn get_full_keyword_matches_doc_heuristic_2() {
+        assert_eq!(
+            RemoteSettingsSuggester::get_full_keyword(
+                "moz",
+                &[
+                    "moz".to_string(),
+                    "mozi".to_string(),
+                    "mozil".to_string(),
+                    "mozill".to_string(),
+                    "mozilla".to_string(),
+                ]
+            ),
+            "mozilla"
+        );
+        assert_eq!(
+            RemoteSettingsSuggester::get_full_keyword(
+                "one two t",
+                &[
+                    "one".to_string(),
+                    "one t".to_string(),
+                    "one tw".to_string(),
+                    "one two".to_string(),
+                    "one two t".to_string(),
+                    "one two th".to_string(),
+                    "one two thr".to_string(),
+                    "one two thre".to_string(),
+                    "one two three".to_string(),
+                ]
+            ),
+            "one two three"
+        );
     }
 }
