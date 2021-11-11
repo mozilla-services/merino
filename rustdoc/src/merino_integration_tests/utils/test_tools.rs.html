@@ -264,17 +264,32 @@
 <span id="264">264</span>
 <span id="265">265</span>
 <span id="266">266</span>
+<span id="267">267</span>
+<span id="268">268</span>
+<span id="269">269</span>
+<span id="270">270</span>
+<span id="271">271</span>
+<span id="272">272</span>
+<span id="273">273</span>
+<span id="274">274</span>
+<span id="275">275</span>
+<span id="276">276</span>
+<span id="277">277</span>
+<span id="278">278</span>
+<span id="279">279</span>
+<span id="280">280</span>
 </pre><pre class="rust">
 <span class="doccomment">//! Tools for running tests</span>
 
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::utils</span>::{<span class="ident">logging::LogWatcher</span>, <span class="ident">metrics::MetricsWatcher</span>, <span class="ident">redis::get_temp_db</span>};
-<span class="kw">use</span> <span class="ident">httpmock</span>::{<span class="ident">Method::GET</span>, <span class="ident">MockServer</span>};
 <span class="kw">use</span> <span class="ident">merino_settings::Settings</span>;
-<span class="kw">use</span> <span class="ident">reqwest</span>::{<span class="ident">redirect</span>, <span class="ident">Client</span>, <span class="ident">ClientBuilder</span>, <span class="ident">RequestBuilder</span>};
+<span class="kw">use</span> <span class="ident">reqwest</span>::{
+    <span class="ident">multipart</span>::{<span class="ident">Form</span>, <span class="ident">Part</span>},
+    <span class="ident">redirect</span>, <span class="ident">Client</span>, <span class="ident">ClientBuilder</span>, <span class="ident">RequestBuilder</span>,
+};
 <span class="kw">use</span> <span class="ident">serde_json::json</span>;
 <span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">future::Future</span>, <span class="ident">net::TcpListener</span>};
 <span class="kw">use</span> <span class="ident">tracing_futures</span>::{<span class="ident">Instrument</span>, <span class="ident">WithSubscriber</span>};
-
 <span class="kw">use</span> <span class="ident">tracing_subscriber</span>::{<span class="ident">fmt::MakeWriter</span>, <span class="ident">layer::SubscriberExt</span>};
 
 <span class="doccomment">/// Run a test with a fully configured Merino server.</span>
@@ -334,25 +349,39 @@
 
     <span class="kw">let</span> <span class="ident">_tracing_subscriber_guard</span> <span class="op">=</span> <span class="ident">tracing::subscriber::set_default</span>(<span class="ident">tracing_subscriber</span>);
 
-    <span class="comment">// Set up a mock server for Remote Settings to talk to</span>
-    <span class="kw">let</span> <span class="ident">remote_settings_mock</span> <span class="op">=</span> <span class="ident">MockServer::start</span>();
-    <span class="ident">remote_settings_mock</span>.<span class="ident">mock</span>(<span class="op">|</span><span class="ident">when</span>, <span class="ident">then</span><span class="op">|</span> {
-        <span class="ident">when</span>.<span class="ident">path</span>(<span class="string">&quot;/v1/&quot;</span>);
-        <span class="ident">then</span>.<span class="ident">status</span>(<span class="number">200</span>)
-            .<span class="ident">header</span>(<span class="string">&quot;Content-Type&quot;</span>, <span class="string">&quot;application/json&quot;</span>)
-            .<span class="ident">json_body</span>(<span class="macro">json!</span>({
-                <span class="string">&quot;capabilities&quot;</span>: {
-                    <span class="string">&quot;attachments&quot;</span>: {
-                        <span class="string">&quot;base_url&quot;</span>: <span class="ident">remote_settings_mock</span>.<span class="ident">base_url</span>()
-                    }
-                }
-            }));
-    });
-    <span class="ident">settings</span>.<span class="ident">remote_settings</span>.<span class="ident">server</span> <span class="op">=</span> <span class="ident">remote_settings_mock</span>.<span class="ident">base_url</span>();
+    <span class="comment">// Set up Remote Settings</span>
+    <span class="kw">let</span> <span class="ident">reqwest_client</span> <span class="op">=</span> <span class="ident">reqwest::Client::new</span>();
+    <span class="kw">let</span> <span class="ident">bucket_info</span>: <span class="ident">serde_json::Value</span> <span class="op">=</span> <span class="ident">reqwest_client</span>
+        .<span class="ident">post</span>(<span class="macro">format!</span>(<span class="string">&quot;{}/v1/buckets/&quot;</span>, <span class="ident">settings</span>.<span class="ident">remote_settings</span>.<span class="ident">server</span>))
+        .<span class="ident">send</span>()
+        .<span class="kw">await</span>
+        .<span class="ident">and_then</span>(<span class="ident">reqwest::Response::error_for_status</span>)
+        .<span class="ident">expect</span>(<span class="string">&quot;Error creating bucket&quot;</span>)
+        .<span class="ident">json</span>()
+        .<span class="kw">await</span>
+        .<span class="ident">expect</span>(<span class="string">&quot;getting new bucket info&quot;</span>);
+    <span class="kw">let</span> <span class="ident">bucket_name</span> <span class="op">=</span> <span class="ident">bucket_info</span>[<span class="string">&quot;data&quot;</span>][<span class="string">&quot;id&quot;</span>].<span class="ident">as_str</span>().<span class="ident">unwrap</span>();
+    <span class="kw">let</span> <span class="ident">collection_info</span>: <span class="ident">serde_json::Value</span> <span class="op">=</span> <span class="ident">reqwest_client</span>
+        .<span class="ident">post</span>(<span class="macro">format!</span>(
+            <span class="string">&quot;{}/v1/buckets/{}/collections&quot;</span>,
+            <span class="ident">settings</span>.<span class="ident">remote_settings</span>.<span class="ident">server</span>, <span class="ident">bucket_name</span>
+        ))
+        .<span class="ident">send</span>()
+        .<span class="kw">await</span>
+        .<span class="ident">and_then</span>(<span class="ident">reqwest::Response::error_for_status</span>)
+        .<span class="ident">expect</span>(<span class="string">&quot;Error creating collection&quot;</span>)
+        .<span class="ident">json</span>()
+        .<span class="kw">await</span>
+        .<span class="ident">expect</span>(<span class="string">&quot;getting new collection info&quot;</span>);
+    <span class="kw">let</span> <span class="ident">collection_name</span> <span class="op">=</span> <span class="ident">collection_info</span>[<span class="string">&quot;data&quot;</span>][<span class="string">&quot;id&quot;</span>].<span class="ident">as_str</span>().<span class="ident">unwrap</span>();
+
+    <span class="ident">settings</span>.<span class="ident">remote_settings</span>.<span class="ident">default_bucket</span> <span class="op">=</span> <span class="ident">bucket_name</span>.<span class="ident">to_string</span>();
+    <span class="ident">settings</span>.<span class="ident">remote_settings</span>.<span class="ident">default_collection</span> <span class="op">=</span> <span class="ident">collection_name</span>.<span class="ident">to_string</span>();
+
     <span class="ident">settings_changer</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">settings</span>);
     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">changes</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">settings</span>.<span class="ident">remote_settings</span>.<span class="ident">test_changes</span> {
         <span class="ident">setup_remote_settings_collection</span>(
-            <span class="kw-2">&amp;</span><span class="ident">remote_settings_mock</span>,
+            <span class="kw-2">&amp;</span><span class="ident">settings</span>.<span class="ident">remote_settings</span>,
             <span class="kw-2">&amp;</span><span class="ident">changes</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="ident">String::as_str</span>).<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>(),
         )
         .<span class="kw">await</span>;
@@ -390,7 +419,7 @@
     <span class="kw">let</span> <span class="ident">providers</span> <span class="op">=</span> <span class="ident">merino_web::providers::SuggestionProviderRef::init</span>(<span class="kw-2">&amp;</span><span class="ident">settings</span>, <span class="kw-2">&amp;</span><span class="ident">metrics_client</span>)
         .<span class="kw">await</span>
         .<span class="ident">expect</span>(<span class="string">&quot;Could not create providers&quot;</span>);
-    <span class="kw">let</span> <span class="ident">server</span> <span class="op">=</span> <span class="ident">merino_web::run</span>(<span class="ident">listener</span>, <span class="ident">metrics_client</span>, <span class="ident">settings</span>, <span class="ident">providers</span>)
+    <span class="kw">let</span> <span class="ident">server</span> <span class="op">=</span> <span class="ident">merino_web::run</span>(<span class="ident">listener</span>, <span class="ident">metrics_client</span>, <span class="ident">settings</span>.<span class="ident">clone</span>(), <span class="ident">providers</span>)
         .<span class="ident">expect</span>(<span class="string">&quot;Failed to start server&quot;</span>);
     <span class="kw">let</span> <span class="ident">server_handle</span> <span class="op">=</span> <span class="ident">tokio::spawn</span>(<span class="ident">server</span>.<span class="ident">with_current_subscriber</span>());
     <span class="kw">let</span> <span class="ident">test_client</span> <span class="op">=</span> <span class="ident">TestReqwestClient::new</span>(<span class="ident">address</span>);
@@ -398,7 +427,7 @@
     <span class="comment">// Assemble the tools</span>
     <span class="kw">let</span> <span class="ident">tools</span> <span class="op">=</span> <span class="ident">TestingTools</span> {
         <span class="ident">test_client</span>,
-        <span class="ident">remote_settings_mock</span>,
+        <span class="ident">settings</span>,
         <span class="ident">log_watcher</span>,
         <span class="ident">redis_client</span>,
         <span class="ident">metrics_watcher</span>,
@@ -421,13 +450,8 @@
     <span class="doccomment">/// server under test.</span>
     <span class="kw">pub</span> <span class="ident">test_client</span>: <span class="ident">TestReqwestClient</span>,
 
-    <span class="doccomment">/// A [`httpmock::MockServer`] that remote settings has been configured to use</span>
-    <span class="doccomment">/// as its default server. Does not contain mock responses, any needed must</span>
-    <span class="doccomment">/// be added</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The server will listen on a port assigned arbitrarily by the OS. A test HTTP</span>
-    <span class="doccomment">/// client that automatically targets the server will be returned.</span>
-    <span class="kw">pub</span> <span class="ident">remote_settings_mock</span>: <span class="ident">MockServer</span>,
+    <span class="doccomment">/// A copy of the current settings.</span>
+    <span class="kw">pub</span> <span class="ident">settings</span>: <span class="ident">Settings</span>,
 
     <span class="doccomment">/// To make assertions about logs.</span>
     <span class="kw">pub</span> <span class="ident">log_watcher</span>: <span class="ident">LogWatcher</span>,
@@ -475,61 +499,65 @@
 }
 
 <span class="doccomment">/// Create the remote settings collection and endpoint from the provided suggestions</span>
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">setup_remote_settings_collection</span>(<span class="ident">server</span>: <span class="kw-2">&amp;</span><span class="ident">MockServer</span>, <span class="ident">suggestions</span>: <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span><span class="ident">str</span>]) {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">changes</span> <span class="op">=</span> <span class="ident">suggestions</span>
-        .<span class="ident">iter</span>()
-        .<span class="ident">map</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> {
-            <span class="macro">assert_ne!</span>(<span class="kw-2">*</span><span class="ident">s</span>, <span class="string">&quot;icon&quot;</span>);
-            <span class="macro">json!</span>({
-                <span class="string">&quot;id&quot;</span>: <span class="ident">s</span>,
-                <span class="string">&quot;type&quot;</span>: <span class="string">&quot;data&quot;</span>,
-                <span class="string">&quot;last_modified&quot;</span>: <span class="number">0</span>,
-                <span class="string">&quot;attachment&quot;</span>: {
-                    <span class="string">&quot;location&quot;</span>: <span class="macro">format!</span>(<span class="string">&quot;/attachment/data-{}.json&quot;</span>, <span class="ident">s</span>),
-                    <span class="string">&quot;hash&quot;</span>: <span class="ident">s</span>,
-                }
-            })
-        })
-        .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
-    <span class="ident">changes</span>.<span class="ident">push</span>(<span class="macro">json!</span>({
-        <span class="string">&quot;id&quot;</span>: <span class="string">&quot;icon-1&quot;</span>,
-        <span class="string">&quot;type&quot;</span>: <span class="string">&quot;icon&quot;</span>,
-        <span class="string">&quot;last_modified&quot;</span>: <span class="number">0</span>,
-        <span class="string">&quot;attachment&quot;</span>: {
-            <span class="string">&quot;location&quot;</span>: <span class="string">&quot;/attachment/icon-1.png&quot;</span>,
-            <span class="string">&quot;hash&quot;</span>: <span class="string">&quot;icon&quot;</span>
-        }
-    }));
-
-    <span class="ident">server</span>
-        .<span class="ident">mock_async</span>(<span class="op">|</span><span class="ident">when</span>, <span class="ident">then</span><span class="op">|</span> {
-            <span class="ident">when</span>.<span class="ident">method</span>(<span class="ident">GET</span>)
-                .<span class="ident">path</span>(<span class="string">&quot;/v1/buckets/main/collections/quicksuggest/changeset&quot;</span>);
-            <span class="ident">then</span>.<span class="ident">status</span>(<span class="number">200</span>).<span class="ident">json_body</span>(<span class="macro">json!</span>({
-                <span class="string">&quot;changes&quot;</span>: <span class="ident">changes</span>,
-            }));
-        })
-        .<span class="kw">await</span>;
-
+<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">setup_remote_settings_collection</span>(
+    <span class="ident">rs_settings</span>: <span class="kw-2">&amp;</span><span class="ident">merino_settings::RemoteSettingsGlobalSettings</span>,
+    <span class="ident">suggestions</span>: <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span><span class="ident">str</span>],
+) {
+    <span class="kw">let</span> <span class="ident">client</span> <span class="op">=</span> <span class="ident">reqwest::Client::new</span>();
+    <span class="kw">let</span> <span class="ident">collection_url</span> <span class="op">=</span> <span class="macro">format!</span>(
+        <span class="string">&quot;{}/v1/buckets/{}/collections/{}&quot;</span>,
+        <span class="ident">rs_settings</span>.<span class="ident">server</span>, <span class="ident">rs_settings</span>.<span class="ident">default_bucket</span>, <span class="ident">rs_settings</span>.<span class="ident">default_collection</span>
+    );
     <span class="kw">for</span> (<span class="ident">idx</span>, <span class="ident">s</span>) <span class="kw">in</span> <span class="ident">suggestions</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
-        <span class="ident">server</span>
-            .<span class="ident">mock_async</span>(<span class="op">|</span><span class="ident">when</span>, <span class="ident">then</span><span class="op">|</span> {
-                <span class="ident">when</span>.<span class="ident">method</span>(<span class="ident">GET</span>)
-                    .<span class="ident">path</span>(<span class="macro">format!</span>(<span class="string">&quot;/attachment/data-{}.json&quot;</span>, <span class="ident">s</span>));
-                <span class="ident">then</span>.<span class="ident">status</span>(<span class="number">200</span>).<span class="ident">json_body</span>(<span class="macro">json!</span>([{
-                    <span class="string">&quot;id&quot;</span>: <span class="ident">idx</span>,
-                    <span class="string">&quot;url&quot;</span>: <span class="macro">format!</span>(<span class="string">&quot;https://example.com/#url/{}&quot;</span>, <span class="ident">s</span>),
-                    <span class="string">&quot;click_url&quot;</span>: <span class="macro">format!</span>(<span class="string">&quot;https://example.com/#click/{}&quot;</span>, <span class="ident">s</span>),
-                    <span class="string">&quot;impression_url&quot;</span>: <span class="macro">format!</span>(<span class="string">&quot;https://example.com/#impression/{}&quot;</span>, <span class="ident">s</span>),
-                    <span class="string">&quot;iab_category&quot;</span>: <span class="string">&quot;5 - Education&quot;</span>,
-                    <span class="string">&quot;icon&quot;</span>: <span class="string">&quot;1&quot;</span>,
-                    <span class="string">&quot;advertiser&quot;</span>: <span class="string">&quot;fake&quot;</span>,
-                    <span class="string">&quot;title&quot;</span>: <span class="macro">format!</span>(<span class="string">&quot;Suggestion {}&quot;</span>, <span class="ident">s</span>),
-                    <span class="string">&quot;keywords&quot;</span>: [<span class="ident">s</span>],
-                }]));
-            })
-            .<span class="kw">await</span>;
+        <span class="kw">let</span> <span class="ident">attachment</span> <span class="op">=</span> <span class="ident">serde_json::to_string</span>(<span class="kw-2">&amp;</span><span class="macro">json!</span>([{
+            <span class="string">&quot;id&quot;</span>: <span class="ident">idx</span>,
+            <span class="string">&quot;url&quot;</span>: <span class="macro">format!</span>(<span class="string">&quot;https://example.com/#url/{}&quot;</span>, <span class="ident">s</span>),
+            <span class="string">&quot;click_url&quot;</span>: <span class="macro">format!</span>(<span class="string">&quot;https://example.com/#click/{}&quot;</span>, <span class="ident">s</span>),
+            <span class="string">&quot;impression_url&quot;</span>: <span class="macro">format!</span>(<span class="string">&quot;https://example.com/#impression/{}&quot;</span>, <span class="ident">s</span>),
+            <span class="string">&quot;iab_category&quot;</span>: <span class="string">&quot;5 - Education&quot;</span>,
+            <span class="string">&quot;icon&quot;</span>: <span class="string">&quot;1&quot;</span>,
+            <span class="string">&quot;advertiser&quot;</span>: <span class="string">&quot;fake&quot;</span>,
+            <span class="string">&quot;title&quot;</span>: <span class="macro">format!</span>(<span class="string">&quot;Suggestion {}&quot;</span>, <span class="ident">s</span>),
+            <span class="string">&quot;keywords&quot;</span>: [<span class="ident">s</span>],
+        }]))
+        .<span class="ident">expect</span>(<span class="string">&quot;attachment json&quot;</span>);
+
+        <span class="kw">let</span> <span class="ident">record</span> <span class="op">=</span> <span class="ident">serde_json::to_string</span>(<span class="kw-2">&amp;</span><span class="macro">json!</span>({
+            <span class="string">&quot;id&quot;</span>: <span class="macro">format!</span>(<span class="string">&quot;suggestion-{}&quot;</span>, <span class="ident">s</span>), <span class="string">&quot;type&quot;</span>: <span class="string">&quot;data&quot;</span>
+        }))
+        .<span class="ident">expect</span>(<span class="string">&quot;record json&quot;</span>);
+
+        <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;{}/records/suggestion-{}/attachment&quot;</span>, <span class="ident">collection_url</span>, <span class="ident">s</span>);
+        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">client</span>
+            .<span class="ident">post</span>(<span class="kw-2">&amp;</span><span class="ident">url</span>)
+            .<span class="ident">multipart</span>(
+                <span class="ident">Form::new</span>()
+                    .<span class="ident">part</span>(
+                        <span class="string">&quot;attachment&quot;</span>,
+                        <span class="ident">Part::text</span>(<span class="ident">attachment</span>).<span class="ident">file_name</span>(<span class="macro">format!</span>(<span class="string">&quot;suggestion-{}.json&quot;</span>, <span class="ident">idx</span>)),
+                    )
+                    .<span class="ident">part</span>(<span class="string">&quot;data&quot;</span>, <span class="ident">Part::text</span>(<span class="ident">record</span>)),
+            )
+            .<span class="ident">send</span>()
+            .<span class="kw">await</span>
+            .<span class="ident">expect</span>(<span class="string">&quot;making record&quot;</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">req</span>.<span class="ident">status</span>(), <span class="number">201</span>);
     }
+
+    <span class="comment">// make fake icon record</span>
+    <span class="kw">let</span> <span class="ident">icon_record</span> <span class="op">=</span> <span class="ident">serde_json::to_string</span>(<span class="kw-2">&amp;</span><span class="macro">json!</span>({<span class="string">&quot;id&quot;</span>: <span class="string">&quot;icon-1&quot;</span>, <span class="string">&quot;type&quot;</span>: <span class="string">&quot;icon&quot;</span>})).<span class="ident">unwrap</span>();
+
+    <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">client</span>
+        .<span class="ident">post</span>(<span class="macro">format!</span>(<span class="string">&quot;{}/records/icon-1/attachment&quot;</span>, <span class="ident">collection_url</span>))
+        .<span class="ident">multipart</span>(
+            <span class="ident">Form::new</span>()
+                .<span class="ident">part</span>(<span class="string">&quot;attachment&quot;</span>, <span class="ident">Part::text</span>(<span class="string">&quot;&quot;</span>).<span class="ident">file_name</span>(<span class="string">&quot;icon.png&quot;</span>))
+                .<span class="ident">part</span>(<span class="string">&quot;data&quot;</span>, <span class="ident">Part::text</span>(<span class="ident">icon_record</span>)),
+        )
+        .<span class="ident">send</span>()
+        .<span class="kw">await</span>
+        .<span class="ident">expect</span>(<span class="string">&quot;create attachment&quot;</span>);
+    <span class="macro">assert_eq!</span>(<span class="ident">req</span>.<span class="ident">status</span>(), <span class="number">201</span>);
 }
 </pre></div>
 </section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="merino_integration_tests" data-search-index-js="../../../search-index.js" data-search-js="../../../search.js"></div>

@@ -277,6 +277,8 @@
 <span id="277">277</span>
 <span id="278">278</span>
 <span id="279">279</span>
+<span id="280">280</span>
+<span id="281">281</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 <span class="kw">use</span> <span class="ident">serde_with</span>::{<span class="ident">serde_as</span>, <span class="ident">DurationSeconds</span>};
@@ -407,11 +409,13 @@
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
 <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">default</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">RemoteSettingsConfig</span> {
-    <span class="doccomment">/// The Remote Settings bucket to read from</span>
-    <span class="kw">pub</span> <span class="ident">bucket</span>: <span class="ident">String</span>,
+    <span class="doccomment">/// The Remote Settings bucket to read from. If `None`, the default from the</span>
+    <span class="doccomment">/// global config will be used.</span>
+    <span class="kw">pub</span> <span class="ident">bucket</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
 
-    <span class="doccomment">/// The collection to sync form.</span>
-    <span class="kw">pub</span> <span class="ident">collection</span>: <span class="ident">String</span>,
+    <span class="doccomment">/// The collection to sync form. If `None`, the default from the global</span>
+    <span class="doccomment">/// config will be used.</span>
+    <span class="kw">pub</span> <span class="ident">collection</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
 
     <span class="doccomment">/// The time between re-syncs of Remote Settings data.</span>
     <span class="attribute">#[<span class="ident">serde_as</span>(<span class="kw">as</span> <span class="op">=</span> <span class="string">&quot;DurationSeconds&quot;</span>)]</span>
@@ -422,8 +426,8 @@
 <span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">RemoteSettingsConfig</span> {
     <span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="self">Self</span> {
-            <span class="ident">bucket</span>: <span class="string">&quot;main&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">collection</span>: <span class="string">&quot;quicksuggest&quot;</span>.<span class="ident">to_string</span>(),
+            <span class="ident">bucket</span>: <span class="prelude-val">None</span>,
+            <span class="ident">collection</span>: <span class="prelude-val">None</span>,
             <span class="ident">resync_interval</span>: <span class="ident">Duration::from_secs</span>(<span class="number">60</span> <span class="op">*</span> <span class="number">60</span> <span class="op">*</span> <span class="number">3</span>), <span class="comment">// 3 hours</span>
         }
     }
