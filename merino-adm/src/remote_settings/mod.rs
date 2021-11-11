@@ -44,8 +44,16 @@ impl RemoteSettingsSuggester {
     ) -> Result<Box<Self>, SetupError> {
         let mut remote_settings_client = RemoteSettingsClient::new(
             &settings.remote_settings.server,
-            config.bucket.clone(),
-            config.collection.clone(),
+            config
+                .bucket
+                .as_ref()
+                .unwrap_or(&settings.remote_settings.default_bucket)
+                .clone(),
+            config
+                .collection
+                .as_ref()
+                .unwrap_or(&settings.remote_settings.default_collection)
+                .clone(),
         )?;
         let suggestions = Arc::new(DedupedMap::new());
 
@@ -103,6 +111,9 @@ impl RemoteSettingsSuggester {
     ) -> Result<(), SetupError> {
         tracing::info!(
             r#type = "adm.remote-settings.sync-start",
+            server = %remote_settings_client.server_url(),
+            bucket = %remote_settings_client.bucket_id(),
+            collection = %remote_settings_client.collection_id(),
             "Syncing quicksuggest records from Remote Settings"
         );
         remote_settings_client.sync().await?;
