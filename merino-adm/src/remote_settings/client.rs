@@ -497,7 +497,6 @@ mod tests {
         ChangesetResponse, RemoteSettingsAttachmentsCapability, RemoteSettingsCapabilities,
         RemoteSettingsClient, RemoteSettingsServerInfo,
     };
-    use lazy_static::lazy_static;
     use reqwest::Url;
 
     static BUCKET: &str = "main";
