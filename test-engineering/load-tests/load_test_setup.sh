@@ -41,7 +41,6 @@ echo "Docker image tag for locust is set to: ${LOCUST_IMAGE_TAG}"
 ##Kubernetes Manifests variables
 KINTO_SERVER_URL=firefox.settings.services.mozilla.com
 KINTO_COLLECTION=quicksuggest
-LOCUST_MASTER_NODE_HOST=locust-master
 KINTO_BUCKET=main
 CLUSTER=merino-load-test
 TARGET=stage.merino.nonprod.cloudops.mozgcp.net
