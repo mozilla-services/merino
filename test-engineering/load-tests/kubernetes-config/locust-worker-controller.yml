@@ -16,11 +16,19 @@ spec:
     spec:
       containers:
         - name: locust-worker
-          image: gcr.io/[PROJECT_ID]/locust-tasks:latest
+          image: gcr.io/[PROJECT_ID]/locust-tasks:[LOCUST_IMAGE_TAG]
           env:
-            - name: LOCUST_MODE
-              value: worker
-            - name: LOCUST_MASTER
-              value: locust-master
+            - name: LOCUST_MODE_WORKER
+              value: "true"
+            - name: LOCUST_MASTER_NODE_HOST
+              value: [LOCUST_MASTER_NODE_HOST]
             - name: TARGET_HOST
-              value: [TARGET_HOST]
+              value: https://[TARGET_HOST]
+            - name: LOAD_TESTS__LOGGING_LEVEL
+              value: "10"
+            - name: KINTO__COLLECTION
+              value: [KINTO_COLLECTION]
+            - name: KINTO__BUCKET
+              value: [KINTO_BUCKET]
+            - name: KINTO__SERVER_URL
+              value: https://[KINTO_SERVER_URL]
