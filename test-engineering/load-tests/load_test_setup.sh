@@ -1,24 +1,5 @@
 #!/bin/bash
-
-#Setup MacOS - Install Cloud SDK
-echo -e "==================== Do you want to install GCP SDK on macOS? [yes or no]: "
-read response
-case $response in
-    [yY] | [yY][Ee][Ss] )
-        echo -e "==================== Install latest Cloud SDK version "
-        /usr/local/bin/wget https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-sdk-364.0.0-darwin-x86_64.tar.gz -P $DIRECTORY
-        tar -xf $DIRECTORY/google-cloud-sdk-364.0.0-darwin-x86_64.tar.gz
-        echo -e "==================== Do clean-up "
-        rm -rf $DIRECTORY/google-cloud-sdk-364.0.0-darwin-x86_64.tar.gz
-        echo -e "==================== Install SDK "
-        ./$SDK_DIRECTORY/install.sh
-        ;;
-    [nN] | [n|N][O|o] )
-        echo -e "==================== Skip GCP SDK Installation "
-        ;;
-    *) echo -e "==================== Invalid input it should be [yes or no] "
-        ;;
-esac
+set -eu
 
 #Setup environment
 GCLOUD=$(which gcloud)
