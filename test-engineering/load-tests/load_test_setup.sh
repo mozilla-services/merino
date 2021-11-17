@@ -88,8 +88,8 @@ $SED -i -e "s/\[KINTO_COLLECTION\]/$KINTO_COLLECTION/g" $MERINO_DIRECTORY/$WORKE
 $SED -i -e "s/\[KINTO_SERVER_URL\]/$KINTO_SERVER_URL/g" $MERINO_DIRECTORY/$MASTER_FILE
 $SED -i -e "s/\[KINTO_SERVER_URL\]/$KINTO_SERVER_URL/g" $MERINO_DIRECTORY/$WORKER_FILE
 
-echo "==================== Clean Up "
-rm MERINO_DIRECTORY/$MASTER_FILE-*
+$KUBECTL delete pods --all
+$KUBECTL delete svc locust-master
 
 ##Deploy the Locust master and worker nodes using Kubernetes Manifests
 echo -e "==================== Deploy the Locust master and worker nodes"
