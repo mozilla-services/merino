@@ -4,15 +4,15 @@ mod client;
 
 use crate::remote_settings::client::RemoteSettingsClient;
 use async_trait::async_trait;
-use cadence::{Histogrammed, StatsdClient};
+use cadence::StatsdClient;
 use deduped_dashmap::DedupedMap;
 use futures::StreamExt;
 use http::Uri;
 use lazy_static::lazy_static;
 use merino_settings::{providers::RemoteSettingsConfig, Settings};
 use merino_suggest::{
-    CacheInputs, Proportion, SetupError, SuggestError, Suggestion, SuggestionProvider,
-    SuggestionRequest, SuggestionResponse,
+    metrics::TimedMicros, CacheInputs, Proportion, SetupError, SuggestError, Suggestion,
+    SuggestionProvider, SuggestionRequest, SuggestionResponse,
 };
 use serde::{Deserialize, Serialize};
 use serde_with::{serde_as, DisplayFromStr};
@@ -278,10 +278,7 @@ impl SuggestionProvider for RemoteSettingsSuggester {
         });
 
         self.metrics_client
-            .histogram_with_tags(
-                "adm.rs.provider.duration-us",
-                start.elapsed().as_micros() as u64,
-            )
+            .time_micros_with_tags("adm.rs.provider.duration-us", start.elapsed())
             .with_tag(
                 "accepts-english",
                 if request.accepts_english {

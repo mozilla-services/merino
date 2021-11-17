@@ -7,12 +7,13 @@
 
 use anyhow::anyhow;
 use async_trait::async_trait;
-use cadence::{CountedExt, Gauged, Histogrammed, StatsdClient};
+use cadence::{CountedExt, Gauged, StatsdClient};
 use deduped_dashmap::{ControlFlow, DedupedMap};
 use lazy_static::lazy_static;
 use merino_settings::providers::MemoryCacheConfig;
 use merino_suggest::{
-    CacheInputs, CacheStatus, Suggestion, SuggestionProvider, SuggestionRequest, SuggestionResponse,
+    metrics::TimedMicros, CacheInputs, CacheStatus, Suggestion, SuggestionProvider,
+    SuggestionRequest, SuggestionResponse,
 };
 use std::{
     collections::HashMap,
@@ -261,10 +262,7 @@ impl SuggestionProvider for Suggester {
 
             if let Some(response) = rv {
                 self.metrics_client
-                    .histogram_with_tags(
-                        "cache.memory.duration-us",
-                        now.elapsed().as_micros() as u64,
-                    )
+                    .time_micros_with_tags("cache.memory.duration-us", now.elapsed())
                     .with_tag("cache-status", response.cache_status.to_string().as_str())
                     .send();
                 Ok(response)

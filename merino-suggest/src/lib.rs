@@ -4,6 +4,7 @@
 //!
 pub mod device_info;
 mod domain;
+pub mod metrics;
 mod providers;
 
 use std::fmt::Debug;
