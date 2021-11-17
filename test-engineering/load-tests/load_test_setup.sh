@@ -74,7 +74,7 @@ $GCLOUD container images list | grep locust-tasks
 
 ##Deploying the Locust master and worker nodes
 echo -e "==================== Update Kubernetes Manifests "
-echo -e "==================== Replace the target host and project ID with the deployed endpoint and project ID in the locust-master-controller.yaml and locust-worker-controller.yaml files"
+echo -e "==================== Replace the target host and project ID with the deployed endpoint and project ID in the locust-master-controller.yml and locust-worker-controller.yml files"
 $SED -i -e "s/\[TARGET_HOST\]/$TARGET/g" $MERINO_DIRECTORY/$MASTER_FILE
 $SED -i -e "s/\[TARGET_HOST\]/$TARGET/g" $MERINO_DIRECTORY/$WORKER_FILE
 $SED -i -e "s/\[PROJECT_ID\]/$PROJECT/g" $MERINO_DIRECTORY/$MASTER_FILE
