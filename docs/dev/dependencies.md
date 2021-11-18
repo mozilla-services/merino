@@ -26,3 +26,5 @@ development.
 - Statsd Logger - Receives statsd metrics emitted by Merino (and any thing else
   on your system using statsd). Available through docker-compose logs. For
   example with `docker-compose logs -f statsd-logger`.
+- Kinto - Runs a local Remote Settings service that is used by "merino-adm".
+- Kinto-attachments - Provides the attachment feature for the "Kinto" service.

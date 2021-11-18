@@ -7,15 +7,22 @@ Here are some useful commands when working on Merino.
 Run the main app
 
 ```shell
-$ docker-compose -f dev/docker-compose.yaml -d
+$ docker-compose -f dev/docker-compose.yaml up -d
 $ cargo run -p merino
 ```
 
 Run tests
 
 ```shell
-$ docker-compose -f dev/docker-compose.yaml -d
+$ docker-compose -f dev/docker-compose.yaml up -d
 $ cargo test
+```
+
+Run dependency servers
+
+```shell
+$ cd dev
+$ docker-compose up
 ```
 
 ## Documentation
@@ -141,10 +148,3 @@ These works have influenced the design of Merino.
 - [Zero to Production in Rust](https://www.zero2prod.com/) by Luca Palmieri
 - [Error Handling Isn't All About Errors](https://www.youtube.com/watch?v=rAF8mLI0naQ),
   by Jane "[yaahc](https://twitter.com/yaahc_/)" Lusby, from RustConf 2020.
-
-Run dependency servers
-
-```shell
-$ cd dev
-$ docker-compose up
-```
