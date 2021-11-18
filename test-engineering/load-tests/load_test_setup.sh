@@ -50,7 +50,7 @@ $GCLOUD container clusters get-credentials $CLUSTER --zone $ZONE --project $PROJ
 echo -e "==================== Build the Docker image and store it in your project's container registry. Tag with the latest commit hash "
 $GCLOUD builds submit --tag gcr.io/$PROJECT/locust-tasks:$LOCUST_IMAGE_TAG
 echo -e "==================== Verify that the Docker image is in your project's container repository"
-$GCLOUD container images list | grep locust-tasks
+$GCLOUD container images list | grep locust-merino
 
 ##Deploying the Locust master and worker nodes
 echo -e "==================== Update Kubernetes Manifests "
