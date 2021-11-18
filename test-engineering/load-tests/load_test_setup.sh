@@ -80,7 +80,7 @@ $KUBECTL apply -f $MERINO_DIRECTORY/$WORKER_FILE
 echo -e "==================== Verify the Locust deployments & Services"
 $KUBECTL get pods -o wide
 $KUBECTL get services
-sleep 30s
+sleep 30
 
 EXTERNAL_IP=$($KUBECTL get svc locust-master -o jsonpath="{.status.loadBalancer.ingress[0].ip}")
 
