@@ -140,6 +140,18 @@ provider below.
 - `remote_settings.server` (`MERINO_REMOTE_SETTINGS__SERVER`) - The server to
   sync from. Example: `https://firefox.settings.services.mozilla.com`.
 
+- `remote_settings.default_bucket` (`MERINO_REMOTE_SETTINGS__DEFAULT_BUCKET`) -
+  The bucket to use for Remote Settings providers if not specified in the
+  provider config. Example: "main".
+
+- `remote_settings.default_collection`
+  (`MERINO_REMOTE_SETTINGS__DEFAULT_COLLECTION`) - The collection to use for
+  Remote Settings providers if not specified in the provider config. Example:
+  "quicksuggest".
+
+- `remote_settings.server` (`MERINO_REMOTE_SETTINGS__SERVER`) - The server to
+  sync from. Example: `https://firefox.settings.services.mozilla.com`.
+
 - `remote_settings.sync_interval_sec` - The time between re-syncs of Remote
   Settings data, in seconds. Defaults to 3 hours.
 
@@ -173,8 +185,10 @@ These are production providers that generate suggestions.
   suggestions provided by adM. See also the top level configuration for Remote
   Settings, below.
   - `type=remote_settings`
-  - `collection` - The name of the Remote Settings collection to pull
-    suggestions from.
+  - `bucket` - Optional. The name of the Remote Settings collection to pull
+    suggestions from. If not specified, the global default will be used.
+  - `collection` - Optional. The name of the Remote Settings collection to pull
+    suggestions from. If not specifeid, the global default will be used.
 
 #### Combinators
 

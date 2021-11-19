@@ -3,7 +3,6 @@
 
 use crate::{merino_test_macro, utils::test_tools::TestReqwestClient, TestingTools};
 use anyhow::Result;
-use httpmock::{Method::GET, MockServer};
 use merino_settings::providers::{
     FixedConfig, KeywordFilterConfig, MultiplexerConfig, RemoteSettingsConfig,
     SuggestionProviderConfig,
@@ -130,16 +129,9 @@ async fn test_expected_variant_fields(
         "adm".to_string(),
         SuggestionProviderConfig::RemoteSettings(RemoteSettingsConfig::default())
     );
+    settings.remote_settings.test_changes = Some(vec![])
 })]
-async fn suggest_adm_rs_works_empty(
-    TestingTools {
-        test_client,
-        remote_settings_mock,
-        ..
-    }: TestingTools,
-) -> Result<()> {
-    setup_remote_settings_collection(&remote_settings_mock, &[]).await;
-
+async fn suggest_adm_rs_works_empty(TestingTools { test_client, .. }: TestingTools) -> Result<()> {
     let response = test_client.get("/api/v1/suggest?q=apple").send().await?;
 
     // Check that the status is 200 OK, and that the body is JSON. The
@@ -157,16 +149,11 @@ async fn suggest_adm_rs_works_empty(
         "adm".to_string(),
         SuggestionProviderConfig::RemoteSettings(RemoteSettingsConfig::default())
     );
+    settings.remote_settings.test_changes = Some(vec!["apple".to_string(), "banana".to_string()]);
 })]
 async fn suggest_adm_rs_works_content(
-    TestingTools {
-        test_client,
-        remote_settings_mock,
-        ..
-    }: TestingTools,
+    TestingTools { test_client, .. }: TestingTools,
 ) -> Result<()> {
-    setup_remote_settings_collection(&remote_settings_mock, &["apple", "banana"]).await;
-
     let response = test_client.get("/api/v1/suggest?q=apple").send().await?;
 
     assert_eq!(response.status(), StatusCode::OK);
@@ -178,63 +165,6 @@ async fn suggest_adm_rs_works_content(
     );
 
     Ok(())
-}
-
-async fn setup_remote_settings_collection(server: &MockServer, suggestions: &[&str]) {
-    let mut changes = suggestions
-        .iter()
-        .map(|s| {
-            assert_ne!(*s, "icon");
-            json!({
-                "id": s,
-                "type": "data",
-                "last_modified": 0,
-                "attachment": {
-                    "location": format!("/attachment/data-{}.json", s),
-                    "hash": s,
-                }
-            })
-        })
-        .collect::<Vec<_>>();
-    changes.push(json!({
-        "id": "icon-1",
-        "type": "icon",
-        "last_modified": 0,
-        "attachment": {
-            "location": "/attachment/icon-1.png",
-            "hash": "icon"
-        }
-    }));
-
-    server
-        .mock_async(|when, then| {
-            when.method(GET)
-                .path("/v1/buckets/main/collections/quicksuggest/changeset");
-            then.status(200).json_body(json!({
-                "changes": changes,
-            }));
-        })
-        .await;
-
-    for (idx, s) in suggestions.iter().enumerate() {
-        server
-            .mock_async(|when, then| {
-                when.method(GET)
-                    .path(format!("/attachment/data-{}.json", s));
-                then.status(200).json_body(json!([{
-                    "id": idx,
-                    "url": format!("https://example.com/#url/{}", s),
-                    "click_url": format!("https://example.com/#click/{}", s),
-                    "impression_url": format!("https://example.com/#impression/{}", s),
-                    "iab_category": "5 - Education",
-                    "icon": "1",
-                    "advertiser": "fake",
-                    "title": format!("Suggestion {}", s),
-                    "keywords": [s],
-                }]));
-            })
-            .await;
-    }
 }
 
 #[merino_test_macro(|settings| {

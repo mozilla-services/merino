@@ -37,9 +37,9 @@ pub fn configure(config: &mut ServiceConfig) {
 async fn suggest(
     SuggestionRequestWrapper(suggestion_request): SuggestionRequestWrapper,
     provider: Data<SuggestionProviderRef>,
-    settings: Data<Settings>,
     metrics_client: Data<StatsdClient>,
     query_parameters: web::Query<SuggestQueryParameters>,
+    settings: Data<Settings>,
     request: HttpRequest,
 ) -> Result<HttpResponse, HandlerError> {
     safe_log_request(
@@ -48,29 +48,18 @@ async fn suggest(
         &query_parameters,
     );
 
-    let provider = provider
-        .get_or_try_init(settings.as_ref(), metrics_client.as_ref())
-        .await
-        .map_err(|error| {
-            tracing::error!(
-                ?error,
-                r#type = "web.suggest.setup-error",
-                "suggester error"
-            );
-            HandlerError::internal()
-        })?;
-
     let extensions = request.extensions();
     let request_id: &Uuid = extensions
         .get::<RequestId>()
         .ok_or_else(HandlerError::internal)?;
+    let id_multi = &provider.0;
     let response = match &query_parameters.providers {
         Some(provider_ids) => {
-            provider
+            id_multi
                 .suggest_from_ids(suggestion_request, provider_ids)
                 .await
         }
-        None => provider.suggest(suggestion_request).await,
+        None => id_multi.suggest(suggestion_request).await,
     }
     .map_err(|error| {
         tracing::error!(%error, r#type="web.suggest.error", "Error providing suggestions");

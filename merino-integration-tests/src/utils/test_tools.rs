@@ -1,13 +1,14 @@
 //! Tools for running tests
 
 use crate::utils::{logging::LogWatcher, metrics::MetricsWatcher, redis::get_temp_db};
-use httpmock::MockServer;
 use merino_settings::Settings;
-use reqwest::{redirect, Client, ClientBuilder, RequestBuilder};
+use reqwest::{
+    multipart::{Form, Part},
+    redirect, Client, ClientBuilder, RequestBuilder,
+};
 use serde_json::json;
 use std::{future::Future, net::TcpListener};
 use tracing_futures::{Instrument, WithSubscriber};
-
 use tracing_subscriber::{fmt::MakeWriter, layer::SubscriberExt};
 
 /// Run a test with a fully configured Merino server.
@@ -67,21 +68,43 @@ where
 
     let _tracing_subscriber_guard = tracing::subscriber::set_default(tracing_subscriber);
 
-    // Set up a mock server for Remote Settings to talk to
-    let remote_settings_mock = MockServer::start();
-    remote_settings_mock.mock(|when, then| {
-        when.path("/v1/");
-        then.status(200)
-            .header("Content-Type", "application/json")
-            .json_body(json!({
-                "capabilities": {
-                    "attachments": {
-                        "base_url": remote_settings_mock.base_url()
-                    }
-                }
-            }));
-    });
-    settings.remote_settings.server = remote_settings_mock.base_url();
+    // Set up Remote Settings
+    let reqwest_client = reqwest::Client::new();
+    let bucket_info: serde_json::Value = reqwest_client
+        .post(format!("{}/v1/buckets/", settings.remote_settings.server))
+        .send()
+        .await
+        .and_then(reqwest::Response::error_for_status)
+        .expect("Error creating bucket")
+        .json()
+        .await
+        .expect("getting new bucket info");
+    let bucket_name = bucket_info["data"]["id"].as_str().unwrap();
+    let collection_info: serde_json::Value = reqwest_client
+        .post(format!(
+            "{}/v1/buckets/{}/collections",
+            settings.remote_settings.server, bucket_name
+        ))
+        .send()
+        .await
+        .and_then(reqwest::Response::error_for_status)
+        .expect("Error creating collection")
+        .json()
+        .await
+        .expect("getting new collection info");
+    let collection_name = collection_info["data"]["id"].as_str().unwrap();
+
+    settings.remote_settings.default_bucket = bucket_name.to_string();
+    settings.remote_settings.default_collection = collection_name.to_string();
+
+    settings_changer(&mut settings);
+    if let Some(changes) = &settings.remote_settings.test_changes {
+        setup_remote_settings_collection(
+            &settings.remote_settings,
+            &changes.iter().map(String::as_str).collect::<Vec<_>>(),
+        )
+        .await;
+    }
 
     // Set up Redis
     let _redis_connection_guard = match get_temp_db(&settings.redis.url).await {
@@ -95,8 +118,6 @@ where
             None
         }
     };
-
-    settings_changer(&mut settings);
 
     // Setup metrics
     assert_eq!(
@@ -114,15 +135,18 @@ where
     let address = listener.local_addr().unwrap().to_string();
     let redis_client =
         redis::Client::open(settings.redis.url.clone()).expect("Couldn't access redis server");
-    let server =
-        merino_web::run(listener, metrics_client, settings).expect("Failed to start server");
+    let providers = merino_web::providers::SuggestionProviderRef::init(&settings, &metrics_client)
+        .await
+        .expect("Could not create providers");
+    let server = merino_web::run(listener, metrics_client, settings.clone(), providers)
+        .expect("Failed to start server");
     let server_handle = tokio::spawn(server.with_current_subscriber());
     let test_client = TestReqwestClient::new(address);
 
     // Assemble the tools
     let tools = TestingTools {
         test_client,
-        remote_settings_mock,
+        settings,
         log_watcher,
         redis_client,
         metrics_watcher,
@@ -145,13 +169,8 @@ pub struct TestingTools {
     /// server under test.
     pub test_client: TestReqwestClient,
 
-    /// A [`httpmock::MockServer`] that remote settings has been configured to use
-    /// as its default server. Does not contain mock responses, any needed must
-    /// be added
-    ///
-    /// The server will listen on a port assigned arbitrarily by the OS. A test HTTP
-    /// client that automatically targets the server will be returned.
-    pub remote_settings_mock: MockServer,
+    /// A copy of the current settings.
+    pub settings: Settings,
 
     /// To make assertions about logs.
     pub log_watcher: LogWatcher,
@@ -196,4 +215,66 @@ impl TestReqwestClient {
         let url = format!("http://{}{}", &self.address, path);
         self.client.get(url)
     }
+}
+
+/// Create the remote settings collection and endpoint from the provided suggestions
+pub async fn setup_remote_settings_collection(
+    rs_settings: &merino_settings::RemoteSettingsGlobalSettings,
+    suggestions: &[&str],
+) {
+    let client = reqwest::Client::new();
+    let collection_url = format!(
+        "{}/v1/buckets/{}/collections/{}",
+        rs_settings.server, rs_settings.default_bucket, rs_settings.default_collection
+    );
+    for (idx, s) in suggestions.iter().enumerate() {
+        let attachment = serde_json::to_string(&json!([{
+            "id": idx,
+            "url": format!("https://example.com/#url/{}", s),
+            "click_url": format!("https://example.com/#click/{}", s),
+            "impression_url": format!("https://example.com/#impression/{}", s),
+            "iab_category": "5 - Education",
+            "icon": "1",
+            "advertiser": "fake",
+            "title": format!("Suggestion {}", s),
+            "keywords": [s],
+        }]))
+        .expect("attachment json");
+
+        let record = serde_json::to_string(&json!({
+            "id": format!("suggestion-{}", s), "type": "data"
+        }))
+        .expect("record json");
+
+        let url = format!("{}/records/suggestion-{}/attachment", collection_url, s);
+        let req = client
+            .post(&url)
+            .multipart(
+                Form::new()
+                    .part(
+                        "attachment",
+                        Part::text(attachment).file_name(format!("suggestion-{}.json", idx)),
+                    )
+                    .part("data", Part::text(record)),
+            )
+            .send()
+            .await
+            .expect("making record");
+        assert_eq!(req.status(), 201);
+    }
+
+    // make fake icon record
+    let icon_record = serde_json::to_string(&json!({"id": "icon-1", "type": "icon"})).unwrap();
+
+    let req = client
+        .post(format!("{}/records/icon-1/attachment", collection_url))
+        .multipart(
+            Form::new()
+                .part("attachment", Part::text("").file_name("icon.png"))
+                .part("data", Part::text(icon_record)),
+        )
+        .send()
+        .await
+        .expect("create attachment");
+    assert_eq!(req.status(), 201);
 }

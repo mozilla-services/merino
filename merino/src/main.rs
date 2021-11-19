@@ -7,6 +7,7 @@ mod sentry;
 use anyhow::{Context, Result};
 use cadence::{BufferedUdpMetricSink, CountedExt, QueuingMetricSink, StatsdClient};
 use merino_settings::{LogFormat, Settings};
+use merino_web::providers::SuggestionProviderRef;
 use std::net::{TcpListener, UdpSocket};
 use tracing::Level;
 use tracing_actix_web_mozlog::{JsonStorageLayer, MozLogFormatLayer};
@@ -21,12 +22,13 @@ async fn main() -> Result<()> {
     init_logging(&settings).context("initializing logging")?;
     let metrics_client = init_metrics(&settings).context("initializing metrics")?;
 
+    let providers = SuggestionProviderRef::init(&settings, &metrics_client).await?;
+
     let listener = TcpListener::bind(settings.http.listen).context("Binding port")?;
-    merino_web::run(listener, metrics_client, settings)
+    merino_web::run(listener, metrics_client, settings, providers)
         .context("Starting merino-web server")?
         .await
         .context("Running merino-web server")?;
-
     Ok(())
 }
 

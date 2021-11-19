@@ -46,6 +46,7 @@ workflows:
             - checks
             - build-and-test
             - docker-image-build
+            - integration-tests
           filters:
             branches:
               only: main
@@ -64,23 +65,30 @@ jobs:
       - rust-check
 
   build-and-test:
-    docker:
-      - image: mozilla/cidockerbases:rust-2021-09-28
-        auth:
-          username: $DOCKER_USER
-          password: $DOCKER_PASS
-        environment:
-          RUST_BACKTRACE: 1
-      - image: redis
-        auth:
-          username: $DOCKER_USER
-          password: $DOCKER_PASS
-
+    machine:
+      docker_layer_caching: true
+      image: ubuntu-2004:202101-01 # Ubuntu 20.04, Docker v20.10.2, Docker Compose v1.28.2
+    working_directory: ~/merino
     steps:
+      - run:
+          name: Install dependencies
+          command: |
+            curl https://sh.rustup.rs | sh -s -- --no-modify-path --default-toolchain stable -y;
       - checkout
+      - run:
+          name: Setting up development dependencies
+          command: |
+            docker-compose --version
+            sudo chown 1000:1000 dev/.kinto-attachments
+            docker-compose -f dev/docker-compose.yaml up
+          background: true
       - write-version
-      - cargo-build
-      - run-tests
+      - run:
+          name: cargo build
+          command: ~/.cargo/bin/cargo build
+      - run:
+          name: cargo test
+          command: ~/.cargo/bin/cargo test --all --verbose
 
   docker-image-build:
     docker:
@@ -241,12 +249,6 @@ commands:
             cargo audit
             cargo clippy --all --all-targets --all-features -- -D warnings
 
-  cargo-build:
-    steps:
-      - run:
-          name: cargo build
-          command: cargo build
-
   write-version:
     steps:
       - run:
@@ -260,9 +262,3 @@ commands:
             "$CIRCLE_PROJECT_USERNAME" \
             "$CIRCLE_PROJECT_REPONAME" \
             "$CIRCLE_BUILD_URL" > version.json
-
-  run-tests:
-    steps:
-      - run:
-          name: cargo test
-          command: cargo test --all --verbose

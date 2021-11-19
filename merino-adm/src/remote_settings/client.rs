@@ -88,6 +88,7 @@ impl RemoteSettingsClient {
             let records_res = self
                 .reqwest_client
                 .get(url.clone())
+                .timeout(std::time::Duration::from_secs(3))
                 .send()
                 .await
                 .and_then(Response::error_for_status)
@@ -203,6 +204,21 @@ impl RemoteSettingsClient {
                 .ok_or_else(|| anyhow!("Bug: attachment_base_url not set"))
         }
     }
+
+    /// The server this client is configured to read from.
+    pub fn server_url(&self) -> &Url {
+        &self.server_url
+    }
+
+    /// The bucket this client is configured to read from.
+    pub fn bucket_id(&self) -> &str {
+        self.bucket_id.as_str()
+    }
+
+    /// The collection this client is configured to read from.
+    pub fn collection_id(&self) -> &str {
+        self.collection_id.as_str()
+    }
 }
 
 /// A response from the changeset API.
@@ -233,7 +249,7 @@ pub struct LazyAttachment {
 impl Debug for LazyAttachment {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("LazyAttachment")
-            .field("location", &self.location)
+            .field("location", &self.location.to_string())
             .field("hash", &self.hash)
             .field(
                 "downloaded",
@@ -481,27 +497,30 @@ mod tests {
         ChangesetResponse, RemoteSettingsAttachmentsCapability, RemoteSettingsCapabilities,
         RemoteSettingsClient, RemoteSettingsServerInfo,
     };
-    use merino_settings::providers::RemoteSettingsConfig;
     use reqwest::Url;
+
+    static BUCKET: &str = "main";
+    static COLLECTION: &str = "quicksuggest";
 
     #[actix_rt::test]
     async fn test_sync_makes_expected_call() -> anyhow::Result<()> {
-        let config = RemoteSettingsConfig::default();
-
         let mock_server = httpmock::MockServer::start();
 
         let records_mock = mock_server
             .mock_async(|when, then| {
                 when.path(format!(
                     "/v1/buckets/{}/collections/{}/changeset",
-                    config.bucket, config.collection
+                    BUCKET, COLLECTION,
                 ));
                 then.json_body_obj(&ChangesetResponse { changes: vec![] });
             })
             .await;
 
-        let mut client =
-            RemoteSettingsClient::new(&mock_server.base_url(), config.bucket, config.collection)?;
+        let mut client = RemoteSettingsClient::new(
+            &mock_server.base_url(),
+            BUCKET.to_owned(),
+            COLLECTION.to_owned(),
+        )?;
         client.sync().await?;
 
         records_mock.assert();
@@ -511,14 +530,12 @@ mod tests {
 
     #[actix_rt::test]
     async fn test_sync_two_pages() -> anyhow::Result<()> {
-        let config = RemoteSettingsConfig::default();
-
         let mock_server = httpmock::MockServer::start();
 
         let page_1_mock = mock_server.mock(|when, then| {
             when.path(format!(
                 "/v1/buckets/{}/collections/{}/changeset",
-                config.bucket, config.collection
+                BUCKET, COLLECTION
             ));
             then.header("Next-Page", &mock_server.url("/page-2"))
                 .json_body_obj(&ChangesetResponse { changes: vec![] });
@@ -529,8 +546,11 @@ mod tests {
             then.json_body_obj(&ChangesetResponse { changes: vec![] });
         });
 
-        let mut client =
-            RemoteSettingsClient::new(&mock_server.base_url(), config.bucket, config.collection)?;
+        let mut client = RemoteSettingsClient::new(
+            &mock_server.base_url(),
+            BUCKET.to_owned(),
+            COLLECTION.to_owned(),
+        )?;
         client.sync().await?;
 
         page_1_mock.assert();
@@ -541,7 +561,6 @@ mod tests {
 
     #[actix_rt::test]
     async fn test_attachments_work() -> anyhow::Result<()> {
-        let config = RemoteSettingsConfig::default();
         let mock_server = httpmock::MockServer::start();
         let attachment_base_url = Url::from_str(&mock_server.base_url())
             .unwrap()
@@ -571,7 +590,7 @@ mod tests {
             .mock_async(|when, then| {
                 when.path(format!(
                     "/v1/buckets/{}/collections/{}/changeset",
-                    config.bucket, config.collection
+                    BUCKET, COLLECTION
                 ));
                 then.json_body_obj(&ChangesetResponse {
                     changes: vec![Record {
@@ -592,8 +611,11 @@ mod tests {
             })
             .await;
 
-        let mut client =
-            RemoteSettingsClient::new(&mock_server.base_url(), config.bucket, config.collection)?;
+        let mut client = RemoteSettingsClient::new(
+            &mock_server.base_url(),
+            BUCKET.to_owned(),
+            COLLECTION.to_owned(),
+        )?;
         client.sync().await?;
 
         // Download every attachment and make sure it is what we expect
