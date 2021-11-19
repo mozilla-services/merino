@@ -1,6 +1,7 @@
 //! Tools for running tests
 
 use crate::utils::{logging::LogWatcher, metrics::MetricsWatcher, redis::get_temp_db};
+use anyhow::Result;
 use merino_settings::Settings;
 use reqwest::{
     multipart::{Form, Part},
@@ -73,12 +74,13 @@ where
 
     let _tracing_subscriber_guard = tracing::subscriber::set_default(tracing_subscriber);
 
-    // Set up Remote Settings in a retry loop.
-    // Setup actions could fail in Remote Settings in the race conditions.
+    // Set up Remote Settings in a loop. Setup actions might fail in Remote Settings
+    // when multiple tests are executed at the same time. Retrying with the backoff
+    // can alleviate that race condition.
     let mut n_retry = 0;
     while n_retry < MAX_RETRY {
         if let Ok((bucket_name, collection_name)) =
-            setup_remote_settings_bucket(settings.remote_settings.server.clone()).await
+            setup_remote_settings_bucket(settings.remote_settings.server.as_str()).await
         {
             settings.remote_settings.default_bucket = bucket_name;
             settings.remote_settings.default_collection = collection_name;
@@ -223,9 +225,7 @@ impl TestReqwestClient {
 }
 
 /// Set up Remote Settings with a new bucket and a new collection
-async fn setup_remote_settings_bucket(
-    server: String,
-) -> Result<(String, String), Box<dyn std::error::Error>> {
+async fn setup_remote_settings_bucket(server: &str) -> Result<(String, String)> {
     let reqwest_client = reqwest::Client::new();
     let bucket_info: serde_json::Value = reqwest_client
         .post(format!("{}/v1/buckets/", server))
@@ -251,7 +251,7 @@ async fn setup_remote_settings_bucket(
 pub async fn setup_remote_settings_collection(
     rs_settings: &merino_settings::RemoteSettingsGlobalSettings,
     suggestions: &[&str],
-) -> Result<(), Box<dyn std::error::Error>> {
+) -> Result<()> {
     let client = reqwest::Client::new();
     let collection_url = format!(
         "{}/v1/buckets/{}/collections/{}",
