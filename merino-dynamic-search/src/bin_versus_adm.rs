@@ -1,10 +1,9 @@
 use anyhow::{anyhow, Context, Result};
 use indicatif::{ProgressBar, ProgressStyle};
-use merino_dynamic_search::get_wiki_suggestions;
+use merino_dynamic_search::{do_search, get_wiki_suggestions};
 use rayon::prelude::*;
 use serde::Serialize;
 use std::{fs, path::Path};
-use tantivy::{collector::TopDocs, query::QueryParser};
 
 #[tokio::main]
 async fn main() -> Result<()> {
@@ -23,12 +22,6 @@ async fn main() -> Result<()> {
         .schema()
         .get_field("title")
         .ok_or_else(|| anyhow!("Missing title field"))?;
-    let content_field = index
-        .schema()
-        .get_field("content")
-        .ok_or_else(|| anyhow!("Missing content field"))?;
-
-    let query_parser = QueryParser::for_index(&index, vec![title_field, content_field]);
 
     let bar = ProgressBar::new(
         adm_suggestions
@@ -37,7 +30,8 @@ async fn main() -> Result<()> {
             .sum(),
     );
     bar.set_style(
-        ProgressStyle::default_bar().template("[{eta}] {bar:40.cyan/blue} {pos:>6}/{len:6} {msg}"),
+        ProgressStyle::default_bar()
+            .template("[{elapsed:>3}/{duration}] {bar:40.cyan/blue} {pos:>6}/{len:6} {wide_msg}"),
     );
 
     let pairs = adm_suggestions
@@ -55,19 +49,10 @@ async fn main() -> Result<()> {
         .into_par_iter()
         .map(|(suggestion, keyword)| {
             bar.set_message(keyword.clone());
-            bar.inc(1);
 
-            let searcher = reader.searcher();
-            let query = query_parser
-                .parse_query(&keyword.replace("-", " "))
-                .context(format!("invalid query {}", keyword))?;
-
-            let search_results = searcher.search(&query, &TopDocs::with_limit(1))?;
-
-            let (vs_adm, score) = match search_results.first() {
+            let (vs_adm, score) = match do_search(&reader, &keyword)?.first() {
                 None => (VsAdm::NoResult, None),
-                Some((score, doc_address)) => {
-                    let doc = searcher.doc(*doc_address)?;
+                Some((score, doc)) => {
                     let title = doc
                         .get_first(title_field)
                         .and_then(tantivy::schema::Value::text)
@@ -80,10 +65,11 @@ async fn main() -> Result<()> {
                     (vs_adm, Some(*score))
                 }
             };
+            bar.inc(1);
 
             Ok(Output {
                 suggestion_id: suggestion.id,
-                suggestion_title: suggestion.title.clone(),
+                suggestion_title: suggestion.title,
                 keyword,
                 vs_adm,
                 score,
@@ -91,7 +77,7 @@ async fn main() -> Result<()> {
         })
         .collect::<Result<Vec<_>>>()?;
 
-    // bar.finish_and_clear();
+    bar.finish();
 
     let output_path = Path::new("./vs-output.json");
     println!(

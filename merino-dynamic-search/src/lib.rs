@@ -1,9 +1,11 @@
-use anyhow::{ensure, Result};
+use anyhow::{anyhow, ensure, Result};
 use futures::{stream::FuturesUnordered, StreamExt};
 use merino_adm::remote_settings::{client::RemoteSettingsClient, AdmSuggestion};
 use merino_settings::Settings;
 use std::path::Path;
-use tantivy::{schema::Schema, Index};
+use tantivy::{
+    collector::TopDocs, query::QueryParser, schema::Schema, Document, Index, IndexReader,
+};
 
 /// Get the index for the search engine
 /// # Errors
@@ -66,4 +68,30 @@ pub async fn get_wiki_suggestions() -> Result<Vec<AdmSuggestion>> {
     }
 
     Ok(rv)
+}
+
+/// Perform a standardized search on a reader.
+/// # Errors
+/// If the searcher is misconfigured or if the query is not in the expected format.
+pub fn do_search(reader: &IndexReader, query: &str) -> Result<Vec<(f32, Document)>> {
+    let searcher = reader.searcher();
+
+    let title_field = searcher
+        .schema()
+        .get_field("title")
+        .ok_or_else(|| anyhow!("Missing title field"))?;
+    let content_field = searcher
+        .schema()
+        .get_field("content")
+        .ok_or_else(|| anyhow!("Missing content field"))?;
+
+    let query_parser =
+        QueryParser::for_index(reader.searcher().index(), vec![title_field, content_field]);
+    let parsed_query = query_parser.parse_query(&query.replace('-', " "))?;
+
+    searcher
+        .search(&parsed_query, &TopDocs::with_limit(3))?
+        .into_iter()
+        .map(|(score, doc_address)| Ok((score, searcher.doc(doc_address)?)))
+        .collect()
 }

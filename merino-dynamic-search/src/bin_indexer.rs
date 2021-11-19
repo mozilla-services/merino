@@ -1,4 +1,5 @@
 use anyhow::{anyhow, Result};
+use indicatif::{ProgressBar, ProgressStyle};
 use merino_dynamic_search::get_wiki_suggestions;
 use tantivy::doc;
 
@@ -23,6 +24,12 @@ async fn main() -> Result<()> {
     let pages = get_wiki_texts(&wiki_titles.iter().map(String::as_str).collect::<Vec<_>>()).await?;
 
     println!("Indexing page contents into Tantivy");
+    let bar = ProgressBar::new(pages.len() as u64);
+    bar.set_style(
+        ProgressStyle::default_bar()
+            .template("[{elapsed:>3}/{duration}] {bar:40.cyan/blue} {pos:>6}/{len:6} {wide_msg}"),
+    );
+
     let index = merino_dynamic_search::get_search_index()?;
 
     let mut index_writer = index.writer(50 * MEGA)?;
@@ -40,6 +47,8 @@ async fn main() -> Result<()> {
         .ok_or_else(|| anyhow!("Missing url field"))?;
 
     for page in pages {
+        bar.set_message(page.title.clone());
+        bar.inc(1);
         index_writer.add_document(doc!(
             title_field => page.title,
             content_field => page.content,
@@ -47,7 +56,12 @@ async fn main() -> Result<()> {
         ));
     }
 
+    bar.set_message("committing...");
+    bar.tick();
+
     index_writer.commit()?;
+    bar.set_message("");
+    bar.finish();
 
     println!("Done");
     Ok(())
@@ -61,11 +75,20 @@ struct PageToIndex {
 }
 
 async fn get_wiki_texts(page_titles: &[&str]) -> Result<Vec<PageToIndex>> {
+    const CHUNK_SIZE: usize = 50;
+
     let client = reqwest::Client::new();
     let mut rv = Vec::with_capacity(page_titles.len());
 
-    for chunk in page_titles.chunks(50) {
+    let bar = ProgressBar::new(page_titles.len() as u64);
+    bar.set_style(
+        ProgressStyle::default_bar()
+            .template("[{elapsed:>3}/{duration}] {bar:40.cyan/blue} {pos:>6}/{len:6} {wide_msg}"),
+    );
+
+    for chunk in page_titles.chunks(CHUNK_SIZE) {
         let titles_concat = chunk.join("|");
+        bar.set_message(titles_concat.clone());
         let url = format!("https://en.wikipedia.org/w/api.php?action=query&prop=revisions&titles={}&rvslots=main&rvprop=content&formatversion=2&format=json&redirects=1", titles_concat);
 
         let res = client
@@ -82,6 +105,7 @@ async fn get_wiki_texts(page_titles: &[&str]) -> Result<Vec<PageToIndex>> {
                 .ok_or_else(|| anyhow!("Could not get list of pages from Wikipedia response"))?
                 .iter()
                 .map(|page| {
+                    bar.inc(1);
                     let title = page["title"]
                         .as_str()
                         .ok_or_else(|| anyhow!("no title"))?
@@ -100,6 +124,8 @@ async fn get_wiki_texts(page_titles: &[&str]) -> Result<Vec<PageToIndex>> {
                 .as_slice(),
         );
     }
+    bar.set_message("");
+    bar.finish();
 
     Ok(rv)
 }
