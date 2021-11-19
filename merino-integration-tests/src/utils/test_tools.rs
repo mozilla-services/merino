@@ -7,9 +7,14 @@ use reqwest::{
     redirect, Client, ClientBuilder, RequestBuilder,
 };
 use serde_json::json;
-use std::{future::Future, net::TcpListener};
+use std::{future::Future, net::TcpListener, time::Duration};
 use tracing_futures::{Instrument, WithSubscriber};
 use tracing_subscriber::{fmt::MakeWriter, layer::SubscriberExt};
+
+/// Maximum retry runs for Remote Settings setup actions.
+const MAX_RETRY: i32 = 10;
+/// Backoff duration for setup retry. The maximum retry duration should be around 1 second.
+const BACKOFF_DURATION: Duration = Duration::from_millis(100);
 
 /// Run a test with a fully configured Merino server.
 ///
@@ -68,42 +73,42 @@ where
 
     let _tracing_subscriber_guard = tracing::subscriber::set_default(tracing_subscriber);
 
-    // Set up Remote Settings
-    let reqwest_client = reqwest::Client::new();
-    let bucket_info: serde_json::Value = reqwest_client
-        .post(format!("{}/v1/buckets/", settings.remote_settings.server))
-        .send()
-        .await
-        .and_then(reqwest::Response::error_for_status)
-        .expect("Error creating bucket")
-        .json()
-        .await
-        .expect("getting new bucket info");
-    let bucket_name = bucket_info["data"]["id"].as_str().unwrap();
-    let collection_info: serde_json::Value = reqwest_client
-        .post(format!(
-            "{}/v1/buckets/{}/collections",
-            settings.remote_settings.server, bucket_name
-        ))
-        .send()
-        .await
-        .and_then(reqwest::Response::error_for_status)
-        .expect("Error creating collection")
-        .json()
-        .await
-        .expect("getting new collection info");
-    let collection_name = collection_info["data"]["id"].as_str().unwrap();
-
-    settings.remote_settings.default_bucket = bucket_name.to_string();
-    settings.remote_settings.default_collection = collection_name.to_string();
-
+    // Set up Remote Settings in a retry loop.
+    // Setup actions could fail in Remote Settings in the race conditions.
+    let mut n_retry = 0;
+    while n_retry < MAX_RETRY {
+        if let Ok((bucket_name, collection_name)) =
+            setup_remote_settings_bucket(settings.remote_settings.server.clone()).await
+        {
+            settings.remote_settings.default_bucket = bucket_name;
+            settings.remote_settings.default_collection = collection_name;
+            break;
+        }
+        n_retry += 1;
+        tokio::time::sleep(BACKOFF_DURATION).await;
+    }
+    if n_retry >= MAX_RETRY {
+        panic!("Failed to set up the Remote Settings bucket");
+    }
     settings_changer(&mut settings);
     if let Some(changes) = &settings.remote_settings.test_changes {
-        setup_remote_settings_collection(
-            &settings.remote_settings,
-            &changes.iter().map(String::as_str).collect::<Vec<_>>(),
-        )
-        .await;
+        n_retry = 0;
+        while n_retry < MAX_RETRY {
+            if setup_remote_settings_collection(
+                &settings.remote_settings,
+                &changes.iter().map(String::as_str).collect::<Vec<_>>(),
+            )
+            .await
+            .is_ok()
+            {
+                break;
+            }
+            n_retry += 1;
+            tokio::time::sleep(BACKOFF_DURATION).await;
+        }
+        if n_retry >= MAX_RETRY {
+            panic!("Failed to populate the Remote Settings collection");
+        }
     }
 
     // Set up Redis
@@ -217,11 +222,36 @@ impl TestReqwestClient {
     }
 }
 
+/// Set up Remote Settings with a new bucket and a new collection
+async fn setup_remote_settings_bucket(
+    server: String,
+) -> Result<(String, String), Box<dyn std::error::Error>> {
+    let reqwest_client = reqwest::Client::new();
+    let bucket_info: serde_json::Value = reqwest_client
+        .post(format!("{}/v1/buckets/", server))
+        .send()
+        .await
+        .and_then(reqwest::Response::error_for_status)?
+        .json()
+        .await?;
+    let bucket_name = bucket_info["data"]["id"].as_str().unwrap();
+    let collection_info: serde_json::Value = reqwest_client
+        .post(format!("{}/v1/buckets/{}/collections", server, bucket_name))
+        .send()
+        .await
+        .and_then(reqwest::Response::error_for_status)?
+        .json()
+        .await?;
+    let collection_name = collection_info["data"]["id"].as_str().unwrap();
+
+    Ok((bucket_name.to_owned(), collection_name.to_owned()))
+}
+
 /// Create the remote settings collection and endpoint from the provided suggestions
 pub async fn setup_remote_settings_collection(
     rs_settings: &merino_settings::RemoteSettingsGlobalSettings,
     suggestions: &[&str],
-) {
+) -> Result<(), Box<dyn std::error::Error>> {
     let client = reqwest::Client::new();
     let collection_url = format!(
         "{}/v1/buckets/{}/collections/{}",
@@ -238,13 +268,11 @@ pub async fn setup_remote_settings_collection(
             "advertiser": "fake",
             "title": format!("Suggestion {}", s),
             "keywords": [s],
-        }]))
-        .expect("attachment json");
+        }]))?;
 
         let record = serde_json::to_string(&json!({
             "id": format!("suggestion-{}", s), "type": "data"
-        }))
-        .expect("record json");
+        }))?;
 
         let url = format!("{}/records/suggestion-{}/attachment", collection_url, s);
         let req = client
@@ -258,9 +286,9 @@ pub async fn setup_remote_settings_collection(
                     .part("data", Part::text(record)),
             )
             .send()
-            .await
-            .expect("making record");
-        assert_eq!(req.status(), 201);
+            .await?;
+        // Response code could be either 200 or 201 due to the retrying
+        assert!(req.status() == 201 || req.status() == 200);
     }
 
     // make fake icon record
@@ -274,7 +302,8 @@ pub async fn setup_remote_settings_collection(
                 .part("data", Part::text(icon_record)),
         )
         .send()
-        .await
-        .expect("create attachment");
-    assert_eq!(req.status(), 201);
+        .await?;
+    // Response code could be either 200 or 201 due to the retrying
+    assert!(req.status() == 201 || req.status() == 200);
+    Ok(())
 }
