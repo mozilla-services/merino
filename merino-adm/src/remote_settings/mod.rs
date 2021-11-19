@@ -1,6 +1,6 @@
 //! AdM integration that uses the remote-settings provided data.
 
-mod client;
+pub mod client;
 
 use crate::remote_settings::client::RemoteSettingsClient;
 use async_trait::async_trait;
@@ -309,22 +309,39 @@ struct AttachmentMeta {
 
 /// A suggestion record from AdM
 #[serde_as]
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 #[allow(clippy::missing_docs_in_private_items)]
-struct AdmSuggestion {
-    id: u32,
+pub struct AdmSuggestion {
+    /// Ad block ID
+    pub id: u32,
+
+    /// URL to direct the user to
     #[serde_as(as = "DisplayFromStr")]
-    url: Uri,
+    pub url: Uri,
+
+    /// URL to notify if the user clicks on the suggestion
     #[serde_as(as = "DisplayFromStr")]
-    click_url: Uri,
+    pub click_url: Uri,
+
+    /// URL to notify if the suggestion is shown toa user
     #[serde_as(as = "DisplayFromStr")]
-    impression_url: Uri,
-    iab_category: String,
+    pub impression_url: Uri,
+
+    /// Category of the suggestion (primarily sponsored or non-sponsored)
+    pub iab_category: String,
+
+    /// The ID of the icon (also stored in Remote Settings) to be used
     #[serde_as(as = "DisplayFromStr")]
-    icon: u64,
-    advertiser: String,
-    title: String,
-    keywords: Vec<String>,
+    pub icon: u64,
+
+    /// The advertiser this ad is from
+    pub advertiser: String,
+
+    /// The title of the suggestion to show to the user
+    pub title: String,
+
+    /// Keywords that can trigger this suggestion
+    pub keywords: Vec<String>,
 }
 
 #[cfg(test)]
