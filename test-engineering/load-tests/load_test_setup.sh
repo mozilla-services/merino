@@ -48,7 +48,7 @@ $GCLOUD container clusters get-credentials $CLUSTER --zone $ZONE --project $GOOG
 
 ##Build Docker Images
 echo -e "==================== Build the Docker image and store it in your project's container registry. Tag with the latest commit hash "
-$GCLOUD builds submit --tag gcr.io/$PROJECT/locust-tasks:$LOCUST_IMAGE_TAG
+$GCLOUD builds submit --tag gcr.io/$GOOGLE_CLOUD_PROJECT/locust-merino:$LOCUST_IMAGE_TAG
 echo -e "==================== Verify that the Docker image is in your project's container repository"
 $GCLOUD container images list | grep locust-merino
 
