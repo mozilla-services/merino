@@ -278,19 +278,54 @@
 <span id="278">278</span>
 <span id="279">279</span>
 <span id="280">280</span>
+<span id="281">281</span>
+<span id="282">282</span>
+<span id="283">283</span>
+<span id="284">284</span>
+<span id="285">285</span>
+<span id="286">286</span>
+<span id="287">287</span>
+<span id="288">288</span>
+<span id="289">289</span>
+<span id="290">290</span>
+<span id="291">291</span>
+<span id="292">292</span>
+<span id="293">293</span>
+<span id="294">294</span>
+<span id="295">295</span>
+<span id="296">296</span>
+<span id="297">297</span>
+<span id="298">298</span>
+<span id="299">299</span>
+<span id="300">300</span>
+<span id="301">301</span>
+<span id="302">302</span>
+<span id="303">303</span>
+<span id="304">304</span>
+<span id="305">305</span>
+<span id="306">306</span>
+<span id="307">307</span>
+<span id="308">308</span>
+<span id="309">309</span>
 </pre><pre class="rust">
 <span class="doccomment">//! Tools for running tests</span>
 
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::utils</span>::{<span class="ident">logging::LogWatcher</span>, <span class="ident">metrics::MetricsWatcher</span>, <span class="ident">redis::get_temp_db</span>};
+<span class="kw">use</span> <span class="ident">anyhow::Result</span>;
 <span class="kw">use</span> <span class="ident">merino_settings::Settings</span>;
 <span class="kw">use</span> <span class="ident">reqwest</span>::{
     <span class="ident">multipart</span>::{<span class="ident">Form</span>, <span class="ident">Part</span>},
     <span class="ident">redirect</span>, <span class="ident">Client</span>, <span class="ident">ClientBuilder</span>, <span class="ident">RequestBuilder</span>,
 };
 <span class="kw">use</span> <span class="ident">serde_json::json</span>;
-<span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">future::Future</span>, <span class="ident">net::TcpListener</span>};
+<span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">future::Future</span>, <span class="ident">net::TcpListener</span>, <span class="ident">time::Duration</span>};
 <span class="kw">use</span> <span class="ident">tracing_futures</span>::{<span class="ident">Instrument</span>, <span class="ident">WithSubscriber</span>};
 <span class="kw">use</span> <span class="ident">tracing_subscriber</span>::{<span class="ident">fmt::MakeWriter</span>, <span class="ident">layer::SubscriberExt</span>};
+
+<span class="doccomment">/// Maximum retry runs for Remote Settings setup actions.</span>
+<span class="kw">const</span> <span class="ident">MAX_RETRY</span>: <span class="ident">i32</span> <span class="op">=</span> <span class="number">10</span>;
+<span class="doccomment">/// Backoff duration for setup retry. The maximum retry duration should be around 1 second.</span>
+<span class="kw">const</span> <span class="ident">BACKOFF_DURATION</span>: <span class="ident">Duration</span> <span class="op">=</span> <span class="ident">Duration::from_millis</span>(<span class="number">100</span>);
 
 <span class="doccomment">/// Run a test with a fully configured Merino server.</span>
 <span class="doccomment">///</span>
@@ -349,42 +384,43 @@
 
     <span class="kw">let</span> <span class="ident">_tracing_subscriber_guard</span> <span class="op">=</span> <span class="ident">tracing::subscriber::set_default</span>(<span class="ident">tracing_subscriber</span>);
 
-    <span class="comment">// Set up Remote Settings</span>
-    <span class="kw">let</span> <span class="ident">reqwest_client</span> <span class="op">=</span> <span class="ident">reqwest::Client::new</span>();
-    <span class="kw">let</span> <span class="ident">bucket_info</span>: <span class="ident">serde_json::Value</span> <span class="op">=</span> <span class="ident">reqwest_client</span>
-        .<span class="ident">post</span>(<span class="macro">format!</span>(<span class="string">&quot;{}/v1/buckets/&quot;</span>, <span class="ident">settings</span>.<span class="ident">remote_settings</span>.<span class="ident">server</span>))
-        .<span class="ident">send</span>()
-        .<span class="kw">await</span>
-        .<span class="ident">and_then</span>(<span class="ident">reqwest::Response::error_for_status</span>)
-        .<span class="ident">expect</span>(<span class="string">&quot;Error creating bucket&quot;</span>)
-        .<span class="ident">json</span>()
-        .<span class="kw">await</span>
-        .<span class="ident">expect</span>(<span class="string">&quot;getting new bucket info&quot;</span>);
-    <span class="kw">let</span> <span class="ident">bucket_name</span> <span class="op">=</span> <span class="ident">bucket_info</span>[<span class="string">&quot;data&quot;</span>][<span class="string">&quot;id&quot;</span>].<span class="ident">as_str</span>().<span class="ident">unwrap</span>();
-    <span class="kw">let</span> <span class="ident">collection_info</span>: <span class="ident">serde_json::Value</span> <span class="op">=</span> <span class="ident">reqwest_client</span>
-        .<span class="ident">post</span>(<span class="macro">format!</span>(
-            <span class="string">&quot;{}/v1/buckets/{}/collections&quot;</span>,
-            <span class="ident">settings</span>.<span class="ident">remote_settings</span>.<span class="ident">server</span>, <span class="ident">bucket_name</span>
-        ))
-        .<span class="ident">send</span>()
-        .<span class="kw">await</span>
-        .<span class="ident">and_then</span>(<span class="ident">reqwest::Response::error_for_status</span>)
-        .<span class="ident">expect</span>(<span class="string">&quot;Error creating collection&quot;</span>)
-        .<span class="ident">json</span>()
-        .<span class="kw">await</span>
-        .<span class="ident">expect</span>(<span class="string">&quot;getting new collection info&quot;</span>);
-    <span class="kw">let</span> <span class="ident">collection_name</span> <span class="op">=</span> <span class="ident">collection_info</span>[<span class="string">&quot;data&quot;</span>][<span class="string">&quot;id&quot;</span>].<span class="ident">as_str</span>().<span class="ident">unwrap</span>();
-
-    <span class="ident">settings</span>.<span class="ident">remote_settings</span>.<span class="ident">default_bucket</span> <span class="op">=</span> <span class="ident">bucket_name</span>.<span class="ident">to_string</span>();
-    <span class="ident">settings</span>.<span class="ident">remote_settings</span>.<span class="ident">default_collection</span> <span class="op">=</span> <span class="ident">collection_name</span>.<span class="ident">to_string</span>();
-
+    <span class="comment">// Set up Remote Settings in a loop. Setup actions might fail in Remote Settings</span>
+    <span class="comment">// when multiple tests are executed at the same time. Retrying with the backoff</span>
+    <span class="comment">// can alleviate that race condition.</span>
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">n_retry</span> <span class="op">=</span> <span class="number">0</span>;
+    <span class="kw">while</span> <span class="ident">n_retry</span> <span class="op">&lt;</span> <span class="ident">MAX_RETRY</span> {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>((<span class="ident">bucket_name</span>, <span class="ident">collection_name</span>)) <span class="op">=</span>
+            <span class="ident">setup_remote_settings_bucket</span>(<span class="ident">settings</span>.<span class="ident">remote_settings</span>.<span class="ident">server</span>.<span class="ident">as_str</span>()).<span class="kw">await</span>
+        {
+            <span class="ident">settings</span>.<span class="ident">remote_settings</span>.<span class="ident">default_bucket</span> <span class="op">=</span> <span class="ident">bucket_name</span>;
+            <span class="ident">settings</span>.<span class="ident">remote_settings</span>.<span class="ident">default_collection</span> <span class="op">=</span> <span class="ident">collection_name</span>;
+            <span class="kw">break</span>;
+        }
+        <span class="ident">n_retry</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+        <span class="ident">tokio::time::sleep</span>(<span class="ident">BACKOFF_DURATION</span>).<span class="kw">await</span>;
+    }
+    <span class="kw">if</span> <span class="ident">n_retry</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">MAX_RETRY</span> {
+        <span class="macro">panic!</span>(<span class="string">&quot;Failed to set up the Remote Settings bucket&quot;</span>);
+    }
     <span class="ident">settings_changer</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">settings</span>);
     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">changes</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">settings</span>.<span class="ident">remote_settings</span>.<span class="ident">test_changes</span> {
-        <span class="ident">setup_remote_settings_collection</span>(
-            <span class="kw-2">&amp;</span><span class="ident">settings</span>.<span class="ident">remote_settings</span>,
-            <span class="kw-2">&amp;</span><span class="ident">changes</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="ident">String::as_str</span>).<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>(),
-        )
-        .<span class="kw">await</span>;
+        <span class="ident">n_retry</span> <span class="op">=</span> <span class="number">0</span>;
+        <span class="kw">while</span> <span class="ident">n_retry</span> <span class="op">&lt;</span> <span class="ident">MAX_RETRY</span> {
+            <span class="kw">if</span> <span class="ident">setup_remote_settings_collection</span>(
+                <span class="kw-2">&amp;</span><span class="ident">settings</span>.<span class="ident">remote_settings</span>,
+                <span class="kw-2">&amp;</span><span class="ident">changes</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="ident">String::as_str</span>).<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>(),
+            )
+            .<span class="kw">await</span>
+            .<span class="ident">is_ok</span>()
+            {
+                <span class="kw">break</span>;
+            }
+            <span class="ident">n_retry</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+            <span class="ident">tokio::time::sleep</span>(<span class="ident">BACKOFF_DURATION</span>).<span class="kw">await</span>;
+        }
+        <span class="kw">if</span> <span class="ident">n_retry</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">MAX_RETRY</span> {
+            <span class="macro">panic!</span>(<span class="string">&quot;Failed to populate the Remote Settings collection&quot;</span>);
+        }
     }
 
     <span class="comment">// Set up Redis</span>
@@ -498,11 +534,34 @@
     }
 }
 
+<span class="doccomment">/// Set up Remote Settings with a new bucket and a new collection</span>
+<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">setup_remote_settings_bucket</span>(<span class="ident">server</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">String</span>, <span class="ident">String</span>)<span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="ident">reqwest_client</span> <span class="op">=</span> <span class="ident">reqwest::Client::new</span>();
+    <span class="kw">let</span> <span class="ident">bucket_info</span>: <span class="ident">serde_json::Value</span> <span class="op">=</span> <span class="ident">reqwest_client</span>
+        .<span class="ident">post</span>(<span class="macro">format!</span>(<span class="string">&quot;{}/v1/buckets/&quot;</span>, <span class="ident">server</span>))
+        .<span class="ident">send</span>()
+        .<span class="kw">await</span>
+        .<span class="ident">and_then</span>(<span class="ident">reqwest::Response::error_for_status</span>)<span class="question-mark">?</span>
+        .<span class="ident">json</span>()
+        .<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">bucket_name</span> <span class="op">=</span> <span class="ident">bucket_info</span>[<span class="string">&quot;data&quot;</span>][<span class="string">&quot;id&quot;</span>].<span class="ident">as_str</span>().<span class="ident">unwrap</span>();
+    <span class="kw">let</span> <span class="ident">collection_info</span>: <span class="ident">serde_json::Value</span> <span class="op">=</span> <span class="ident">reqwest_client</span>
+        .<span class="ident">post</span>(<span class="macro">format!</span>(<span class="string">&quot;{}/v1/buckets/{}/collections&quot;</span>, <span class="ident">server</span>, <span class="ident">bucket_name</span>))
+        .<span class="ident">send</span>()
+        .<span class="kw">await</span>
+        .<span class="ident">and_then</span>(<span class="ident">reqwest::Response::error_for_status</span>)<span class="question-mark">?</span>
+        .<span class="ident">json</span>()
+        .<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">collection_name</span> <span class="op">=</span> <span class="ident">collection_info</span>[<span class="string">&quot;data&quot;</span>][<span class="string">&quot;id&quot;</span>].<span class="ident">as_str</span>().<span class="ident">unwrap</span>();
+
+    <span class="prelude-val">Ok</span>((<span class="ident">bucket_name</span>.<span class="ident">to_owned</span>(), <span class="ident">collection_name</span>.<span class="ident">to_owned</span>()))
+}
+
 <span class="doccomment">/// Create the remote settings collection and endpoint from the provided suggestions</span>
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">setup_remote_settings_collection</span>(
     <span class="ident">rs_settings</span>: <span class="kw-2">&amp;</span><span class="ident">merino_settings::RemoteSettingsGlobalSettings</span>,
     <span class="ident">suggestions</span>: <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span><span class="ident">str</span>],
-) {
+) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">client</span> <span class="op">=</span> <span class="ident">reqwest::Client::new</span>();
     <span class="kw">let</span> <span class="ident">collection_url</span> <span class="op">=</span> <span class="macro">format!</span>(
         <span class="string">&quot;{}/v1/buckets/{}/collections/{}&quot;</span>,
@@ -519,13 +578,11 @@
             <span class="string">&quot;advertiser&quot;</span>: <span class="string">&quot;fake&quot;</span>,
             <span class="string">&quot;title&quot;</span>: <span class="macro">format!</span>(<span class="string">&quot;Suggestion {}&quot;</span>, <span class="ident">s</span>),
             <span class="string">&quot;keywords&quot;</span>: [<span class="ident">s</span>],
-        }]))
-        .<span class="ident">expect</span>(<span class="string">&quot;attachment json&quot;</span>);
+        }]))<span class="question-mark">?</span>;
 
         <span class="kw">let</span> <span class="ident">record</span> <span class="op">=</span> <span class="ident">serde_json::to_string</span>(<span class="kw-2">&amp;</span><span class="macro">json!</span>({
             <span class="string">&quot;id&quot;</span>: <span class="macro">format!</span>(<span class="string">&quot;suggestion-{}&quot;</span>, <span class="ident">s</span>), <span class="string">&quot;type&quot;</span>: <span class="string">&quot;data&quot;</span>
-        }))
-        .<span class="ident">expect</span>(<span class="string">&quot;record json&quot;</span>);
+        }))<span class="question-mark">?</span>;
 
         <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;{}/records/suggestion-{}/attachment&quot;</span>, <span class="ident">collection_url</span>, <span class="ident">s</span>);
         <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">client</span>
@@ -539,9 +596,9 @@
                     .<span class="ident">part</span>(<span class="string">&quot;data&quot;</span>, <span class="ident">Part::text</span>(<span class="ident">record</span>)),
             )
             .<span class="ident">send</span>()
-            .<span class="kw">await</span>
-            .<span class="ident">expect</span>(<span class="string">&quot;making record&quot;</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">req</span>.<span class="ident">status</span>(), <span class="number">201</span>);
+            .<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="comment">// Response code could be either 200 or 201 due to the retrying</span>
+        <span class="macro">assert!</span>(<span class="ident">req</span>.<span class="ident">status</span>() <span class="op">=</span><span class="op">=</span> <span class="number">201</span> <span class="op">|</span><span class="op">|</span> <span class="ident">req</span>.<span class="ident">status</span>() <span class="op">=</span><span class="op">=</span> <span class="number">200</span>);
     }
 
     <span class="comment">// make fake icon record</span>
@@ -555,9 +612,10 @@
                 .<span class="ident">part</span>(<span class="string">&quot;data&quot;</span>, <span class="ident">Part::text</span>(<span class="ident">icon_record</span>)),
         )
         .<span class="ident">send</span>()
-        .<span class="kw">await</span>
-        .<span class="ident">expect</span>(<span class="string">&quot;create attachment&quot;</span>);
-    <span class="macro">assert_eq!</span>(<span class="ident">req</span>.<span class="ident">status</span>(), <span class="number">201</span>);
+        .<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="comment">// Response code could be either 200 or 201 due to the retrying</span>
+    <span class="macro">assert!</span>(<span class="ident">req</span>.<span class="ident">status</span>() <span class="op">=</span><span class="op">=</span> <span class="number">201</span> <span class="op">|</span><span class="op">|</span> <span class="ident">req</span>.<span class="ident">status</span>() <span class="op">=</span><span class="op">=</span> <span class="number">200</span>);
+    <span class="prelude-val">Ok</span>(())
 }
 </pre></div>
 </section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="merino_integration_tests" data-search-index-js="../../../search-index.js" data-search-js="../../../search.js"></div>
