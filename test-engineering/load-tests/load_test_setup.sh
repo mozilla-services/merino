@@ -15,7 +15,6 @@ SERVICE_FILE=locust-master-service.yml
 
 #Declare variables
 LOCUST_IMAGE_TAG=$(git log -1 --pretty=format:%h)
-#LOCUST_IMAGE_TAG=qwe123
 echo "Docker image tag for locust is set to: ${LOCUST_IMAGE_TAG}"
 
 ##Kubernetes Manifests variables
