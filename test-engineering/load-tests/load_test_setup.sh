@@ -38,17 +38,18 @@ echo -e "==================== Set SCOPE "
 export SCOPE=$SCOPE
 
 echo -e "==================== Refresh Kubeconfig at path ~/.kube/config "
-$GCLOUD container clusters get-credentials $CLUSTER --zone $ZONE --project $PROJECT
+$GCLOUD container clusters get-credentials $CLUSTER --zone $ZONE --project $GOOGLE_CLOUD_PROJECT
 
 ##Build Docker Images
 echo -e "==================== Build the Docker image and store it in your project's container registry. Tag with the latest commit hash "
-$GCLOUD builds submit --tag gcr.io/$PROJECT/locust-tasks:$LOCUST_IMAGE_TAG
+$GCLOUD builds submit --tag gcr.io/$GOOGLE_CLOUD_PROJECT/locust-merino:$LOCUST_IMAGE_TAG
 echo -e "==================== Verify that the Docker image is in your project's container repository"
 $GCLOUD container images list | grep locust-merino
 
 ##Deploying the Locust master and worker nodes
 echo -e "==================== Update Kubernetes Manifests "
 echo -e "==================== Replace the target host and project ID with the deployed endpoint and project ID in the locust-master-controller.yml and locust-worker-controller.yml files"
+
 FILES=($MASTER_FILE $WORKER_FILE)
 for file in "${FILES[@]}"
 do
