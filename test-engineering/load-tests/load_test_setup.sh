@@ -57,8 +57,8 @@ echo -e "==================== Update Kubernetes Manifests "
 echo -e "==================== Replace the target host and project ID with the deployed endpoint and project ID in the locust-master-controller.yml and locust-worker-controller.yml files"
 $SED -i -e "s/\[TARGET_HOST\]/$TARGET/g" $MERINO_DIRECTORY/$MASTER_FILE
 $SED -i -e "s/\[TARGET_HOST\]/$TARGET/g" $MERINO_DIRECTORY/$WORKER_FILE
-$SED -i -e "s/\[PROJECT_ID\]/$PROJECT/g" $MERINO_DIRECTORY/$MASTER_FILE
-$SED -i -e "s/\[PROJECT_ID\]/$PROJECT/g" $MERINO_DIRECTORY/$WORKER_FILE
+$SED -i -e "s/\[PROJECT_ID\]/$GOOGLE_CLOUD_PROJECT/g" $MERINO_DIRECTORY/$MASTER_FILE
+$SED -i -e "s/\[PROJECT_ID\]/$GOOGLE_CLOUD_PROJECT/g" $MERINO_DIRECTORY/$WORKER_FILE
 $SED -i -e "s/\[LOCUST_IMAGE_TAG\]/$LOCUST_IMAGE_TAG/g" $MERINO_DIRECTORY/$MASTER_FILE
 $SED -i -e "s/\[LOCUST_IMAGE_TAG\]/$LOCUST_IMAGE_TAG/g" $MERINO_DIRECTORY/$WORKER_FILE
 $SED -i -e "s/\[KINTO_BUCKET\]/$KINTO_BUCKET/g" $MERINO_DIRECTORY/$MASTER_FILE
