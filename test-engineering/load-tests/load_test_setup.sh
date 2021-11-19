@@ -44,7 +44,7 @@ $GCLOUD config set compute/zone $ZONE
 $GCLOUD config set project $PROJECT
 
 echo -e "==================== Refresh Kubeconfig at path ~/.kube/config "
-$GCLOUD container clusters get-credentials $CLUSTER --zone $ZONE --project $PROJECT
+$GCLOUD container clusters get-credentials $CLUSTER --zone $ZONE --project $GOOGLE_CLOUD_PROJECT
 
 ##Build Docker Images
 echo -e "==================== Build the Docker image and store it in your project's container registry. Tag with the latest commit hash "
