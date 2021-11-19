@@ -18,11 +18,11 @@ LOCUST_IMAGE_TAG=$(git log -1 --pretty=format:%h)
 echo "Docker image tag for locust is set to: ${LOCUST_IMAGE_TAG}"
 
 ##Kubernetes Manifests variables
-KINTO_SERVER_URL=firefox.settings.services.mozilla.com
+KINTO_SERVER_URL=https://firefox.settings.services.mozilla.com
 KINTO_COLLECTION=quicksuggest
 KINTO_BUCKET=main
 CLUSTER=merino-load-test
-TARGET=stage.merino.nonprod.cloudops.mozgcp.net
+TARGET=https://stage.merino.nonprod.cloudops.mozgcp.net
 SCOPE="https://www.googleapis.com/auth/cloud-platform"
 REGION=us-central1
 ZONE=${REGION}-b
