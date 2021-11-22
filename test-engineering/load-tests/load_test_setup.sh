@@ -22,7 +22,7 @@ KINTO_COLLECTION=quicksuggest
 KINTO_BUCKET=main
 CLUSTER=merino-load-test
 TARGET=https://stage.merino.nonprod.cloudops.mozgcp.net
-SCOPE="https://www.googleapis.com/auth/cloud-platform"
+SCOPE=https://www.googleapis.com/auth/cloud-platform
 REGION=us-central1
 ZONE=${REGION}-b
 
