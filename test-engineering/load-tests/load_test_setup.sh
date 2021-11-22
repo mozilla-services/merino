@@ -12,7 +12,6 @@ MASTER_FILE=locust-master-controller.yml
 WORKER_FILE=locust-worker-controller.yml
 SERVICE_FILE=locust-master-service.yml
 
-#Declare variables
 LOCUST_IMAGE_TAG=$(git log -1 --pretty=format:%h)
 echo "Docker image tag for locust is set to: ${LOCUST_IMAGE_TAG}"
 
