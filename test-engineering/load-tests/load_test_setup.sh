@@ -16,9 +16,9 @@ LOCUST_IMAGE_TAG=$(git log -1 --pretty=format:%h)
 echo "Docker image tag for locust is set to: ${LOCUST_IMAGE_TAG}"
 
 ##Kubernetes Manifests variables
-KINTO_SERVER_URL=https://firefox.settings.services.mozilla.com
-KINTO_COLLECTION=quicksuggest
-KINTO_BUCKET=main
+KINTO__SERVER_URL=https://firefox.settings.services.mozilla.com
+KINTO__COLLECTION=quicksuggest
+KINTO__BUCKET=main
 CLUSTER=merino-load-test
 TARGET=https://stage.merino.nonprod.cloudops.mozgcp.net
 SCOPE=https://www.googleapis.com/auth/cloud-platform
@@ -53,9 +53,9 @@ do
     $SED -i -e "s/\[TARGET_HOST\]/$TARGET/g" $MERINO_DIRECTORY/$file
     $SED -i -e "s/\[PROJECT_ID\]/$GOOGLE_CLOUD_PROJECT/g" $MERINO_DIRECTORY/$file
     $SED -i -e "s/\[LOCUST_IMAGE_TAG\]/$LOCUST_IMAGE_TAG/g" $MERINO_DIRECTORY/$file
-    $SED -i -e "s/\[KINTO_BUCKET\]/$KINTO_BUCKET/g" $MERINO_DIRECTORY/$file
-    $SED -i -e "s/\[KINTO_COLLECTION\]/$KINTO_COLLECTION/g" $MERINO_DIRECTORY/$file
-    $SED -i -e "s/\[KINTO_SERVER_URL\]/$KINTO_SERVER_URL/g" $MERINO_DIRECTORY/$file
+    $SED -i -e "s/\[KINTO__BUCKET\]/$KINTO__BUCKET/g" $MERINO_DIRECTORY/$file
+    $SED -i -e "s/\[KINTO__COLLECTION\]/$KINTO__COLLECTION/g" $MERINO_DIRECTORY/$file
+    $SED -i -e "s/\[KINTO__SERVER_URL\]/$KINTO__SERVER_URL/g" $MERINO_DIRECTORY/$file
 done
 
 $KUBECTL delete pods --all
