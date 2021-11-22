@@ -7,7 +7,6 @@ SED=$(which sed)
 KUBECTL=$(which kubectl)
 
 DIRECTORY=$(pwd)
-SDK_DIRECTORY=google-cloud-sdk
 MERINO_DIRECTORY=$DIRECTORY/kubernetes-config
 MASTER_FILE=locust-master-controller.yml
 WORKER_FILE=locust-worker-controller.yml
