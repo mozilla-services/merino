@@ -1,7 +1,7 @@
 #!/bin/bash
 set -eu
 
-#Setup environment
+#Declare variables
 GCLOUD=$(which gcloud)
 SED=$(which sed)
 KUBECTL=$(which kubectl)
