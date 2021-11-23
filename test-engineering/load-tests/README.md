@@ -14,11 +14,7 @@ docker-compose -f test-engineering/load-tests/docker-compose.yml up --scale locu
 
 # Run distributed load tests on GCP
 
-You can run the distributed load tests from the repository root directory using the bash script ```load_test_setup.sh``` using cloud shell. If this needs to be run locally first clone the git repo and then follow the steps below:
-
-```text
-git clone https://github.com/mozilla-services/merino.git
-```
+You can run the distributed load tests from the repository root directory using the bash script ```load_test_setup.sh``` using cloud shell.
 
 
 Make the file executable by:
@@ -50,6 +46,14 @@ echo $EXTERNAL_IP
 ```
 
 Open your browser and then open the Locust master web interface http://$EXTERNAL_IP:8089"
+
+To modify the number of workers to say 20, run:
+
+```text
+kubectl scale deployment/locust-worker --replicas=20
+```
+
+Currently, it's set to run 10 workers but it can be changed by running above command.
 
 
 ## Environment variables
