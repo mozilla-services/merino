@@ -10,12 +10,12 @@ use std::{
 use crate::redis::domain::RedisSuggestions;
 use anyhow::Context;
 use async_trait::async_trait;
-use cadence::{CountedExt, Histogrammed, StatsdClient};
+use cadence::{CountedExt, StatsdClient};
 use fix_hidden_lifetime_bug::fix_hidden_lifetime_bug;
 use merino_settings::{providers::RedisCacheConfig, Settings};
 use merino_suggest::{
-    CacheInputs, CacheStatus, SetupError, SuggestError, Suggestion, SuggestionProvider,
-    SuggestionRequest, SuggestionResponse,
+    metrics::TimedMicros, CacheInputs, CacheStatus, SetupError, SuggestError, Suggestion,
+    SuggestionProvider, SuggestionRequest, SuggestionResponse,
 };
 use redis::RedisError;
 use tracing_futures::{Instrument, WithSubscriber};
@@ -409,10 +409,7 @@ impl SuggestionProvider for Suggester {
         };
 
         self.metrics_client
-            .histogram_with_tags(
-                "cache.redis.duration-us",
-                start.elapsed().as_micros() as u64,
-            )
+            .time_micros_with_tags("cache.redis.duration-us", start.elapsed())
             .with_tag("cache-status", rv.cache_status.to_string().as_str())
             .send();
         Ok(rv)
