@@ -279,6 +279,10 @@
 <span id="279">279</span>
 <span id="280">280</span>
 <span id="281">281</span>
+<span id="282">282</span>
+<span id="283">283</span>
+<span id="284">284</span>
+<span id="285">285</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 <span class="kw">use</span> <span class="ident">serde_with</span>::{<span class="ident">serde_as</span>, <span class="ident">DurationSeconds</span>};
@@ -421,6 +425,9 @@
     <span class="attribute">#[<span class="ident">serde_as</span>(<span class="kw">as</span> <span class="op">=</span> <span class="string">&quot;DurationSeconds&quot;</span>)]</span>
     <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;resync_interval_sec&quot;</span>)]</span>
     <span class="kw">pub</span> <span class="ident">resync_interval</span>: <span class="ident">Duration</span>,
+
+    <span class="doccomment">/// The score value to assign to suggestions. A float between 0.0 and 1.0 inclusive.</span>
+    <span class="kw">pub</span> <span class="ident">suggestion_score</span>: <span class="ident">f32</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">RemoteSettingsConfig</span> {
@@ -429,6 +436,7 @@
             <span class="ident">bucket</span>: <span class="prelude-val">None</span>,
             <span class="ident">collection</span>: <span class="prelude-val">None</span>,
             <span class="ident">resync_interval</span>: <span class="ident">Duration::from_secs</span>(<span class="number">60</span> <span class="op">*</span> <span class="number">60</span> <span class="op">*</span> <span class="number">3</span>), <span class="comment">// 3 hours</span>
+            <span class="ident">suggestion_score</span>: <span class="number">0.3</span>,
         }
     }
 }
