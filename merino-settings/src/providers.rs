@@ -139,6 +139,9 @@ pub struct RemoteSettingsConfig {
     #[serde_as(as = "DurationSeconds")]
     #[serde(rename = "resync_interval_sec")]
     pub resync_interval: Duration,
+
+    /// The score value to assign to suggestions. A float between 0.0 and 1.0 inclusive.
+    pub suggestion_score: f32,
 }
 
 impl Default for RemoteSettingsConfig {
@@ -147,6 +150,7 @@ impl Default for RemoteSettingsConfig {
             bucket: None,
             collection: None,
             resync_interval: Duration::from_secs(60 * 60 * 3), // 3 hours
+            suggestion_score: 0.3,
         }
     }
 }
