@@ -307,6 +307,13 @@
 <span id="307">307</span>
 <span id="308">308</span>
 <span id="309">309</span>
+<span id="310">310</span>
+<span id="311">311</span>
+<span id="312">312</span>
+<span id="313">313</span>
+<span id="314">314</span>
+<span id="315">315</span>
+<span id="316">316</span>
 </pre><pre class="rust">
 <span class="doccomment">//! Tools for running tests</span>
 
@@ -388,19 +395,26 @@
     <span class="comment">// when multiple tests are executed at the same time. Retrying with the backoff</span>
     <span class="comment">// can alleviate that race condition.</span>
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">n_retry</span> <span class="op">=</span> <span class="number">0</span>;
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">last_err</span> <span class="op">=</span> <span class="prelude-val">None</span>;
     <span class="kw">while</span> <span class="ident">n_retry</span> <span class="op">&lt;</span> <span class="ident">MAX_RETRY</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>((<span class="ident">bucket_name</span>, <span class="ident">collection_name</span>)) <span class="op">=</span>
-            <span class="ident">setup_remote_settings_bucket</span>(<span class="ident">settings</span>.<span class="ident">remote_settings</span>.<span class="ident">server</span>.<span class="ident">as_str</span>()).<span class="kw">await</span>
-        {
-            <span class="ident">settings</span>.<span class="ident">remote_settings</span>.<span class="ident">default_bucket</span> <span class="op">=</span> <span class="ident">bucket_name</span>;
-            <span class="ident">settings</span>.<span class="ident">remote_settings</span>.<span class="ident">default_collection</span> <span class="op">=</span> <span class="ident">collection_name</span>;
-            <span class="kw">break</span>;
+        <span class="kw">match</span> <span class="ident">setup_remote_settings_bucket</span>(<span class="ident">settings</span>.<span class="ident">remote_settings</span>.<span class="ident">server</span>.<span class="ident">as_str</span>()).<span class="kw">await</span> {
+            <span class="prelude-val">Ok</span>((<span class="ident">bucket_name</span>, <span class="ident">collection_name</span>)) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">settings</span>.<span class="ident">remote_settings</span>.<span class="ident">default_bucket</span> <span class="op">=</span> <span class="ident">bucket_name</span>;
+                <span class="ident">settings</span>.<span class="ident">remote_settings</span>.<span class="ident">default_collection</span> <span class="op">=</span> <span class="ident">collection_name</span>;
+                <span class="kw">break</span>;
+            }
+            <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">last_err</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">err</span>);
+            }
         }
         <span class="ident">n_retry</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
         <span class="ident">tokio::time::sleep</span>(<span class="ident">BACKOFF_DURATION</span>).<span class="kw">await</span>;
     }
     <span class="kw">if</span> <span class="ident">n_retry</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">MAX_RETRY</span> {
-        <span class="macro">panic!</span>(<span class="string">&quot;Failed to set up the Remote Settings bucket&quot;</span>);
+        <span class="macro">panic!</span>(
+            <span class="string">&quot;Failed to set up the Remote Settings bucket: {:?}&quot;</span>,
+            <span class="ident">last_err</span>
+        );
     }
     <span class="ident">settings_changer</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">settings</span>);
     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">changes</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">settings</span>.<span class="ident">remote_settings</span>.<span class="ident">test_changes</span> {
