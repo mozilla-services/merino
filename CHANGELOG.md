@@ -1,3 +1,19 @@
+<a name="0.4.2"></a>
+## 0.4.2 (2021-11-24)
+
+
+#### Features
+
+*   Add sub-microsecond precision using floats for timer metrics ([959ecd24](959ecd24))
+* **adm:**  Make suggestion score configurable (#235) ([6cd9f3d4](6cd9f3d4))
+
+#### Bug Fixes
+
+* **adm:**  Use Firefox's full_keyword algorithm (#214) ([009bd1e8](009bd1e8))
+* **logs:**  don't record a value for missing location in logs ([561c05ea](561c05ea), closes [#230](230))
+
+
+
 <a name="0.4.1"></a>
 ## 0.4.1 (2021-11-24)
 
