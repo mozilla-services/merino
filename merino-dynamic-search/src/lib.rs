@@ -4,7 +4,10 @@ use merino_adm::remote_settings::{client::RemoteSettingsClient, AdmSuggestion};
 use merino_settings::Settings;
 use std::path::Path;
 use tantivy::{
-    collector::TopDocs, query::QueryParser, schema::Schema, Document, Index, IndexReader,
+    collector::TopDocs,
+    query::{BooleanQuery, BoostQuery, Occur, QueryParser},
+    schema::Schema,
+    Document, Index, IndexReader,
 };
 
 /// Get the index for the search engine
@@ -76,6 +79,8 @@ pub async fn get_wiki_suggestions() -> Result<Vec<AdmSuggestion>> {
 pub fn do_search(reader: &IndexReader, query: &str) -> Result<Vec<(f32, Document)>> {
     let searcher = reader.searcher();
 
+    let query = query.replace('-', " ");
+
     let title_field = searcher
         .schema()
         .get_field("title")
@@ -85,12 +90,25 @@ pub fn do_search(reader: &IndexReader, query: &str) -> Result<Vec<(f32, Document
         .get_field("content")
         .ok_or_else(|| anyhow!("Missing content field"))?;
 
-    let query_parser =
-        QueryParser::for_index(reader.searcher().index(), vec![title_field, content_field]);
-    let parsed_query = query_parser.parse_query(&query.replace('-', " "))?;
+    let title_query_parser = QueryParser::for_index(reader.searcher().index(), vec![title_field]);
+    let content_query_parser =
+        QueryParser::for_index(reader.searcher().index(), vec![content_field]);
+    let built_query = BooleanQuery::new(vec![
+        (
+            Occur::Should,
+            Box::new(BoostQuery::new(
+                Box::new(title_query_parser.parse_query(&query)?),
+                3.0,
+            )),
+        ),
+        (
+            Occur::Should,
+            Box::new(content_query_parser.parse_query(&query)?),
+        ),
+    ]);
 
     searcher
-        .search(&parsed_query, &TopDocs::with_limit(3))?
+        .search(&built_query, &TopDocs::with_limit(3))?
         .into_iter()
         .map(|(score, doc_address)| Ok((score, searcher.doc(doc_address)?)))
         .collect()

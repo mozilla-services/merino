@@ -69,8 +69,6 @@ async fn main() -> Result<()> {
 
             Ok(Output {
                 suggestion_id: suggestion.id,
-                suggestion_title: suggestion.title,
-                keyword,
                 vs_adm,
                 score,
             })
@@ -99,8 +97,6 @@ async fn main() -> Result<()> {
 #[derive(Serialize)]
 struct Output {
     suggestion_id: u32,
-    suggestion_title: String,
-    keyword: String,
     vs_adm: VsAdm,
     score: Option<f32>,
 }
