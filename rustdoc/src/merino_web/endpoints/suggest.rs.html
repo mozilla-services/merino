@@ -208,26 +208,6 @@
 <span id="208">208</span>
 <span id="209">209</span>
 <span id="210">210</span>
-<span id="211">211</span>
-<span id="212">212</span>
-<span id="213">213</span>
-<span id="214">214</span>
-<span id="215">215</span>
-<span id="216">216</span>
-<span id="217">217</span>
-<span id="218">218</span>
-<span id="219">219</span>
-<span id="220">220</span>
-<span id="221">221</span>
-<span id="222">222</span>
-<span id="223">223</span>
-<span id="224">224</span>
-<span id="225">225</span>
-<span id="226">226</span>
-<span id="227">227</span>
-<span id="228">228</span>
-<span id="229">229</span>
-<span id="230">230</span>
 </pre><pre class="rust">
 <span class="doccomment">//! Web handlers for the suggestions API.</span>
 
@@ -247,7 +227,6 @@
 <span class="kw">use</span> <span class="ident">merino_suggest</span>::{<span class="ident">Suggestion</span>, <span class="ident">SuggestionProvider</span>, <span class="ident">SuggestionRequest</span>};
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 <span class="kw">use</span> <span class="ident">serde_with</span>::{<span class="ident">rust::StringWithSeparator</span>, <span class="ident">serde_as</span>, <span class="ident">CommaSeparator</span>};
-<span class="kw">use</span> <span class="ident">tracing::field::Empty</span>;
 <span class="kw">use</span> <span class="ident">tracing_actix_web::RequestId</span>;
 <span class="kw">use</span> <span class="ident">uuid::Uuid</span>;
 
@@ -405,29 +384,6 @@
     <span class="ident">request</span>: <span class="kw-2">&amp;</span><span class="ident">SuggestionRequest</span>,
     <span class="ident">query_params</span>: <span class="kw-2">&amp;</span><span class="ident">SuggestQueryParameters</span>,
 ) {
-    <span class="comment">// I can&#39;t figure out a better way to have nullable tracing values for these Option fields.</span>
-    <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="macro">tracing::info_span!</span>(
-        <span class="string">&quot;safe-log-request&quot;</span>,
-        <span class="ident">country</span> <span class="op">=</span> <span class="ident">Empty</span>,
-        <span class="ident">region</span> <span class="op">=</span> <span class="ident">Empty</span>,
-        <span class="ident">city</span> <span class="op">=</span> <span class="ident">Empty</span>,
-        <span class="ident">dma</span> <span class="op">=</span> <span class="ident">Empty</span>,
-    );
-    <span class="kw">let</span> <span class="ident">_span_guard</span> <span class="op">=</span> <span class="ident">span</span>.<span class="ident">enter</span>();
-
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">country</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">request</span>.<span class="ident">country</span> {
-        <span class="ident">span</span>.<span class="ident">record</span>(<span class="string">&quot;country&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">country</span>.<span class="ident">as_str</span>());
-    }
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">region</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">request</span>.<span class="ident">region</span> {
-        <span class="ident">span</span>.<span class="ident">record</span>(<span class="string">&quot;region&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">region</span>.<span class="ident">as_str</span>());
-    }
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">city</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">request</span>.<span class="ident">city</span> {
-        <span class="ident">span</span>.<span class="ident">record</span>(<span class="string">&quot;city&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">city</span>.<span class="ident">as_str</span>());
-    }
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">dma</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">request</span>.<span class="ident">dma</span> {
-        <span class="ident">span</span>.<span class="ident">record</span>(<span class="string">&quot;dma&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">dma</span>.<span class="ident">to_string</span>().<span class="ident">as_str</span>());
-    }
-
     <span class="kw">let</span> <span class="ident">query</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">log_query</span> {
         <span class="ident">request</span>.<span class="ident">query</span>.<span class="ident">as_str</span>()
     } <span class="kw">else</span> {
@@ -447,9 +403,13 @@
     <span class="macro">tracing::info!</span>(
         <span class="ident">r#type</span> <span class="op">=</span> <span class="string">&quot;web.suggest.request&quot;</span>,
         <span class="ident">accepts_english</span> <span class="op">=</span> <span class="question-mark">?</span><span class="ident">request</span>.<span class="ident">accepts_english</span>,
+        <span class="ident">city</span> <span class="op">=</span> <span class="ident">request</span>.<span class="ident">city</span>.<span class="ident">as_deref</span>(),
+        <span class="ident">country</span> <span class="op">=</span> <span class="ident">request</span>.<span class="ident">country</span>.<span class="ident">as_deref</span>(),
         <span class="ident">os_family</span> <span class="op">=</span> <span class="op">%</span><span class="ident">request</span>.<span class="ident">device_info</span>.<span class="ident">os_family</span>,
         <span class="ident">form_factor</span> <span class="op">=</span> <span class="op">%</span><span class="ident">request</span>.<span class="ident">device_info</span>.<span class="ident">form_factor</span>,
         <span class="ident">browser</span> <span class="op">=</span> <span class="op">%</span><span class="ident">request</span>.<span class="ident">device_info</span>.<span class="ident">browser</span>,
+        <span class="ident">dma</span> <span class="op">=</span> <span class="ident">request</span>.<span class="ident">dma</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">v</span><span class="op">|</span> <span class="ident">v</span>.<span class="ident">to_string</span>()).<span class="ident">as_deref</span>(),
+        <span class="ident">region</span> <span class="op">=</span> <span class="ident">request</span>.<span class="ident">region</span>.<span class="ident">as_deref</span>(),
         <span class="op">%</span><span class="ident">query</span>,
         <span class="ident">client_variants</span> <span class="op">=</span> <span class="op">%</span><span class="ident">query_params</span>.<span class="ident">client_variants</span>.<span class="ident">join</span>(<span class="string">&quot;,&quot;</span>),
         <span class="op">%</span><span class="ident">requested_providers</span>,
