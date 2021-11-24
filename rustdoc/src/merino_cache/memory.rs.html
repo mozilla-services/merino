@@ -357,8 +357,6 @@
 <span id="357">357</span>
 <span id="358">358</span>
 <span id="359">359</span>
-<span id="360">360</span>
-<span id="361">361</span>
 </pre><pre class="rust">
 <span class="doccomment">//! A cache system that uses local in-memory storage to store a limited number of items.</span>
 <span class="doccomment">//!</span>
@@ -369,12 +367,13 @@
 
 <span class="kw">use</span> <span class="ident">anyhow::anyhow</span>;
 <span class="kw">use</span> <span class="ident">async_trait::async_trait</span>;
-<span class="kw">use</span> <span class="ident">cadence</span>::{<span class="ident">CountedExt</span>, <span class="ident">Gauged</span>, <span class="ident">Histogrammed</span>, <span class="ident">StatsdClient</span>};
+<span class="kw">use</span> <span class="ident">cadence</span>::{<span class="ident">CountedExt</span>, <span class="ident">Gauged</span>, <span class="ident">StatsdClient</span>};
 <span class="kw">use</span> <span class="ident">deduped_dashmap</span>::{<span class="ident">ControlFlow</span>, <span class="ident">DedupedMap</span>};
 <span class="kw">use</span> <span class="ident">lazy_static::lazy_static</span>;
 <span class="kw">use</span> <span class="ident">merino_settings::providers::MemoryCacheConfig</span>;
 <span class="kw">use</span> <span class="ident">merino_suggest</span>::{
-    <span class="ident">CacheInputs</span>, <span class="ident">CacheStatus</span>, <span class="ident">Suggestion</span>, <span class="ident">SuggestionProvider</span>, <span class="ident">SuggestionRequest</span>, <span class="ident">SuggestionResponse</span>,
+    <span class="ident">metrics::TimedMicros</span>, <span class="ident">CacheInputs</span>, <span class="ident">CacheStatus</span>, <span class="ident">Suggestion</span>, <span class="ident">SuggestionProvider</span>,
+    <span class="ident">SuggestionRequest</span>, <span class="ident">SuggestionResponse</span>,
 };
 <span class="kw">use</span> <span class="ident">std</span>::{
     <span class="ident">collections::HashMap</span>,
@@ -623,10 +622,7 @@
 
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">response</span>) <span class="op">=</span> <span class="ident">rv</span> {
                 <span class="self">self</span>.<span class="ident">metrics_client</span>
-                    .<span class="ident">histogram_with_tags</span>(
-                        <span class="string">&quot;cache.memory.duration-us&quot;</span>,
-                        <span class="ident">now</span>.<span class="ident">elapsed</span>().<span class="ident">as_micros</span>() <span class="kw">as</span> <span class="ident">u64</span>,
-                    )
+                    .<span class="ident">time_micros_with_tags</span>(<span class="string">&quot;cache.memory.duration-us&quot;</span>, <span class="ident">now</span>.<span class="ident">elapsed</span>())
                     .<span class="ident">with_tag</span>(<span class="string">&quot;cache-status&quot;</span>, <span class="ident">response</span>.<span class="ident">cache_status</span>.<span class="ident">to_string</span>().<span class="ident">as_str</span>())
                     .<span class="ident">send</span>();
                 <span class="prelude-val">Ok</span>(<span class="ident">response</span>)

@@ -484,9 +484,6 @@
 <span id="484">484</span>
 <span id="485">485</span>
 <span id="486">486</span>
-<span id="487">487</span>
-<span id="488">488</span>
-<span id="489">489</span>
 </pre><pre class="rust">
 <span class="doccomment">//! AdM integration that uses the remote-settings provided data.</span>
 
@@ -495,15 +492,15 @@
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::remote_settings::client::RemoteSettingsClient</span>;
 <span class="kw">use</span> <span class="ident">anyhow::Context</span>;
 <span class="kw">use</span> <span class="ident">async_trait::async_trait</span>;
-<span class="kw">use</span> <span class="ident">cadence</span>::{<span class="ident">Histogrammed</span>, <span class="ident">StatsdClient</span>};
+<span class="kw">use</span> <span class="ident">cadence::StatsdClient</span>;
 <span class="kw">use</span> <span class="ident">deduped_dashmap::DedupedMap</span>;
 <span class="kw">use</span> <span class="ident">futures::StreamExt</span>;
 <span class="kw">use</span> <span class="ident">http::Uri</span>;
 <span class="kw">use</span> <span class="ident">lazy_static::lazy_static</span>;
 <span class="kw">use</span> <span class="ident">merino_settings</span>::{<span class="ident">providers::RemoteSettingsConfig</span>, <span class="ident">Settings</span>};
 <span class="kw">use</span> <span class="ident">merino_suggest</span>::{
-    <span class="ident">CacheInputs</span>, <span class="ident">Proportion</span>, <span class="ident">SetupError</span>, <span class="ident">SuggestError</span>, <span class="ident">Suggestion</span>, <span class="ident">SuggestionProvider</span>,
-    <span class="ident">SuggestionRequest</span>, <span class="ident">SuggestionResponse</span>,
+    <span class="ident">metrics::TimedMicros</span>, <span class="ident">CacheInputs</span>, <span class="ident">Proportion</span>, <span class="ident">SetupError</span>, <span class="ident">SuggestError</span>, <span class="ident">Suggestion</span>,
+    <span class="ident">SuggestionProvider</span>, <span class="ident">SuggestionRequest</span>, <span class="ident">SuggestionResponse</span>,
 };
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 <span class="kw">use</span> <span class="ident">serde_with</span>::{<span class="ident">serde_as</span>, <span class="ident">DisplayFromStr</span>};
@@ -778,10 +775,7 @@
         });
 
         <span class="self">self</span>.<span class="ident">metrics_client</span>
-            .<span class="ident">histogram_with_tags</span>(
-                <span class="string">&quot;adm.rs.provider.duration-us&quot;</span>,
-                <span class="ident">start</span>.<span class="ident">elapsed</span>().<span class="ident">as_micros</span>() <span class="kw">as</span> <span class="ident">u64</span>,
-            )
+            .<span class="ident">time_micros_with_tags</span>(<span class="string">&quot;adm.rs.provider.duration-us&quot;</span>, <span class="ident">start</span>.<span class="ident">elapsed</span>())
             .<span class="ident">with_tag</span>(
                 <span class="string">&quot;accepts-english&quot;</span>,
                 <span class="kw">if</span> <span class="ident">request</span>.<span class="ident">accepts_english</span> {

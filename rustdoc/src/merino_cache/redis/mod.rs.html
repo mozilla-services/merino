@@ -522,9 +522,6 @@
 <span id="522">522</span>
 <span id="523">523</span>
 <span id="524">524</span>
-<span id="525">525</span>
-<span id="526">526</span>
-<span id="527">527</span>
 </pre><pre class="rust">
 <span class="doccomment">//! Interactions with Redis.</span>
 
@@ -538,12 +535,12 @@
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::redis::domain::RedisSuggestions</span>;
 <span class="kw">use</span> <span class="ident">anyhow::Context</span>;
 <span class="kw">use</span> <span class="ident">async_trait::async_trait</span>;
-<span class="kw">use</span> <span class="ident">cadence</span>::{<span class="ident">CountedExt</span>, <span class="ident">Histogrammed</span>, <span class="ident">StatsdClient</span>};
+<span class="kw">use</span> <span class="ident">cadence</span>::{<span class="ident">CountedExt</span>, <span class="ident">StatsdClient</span>};
 <span class="kw">use</span> <span class="ident">fix_hidden_lifetime_bug::fix_hidden_lifetime_bug</span>;
 <span class="kw">use</span> <span class="ident">merino_settings</span>::{<span class="ident">providers::RedisCacheConfig</span>, <span class="ident">Settings</span>};
 <span class="kw">use</span> <span class="ident">merino_suggest</span>::{
-    <span class="ident">CacheInputs</span>, <span class="ident">CacheStatus</span>, <span class="ident">SetupError</span>, <span class="ident">SuggestError</span>, <span class="ident">Suggestion</span>, <span class="ident">SuggestionProvider</span>,
-    <span class="ident">SuggestionRequest</span>, <span class="ident">SuggestionResponse</span>,
+    <span class="ident">metrics::TimedMicros</span>, <span class="ident">CacheInputs</span>, <span class="ident">CacheStatus</span>, <span class="ident">SetupError</span>, <span class="ident">SuggestError</span>, <span class="ident">Suggestion</span>,
+    <span class="ident">SuggestionProvider</span>, <span class="ident">SuggestionRequest</span>, <span class="ident">SuggestionResponse</span>,
 };
 <span class="kw">use</span> <span class="ident">redis::RedisError</span>;
 <span class="kw">use</span> <span class="ident">tracing_futures</span>::{<span class="ident">Instrument</span>, <span class="ident">WithSubscriber</span>};
@@ -937,10 +934,7 @@
         };
 
         <span class="self">self</span>.<span class="ident">metrics_client</span>
-            .<span class="ident">histogram_with_tags</span>(
-                <span class="string">&quot;cache.redis.duration-us&quot;</span>,
-                <span class="ident">start</span>.<span class="ident">elapsed</span>().<span class="ident">as_micros</span>() <span class="kw">as</span> <span class="ident">u64</span>,
-            )
+            .<span class="ident">time_micros_with_tags</span>(<span class="string">&quot;cache.redis.duration-us&quot;</span>, <span class="ident">start</span>.<span class="ident">elapsed</span>())
             .<span class="ident">with_tag</span>(<span class="string">&quot;cache-status&quot;</span>, <span class="ident">rv</span>.<span class="ident">cache_status</span>.<span class="ident">to_string</span>().<span class="ident">as_str</span>())
             .<span class="ident">send</span>();
         <span class="prelude-val">Ok</span>(<span class="ident">rv</span>)
