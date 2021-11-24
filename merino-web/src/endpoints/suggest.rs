@@ -200,7 +200,7 @@ fn safe_log_request(
         %city,
         %country,
         os_family = %request.device_info.os_family,
-        form_factory = %request.device_info.form_factor,
+        form_factor = %request.device_info.form_factor,
         browser = %request.device_info.browser,
         %dma,
         %region,
