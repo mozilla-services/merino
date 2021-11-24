@@ -16,6 +16,7 @@ use merino_settings::Settings;
 use merino_suggest::{Suggestion, SuggestionProvider, SuggestionRequest};
 use serde::{Deserialize, Serialize};
 use serde_with::{rust::StringWithSeparator, serde_as, CommaSeparator};
+use tracing::field::Empty;
 use tracing_actix_web::RequestId;
 use uuid::Uuid;
 
@@ -173,11 +174,29 @@ fn safe_log_request(
     request: &SuggestionRequest,
     query_params: &SuggestQueryParameters,
 ) {
-    let none = "none".to_string();
-    let country = request.country.as_ref().unwrap_or(&none);
-    let region = request.region.as_ref().unwrap_or(&none);
-    let city = request.city.as_ref().unwrap_or(&none);
-    let dma = request.dma.map_or_else(|| none.clone(), |v| v.to_string());
+    // I can't figure out a better way to have nullable tracing values for these Option fields.
+    let span = tracing::info_span!(
+        "safe-log-request",
+        country = Empty,
+        region = Empty,
+        city = Empty,
+        dma = Empty,
+    );
+    let _span_guard = span.enter();
+
+    if let Some(country) = &request.country {
+        span.record("country", &country.as_str());
+    }
+    if let Some(region) = &request.region {
+        span.record("region", &region.as_str());
+    }
+    if let Some(city) = &request.city {
+        span.record("city", &city.as_str());
+    }
+    if let Some(dma) = &request.dma {
+        span.record("dma", &dma.to_string().as_str());
+    }
+
     let query = if log_query {
         request.query.as_str()
     } else {
@@ -197,13 +216,9 @@ fn safe_log_request(
     tracing::info!(
         r#type = "web.suggest.request",
         accepts_english = ?request.accepts_english,
-        %city,
-        %country,
         os_family = %request.device_info.os_family,
         form_factor = %request.device_info.form_factor,
         browser = %request.device_info.browser,
-        %dma,
-        %region,
         %query,
         client_variants = %query_params.client_variants.join(","),
         %requested_providers,
