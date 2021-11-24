@@ -3,6 +3,7 @@
 mod client;
 
 use crate::remote_settings::client::RemoteSettingsClient;
+use anyhow::Context;
 use async_trait::async_trait;
 use cadence::{Histogrammed, StatsdClient};
 use deduped_dashmap::DedupedMap;
@@ -16,7 +17,7 @@ use merino_suggest::{
 };
 use serde::{Deserialize, Serialize};
 use serde_with::{serde_as, DisplayFromStr};
-use std::{collections::HashMap, sync::Arc, time::Instant};
+use std::{collections::HashMap, convert::TryInto, sync::Arc, time::Instant};
 
 lazy_static! {
     static ref NON_SPONSORED_IAB_CATEGORIES: Vec<&'static str> = vec!["5 - Education"];
@@ -56,8 +57,14 @@ impl RemoteSettingsSuggester {
                 .clone(),
         )?;
         let suggestions = Arc::new(DedupedMap::new());
+        let suggestion_score = config
+            .suggestion_score
+            .try_into()
+            .context("converting score to proportion")
+            .map_err(SetupError::InvalidConfiguration)?;
 
-        Self::sync(&mut remote_settings_client, &*suggestions).await?;
+        Self::sync(&mut remote_settings_client, &*suggestions, suggestion_score).await?;
+
         {
             let task_suggestions = Arc::clone(&suggestions);
             let task_interval = config.resync_interval;
@@ -74,7 +81,9 @@ impl RemoteSettingsSuggester {
                     timer.tick().await;
                     let loop_suggestions = &*(Arc::clone(&task_suggestions));
                     if let Some(loop_client) = Arc::get_mut(&mut task_client) {
-                        if let Err(error) = Self::sync(loop_client, loop_suggestions).await {
+                        if let Err(error) =
+                            Self::sync(loop_client, loop_suggestions, suggestion_score).await
+                        {
                             tracing::error!(
                                 ?error,
                                 "Error while syncing remote settings suggestions"
@@ -108,6 +117,7 @@ impl RemoteSettingsSuggester {
     pub async fn sync(
         remote_settings_client: &mut RemoteSettingsClient,
         suggestions: &DedupedMap<String, (), Suggestion>,
+        suggestion_score: Proportion,
     ) -> Result<(), SetupError> {
         tracing::info!(
             r#type = "adm.remote-settings.sync-start",
@@ -179,7 +189,7 @@ impl RemoteSettingsSuggester {
                     is_sponsored: !NON_SPONSORED_IAB_CATEGORIES
                         .contains(&adm_suggestion.iab_category.as_str()),
                     icon: icon_url,
-                    score: Proportion::from(0.2),
+                    score: suggestion_score,
                 };
 
                 for keyword in &adm_suggestion.keywords {

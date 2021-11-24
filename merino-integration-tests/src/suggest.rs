@@ -3,6 +3,7 @@
 
 use crate::{merino_test_macro, utils::test_tools::TestReqwestClient, TestingTools};
 use anyhow::Result;
+use lazy_static::lazy_static;
 use merino_settings::providers::{
     FixedConfig, KeywordFilterConfig, MultiplexerConfig, RemoteSettingsConfig,
     SuggestionProviderConfig,
@@ -163,6 +164,33 @@ async fn suggest_adm_rs_works_content(
         body["suggestions"][0]["title"].as_str().unwrap(),
         "Suggestion apple"
     );
+
+    Ok(())
+}
+
+lazy_static! {
+    static ref TEST_SCORE: f64 = std::f64::consts::TAU.fract();
+}
+
+#[merino_test_macro(|settings| {
+    settings.suggestion_providers.insert(
+        "adm".to_string(),
+        SuggestionProviderConfig::RemoteSettings(RemoteSettingsConfig {
+            suggestion_score: *TEST_SCORE as f32,
+            ..RemoteSettingsConfig::default()
+        })
+    );
+    settings.remote_settings.test_changes = Some(vec!["apple".to_string()]);
+})]
+async fn suggest_adm_rs_score_is_configurable(
+    TestingTools { test_client, .. }: TestingTools,
+) -> Result<()> {
+    let response = test_client.get("/api/v1/suggest?q=apple").send().await?;
+
+    assert_eq!(response.status(), StatusCode::OK);
+    let body: serde_json::Value = response.json().await?;
+    // Check that the score is approximately correct.
+    assert!((body["suggestions"][0]["score"].as_f64().unwrap() - *TEST_SCORE).abs() < 0.001);
 
     Ok(())
 }
