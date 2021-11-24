@@ -1,0 +1,43 @@
+apiVersion: "apps/v1"
+kind: "Deployment"
+metadata:
+  name: locust-master
+  labels:
+    name: locust-master
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: locust-master
+  template:
+    metadata:
+      labels:
+        app: locust-master
+    spec:
+      containers:
+        - name: locust-master
+          image: gcr.io/[PROJECT_ID]/locust-merino:[LOCUST_IMAGE_TAG]
+          env:
+            - name: LOCUST_MODE_MASTER
+              value: "true"
+            - name: TARGET_HOST
+              value: [TARGET_HOST]
+            - name: LOAD_TESTS__LOGGING_LEVEL
+              # The logging level value 20 defines the 'info' level
+              value: "20"
+            - name: KINTO__COLLECTION
+              value: [KINTO__COLLECTION]
+            - name: KINTO__BUCKET
+              value: [KINTO__BUCKET]
+            - name: KINTO__SERVER_URL
+              value: [KINTO__SERVER_URL]
+          ports:
+            - name: loc-master-web
+              containerPort: 8089
+              protocol: TCP
+            - name: loc-master-p1
+              containerPort: 5557
+              protocol: TCP
+            - name: loc-master-p2
+              containerPort: 5558
+              protocol: TCP
