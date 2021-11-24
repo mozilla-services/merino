@@ -78,19 +78,26 @@ where
     // when multiple tests are executed at the same time. Retrying with the backoff
     // can alleviate that race condition.
     let mut n_retry = 0;
+    let mut last_err = None;
     while n_retry < MAX_RETRY {
-        if let Ok((bucket_name, collection_name)) =
-            setup_remote_settings_bucket(settings.remote_settings.server.as_str()).await
-        {
-            settings.remote_settings.default_bucket = bucket_name;
-            settings.remote_settings.default_collection = collection_name;
-            break;
+        match setup_remote_settings_bucket(settings.remote_settings.server.as_str()).await {
+            Ok((bucket_name, collection_name)) => {
+                settings.remote_settings.default_bucket = bucket_name;
+                settings.remote_settings.default_collection = collection_name;
+                break;
+            }
+            Err(err) => {
+                last_err = Some(err);
+            }
         }
         n_retry += 1;
         tokio::time::sleep(BACKOFF_DURATION).await;
     }
     if n_retry >= MAX_RETRY {
-        panic!("Failed to set up the Remote Settings bucket");
+        panic!(
+            "Failed to set up the Remote Settings bucket: {:?}",
+            last_err
+        );
     }
     settings_changer(&mut settings);
     if let Some(changes) = &settings.remote_settings.test_changes {
