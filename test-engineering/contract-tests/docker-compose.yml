@@ -3,13 +3,13 @@ services:
   merino:
     # See `docker-image-build` job in `.circleci/config.yml`
     image: app:runtime
-    build: ..
+    build: ../..
     container_name: merino
     environment:
       # The configuration preset to use
       MERINO_ENV: "ci"
     volumes:
-      - ../dev:/tmp/dev
+      - ../../dev:/tmp/dev
 
   client:
     image: client
@@ -19,7 +19,7 @@ services:
       - merino
     volumes:
       - ./volumes/client:/tmp/client
-      - ../dev/wait-for-it.sh:/wait-for-it.sh
+      - ../../dev/wait-for-it.sh:/wait-for-it.sh
     environment:
       MERINO_URL: http://merino:8000
       SCENARIOS_FILE: /tmp/client/scenarios.yml

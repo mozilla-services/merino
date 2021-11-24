@@ -55,13 +55,17 @@ async fn lbheartbeat_works() {
 
 For more details, see the documentation of the `merino-integration-tests` crate.
 
-## System tests
+## Contract tests
 
-The tests in the `test-engineering` directory are system tests that consume
-Merino's APIs using more opaque techniques. They cannot configure the server per
-test, and are more concerned with external contracts and behavior.
+The tests in the `test-engineering/contract-tests` directory are contract tests
+that consume Merino's APIs using more opaque techniques. These tests run against
+a Docker container of the service, specify settings via environment variables,
+and operate on the HTTP API layer only and as such are more concerned with
+external contracts and behavior. The contract tests cannot configure the server
+per test.
 
-For more details see the README.md file in the `test-engineering` directory.
+For more details see the README.md file in the `test-engineering/contract-tests`
+directory.
 
 ## Load tests
 

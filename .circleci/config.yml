@@ -34,8 +34,8 @@ workflows:
             tags:
               only: /.+/
       
-      - integration-tests:
-          name: integration-tests
+      - contract-tests:
+          name: contract-tests
           requires:
             - checks
             - build-and-test
@@ -46,7 +46,7 @@ workflows:
             - checks
             - build-and-test
             - docker-image-build
-            - integration-tests
+            - contract-tests
           filters:
             branches:
               only: main
@@ -130,7 +130,7 @@ jobs:
       - store_artifacts:
           path: /tmp/artifacts
 
-  integration-tests:
+  contract-tests:
     machine:
       docker_layer_caching: true
       image: ubuntu-2004:202101-01 # Ubuntu 20.04, Docker v20.10.2, Docker Compose v1.28.2
@@ -144,11 +144,11 @@ jobs:
           name: Load Docker image from workspace
           command: docker load -i workspace/merino.tar.gz
       - run:
-         name: Run Integration tests
+         name: Run contract tests
          command: |
            docker-compose --version
-           docker-compose -f test-engineering/docker-compose.yml build client
-           docker-compose -f test-engineering/docker-compose.yml up --abort-on-container-exit
+           docker-compose -f test-engineering/contract-tests/docker-compose.yml build client
+           docker-compose -f test-engineering/contract-tests/docker-compose.yml up --abort-on-container-exit
 
   docker-image-publish:
     docker:
