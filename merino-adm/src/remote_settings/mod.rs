@@ -230,12 +230,13 @@ impl RemoteSettingsSuggester {
     /// from adM doesn't include this data directly, so we make our own based on
     /// the available keywords.
     ///
-    /// 1. Find the first keyword phrase that has more words than the query. Use
+    /// 1. Filter out keywords that don't start with the value of `partial_query`.
+    /// 2. Find the first keyword phrase that has more words than the query. Use
     ///    its first `query_num_words` words as the full keyword. e.g., if the
     ///    query is `"moz"` and `all_keywords` is `["moz", "mozi", "mozil",
     ///    "mozill", "mozilla", "mozilla firefox"]`, pick `"mozilla firefox"`,
     ///    pop off the `"firefox"` and use `"mozilla"` as the full keyword.
-    /// 2. If there isn't any keyword phrase with more words, then pick the
+    /// 3. If there isn't any keyword phrase with more words, then pick the
     ///    longest phrase. e.g., pick `"`mozilla" in the previous example
     ///    (assuming the `"mozilla firefox"` phrase isn't there). That might be
     ///    the query itself.
@@ -246,6 +247,7 @@ impl RemoteSettingsSuggester {
         // heuristic 1: more words
         if let Some(longer_keyword_words) = all_keywords
             .iter()
+            .filter(|keyword| keyword.starts_with(partial_query))
             .map(|keyword| keyword.split_whitespace().collect::<Vec<_>>())
             .find(|split_words| split_words.len() > query_num_words)
         {
@@ -433,8 +435,56 @@ mod tests {
         );
         assert_eq!(
             RemoteSettingsSuggester::get_full_keyword(
+                "moz",
+                &[
+                    "gozilla".to_string(),
+                    "moz".to_string(),
+                    "mozi".to_string(),
+                    "mozil".to_string(),
+                    "mozill".to_string(),
+                    "mozilla".to_string(),
+                    "mozilla firefox".to_string(),
+                ]
+            ),
+            "mozilla"
+        );
+        assert_eq!(
+            RemoteSettingsSuggester::get_full_keyword(
                 "one t",
                 &[
+                    "one".to_string(),
+                    "one t".to_string(),
+                    "one tw".to_string(),
+                    "one two".to_string(),
+                    "one two t".to_string(),
+                    "one two th".to_string(),
+                    "one two thr".to_string(),
+                    "one two thre".to_string(),
+                    "one two three".to_string(),
+                ]
+            ),
+            "one two"
+        );
+        assert_eq!(
+            RemoteSettingsSuggester::get_full_keyword(
+                "one",
+                &[
+                    "two".to_string(),
+                    "two three".to_string(),
+                    "one".to_string(),
+                    "one t".to_string(),
+                    "one tw".to_string(),
+                    "one two".to_string(),
+                ]
+            ),
+            "one"
+        );
+        assert_eq!(
+            RemoteSettingsSuggester::get_full_keyword(
+                "one t",
+                &[
+                    "two".to_string(),
+                    "two three".to_string(),
                     "one".to_string(),
                     "one t".to_string(),
                     "one tw".to_string(),
@@ -467,8 +517,41 @@ mod tests {
         );
         assert_eq!(
             RemoteSettingsSuggester::get_full_keyword(
+                "moz",
+                &[
+                    "gozilla".to_string(),
+                    "moz".to_string(),
+                    "mozi".to_string(),
+                    "mozil".to_string(),
+                    "mozill".to_string(),
+                    "mozilla".to_string(),
+                ]
+            ),
+            "mozilla"
+        );
+        assert_eq!(
+            RemoteSettingsSuggester::get_full_keyword(
                 "one two t",
                 &[
+                    "one".to_string(),
+                    "one t".to_string(),
+                    "one tw".to_string(),
+                    "one two".to_string(),
+                    "one two t".to_string(),
+                    "one two th".to_string(),
+                    "one two thr".to_string(),
+                    "one two thre".to_string(),
+                    "one two three".to_string(),
+                ]
+            ),
+            "one two three"
+        );
+        assert_eq!(
+            RemoteSettingsSuggester::get_full_keyword(
+                "one two t",
+                &[
+                    "two".to_string(),
+                    "two three".to_string(),
                     "one".to_string(),
                     "one t".to_string(),
                     "one tw".to_string(),
