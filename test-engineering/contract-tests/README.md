@@ -9,5 +9,5 @@ This directory contains source code for automated contract tests for Merino.
 You can run the contract tests locally from the repository root directory using:
 
 ```text
-docker-compose -f test-engineering/docker-compose.yml up --abort-on-container-exit --build
+docker-compose -f test-engineering/contract-tests/docker-compose.yml up --abort-on-container-exit --build
 ```
