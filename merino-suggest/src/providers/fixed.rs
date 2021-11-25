@@ -52,6 +52,7 @@ impl SuggestionProvider for FixedProvider {
     ) -> Result<SuggestionResponse, SuggestError> {
         Ok(SuggestionResponse::new(vec![Suggestion {
             provider: self.name(),
+            advertiser: "test_advertiser".to_string(),
             score: Proportion::zero(),
             id: 0,
             full_keyword: "".to_string(),

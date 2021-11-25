@@ -186,6 +186,7 @@ impl RemoteSettingsSuggester {
                     click_url: adm_suggestion.click_url.clone(),
                     full_keyword: String::new(),
                     provider: adm_suggestion.advertiser.clone(),
+                    advertiser: adm_suggestion.advertiser.clone(),
                     is_sponsored: !NON_SPONSORED_IAB_CATEGORIES
                         .contains(&adm_suggestion.iab_category.as_str()),
                     icon: icon_url,
@@ -359,6 +360,7 @@ mod tests {
                 impression_url: Uri::from_static("https://127.0.0.1"),
                 click_url: Uri::from_static("https://127.0.0.1"),
                 provider: "test".to_string(),
+                advertiser: "test_advertiser".to_string(),
                 is_sponsored: false,
                 icon: Uri::from_static("https://en.wikipedia.org/favicon.ico"),
                 score: Proportion::zero(),
@@ -399,6 +401,7 @@ mod tests {
                 impression_url: Uri::from_static("https://127.0.0.1"),
                 click_url: Uri::from_static("https://127.0.0.1"),
                 provider: "test".to_string(),
+                advertiser: "test_advertiser".to_string(),
                 is_sponsored: false,
                 icon: Uri::from_static("https://en.wikipedia.org/favicon.ico"),
                 score: Proportion::zero(),
