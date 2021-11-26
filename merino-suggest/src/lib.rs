@@ -187,7 +187,7 @@ pub struct Suggestion {
     /// The name of the provider associated with this suggestion.
     pub provider: String,
 
-    /// THe name of the advertiser associated with this suggestion.
+    /// The name of the advertiser associated with this suggestion.
     pub advertiser: String,
 
     /// Whether this suggestion is sponsored.

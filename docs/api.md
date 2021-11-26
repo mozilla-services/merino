@@ -112,10 +112,10 @@ The response will be a JSON object containing the following keys:
   which case no click ping is required for this suggestion provider.
 
 - `provider` - A string that identifies the provider of this suggestion, such as
-  "adM". This field is not intended to be directly displayed to the user.
+  "adM". In general, this field is not intended to be directly displayed to the user.
 
 - `advertiser` - The name of the advertiser, such as "Nike". Note that a `provider`
-  could have multiple `advertiser`s. This field will be displayed to the user.
+  could have multiple `advertiser`s.
 
 - `is_sponsored` - A boolean indicating if this suggestion is sponsored content.
   If this is true, the UI must indicate to the user that the suggestion is
