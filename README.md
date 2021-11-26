@@ -1,4 +1,4 @@
-# Merino
+# Merino-wool
 
 A service to provide address bar suggestions to Firefox. For more details, see
 the [service docs](https://mozilla-services.github.io/merino/).
