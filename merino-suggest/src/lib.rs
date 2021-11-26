@@ -184,8 +184,11 @@ pub struct Suggestion {
     #[serde_as(as = "DisplayFromStr")]
     pub click_url: Uri,
 
-    /// The name of the advertiser associated with this suggestion.
+    /// The name of the provider associated with this suggestion.
     pub provider: String,
+
+    /// The name of the advertiser associated with this suggestion.
+    pub advertiser: String,
 
     /// Whether this suggestion is sponsored.
     pub is_sponsored: bool,
@@ -213,6 +216,7 @@ impl<'a, F> fake::Dummy<F> for Suggestion {
             impression_url: fake_example_url(rng),
             click_url: fake_example_url(rng),
             provider: Words(2..4).fake_with_rng::<Vec<String>, R>(rng).join(" "),
+            advertiser: Words(2..4).fake_with_rng::<Vec<String>, R>(rng).join(" "),
             is_sponsored: rng.gen(),
             icon: fake_example_url(rng),
             score: rng.gen(),

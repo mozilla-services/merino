@@ -111,11 +111,11 @@ The response will be a JSON object containing the following keys:
   [Interaction Pings](#interaction-pings), below. This field may be null, in
   which case no click ping is required for this suggestion provider.
 
-- `provider` - A string that identifies the source of this suggestion. This can
-  be used along with `block_id` to uniquely identify this suggestion. It is not
-  intended to be directly displayed to the user.
+- `provider` - A string that identifies the provider of this suggestion, such as
+  "adM". In general, this field is not intended to be directly displayed to the user.
 
-- ~~`advertiser`~~ - A deprecated alias of `provider`.
+- `advertiser` - The name of the advertiser, such as "Nike". Note that a `provider`
+  could have multiple `advertiser`s.
 
 - `is_sponsored` - A boolean indicating if this suggestion is sponsored content.
   If this is true, the UI must indicate to the user that the suggestion is

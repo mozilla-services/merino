@@ -33,10 +33,10 @@ class Suggestion(BaseModel, extra=Extra.allow):
     impression_url: str
     click_url: str
     provider: str
+    advertiser: str
     is_sponsored: bool
     icon: str
     score: float
-    advertiser: Optional[str]  # A deprecated alias of `provider`
 
 
 class ResponseContent(BaseModel):

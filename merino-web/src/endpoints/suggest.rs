@@ -145,7 +145,6 @@ impl<'a> Serialize for SuggestionWrapper<'a> {
             score: f32,
         }
 
-        let provider = &self.0.provider;
         let generated = Generated {
             block_id: self.0.id,
             full_keyword: &self.0.full_keyword,
@@ -153,10 +152,10 @@ impl<'a> Serialize for SuggestionWrapper<'a> {
             url: self.0.url.to_string(),
             impression_url: self.0.impression_url.to_string(),
             click_url: self.0.click_url.to_string(),
-            provider,
+            provider: &self.0.provider,
             is_sponsored: self.0.is_sponsored,
             icon: self.0.icon.to_string(),
-            advertiser: provider,
+            advertiser: &self.0.advertiser,
             score: self.0.score.into(),
         };
 

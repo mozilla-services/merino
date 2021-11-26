@@ -454,6 +454,7 @@ mod test {
             impression_url: uri.clone(),
             click_url: uri.clone(),
             provider: text.clone(),
+            advertiser: text.clone(),
             is_sponsored: false,
             icon: uri.clone(),
             score: Proportion::zero(),
