@@ -1,3 +1,11 @@
+<a name="0.4.3"></a>
+## 0.4.3 (2021-11-26)
+
+#### Bug Fixes
+
+* **adm:**  Filter keywords that do not start with the partial query (#247) ([d166f66f](d166f66f))
+* **api:**  Split advertisers from the providers (#246) ([e3bdc366](e3bdc366))
+
 <a name="0.4.2"></a>
 
 ## 0.4.2 (2021-11-24)
