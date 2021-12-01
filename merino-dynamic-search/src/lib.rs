@@ -1,8 +1,13 @@
-use anyhow::{anyhow, ensure, Result};
+use anyhow::{anyhow, ensure, Context, Result};
+use async_trait::async_trait;
 use futures::{stream::FuturesUnordered, StreamExt};
 use merino_adm::remote_settings::{client::RemoteSettingsClient, AdmSuggestion};
+use merino_settings::providers::TantivyConfig;
 use merino_settings::Settings;
+use merino_suggest::{Proportion, SetupError, SuggestError, Suggestion, SuggestionResponse};
+use std::convert::TryInto;
 use std::path::Path;
+use tantivy::schema::Value;
 use tantivy::{
     collector::TopDocs,
     query::{BooleanQuery, BoostQuery, Occur, QueryParser},
@@ -25,6 +30,7 @@ pub fn get_search_index() -> Result<Index> {
         builder.add_text_field("title", STORED | TEXT);
         builder.add_text_field("content", TEXT);
         builder.add_text_field("url", STORED);
+        builder.add_text_field("page_id", STORED);
         builder.build()
     };
 
@@ -112,4 +118,106 @@ pub fn do_search(reader: &IndexReader, query: &str) -> Result<Vec<(f32, Document
         .into_iter()
         .map(|(score, doc_address)| Ok((score, searcher.doc(doc_address)?)))
         .collect()
+}
+
+pub struct TantivyProvider {
+    index_reader: IndexReader,
+    threshold: f32,
+}
+
+impl TantivyProvider {
+    /// Make a boxed provider
+    /// # Errors
+    /// If the search index could not be opened
+    pub fn new_boxed(config: &TantivyConfig) -> Result<Box<Self>, SetupError> {
+        let index = get_search_index()
+            .context("Loading tantivity index for searching")
+            .map_err(SetupError::Io)?;
+        let index_reader = index
+            .reader_builder()
+            .reload_policy(tantivy::ReloadPolicy::OnCommit)
+            .try_into()
+            .context("Setting up search reader")
+            .map_err(SetupError::Io)?;
+
+        Ok(Box::new(Self {
+            index_reader,
+            threshold: config.threshold,
+        }))
+    }
+}
+
+#[async_trait]
+impl merino_suggest::SuggestionProvider for TantivyProvider {
+    fn name(&self) -> String {
+        "tantivity".to_string()
+    }
+
+    async fn suggest(
+        &self,
+        query: merino_suggest::SuggestionRequest,
+    ) -> Result<merino_suggest::SuggestionResponse, merino_suggest::SuggestError> {
+        macro_rules! get_field {
+            ($field: expr) => {
+                self.index_reader
+                    .searcher()
+                    .index()
+                    .schema()
+                    .get_field($field)
+                    .context(concat!("Getting ", $field, " field"))
+                    .map_err(SuggestError::Internal)
+            };
+        }
+
+        let page_id_field = get_field!("page_id")?;
+        let title_field = get_field!("title")?;
+        let url_field = get_field!("url")?;
+
+        macro_rules! field_value {
+            ($doc: expr, $field: expr, $variant: expr) => {
+                $doc.get_first($field)
+                    .and_then($variant)
+                    .ok_or_else(|| anyhow!("Invalid schema, no {}", stringify!($field)))
+                    .map_err(SuggestError::Internal)
+            };
+        }
+
+        let suggestions = do_search(&self.index_reader, &query.query)
+            .map_err(SuggestError::Internal)?
+            .into_iter()
+            .filter(|(score, _doc)| *score > self.threshold)
+            .map(|(score, doc)| {
+                // map from [threshold, threshold * 3] to [0.4, 0.5]
+                let range = self.threshold * 2.0_f32;
+                let adjusted_score =
+                    (score - self.threshold).min(range) / range / 10.0_f32 + 0.4_f32;
+
+                dbg!(score, adjusted_score);
+                debug_assert!((0.4..=0.5).contains(&adjusted_score));
+
+                Ok(Suggestion {
+                    id: field_value!(doc, page_id_field, Value::u64_value)?,
+                    full_keyword: query.query.clone(),
+                    title: format!(
+                        "{} (score: {})",
+                        field_value!(doc, title_field, Value::text)?,
+                        score
+                    ),
+                    url: field_value!(doc, url_field, Value::text)?
+                        .try_into()
+                        .unwrap(),
+                    impression_url: None,
+                    click_url: None,
+                    provider: "wiki-search".to_string(),
+                    is_sponsored: false,
+                    icon: http::Uri::from_static(
+                        "https://en.wikipedia.org/static/apple-touch/wikipedia.png",
+                    ),
+                    score: Proportion::clamped(adjusted_score),
+                })
+            })
+            .collect::<Result<Vec<_>, _>>()?;
+
+        Ok(SuggestionResponse::new(suggestions))
+    }
 }

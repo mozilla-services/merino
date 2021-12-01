@@ -172,8 +172,8 @@ impl RemoteSettingsSuggester {
                     id: adm_suggestion.id,
                     title: adm_suggestion.title.clone(),
                     url: adm_suggestion.url.clone(),
-                    impression_url: adm_suggestion.impression_url.clone(),
-                    click_url: adm_suggestion.click_url.clone(),
+                    impression_url: Some(adm_suggestion.impression_url.clone()),
+                    click_url: Some(adm_suggestion.click_url.clone()),
                     full_keyword: String::new(),
                     provider: adm_suggestion.advertiser.clone(),
                     is_sponsored: !NON_SPONSORED_IAB_CATEGORIES
@@ -313,7 +313,7 @@ struct AttachmentMeta {
 #[allow(clippy::missing_docs_in_private_items)]
 pub struct AdmSuggestion {
     /// Ad block ID
-    pub id: u32,
+    pub id: u64,
 
     /// URL to direct the user to
     #[serde_as(as = "DisplayFromStr")]
@@ -364,8 +364,8 @@ mod tests {
                 url: Uri::from_static("https://en.wikipedia.org/wiki/Sheep"),
                 id: 1,
                 full_keyword: "sheep".to_string(),
-                impression_url: Uri::from_static("https://127.0.0.1"),
-                click_url: Uri::from_static("https://127.0.0.1"),
+                impression_url: Some(Uri::from_static("https://127.0.0.1")),
+                click_url: Some(Uri::from_static("https://127.0.0.1")),
                 provider: "test".to_string(),
                 is_sponsored: false,
                 icon: Uri::from_static("https://en.wikipedia.org/favicon.ico"),
@@ -404,8 +404,8 @@ mod tests {
                 url: Uri::from_static("https://en.wikipedia.org/wiki/Sheep"),
                 id: 1,
                 full_keyword: "sheep".to_string(),
-                impression_url: Uri::from_static("https://127.0.0.1"),
-                click_url: Uri::from_static("https://127.0.0.1"),
+                impression_url: Some(Uri::from_static("https://127.0.0.1")),
+                click_url: Some(Uri::from_static("https://127.0.0.1")),
                 provider: "test".to_string(),
                 is_sponsored: false,
                 icon: Uri::from_static("https://en.wikipedia.org/favicon.ico"),

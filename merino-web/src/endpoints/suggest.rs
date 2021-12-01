@@ -1,7 +1,5 @@
 //! Web handlers for the suggestions API.
 
-use std::collections::HashSet;
-
 use crate::{
     errors::HandlerError, extractors::SuggestionRequestWrapper, providers::SuggestionProviderRef,
 };
@@ -16,6 +14,7 @@ use merino_settings::Settings;
 use merino_suggest::{Suggestion, SuggestionProvider, SuggestionRequest};
 use serde::{Deserialize, Serialize};
 use serde_with::{rust::StringWithSeparator, serde_as, CommaSeparator};
+use std::collections::HashSet;
 use tracing_actix_web::RequestId;
 use uuid::Uuid;
 
@@ -132,12 +131,12 @@ impl<'a> Serialize for SuggestionWrapper<'a> {
         #[derive(Serialize)]
         #[allow(clippy::missing_docs_in_private_items)]
         struct Generated<'a> {
-            block_id: u32,
+            block_id: u64,
             full_keyword: &'a str,
             title: &'a str,
             url: String,
-            impression_url: String,
-            click_url: String,
+            impression_url: Option<String>,
+            click_url: Option<String>,
             provider: &'a str,
             is_sponsored: bool,
             icon: String,
@@ -151,8 +150,8 @@ impl<'a> Serialize for SuggestionWrapper<'a> {
             full_keyword: &self.0.full_keyword,
             title: &self.0.title,
             url: self.0.url.to_string(),
-            impression_url: self.0.impression_url.to_string(),
-            click_url: self.0.click_url.to_string(),
+            impression_url: self.0.impression_url.as_ref().map(|u| u.to_string()),
+            click_url: self.0.click_url.as_ref().map(|u| u.to_string()),
             provider,
             is_sponsored: self.0.is_sponsored,
             icon: self.0.icon.to_string(),

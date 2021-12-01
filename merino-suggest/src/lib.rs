@@ -162,7 +162,7 @@ impl ToString for CacheStatus {
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq, Hash)]
 pub struct Suggestion {
     /// The content provider ID of the suggestion.
-    pub id: u32,
+    pub id: u64,
 
     /// If this suggestion can be matched with partial keywords this is the full
     /// keyword of the suggestion.
@@ -176,12 +176,12 @@ pub struct Suggestion {
     pub url: Uri,
 
     /// The URL to notify when this keyword is presented to a user.
-    #[serde_as(as = "DisplayFromStr")]
-    pub impression_url: Uri,
+    #[serde_as(as = "Option<DisplayFromStr>")]
+    pub impression_url: Option<Uri>,
 
     /// The URL to notify when this keyword is clicked on by a user.
-    #[serde_as(as = "DisplayFromStr")]
-    pub click_url: Uri,
+    #[serde_as(as = "Option<DisplayFromStr>")]
+    pub click_url: Option<Uri>,
 
     /// The name of the advertiser associated with this suggestion.
     pub provider: String,
@@ -209,8 +209,8 @@ impl<'a, F> fake::Dummy<F> for Suggestion {
             full_keyword: Word().fake_with_rng(rng),
             title: Words(3..5).fake_with_rng::<Vec<String>, R>(rng).join(" "),
             url: fake_example_url(rng),
-            impression_url: fake_example_url(rng),
-            click_url: fake_example_url(rng),
+            impression_url: Some(fake_example_url(rng)),
+            click_url: Some(fake_example_url(rng)),
             provider: Words(2..4).fake_with_rng::<Vec<String>, R>(rng).join(" "),
             is_sponsored: rng.gen(),
             icon: fake_example_url(rng),

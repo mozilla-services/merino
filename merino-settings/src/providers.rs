@@ -7,14 +7,22 @@ use std::time::Duration;
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(tag = "type", rename_all = "snake_case")]
 pub enum SuggestionProviderConfig {
+    // Leaf providers
     RemoteSettings(RemoteSettingsConfig),
+    Tantivy(TantivyConfig),
+
+    // Cache providers
     MemoryCache(MemoryCacheConfig),
     RedisCache(RedisCacheConfig),
+
+    // Combinators
     Multiplexer(MultiplexerConfig),
     Timeout(TimeoutConfig),
-    Fixed(FixedConfig),
     KeywordFilter(KeywordFilterConfig),
     Stealth(StealthConfig),
+
+    // Debug
+    Fixed(FixedConfig),
     Debug,
     WikiFruit,
     Null,
@@ -148,6 +156,20 @@ impl Default for RemoteSettingsConfig {
             collection: None,
             resync_interval: Duration::from_secs(60 * 60 * 3), // 3 hours
         }
+    }
+}
+
+#[serde_as]
+#[derive(Clone, Debug, Serialize, Deserialize)]
+#[serde(default)]
+pub struct TantivyConfig {
+    /// The search score needed to provide a suggestion.
+    pub threshold: f32,
+}
+
+impl Default for TantivyConfig {
+    fn default() -> Self {
+        Self { threshold: 10.0 }
     }
 }
 

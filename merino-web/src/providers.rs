@@ -7,6 +7,7 @@ use async_recursion::async_recursion;
 use cadence::StatsdClient;
 use merino_adm::remote_settings::RemoteSettingsSuggester;
 use merino_cache::{MemoryCacheSuggester, RedisCacheSuggester};
+use merino_dynamic_search::TantivyProvider;
 use merino_settings::{providers::SuggestionProviderConfig, Settings};
 use merino_suggest::{
     DebugProvider, FixedProvider, IdMulti, KeywordFilterProvider, Multi, NullProvider,
@@ -18,7 +19,9 @@ use merino_suggest::{
 pub struct SuggestionProviderRef(pub Arc<IdMulti>);
 
 impl SuggestionProviderRef {
-    /// initialize the suggestion providers
+    /// Initialize the suggestion providers
+    /// # Errors
+    /// If a provider can't be set up correctly.
     pub async fn init(settings: &Settings, metrics_client: &StatsdClient) -> Result<Self> {
         let mut idm = merino_suggest::IdMulti::default();
 
@@ -49,6 +52,10 @@ async fn make_provider_tree(
     let provider: Box<dyn SuggestionProvider> = match config {
         SuggestionProviderConfig::RemoteSettings(rs_config) => {
             RemoteSettingsSuggester::new_boxed(settings, rs_config, metrics_client.clone()).await?
+        }
+
+        SuggestionProviderConfig::Tantivy(tantivy_config) => {
+            TantivyProvider::new_boxed(tantivy_config)?
         }
 
         SuggestionProviderConfig::MemoryCache(memory_config) => {

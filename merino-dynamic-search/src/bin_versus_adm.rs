@@ -96,7 +96,7 @@ async fn main() -> Result<()> {
 
 #[derive(Serialize)]
 struct Output {
-    suggestion_id: u32,
+    suggestion_id: u64,
     vs_adm: VsAdm,
     score: Option<f32>,
 }

@@ -45,6 +45,10 @@ async fn main() -> Result<()> {
         .schema()
         .get_field("url")
         .ok_or_else(|| anyhow!("Missing url field"))?;
+    let page_id_field = index
+        .schema()
+        .get_field("page_id")
+        .ok_or_else(|| anyhow!("Missing page_id_field field"))?;
 
     for page in pages {
         bar.set_message(page.title.clone());
@@ -53,6 +57,7 @@ async fn main() -> Result<()> {
             title_field => page.title,
             content_field => page.content,
             url_field => page.url,
+            page_id_field => page.page_id,
         ));
     }
 
@@ -72,6 +77,7 @@ struct PageToIndex {
     title: String,
     url: String,
     content: String,
+    page_id: u64,
 }
 
 async fn get_wiki_texts(page_titles: &[&str]) -> Result<Vec<PageToIndex>> {
@@ -113,6 +119,9 @@ async fn get_wiki_texts(page_titles: &[&str]) -> Result<Vec<PageToIndex>> {
                     let url = format!("https://en.wikipedia.org/wiki/{}", title.replace(" ", "_"));
                     Ok(PageToIndex {
                         url,
+                        page_id: page["pageid"]
+                            .as_u64()
+                            .ok_or_else(|| anyhow!(format!("No page_id for {}", title)))?,
                         content: page["revisions"][0]["slots"]["main"]["content"]
                             .as_str()
                             .ok_or_else(|| anyhow!(format!("No content for {}", title)))?

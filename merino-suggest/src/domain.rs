@@ -1,10 +1,10 @@
 //! Datatypes to better represent the domain of Merino.
 
-use anyhow::ensure;
 use rand::distributions::{Distribution, Standard};
 use serde::{de, Deserialize, Serialize};
 use std::convert::{TryFrom, TryInto};
 use std::fmt::Debug;
+use thiserror::Error;
 
 /// Represents a value from 0.0 to 1.0, inclusive. That is: a portion of
 /// something that cannot be negative or exceed 100%.
@@ -12,6 +12,19 @@ use std::fmt::Debug;
 /// Stored internally as a u32.
 #[derive(Clone, Copy, Debug, Default, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub struct Proportion(u32);
+
+#[derive(Error, Debug)]
+#[allow(clippy::missing_docs_in_private_items)]
+pub enum ProportionError {
+    #[error("The provided values was too high")]
+    TooHigh,
+
+    #[error("The provided value was too low")]
+    TooLow,
+
+    #[error("The provided value was invalid, such as infinity or NaN")]
+    Invalid,
+}
 
 impl Proportion {
     /// The lowest value for a portion, corresponding to 0%.
@@ -24,9 +37,12 @@ impl Proportion {
         Proportion(u32::MAX)
     }
 
-    /// Converts a float value into a Proportion. Panics if the value is not
-    /// between zero and one.
+    /// Converts a float value into a Proportion.
     ///
+    /// # Panics
+    /// If the value is not between zero and one.
+    ///
+    /// # Note
     /// This is not implemented using [`std::config::From`] because you cannot
     /// implement both Try and TryFrom for the same pair of types, due to a
     /// blanket `impl TryFor<T> for U where U: Try<T>`.
@@ -37,20 +53,44 @@ impl Proportion {
     {
         v.try_into().unwrap()
     }
+
+    /// Converts a float into a Proportion. If the value is not between zero and
+    /// one, the value will be clamped, with negative values resulting in zero
+    /// and positive values resulting in one.
+    ///
+    /// # Panics
+    /// Infinities and NaNs will panic.
+    pub fn clamped<T>(v: T) -> Self
+    where
+        T: TryInto<Self, Error = ProportionError>,
+    {
+        match v.try_into() {
+            Ok(v) => v,
+            Err(ProportionError::TooHigh) => Self::one(),
+            Err(ProportionError::TooLow) => Self::zero(),
+            Err(ProportionError::Invalid) => {
+                panic!("Cannot convert invalid number to a proportion")
+            }
+        }
+    }
 }
 
 /// Implement traits for a float type.
 macro_rules! impl_for_float {
     ($type: ty) => {
         impl TryFrom<$type> for Proportion {
-            type Error = anyhow::Error;
+            type Error = ProportionError;
 
             fn try_from(v: $type) -> Result<Self, Self::Error> {
-                ensure!(!v.is_infinite(), "v cannot be infinite");
-                ensure!(v >= 0.0, "v must be positive");
-                ensure!(v <= 1.0, "v cannot be greater than 1");
-
-                Ok(Self((v * (u32::MAX as $type)) as u32))
+                if !v.is_finite() {
+                    Err(ProportionError::Invalid)
+                } else if v < 0.0 {
+                    Err(ProportionError::TooLow)
+                } else if v > 1.0 {
+                    Err(ProportionError::TooHigh)
+                } else {
+                    Ok(Self((v * (u32::MAX as $type)) as u32))
+                }
             }
         }
 
