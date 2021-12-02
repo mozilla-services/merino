@@ -235,7 +235,13 @@ impl TestReqwestClient {
 async fn setup_remote_settings_bucket(server: &str) -> Result<(String, String)> {
     let reqwest_client = reqwest::Client::new();
     let bucket_info: serde_json::Value = reqwest_client
-        .post(format!("{}/v1/buckets/", server))
+        // Unfortunately `/dev/kinto.ini` does not support `/buckets/*`
+        // in `kinto.changes.resources`, so we should use the same bucket
+        // (i.e. `/buckets/main`) to create our collections in and make sure
+        // remote settings behave as expected. We use PUT here to overwrite
+        // the bucket transparently each time, since we don't really care
+        // about the stored metadata.
+        .put(format!("{}/v1/buckets/main", server))
         .send()
         .await
         .and_then(reqwest::Response::error_for_status)?
