@@ -1,6 +1,9 @@
-use anyhow::{anyhow, Result};
+use std::{collections::HashMap, io::ErrorKind};
+
+use anyhow::{anyhow, Context, Result};
 use indicatif::{ProgressBar, ProgressStyle};
 use merino_dynamic_search::get_wiki_suggestions;
+use serde::{Deserialize, Serialize};
 use tantivy::doc;
 
 const MEGA: usize = 1024 * 1024;
@@ -20,7 +23,6 @@ async fn main() -> Result<()> {
         })
         .collect::<Vec<_>>();
 
-    println!("Loading page contents from Wikipedia API");
     let pages = get_wiki_texts(&wiki_titles.iter().map(String::as_str).collect::<Vec<_>>()).await?;
 
     println!("Indexing page contents into Tantivy");
@@ -72,7 +74,7 @@ async fn main() -> Result<()> {
     Ok(())
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 struct PageToIndex {
     title: String,
     url: String,
@@ -84,7 +86,6 @@ async fn get_wiki_texts(page_titles: &[&str]) -> Result<Vec<PageToIndex>> {
     const CHUNK_SIZE: usize = 50;
 
     let client = reqwest::Client::new();
-    let mut rv = Vec::with_capacity(page_titles.len());
 
     let bar = ProgressBar::new(page_titles.len() as u64);
     bar.set_style(
@@ -92,7 +93,36 @@ async fn get_wiki_texts(page_titles: &[&str]) -> Result<Vec<PageToIndex>> {
             .template("[{elapsed:>3}/{duration}] {bar:40.cyan/blue} {pos:>6}/{len:6} {wide_msg}"),
     );
 
-    for chunk in page_titles.chunks(CHUNK_SIZE) {
+    let mut pages_by_title: HashMap<&str, PageToIndex> = HashMap::new();
+
+    bar.println("Loading page contents from cache");
+    for title in page_titles {
+        bar.set_message(title.to_string());
+        match std::fs::File::open(format!("./wikipedia-page-cache/{}.json", title)) {
+            Ok(file) => match serde_json::from_reader(file) {
+                Ok(page) => {
+                    pages_by_title.insert(title, page);
+                    bar.inc(1);
+                }
+                Err(err) => bar.println(format!("Warn: Could not read cached file: {}", err)),
+            },
+            Err(err) if err.kind() == ErrorKind::NotFound => (),
+            Err(err) => bar.println(format!("Warn: Could not open cached file: {}", err)),
+        }
+    }
+
+    bar.println(format!("Loaded {} pages from cache", pages_by_title.len()));
+    let pages_to_download: Vec<&str> = page_titles
+        .iter()
+        .copied()
+        .filter(|title| !pages_by_title.contains_key(*title))
+        .collect();
+
+    if !pages_to_download.is_empty() {
+        bar.println("Switching to Wikipedia API");
+    }
+
+    for chunk in pages_to_download.chunks(CHUNK_SIZE) {
         let titles_concat = chunk.join("|");
         bar.set_message(titles_concat.clone());
         let url = format!("https://en.wikipedia.org/w/api.php?action=query&prop=revisions&titles={}&rvslots=main&rvprop=content&formatversion=2&format=json&redirects=1", titles_concat);
@@ -104,37 +134,64 @@ async fn get_wiki_texts(page_titles: &[&str]) -> Result<Vec<PageToIndex>> {
             .await?
             .error_for_status()?;
 
+        std::fs::create_dir_all("./wikipedia-page-cache")
+            .map_err(|err| bar.println(format!("Warn: Could not create cache dir: {}", err)))
+            .ok();
+
         let data: serde_json::Value = res.json().await?;
-        rv.extend_from_slice(
-            data["query"]["pages"]
-                .as_array()
-                .ok_or_else(|| anyhow!("Could not get list of pages from Wikipedia response"))?
-                .iter()
-                .map(|page| {
-                    bar.inc(1);
-                    let title = page["title"]
-                        .as_str()
-                        .ok_or_else(|| anyhow!("no title"))?
-                        .to_string();
-                    let url = format!("https://en.wikipedia.org/wiki/{}", title.replace(" ", "_"));
-                    Ok(PageToIndex {
+        data["query"]["pages"]
+            .as_array()
+            .ok_or_else(|| anyhow!("Could not get list of pages from Wikipedia response"))?
+            .iter()
+            .zip(chunk)
+            .map::<Result<(&str, PageToIndex)>, _>(|(page, original_title)| {
+                let wiki_title = page["title"]
+                    .as_str()
+                    .ok_or_else(|| anyhow!("no title"))?
+                    .to_string();
+                let url = format!(
+                    "https://en.wikipedia.org/wiki/{}",
+                    wiki_title.replace(" ", "_")
+                );
+                Ok((
+                    original_title,
+                    PageToIndex {
                         url,
                         page_id: page["pageid"]
                             .as_u64()
-                            .ok_or_else(|| anyhow!(format!("No page_id for {}", title)))?,
+                            .ok_or_else(|| anyhow!(format!("No page_id for {}", wiki_title)))?,
                         content: page["revisions"][0]["slots"]["main"]["content"]
                             .as_str()
-                            .ok_or_else(|| anyhow!(format!("No content for {}", title)))?
+                            .ok_or_else(|| anyhow!(format!("No content for {}", wiki_title)))?
                             .to_string(),
-                        title,
+                        title: wiki_title,
+                    },
+                ))
+            })
+            .collect::<Result<Vec<_>, _>>()?
+            .into_iter()
+            .map(|(original_title, page)| {
+                std::fs::File::create(format!("./wikipedia-page-cache/{}.json", original_title))
+                    .context("opening file for writing")
+                    .and_then(|f| {
+                        serde_json::to_writer(f, &page)
+                            .context("serializing downloaded page to cache")
                     })
-                })
-                .collect::<Result<Vec<_>>>()?
-                .as_slice(),
-        );
+                    .map_err(|err| {
+                        bar.println(format!("Could not save downloaded page to cache: {}", err));
+                    })
+                    .ok();
+
+                pages_by_title.insert(original_title, page);
+
+                bar.inc(1);
+                Ok(())
+            })
+            .collect::<Result<Vec<()>, anyhow::Error>>()?;
     }
+
     bar.set_message("");
     bar.finish();
 
-    Ok(rv)
+    Ok(pages_by_title.into_values().collect())
 }
