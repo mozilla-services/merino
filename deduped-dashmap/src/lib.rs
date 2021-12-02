@@ -110,7 +110,9 @@ where
                     }
                 }
                 Entry::Vacant(_) => {
-                    tracing::error!(key = %key_desc, "Dangling storage entry");
+                    tracing::error!(
+                        r#type = "deduped-dashmap.remove.dangling-entry",
+                        key = %key_desc, "Dangling storage entry");
                 }
             }
         }
@@ -125,7 +127,11 @@ where
                     let value = storage_ref.value.clone();
                     Some((meta, value))
                 } else {
-                    tracing::error!(?key, "Dangling storage entry");
+                    tracing::error!(
+                        r#type = "deduped-dashmap.get.dangling-entry",
+                        ?key,
+                        "Dangling storage entry"
+                    );
                     None
                 }
             }
@@ -191,7 +197,10 @@ where
                     }
                 }
                 Entry::Vacant(_) => {
-                    tracing::error!("missing storage entry in memory cache");
+                    tracing::error!(
+                        r#type = "deduped-dashmap.retain.missing-entry",
+                        "missing storage entry in memory cache"
+                    );
                     false
                 }
             }

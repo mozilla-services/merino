@@ -152,6 +152,7 @@ impl Suggester {
         items.retain(|_key, expiration, _suggestions| {
             if num_removals > max_removals {
                 tracing::warn!(
+                    r#type = "cache.memory.max-removals",
                     ?max_removals,
                     "memory-cache cleanup reached max number of removed entries"
                 );
@@ -172,6 +173,7 @@ impl Suggester {
         let removed_storage = count_before_storage - items.len_storage();
         let removed_pointers = count_before_pointers - items.len_pointers();
         tracing::info!(
+            r#type = "cache.memory.remove-expired",
             ?duration,
             ?removed_pointers,
             ?removed_storage,

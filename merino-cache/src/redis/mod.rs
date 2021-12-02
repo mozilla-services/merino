@@ -114,7 +114,7 @@ impl SimpleRedisLock {
             .query_async::<redis::aio::ConnectionManager, Option<String>>(&mut self.connection)
             .await
             .map_err(|e| {
-                tracing::error!("🔒⛔lock error: {:?}", e);
+                tracing::error!(r#type = "cache.redis.lock-error", "🔒⛔lock error: {:?}", e);
                 SuggestError::Internal(e.into())
             })?
         {
@@ -164,12 +164,16 @@ impl SimpleRedisLock {
                 if v {
                     tracing::debug!(%key, "🔒Successfully stored cache entry");
                 } else {
-                    tracing::warn!(%key, "🔒⛔write blocked, newer lock");
+                    tracing::warn!(
+                        r#type = "cache.redis.write-blocked-newer-lock",
+                        %key, "🔒⛔write blocked, newer lock");
                 }
                 Ok(())
             }
             Err(error) => {
-                tracing::error!(%error, r#type="cache.redis.save-error", "Could not save suggestion to redis");
+                tracing::error!(
+                    r#type = "cache.redis.save-error",
+                    %error, r#type="cache.redis.save-error", "Could not save suggestion to redis");
                 Err(SuggestError::Internal(error.into()))
             }
         }
@@ -233,11 +237,15 @@ impl Suggester {
                 let ttl = match ttl {
                     RedisTtl::KeyDoesNotExist => {
                         // This probably should never happen?
-                        tracing::error!(%key, "Cache provided a suggestion but claims it doesn't exist for TTL determination");
+                        tracing::error!(
+                            r#type = "cache.redis.claims-no-ttl",
+                            %key, "Cache provided a suggestion but claims it doesn't exist for TTL determination");
                         self.default_ttl
                     }
                     RedisTtl::KeyHasNoTtl => {
-                        tracing::warn!(%key, default_ttl = ?self.default_ttl, "Value in cache without TTL, setting default TTL");
+                        tracing::warn!(
+                            r#type = "cache.redis.no-ttl",
+                            %key, default_ttl = ?self.default_ttl, "Value in cache without TTL, setting default TTL");
                         self.queue_set_key_ttl(key, self.default_ttl)?;
                         self.default_ttl
                     }
@@ -255,11 +263,15 @@ impl Suggester {
             Err(error) => {
                 match error.kind() {
                     redis::ErrorKind::TypeError => {
-                        tracing::warn!(%error, %key, "Cached value not of expected type, deleting and treating as cache miss");
+                        tracing::warn!(
+                            r#type = "cache.redis.wrong-type-as-miss",
+                            %error, %key, "Cached value not of expected type, deleting and treating as cache miss");
                         self.queue_delete_key(key)?;
                     }
                     _ => {
-                        tracing::error!(%error, "Error reading suggestion from cache, treating as cache miss");
+                        tracing::error!(
+                            r#type = "cache.redis.failed-read-as-miss",
+                            %error, "Error reading suggestion from cache, treating as cache miss");
                     }
                 }
                 Ok(CacheCheckResult::ErrorAsMiss)
@@ -318,7 +330,9 @@ impl Suggester {
             async move {
                 match redis::Cmd::del(&key).query_async(&mut connection).await {
                     Ok(()) => tracing::trace!("Successfully deleted cache key"),
-                    Err(error) => tracing::error!(%error, "Couldn't delete cache key"),
+                    Err(error) => tracing::error!(
+                        r#type = "cache.redis.key-deletion-failed",
+                        %error, "Couldn't delete cache key"),
                 };
             }
             .with_current_subscriber()
@@ -348,7 +362,9 @@ impl Suggester {
                     .await
                 {
                     Ok(()) => tracing::trace!("Successfully set TTL for cache key"),
-                    Err(error) => tracing::error!(%error, "Couldn't delete cache key"),
+                    Err(error) => tracing::error!(
+                        r#type = "cache.redis.failed-set-ttl",
+                        %error, "Couldn't set key TTL"),
                 };
             }
             .with_current_subscriber()

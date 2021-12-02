@@ -106,7 +106,11 @@ where
 
     fn poll_ready(&self, cx: &mut Context<'_>) -> Poll<Result<(), Self::Error>> {
         self.service.poll_ready(cx).map_err(|error| {
-            tracing::error!(?error, "Error polling service");
+            tracing::error!(
+                r#type = "web.sentry.polling-error",
+                ?error,
+                "Error polling service"
+            );
             HandlerError::internal().into()
         })
     }
@@ -128,7 +132,7 @@ where
 
         Box::pin(async move {
             let response = fut.await.map_err(|error| {
-                tracing::error!(?error, "handler error");
+                tracing::error!(r#type = "web.sentry.handler-error", ?error, "handler error");
                 HandlerError::internal()
             })?;
             tracing::trace!(?response, "checking response for errors");
