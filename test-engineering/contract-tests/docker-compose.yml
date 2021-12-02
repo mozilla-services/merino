@@ -17,6 +17,8 @@ services:
     container_name: merino_client
     depends_on:
       - merino
+      - kinto
+      - kinto-attachments
     volumes:
       - ./volumes/client:/tmp/client
       - ../../dev/wait-for-it.sh:/wait-for-it.sh
@@ -25,3 +27,24 @@ services:
       SCENARIOS_FILE: /tmp/client/scenarios.yml
     command: >
       /wait-for-it.sh merino:8000 --strict -- pytest -vv
+
+  kinto:
+    image: mozilla/kinto-dist:25.0.0
+    stop_signal: SIGKILL
+    user: "1000:1000"
+    ports:
+      - "8888:8888"
+    volumes:
+      - ../../dev/kinto.ini:/etc/kinto.ini
+      - ./kinto-attachments:/app/attachments
+    environment:
+      KINTO_INI: /etc/kinto.ini
+
+  kinto-attachments:
+    image: httpd
+    depends_on:
+      - kinto
+    ports:
+      - "8889:80"
+    volumes:
+      - ./kinto-attachments:/usr/local/apache2/htdocs/
