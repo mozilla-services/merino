@@ -43,13 +43,6 @@ impl RemoteSettingsSuggester {
         metrics_client: StatsdClient,
     ) -> Result<Box<Self>, SetupError> {
         let mut remote_settings_client = remote_settings_client::Client::builder()
-            .collection_name(
-                config
-                    .collection
-                    .as_ref()
-                    .unwrap_or(&settings.remote_settings.default_collection)
-                    .clone(),
-            )
             .bucket_name(
                 config
                     .bucket
@@ -57,8 +50,19 @@ impl RemoteSettingsSuggester {
                     .unwrap_or(&settings.remote_settings.default_bucket)
                     .clone(),
             )
+            .collection_name(
+                config
+                    .collection
+                    .as_ref()
+                    .unwrap_or(&settings.remote_settings.default_collection)
+                    .clone(),
+            )
             .server_url(&settings.remote_settings.server)
             .sync_if_empty(true)
+            .storage(Box::new(remote_settings_client::client::FileStorage {
+                folder: std::env::temp_dir(),
+                ..remote_settings_client::client::FileStorage::default()
+            }))
             .http_client(Box::new(ReqwestClient::new()))
             .build()
             .context("Unable to initialize the Remote Settings client")

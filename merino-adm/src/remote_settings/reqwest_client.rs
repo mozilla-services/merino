@@ -37,8 +37,10 @@ impl RsRequester for ReqwestClient {
             .send()
             .await
             .and_then(Response::error_for_status)
-            .context(format!("Fetching records from remote settings: {}", url))
-        {
+            .context(format!(
+                "Performing HTTP request for Remote Settings: {}",
+                url
+            )) {
             Err(e) => {
                 tracing::error!(
                     "ReqwestClient - unable to submit GET request. {:?}",
@@ -55,16 +57,12 @@ impl RsRequester for ReqwestClient {
                         .or_insert_with(|| h.1.to_str().unwrap_or_default().to_string());
                 }
 
-                let body = match response.bytes().await {
-                    Err(e) => {
-                        tracing::error!(
-                            "ReqwestClient - unable to parse response body. {:?}",
-                            e.to_string()
-                        );
-                        return Err(());
-                    }
-                    Ok(b) => b,
-                };
+                let body = response.bytes().await.map_err(|err| {
+                    tracing::error!(
+                        "ReqwestClient - unable to parse response body. {:?}",
+                        err.to_string()
+                    );
+                })?;
 
                 Ok(RsResponse {
                     status,

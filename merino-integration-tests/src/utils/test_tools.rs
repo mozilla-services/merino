@@ -8,7 +8,7 @@ use reqwest::{
     redirect, Client, ClientBuilder, RequestBuilder,
 };
 use serde_json::json;
-use std::{future::Future, net::TcpListener, time::Duration};
+use std::{collections::HashMap, future::Future, net::TcpListener, time::Duration};
 use tracing_futures::{Instrument, WithSubscriber};
 use tracing_subscriber::{fmt::MakeWriter, layer::SubscriberExt};
 
@@ -234,14 +234,20 @@ impl TestReqwestClient {
 /// Set up Remote Settings with a new bucket and a new collection
 async fn setup_remote_settings_bucket(server: &str) -> Result<(String, String)> {
     let reqwest_client = reqwest::Client::new();
+    let mut json_body = HashMap::new();
+    let mut json_data = HashMap::new();
+    json_data.insert("id", "main");
+    json_body.insert("data", json_data);
+
     let bucket_info: serde_json::Value = reqwest_client
         // Unfortunately `/dev/kinto.ini` does not support `/buckets/*`
         // in `kinto.changes.resources`, so we should use the same bucket
         // (i.e. `/buckets/main`) to create our collections in and make sure
-        // remote settings behave as expected. We use PUT here to overwrite
-        // the bucket transparently each time, since we don't really care
-        // about the stored metadata.
-        .put(format!("{}/v1/buckets/main", server))
+        // remote settings behave as expected. We provide a bucket id in the
+        // POST here: this will create the bucket once if not present, or just
+        // return 200 OK if it's already there.
+        .post(format!("{}/v1/buckets/", server))
+        .json(&json_body)
         .send()
         .await
         .and_then(reqwest::Response::error_for_status)?
