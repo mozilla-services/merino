@@ -623,6 +623,10 @@
 <span id="623">623</span>
 <span id="624">624</span>
 <span id="625">625</span>
+<span id="626">626</span>
+<span id="627">627</span>
+<span id="628">628</span>
+<span id="629">629</span>
 </pre><pre class="rust">
 <span class="doccomment">//! AdM integration that uses the remote-settings provided data.</span>
 
@@ -723,6 +727,7 @@
                             <span class="self">Self</span><span class="ident">::sync</span>(<span class="ident">loop_client</span>, <span class="ident">loop_suggestions</span>, <span class="ident">suggestion_score</span>).<span class="kw">await</span>
                         {
                             <span class="macro">tracing::error!</span>(
+                                <span class="ident">r#type</span> <span class="op">=</span> <span class="string">&quot;adm.remote-settings.sync-failed&quot;</span>,
                                 <span class="question-mark">?</span><span class="ident">error</span>,
                                 <span class="string">&quot;Error while syncing remote settings suggestions&quot;</span>
                             );
@@ -841,6 +846,7 @@
                 <span class="kw">for</span> <span class="ident">adm_suggestion</span> <span class="kw">in</span> <span class="ident">parsed_data</span>.<span class="ident">suggestions</span> {
                     <span class="kw">if</span> <span class="ident">adm_suggestion</span>.<span class="ident">keywords</span>.<span class="ident">is_empty</span>() {
                         <span class="macro">tracing::warn!</span>(
+                            <span class="ident">r#type</span> <span class="op">=</span> <span class="string">&quot;adm.remote-settings.sync-no-keywords&quot;</span>,
                             <span class="question-mark">?</span><span class="ident">adm_suggestion</span>,
                             <span class="string">&quot;Suggestion from remote settings has no keywords&quot;</span>
                         );
@@ -851,7 +857,9 @@
                     <span class="kw">let</span> <span class="ident">icon_url</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">u</span>) <span class="op">=</span> <span class="ident">icon_urls</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">icon_key</span>) {
                         <span class="ident">Uri::from_maybe_shared</span>(<span class="ident">u</span>.<span class="ident">to_string</span>()).<span class="ident">expect</span>(<span class="string">&quot;invalid URL&quot;</span>)
                     } <span class="kw">else</span> {
-                        <span class="macro">tracing::warn!</span>(<span class="ident">suggestion_id</span> <span class="op">=</span> <span class="op">%</span><span class="ident">adm_suggestion</span>.<span class="ident">id</span>, <span class="string">&quot;ADM suggestion has no icon&quot;</span>);
+                        <span class="macro">tracing::warn!</span>(
+                            <span class="ident">r#type</span> <span class="op">=</span> <span class="string">&quot;adm.remote-settings.sync-no-icon&quot;</span>,
+                            <span class="ident">suggestion_id</span> <span class="op">=</span> <span class="op">%</span><span class="ident">adm_suggestion</span>.<span class="ident">id</span>, <span class="string">&quot;ADM suggestion has no icon&quot;</span>);
                         <span class="kw">continue</span>;
                     };
 

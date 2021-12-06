@@ -326,6 +326,8 @@
 <span id="326">326</span>
 <span id="327">327</span>
 <span id="328">328</span>
+<span id="329">329</span>
+<span id="330">330</span>
 </pre><pre class="rust">
 <span class="doccomment">//! Tools for running tests</span>
 
@@ -457,7 +459,9 @@
             <span class="prelude-val">Some</span>(<span class="ident">connection_guard</span>)
         }
         <span class="prelude-val">Err</span>(<span class="ident">error</span>) <span class="op">=</span><span class="op">&gt;</span> {
-            <span class="macro">tracing::warn!</span>(<span class="op">%</span><span class="ident">error</span>, <span class="string">&quot;Could not set up Redis for test&quot;</span>);
+            <span class="macro">tracing::warn!</span>(
+                <span class="ident">r#type</span> <span class="op">=</span> <span class="string">&quot;cache.redis.test-setup-failed&quot;</span>,
+                <span class="op">%</span><span class="ident">error</span>, <span class="string">&quot;Could not set up Redis for test&quot;</span>);
             <span class="prelude-val">None</span>
         }
     };

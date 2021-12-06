@@ -357,6 +357,8 @@
 <span id="357">357</span>
 <span id="358">358</span>
 <span id="359">359</span>
+<span id="360">360</span>
+<span id="361">361</span>
 </pre><pre class="rust">
 <span class="doccomment">//! A cache system that uses local in-memory storage to store a limited number of items.</span>
 <span class="doccomment">//!</span>
@@ -512,6 +514,7 @@
         <span class="ident">items</span>.<span class="ident">retain</span>(<span class="op">|</span><span class="ident">_key</span>, <span class="ident">expiration</span>, <span class="ident">_suggestions</span><span class="op">|</span> {
             <span class="kw">if</span> <span class="ident">num_removals</span> <span class="op">&gt;</span> <span class="ident">max_removals</span> {
                 <span class="macro">tracing::warn!</span>(
+                    <span class="ident">r#type</span> <span class="op">=</span> <span class="string">&quot;cache.memory.max-removals&quot;</span>,
                     <span class="question-mark">?</span><span class="ident">max_removals</span>,
                     <span class="string">&quot;memory-cache cleanup reached max number of removed entries&quot;</span>
                 );
@@ -532,6 +535,7 @@
         <span class="kw">let</span> <span class="ident">removed_storage</span> <span class="op">=</span> <span class="ident">count_before_storage</span> <span class="op">-</span> <span class="ident">items</span>.<span class="ident">len_storage</span>();
         <span class="kw">let</span> <span class="ident">removed_pointers</span> <span class="op">=</span> <span class="ident">count_before_pointers</span> <span class="op">-</span> <span class="ident">items</span>.<span class="ident">len_pointers</span>();
         <span class="macro">tracing::info!</span>(
+            <span class="ident">r#type</span> <span class="op">=</span> <span class="string">&quot;cache.memory.remove-expired&quot;</span>,
             <span class="question-mark">?</span><span class="ident">duration</span>,
             <span class="question-mark">?</span><span class="ident">removed_pointers</span>,
             <span class="question-mark">?</span><span class="ident">removed_storage</span>,
