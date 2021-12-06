@@ -15,12 +15,7 @@ assignees: ""
 - [ ] Run local testing to ensure no artifacts or other local changes that might
       break tests have been introduced.
 - [ ] Change to the release branch.
-  - If this is a new major/minor release,
-    `git checkout -b release/{major}.{minor}` to create a new release branch.
-  - If this is a new patch release:
-    - `git checkout release/{major}.{minor}`
-    - `git pull` to ensure the branch is up-to-date.
-    - Commit the needed changes to the branch.
+  - `git checkout -b release/{major}.{minor}.{patch}`
   - Note: For the remainder of this list `{version}` will refer to the
     `{major}.{minor}.{patch}` you've specified.
 - [ ] Edit wherever the version is in source (`Cargo.toml` of all crates) so
@@ -33,9 +28,9 @@ assignees: ""
       record of changes.
 - [ ] `git tag -s -m "chore: tag {version}" v{version}` to create a signed tag
       of the current HEAD commit for release. (note `vX.Y.Z` format)
-- [ ] `git push --set-upstream origin release/{major}.{minor}` to push the
+- [ ] `git push --set-upstream origin release/{version}` to push the
       commits to a new origin release branch.
-- [ ] `git push --tags origin release/{major}.{minor}` to push the tags to the
+- [ ] `git push --tags origin release/{version}` to push the tags to the
       release branch.
 - [ ] Submit a pull request on Github to merge the release branch to `main`.
       Include the text `Refs #XX` where XX is the number of this release issue.
