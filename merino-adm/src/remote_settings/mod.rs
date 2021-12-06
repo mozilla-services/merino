@@ -97,6 +97,7 @@ impl RemoteSettingsSuggester {
                             Self::sync(loop_client, loop_suggestions, suggestion_score).await
                         {
                             tracing::error!(
+                                r#type = "adm.remote-settings.sync-failed",
                                 ?error,
                                 "Error while syncing remote settings suggestions"
                             );
@@ -215,6 +216,7 @@ impl RemoteSettingsSuggester {
                 for adm_suggestion in parsed_data.suggestions {
                     if adm_suggestion.keywords.is_empty() {
                         tracing::warn!(
+                            r#type = "adm.remote-settings.sync-no-keywords",
                             ?adm_suggestion,
                             "Suggestion from remote settings has no keywords"
                         );
@@ -225,7 +227,9 @@ impl RemoteSettingsSuggester {
                     let icon_url = if let Some(u) = icon_urls.get(&icon_key) {
                         Uri::from_maybe_shared(u.to_string()).expect("invalid URL")
                     } else {
-                        tracing::warn!(suggestion_id = %adm_suggestion.id, "ADM suggestion has no icon");
+                        tracing::warn!(
+                            r#type = "adm.remote-settings.sync-no-icon",
+                            suggestion_id = %adm_suggestion.id, "ADM suggestion has no icon");
                         continue;
                     };
 

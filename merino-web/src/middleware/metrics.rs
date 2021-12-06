@@ -59,7 +59,11 @@ where
 
     fn poll_ready(&self, ctx: &mut Context<'_>) -> std::task::Poll<Result<(), Self::Error>> {
         self.service.poll_ready(ctx).map_err(|error| {
-            tracing::error!(?error, "Error polling service from metrics middleware");
+            tracing::error!(
+                r#type = "web.metrics.polling-error",
+                ?error,
+                "Error polling service from metrics middleware"
+            );
             HandlerError::internal().into()
         })
     }

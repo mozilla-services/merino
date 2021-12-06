@@ -128,7 +128,9 @@ where
             Some(connection_guard)
         }
         Err(error) => {
-            tracing::warn!(%error, "Could not set up Redis for test");
+            tracing::warn!(
+                r#type = "cache.redis.test-setup-failed",
+                %error, "Could not set up Redis for test");
             None
         }
     };
