@@ -16,7 +16,7 @@ assignees: ""
       break tests have been introduced.
 - [ ] Change to the release branch.
   - If this is a new major/minor release,
-    `git checkout -b release/{major}.{minor}` to create a new release branch.
+    `git checkout -b release/{major}.{minor}.0` to create a new release branch.
   - If this is a new patch release:
     - `git checkout release/{major}.{minor}.{patch}`
     - `git pull` to ensure the branch is up-to-date.
