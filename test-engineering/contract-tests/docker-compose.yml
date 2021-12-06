@@ -8,6 +8,10 @@ services:
     environment:
       # The configuration preset to use
       MERINO_ENV: "ci"
+    depends_on:
+      - kinto
+      - kinto-attachments
+      - kinto-setup
     volumes:
       - ../../dev:/tmp/dev
 
@@ -30,21 +34,39 @@ services:
 
   kinto:
     image: mozilla/kinto-dist:25.0.0
+    container_name: merino_kinto
     stop_signal: SIGKILL
     user: "1000:1000"
-    ports:
-      - "8888:8888"
     volumes:
       - ../../dev/kinto.ini:/etc/kinto.ini
       - ./kinto-attachments:/app/attachments
     environment:
       KINTO_INI: /etc/kinto.ini
+      # We need to overwrite the following setting for contract-tests
+      KINTO_ATTACHMENT_EXTRA_BASE_URL: http://kinto-attachments:80
 
   kinto-attachments:
     image: httpd
+    container_name: merino_kinto_attachments
     depends_on:
       - kinto
-    ports:
-      - "8889:80"
     volumes:
       - ./kinto-attachments:/usr/local/apache2/htdocs/
+
+  kinto-setup:
+    image: kinto-setup
+    build: kinto-setup
+    container_name: merino_kinto_setup
+    depends_on:
+      - kinto
+      - kinto-attachments
+    volumes:
+      - ./volumes/kinto:/tmp/kinto
+      - ../../dev/wait-for-it.sh:/wait-for-it.sh
+    environment:
+      KINTO_URL: http://kinto:8888
+      KINTO_BUCKET: main
+      KINTO_COLLECTION: quicksuggest
+      KINTO_DATA_DIR: /tmp/kinto
+    command: >
+      /wait-for-it.sh kinto:8888 --strict -- python main.py
