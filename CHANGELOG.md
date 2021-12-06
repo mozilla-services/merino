@@ -1,10 +1,21 @@
+<a name="0.4.4"></a>
+
+## 0.4.4 (2021-12-06)
+
+#### Bug Fixes
+
+- specify a type for info, warn and error logs ([0a5135e4](0a5135e4))
+- **adm:** Integrate remote-settings-client (#232) ([385e220](385e220))
+
 <a name="0.4.3"></a>
+
 ## 0.4.3 (2021-11-26)
 
 #### Bug Fixes
 
-* **adm:**  Filter keywords that do not start with the partial query (#247) ([d166f66f](d166f66f))
-* **api:**  Split advertisers from the providers (#246) ([e3bdc366](e3bdc366))
+- **adm:** Filter keywords that do not start with the partial query (#247)
+  ([d166f66f](d166f66f))
+- **api:** Split advertisers from the providers (#246) ([e3bdc366](e3bdc366))
 
 <a name="0.4.2"></a>
 
