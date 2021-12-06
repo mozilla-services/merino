@@ -1,0 +1,1 @@
+initSidebarItems({"enum":[["PEMError","An error that can occur while parsing or validating a certificate."],["X509Error","An error that can occur while parsing or validating a certificate."]],"struct":[["NidError","An error that can occur while converting an OID to a Nid."]],"type":[["X509Result","Holds the result of parsing functions (X.509)"]]});

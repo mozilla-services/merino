@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["dbg_dmp_rest","Dump the remaining bytes to stderr, formatted as hex"]],"struct":[["HexSlice","Wrapper for printing slice as hex data"],["HexU16","Wrapper for printing value as u16 hex data"],["HexU8","Wrapper for printing value as u8 hex data"]]});

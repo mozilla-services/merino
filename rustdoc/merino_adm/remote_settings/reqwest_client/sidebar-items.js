@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["ReqwestClient","An remote-settings-client HTTP client that uses Reqwest."]]});
