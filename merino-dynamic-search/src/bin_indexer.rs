@@ -1,4 +1,7 @@
-use std::{collections::HashMap, io::ErrorKind};
+use std::{
+    collections::HashMap,
+    io::{BufReader, ErrorKind},
+};
 
 use anyhow::{anyhow, Context, Result};
 use indicatif::{ProgressBar, ProgressStyle};
@@ -84,9 +87,7 @@ struct PageToIndex {
 
 async fn get_wiki_texts(page_titles: &[&str]) -> Result<Vec<PageToIndex>> {
     const CHUNK_SIZE: usize = 50;
-
     let client = reqwest::Client::new();
-
     let bar = ProgressBar::new(page_titles.len() as u64);
     bar.set_style(
         ProgressStyle::default_bar()
@@ -98,16 +99,10 @@ async fn get_wiki_texts(page_titles: &[&str]) -> Result<Vec<PageToIndex>> {
     bar.println("Loading page contents from cache");
     for title in page_titles {
         bar.set_message(title.to_string());
-        match std::fs::File::open(format!("./wikipedia-page-cache/{}.json", title)) {
-            Ok(file) => match serde_json::from_reader(file) {
-                Ok(page) => {
-                    pages_by_title.insert(title, page);
-                    bar.inc(1);
-                }
-                Err(err) => bar.println(format!("Warn: Could not read cached file: {}", err)),
-            },
-            Err(err) if err.kind() == ErrorKind::NotFound => (),
-            Err(err) => bar.println(format!("Warn: Could not open cached file: {}", err)),
+        match load_page_from_cache(*title) {
+            Ok(Some(page)) => todo!(),
+            Ok(None) => (),
+            Err(_) => todo!(),
         }
     }
 
@@ -142,7 +137,20 @@ async fn get_wiki_texts(page_titles: &[&str]) -> Result<Vec<PageToIndex>> {
         data["query"]["pages"]
             .as_array()
             .ok_or_else(|| anyhow!("Could not get list of pages from Wikipedia response"))?
-            .iter()
+            .iter()        match std::fs::File::open(format!("./wikipedia-page-cache/{}.json", title)) {
+            Ok(file) => {
+                let buffered = BufReader::new(file);
+                match serde_json::from_reader(buffered) {
+                    Ok(page) => {
+                        pages_by_title.insert(title, page);
+                        bar.inc(1);
+                    }
+                    Err(err) => bar.println(format!("Warn: Could not read cached file: {}", err)),
+                }
+            }
+            Err(err) if err.kind() == ErrorKind::NotFound => (),
+            Err(err) => bar.println(format!("Warn: Could not open cached file: {}", err)),
+        }
             .zip(chunk)
             .map::<Result<(&str, PageToIndex)>, _>(|(page, original_title)| {
                 let wiki_title = page["title"]
@@ -194,4 +202,26 @@ async fn get_wiki_texts(page_titles: &[&str]) -> Result<Vec<PageToIndex>> {
     bar.finish();
 
     Ok(pages_by_title.into_values().collect())
+}
+
+fn load_page_from_cache(title: &str) -> Result<Option<PageToIndex>> {
+    todo!();
+    match std::fs::File::open(format!("./wikipedia-page-cache/{}.json", title)) {
+        Ok(file) => {
+            let buffered = BufReader::new(file);
+            match serde_json::from_reader(buffered) {
+                Ok(page) => {
+                    pages_by_title.insert(title, page);
+                    bar.inc(1);
+                }
+                Err(err) => bar.println(format!("Warn: Could not read cached file: {}", err)),
+            }
+        }
+        Err(err) if err.kind() == ErrorKind::NotFound => (),
+        Err(err) => bar.println(format!("Warn: Could not open cached file: {}", err)),
+    }
+}
+
+fn save_page_to_cache(page: PageToIndex) -> Result<()> {
+    todo!()
 }

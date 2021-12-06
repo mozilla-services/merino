@@ -7,11 +7,11 @@ use merino_settings::Settings;
 use merino_suggest::{Proportion, SetupError, SuggestError, Suggestion, SuggestionResponse};
 use std::convert::TryInto;
 use std::path::Path;
-use tantivy::schema::Value;
 use tantivy::{
     collector::TopDocs,
-    query::{BooleanQuery, BoostQuery, Occur, QueryParser},
-    schema::Schema,
+    query::{BooleanQuery, BoostQuery, Occur, Query, QueryParser},
+    schema::{IndexRecordOption, Schema, TextFieldIndexing, TextOptions, Value, STORED},
+    tokenizer::{Language, LowerCaser, RemoveLongFilter, SimpleTokenizer, Stemmer, TextAnalyzer},
     Document, Index, IndexReader,
 };
 
@@ -23,12 +23,14 @@ pub fn get_search_index() -> Result<Index> {
     std::fs::create_dir_all(index_path)?;
 
     let schema = {
-        use tantivy::schema::{STORED, TEXT};
+        let text_field_indexing = TextFieldIndexing::default()
+            .set_tokenizer("en_stem_custom")
+            .set_index_option(IndexRecordOption::WithFreqsAndPositions);
+        let text_options = TextOptions::default().set_indexing_options(text_field_indexing);
+
         let mut builder = Schema::builder();
-        // TEXT = tokenized and available to search
-        // STORED = stored in the index to be retrieved later
-        builder.add_text_field("title", STORED | TEXT);
-        builder.add_text_field("content", TEXT);
+        builder.add_text_field("title", STORED | text_options.clone());
+        builder.add_text_field("content", text_options);
         builder.add_text_field("url", STORED);
         builder.add_text_field("page_id", STORED);
         builder.build()
@@ -39,6 +41,17 @@ pub fn get_search_index() -> Result<Index> {
         Index::create_in_dir(index_path, schema.clone())
     })?;
     ensure!(index.schema() == schema);
+
+    let en_stem_custom = {
+        TextAnalyzer::from(SimpleTokenizer)
+            .filter(RemoveLongFilter::limit(40))
+            .filter(tantivy::tokenizer::AsciiFoldingFilter)
+            .filter(LowerCaser)
+            .filter(Stemmer::new(Language::English))
+    };
+    index
+        .tokenizers()
+        .register("en_stem_custom", en_stem_custom);
 
     Ok(index)
 }
@@ -114,7 +127,7 @@ pub fn do_search(reader: &IndexReader, query: &str) -> Result<Vec<(f32, Document
     ]);
 
     searcher
-        .search(&built_query, &TopDocs::with_limit(3))?
+        .search(&built_query, &TopDocs::with_limit(5))?
         .into_iter()
         .map(|(score, doc_address)| Ok((score, searcher.doc(doc_address)?)))
         .collect()
