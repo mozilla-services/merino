@@ -15,12 +15,9 @@ assignees: ""
 - [ ] Run local testing to ensure no artifacts or other local changes that might
       break tests have been introduced.
 - [ ] Change to the release branch.
-  - If this is a new major/minor release,
-    `git checkout -b release/{major}.{minor}.0` to create a new release branch.
-  - If this is a new patch release:
-    - `git checkout release/{major}.{minor}.{patch}`
-    - `git pull` to ensure the branch is up-to-date.
-    - Commit the needed changes to the branch.
+  - `git checkout -b release/{major}.{minor}.{patch}`
+  - `git pull` to ensure the branch is up-to-date.
+  - Commit the needed changes to the branch.
   - Note: For the remainder of this list `{version}` will refer to the
     `{major}.{minor}.{patch}` you've specified.
 - [ ] Edit wherever the version is in source (`Cargo.toml` of all crates) so
