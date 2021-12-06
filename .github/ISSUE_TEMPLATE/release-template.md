@@ -16,8 +16,6 @@ assignees: ""
       break tests have been introduced.
 - [ ] Change to the release branch.
   - `git checkout -b release/{major}.{minor}.{patch}`
-  - `git pull` to ensure the branch is up-to-date.
-  - Commit the needed changes to the branch.
   - Note: For the remainder of this list `{version}` will refer to the
     `{major}.{minor}.{patch}` you've specified.
 - [ ] Edit wherever the version is in source (`Cargo.toml` of all crates) so
