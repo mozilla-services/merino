@@ -44,8 +44,8 @@ impl RsRequester for ReqwestClient {
             Err(e) => {
                 tracing::error!(
                     r#type = "adm.remote-settings.reqwest.get-failed",
-                    "ReqwestClient - unable to submit GET request. {:?}",
-                    e.to_string()
+                    "ReqwestClient - unable to submit GET request. {:#?}",
+                    e
                 );
                 Err(())
             }
@@ -61,8 +61,8 @@ impl RsRequester for ReqwestClient {
                 let body = response.bytes().await.map_err(|err| {
                     tracing::error!(
                         r#type = "adm.remote-settings.reqwest.parsing-failed",
-                        "ReqwestClient - unable to parse response body. {:?}",
-                        err.to_string()
+                        "ReqwestClient - unable to parse response body. {:#?}",
+                        err
                     );
                 })?;
 
