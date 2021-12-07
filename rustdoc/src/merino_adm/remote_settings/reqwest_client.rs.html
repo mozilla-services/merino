@@ -122,8 +122,8 @@
             <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="macro">tracing::error!</span>(
                     <span class="ident">r#type</span> <span class="op">=</span> <span class="string">&quot;adm.remote-settings.reqwest.get-failed&quot;</span>,
-                    <span class="string">&quot;ReqwestClient - unable to submit GET request. {:?}&quot;</span>,
-                    <span class="ident">e</span>.<span class="ident">to_string</span>()
+                    <span class="string">&quot;ReqwestClient - unable to submit GET request. {:#?}&quot;</span>,
+                    <span class="ident">e</span>
                 );
                 <span class="prelude-val">Err</span>(())
             }
@@ -139,8 +139,8 @@
                 <span class="kw">let</span> <span class="ident">body</span> <span class="op">=</span> <span class="ident">response</span>.<span class="ident">bytes</span>().<span class="kw">await</span>.<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> {
                     <span class="macro">tracing::error!</span>(
                         <span class="ident">r#type</span> <span class="op">=</span> <span class="string">&quot;adm.remote-settings.reqwest.parsing-failed&quot;</span>,
-                        <span class="string">&quot;ReqwestClient - unable to parse response body. {:?}&quot;</span>,
-                        <span class="ident">err</span>.<span class="ident">to_string</span>()
+                        <span class="string">&quot;ReqwestClient - unable to parse response body. {:#?}&quot;</span>,
+                        <span class="ident">err</span>
                     );
                 })<span class="question-mark">?</span>;
 
