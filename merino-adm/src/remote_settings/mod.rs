@@ -57,7 +57,7 @@ impl RemoteSettingsSuggester {
                     .unwrap_or(&settings.remote_settings.default_collection)
                     .clone(),
             )
-            .server_url(&settings.remote_settings.server)
+            .server_url(&format!("{}/v1", settings.remote_settings.server))
             .sync_if_empty(true)
             .storage(Box::new(remote_settings_client::client::FileStorage {
                 folder: std::env::temp_dir(),
