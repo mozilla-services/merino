@@ -42,6 +42,9 @@ impl RemoteSettingsSuggester {
         config: &RemoteSettingsConfig,
         metrics_client: StatsdClient,
     ) -> Result<Box<Self>, SetupError> {
+        let reqwest_client = ReqwestClient::try_new()
+            .context("Unable to create the Reqwest client")
+            .map_err(SetupError::Network)?;
         let mut remote_settings_client = remote_settings_client::Client::builder()
             .bucket_name(
                 config
@@ -63,7 +66,7 @@ impl RemoteSettingsSuggester {
                 folder: std::env::temp_dir(),
                 ..remote_settings_client::client::FileStorage::default()
             }))
-            .http_client(Box::new(ReqwestClient::new()))
+            .http_client(Box::new(reqwest_client))
             .build()
             .context("Unable to initialize the Remote Settings client")
             .map_err(SetupError::InvalidConfiguration)?;

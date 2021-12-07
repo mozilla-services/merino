@@ -4,7 +4,7 @@
 
 //! An HTTP client implementation to use with the remote-settings-client.
 
-use anyhow::Context;
+use anyhow::{Context, Error};
 use async_trait::async_trait;
 use remote_settings_client::client::net::{
     Headers as RsHeaders, Requester as RsRequester, Response as RsResponse, Url as RsUrl,
@@ -20,10 +20,13 @@ pub struct ReqwestClient {
 
 impl ReqwestClient {
     /// Instantiate a new Reqwest client to perform HTTP requests.
-    pub fn new() -> ReqwestClient {
-        Self {
-            reqwest_client: reqwest::Client::new(),
-        }
+    pub fn try_new() -> Result<ReqwestClient, Error> {
+        let reqwest_client = reqwest::Client::builder()
+            // Disable the connection pool to avoid the IncompleteMessage errors.
+            // See #259 for more details.
+            .pool_max_idle_per_host(0)
+            .build()?;
+        Ok(Self { reqwest_client })
     }
 }
 
