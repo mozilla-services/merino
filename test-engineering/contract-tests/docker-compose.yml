@@ -8,6 +8,9 @@ services:
     environment:
       # The configuration preset to use
       MERINO_ENV: "ci"
+      MERINO_REMOTE_SETTINGS__DEFAULT_BUCKET: main
+      MERINO_REMOTE_SETTINGS__DEFAULT_COLLECTION: quicksuggest
+      MERINO_REMOTE_SETTINGS__SERVER: http://kinto:8888
     depends_on:
       - kinto
       - kinto-attachments
@@ -21,14 +24,18 @@ services:
     container_name: merino_client
     depends_on:
       - merino
-      - kinto
-      - kinto-attachments
     volumes:
       - ./volumes/client:/tmp/client
+      - ./volumes/kinto:/tmp/kinto
       - ../../dev/wait-for-it.sh:/wait-for-it.sh
     environment:
       MERINO_URL: http://merino:8000
       SCENARIOS_FILE: /tmp/client/scenarios.yml
+      KINTO_URL: http://kinto:8888
+      KINTO_BUCKET: main
+      KINTO_COLLECTION: quicksuggest
+      KINTO_DATA_DIR: /tmp/kinto
+      KINTO_ATTACHMENTS_URL: http://kinto-attachments
     command: >
       /wait-for-it.sh merino:8000 --strict -- pytest -vv
 
