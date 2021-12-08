@@ -26,7 +26,7 @@ scenarios:
                 url: 'https://en.wikipedia.org/wiki/Apple'
                 impression_url: 'https://127.0.0.1/'
                 click_url: 'https://127.0.0.1/'
-                provider: 'test'
+                provider: 'test_wiki_fruit'
                 advertiser: 'test_advertiser'
                 is_sponsored: false
                 icon: 'https://en.wikipedia.org/favicon.ico'
@@ -58,37 +58,7 @@ scenarios:
                 url: 'https://en.wikipedia.org/wiki/Apple'
                 impression_url: 'https://127.0.0.1/'
                 click_url: 'https://127.0.0.1/'
-                provider: 'test'
-                advertiser: 'test_advertiser'
-                is_sponsored: false
-                icon: 'https://en.wikipedia.org/favicon.ico'
-                score: 0.0
-
-  - name: wiki_fruit__banana
-    description: Test that Merino successfully returns a WikiFruit suggestion
-    steps:
-      - request:
-          method: GET
-          path: '/api/v1/suggest?q=banana'
-          headers:
-            - name: User-Agent
-              value: 'Mozilla/5.0 (Windows NT 10.0; rv:10.0) Gecko/20100101 Firefox/91.0'
-            - name: Accept-Language
-              value: 'en-US'
-        response:
-          status_code: 200
-          content:
-            client_variants: []
-            server_variants: []
-            request_id: null
-            suggestions:
-              - block_id: 1
-                full_keyword: 'banana'
-                title: 'Wikipedia - Banana'
-                url: 'https://en.wikipedia.org/wiki/Banana'
-                impression_url: 'https://127.0.0.1/'
-                click_url: 'https://127.0.0.1/'
-                provider: 'test'
+                provider: 'test_wiki_fruit'
                 advertiser: 'test_advertiser'
                 is_sponsored: false
                 icon: 'https://en.wikipedia.org/favicon.ico'
@@ -118,8 +88,80 @@ scenarios:
                 url: 'https://en.wikipedia.org/wiki/Cherry'
                 impression_url: 'https://127.0.0.1/'
                 click_url: 'https://127.0.0.1/'
-                provider: 'test'
+                provider: 'test_wiki_fruit'
                 advertiser: 'test_advertiser'
                 is_sponsored: false
                 icon: 'https://en.wikipedia.org/favicon.ico'
                 score: 0.0
+
+  - name: remote_settings__coffee
+    description: Test that Merino successfully returns a Remote Settings suggestion
+    steps:
+      - request:
+          method: GET
+          path: '/api/v1/suggest?q=coffee'
+          headers:
+            - name: User-Agent
+              value: 'Mozilla/5.0 (Windows NT 10.0; rv:10.0) Gecko/20100101 Firefox/91.0'
+            - name: Accept-Language
+              value: 'en-US'
+        response:
+          status_code: 200
+          content:
+            client_variants: []
+            server_variants: []
+            request_id: null
+            suggestions:
+              - block_id: 3
+                full_keyword: 'coffee'
+                title: 'Coffee'
+                url: 'https://example.com/target/coffee'
+                impression_url: 'https://example.com/impression/coffee'
+                click_url: 'https://example.com/click/coffee'
+                provider: 'test_remote_settings'
+                advertiser: 'Example.com'
+                is_sponsored: true
+                # The client test framework knows how to interpret a value of `null` for this field.
+                icon: null
+                score: 0.3
+
+  - name: multiple_providers__banana
+    description: Test that Merino successfully returns suggestions from multiple providers
+    steps:
+      - request:
+          method: GET
+          path: '/api/v1/suggest?q=banana'
+          headers:
+            - name: User-Agent
+              value: 'Mozilla/5.0 (Windows NT 10.0; rv:10.0) Gecko/20100101 Firefox/91.0'
+            - name: Accept-Language
+              value: 'en-US'
+        response:
+          status_code: 200
+          content:
+            client_variants: []
+            server_variants: []
+            request_id: null
+            suggestions:
+              - block_id: 1
+                full_keyword: 'banana'
+                title: 'Wikipedia - Banana'
+                url: 'https://en.wikipedia.org/wiki/Banana'
+                impression_url: 'https://127.0.0.1/'
+                click_url: 'https://127.0.0.1/'
+                provider: 'test_wiki_fruit'
+                advertiser: 'test_advertiser'
+                is_sponsored: false
+                icon: https://en.wikipedia.org/favicon.ico
+                score: 0.0
+              - block_id: 2
+                full_keyword: 'banana'
+                title: 'Banana'
+                url: 'https://example.org/target/banana'
+                impression_url: 'https://example.org/impression/banana'
+                click_url: 'https://example.org/click/banana'
+                provider: 'test_remote_settings'
+                advertiser: 'Example.org'
+                is_sponsored: true
+                icon: null
+                score: 0.3
