@@ -35,8 +35,8 @@ class Suggestion(BaseModel, extra=Extra.allow):
     provider: str
     advertiser: str
     is_sponsored: bool
-    icon: str
     score: float
+    icon: Optional[str] = Field(...)
 
 
 class ResponseContent(BaseModel):
