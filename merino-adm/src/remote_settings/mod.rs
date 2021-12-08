@@ -1,12 +1,13 @@
 //! AdM integration that uses the remote-settings provided data.
 
-mod reqwest_client;
+mod client;
 
-use crate::remote_settings::reqwest_client::ReqwestClient;
+use crate::remote_settings::client::RemoteSettingsClient;
 use anyhow::Context;
 use async_trait::async_trait;
 use cadence::StatsdClient;
 use deduped_dashmap::DedupedMap;
+use futures::StreamExt;
 use http::Uri;
 use lazy_static::lazy_static;
 use merino_settings::{providers::RemoteSettingsConfig, Settings};
@@ -42,35 +43,19 @@ impl RemoteSettingsSuggester {
         config: &RemoteSettingsConfig,
         metrics_client: StatsdClient,
     ) -> Result<Box<Self>, SetupError> {
-        let reqwest_client = ReqwestClient::try_new()
-            .context("Unable to create the Reqwest client")
-            .map_err(SetupError::Network)?;
-        let mut remote_settings_client = remote_settings_client::Client::builder()
-            .bucket_name(
-                config
-                    .bucket
-                    .as_ref()
-                    .unwrap_or(&settings.remote_settings.default_bucket)
-                    .clone(),
-            )
-            .collection_name(
-                config
-                    .collection
-                    .as_ref()
-                    .unwrap_or(&settings.remote_settings.default_collection)
-                    .clone(),
-            )
-            .server_url(&format!("{}/v1", settings.remote_settings.server))
-            .sync_if_empty(true)
-            .storage(Box::new(remote_settings_client::client::FileStorage {
-                folder: std::env::temp_dir(),
-                ..remote_settings_client::client::FileStorage::default()
-            }))
-            .http_client(Box::new(reqwest_client))
-            .build()
-            .context("Unable to initialize the Remote Settings client")
-            .map_err(SetupError::InvalidConfiguration)?;
-
+        let mut remote_settings_client = RemoteSettingsClient::new(
+            &settings.remote_settings.server,
+            config
+                .bucket
+                .as_ref()
+                .unwrap_or(&settings.remote_settings.default_bucket)
+                .clone(),
+            config
+                .collection
+                .as_ref()
+                .unwrap_or(&settings.remote_settings.default_collection)
+                .clone(),
+        )?;
         let suggestions = Arc::new(DedupedMap::new());
         let suggestion_score = config
             .suggestion_score
@@ -131,138 +116,94 @@ impl RemoteSettingsSuggester {
     /// This must be called at least once before any suggestions will be provided
     #[tracing::instrument(skip(remote_settings_client, suggestions))]
     pub async fn sync(
-        remote_settings_client: &mut remote_settings_client::Client,
+        remote_settings_client: &mut RemoteSettingsClient,
         suggestions: &DedupedMap<String, (), Suggestion>,
         suggestion_score: Proportion,
     ) -> Result<(), SetupError> {
         tracing::info!(
             r#type = "adm.remote-settings.sync-start",
+            server = %remote_settings_client.server_url(),
+            bucket = %remote_settings_client.bucket_id(),
+            collection = %remote_settings_client.collection_id(),
             "Syncing quicksuggest records from Remote Settings"
         );
+        remote_settings_client.sync().await?;
 
-        let collection = remote_settings_client
-            .sync(None)
-            .await
-            .context("Fetching records from remote settings")
-            .map_err(SetupError::Network)?;
-
-        let mut records: Vec<remote_settings_client::Record> = collection
-            .records
-            .into_iter()
-            .filter(|r| !r.deleted())
-            .collect();
-
-        /// Used to parse the attachments coming from RS.
-        #[derive(Debug, Deserialize)]
-        #[serde(transparent)]
-        struct VecAdm {
-            /// The attachments coming from RS are in the shape
-            /// of a top level JSON vector, so reflect that with
-            /// this field. Note that, due to serde's 'transparent'
-            /// property, this gets interpreted as a top level field.
-            suggestions: Vec<AdmSuggestion>,
-        }
-
-        impl std::convert::TryFrom<Vec<u8>> for VecAdm {
-            type Error = serde_json::Error;
-
-            fn try_from(value: Vec<u8>) -> Result<Self, Self::Error> {
-                serde_json::from_slice(&value)
+        // Download and process all the attachments concurrently
+        let mut suggestion_attachments = futures::stream::FuturesUnordered::new();
+        for record in remote_settings_client.records_of_type("data".to_string()) {
+            if let Some(attachment) = record.attachment() {
+                tracing::trace!(?attachment.hash, "Queueing future to fetch attachment");
+                suggestion_attachments.push(async move {
+                    (
+                        attachment.hash.clone(),
+                        attachment.fetch::<Vec<AdmSuggestion>>().await,
+                    )
+                });
             }
         }
-
-        // Download and process all the attachments.
-        let mut data_records = records.clone();
-        data_records.retain(|r| r.get("type") == Some(&serde_json::json!("data")));
 
         tracing::trace!("loading suggestions from records");
 
-        let server_info = remote_settings_client
-            .server_info()
-            .await
-            .context("Fetching server information")
-            .map_err(SetupError::Network)?;
-        let attachments_base_url = match &server_info["capabilities"]["attachments"]["base_url"] {
-            serde_json::Value::String(s) => s,
-            _ => {
-                return Err(SetupError::Format(anyhow::anyhow!(
-                    "Could not get attachments base URL"
-                )))
-            }
-        };
-
         // Build a map of icon IDs to URLs.
-        records.retain(|r| r.get("type") == Some(&serde_json::json!("icon")));
-        let mut icon_urls = HashMap::new();
-        for mut record in records {
-            let id = record.id().to_string();
-            if let Ok(Some(meta)) = record.attachment_metadata() {
-                let url = format!("{}{}", attachments_base_url, meta.location.clone());
-                icon_urls.entry(id).or_insert(url);
-            }
-        }
+        let icon_urls: HashMap<_, _> = remote_settings_client
+            .records_of_type("icon".to_string())
+            .filter_map(|record| {
+                record
+                    .attachment()
+                    .map(|attachment| (&record.id, &attachment.location))
+            })
+            .collect();
 
         // Convert the collection of adM suggestion attachments into a lookup
         // table of keyword -> merino suggestion.
         let mut new_suggestions = HashMap::new();
-        for record in data_records.iter_mut() {
-            if let Ok(Some(parsed_data)) = remote_settings_client
-                .fetch_attachment::<VecAdm, serde_json::Error>(record)
-                .await
-            {
-                let attachment_hash = match record.attachment_metadata() {
-                    Ok(Some(meta)) => &meta.hash,
-                    _ => continue,
+        while let Some((attachment_hash, attachment_content)) = suggestion_attachments.next().await
+        {
+            let attachment_suggestions = attachment_content?;
+            tracing::trace!(%attachment_hash, suggestion_count = ?attachment_suggestions.len(), "processing attachment");
+            for adm_suggestion in attachment_suggestions {
+                if adm_suggestion.keywords.is_empty() {
+                    tracing::warn!(
+                        ?adm_suggestion,
+                        "Suggestion from remote settings has no keywords"
+                    );
+                    continue;
+                }
+
+                let icon_key = format!("icon-{}", adm_suggestion.icon);
+                let icon_url = if let Some(u) = icon_urls.get(&icon_key) {
+                    Uri::from_maybe_shared(u.to_string()).expect("invalid URL")
+                } else {
+                    tracing::warn!(suggestion_id = %adm_suggestion.id, "ADM suggestion has no icon");
+                    continue;
                 };
 
-                tracing::trace!(%attachment_hash, suggestion_count = ?parsed_data.suggestions.len(), "processing attachment");
-                for adm_suggestion in parsed_data.suggestions {
-                    if adm_suggestion.keywords.is_empty() {
-                        tracing::warn!(
-                            r#type = "adm.remote-settings.sync-no-keywords",
-                            ?adm_suggestion,
-                            "Suggestion from remote settings has no keywords"
-                        );
-                        continue;
-                    }
+                let merino_suggestion = Suggestion {
+                    id: adm_suggestion.id,
+                    title: adm_suggestion.title.clone(),
+                    url: adm_suggestion.url.clone(),
+                    impression_url: adm_suggestion.impression_url.clone(),
+                    click_url: adm_suggestion.click_url.clone(),
+                    full_keyword: String::new(),
+                    provider: adm_suggestion.advertiser.clone(),
+                    advertiser: adm_suggestion.advertiser.clone(),
+                    is_sponsored: !NON_SPONSORED_IAB_CATEGORIES
+                        .contains(&adm_suggestion.iab_category.as_str()),
+                    icon: icon_url,
+                    score: suggestion_score,
+                };
 
-                    let icon_key = format!("icon-{}", adm_suggestion.icon);
-                    let icon_url = if let Some(u) = icon_urls.get(&icon_key) {
-                        Uri::from_maybe_shared(u.to_string()).expect("invalid URL")
-                    } else {
-                        tracing::warn!(
-                            r#type = "adm.remote-settings.sync-no-icon",
-                            suggestion_id = %adm_suggestion.id, "ADM suggestion has no icon");
-                        continue;
-                    };
+                for keyword in &adm_suggestion.keywords {
+                    let full_keyword = Self::get_full_keyword(keyword, &adm_suggestion.keywords);
 
-                    let merino_suggestion = Suggestion {
-                        id: adm_suggestion.id,
-                        title: adm_suggestion.title.clone(),
-                        url: adm_suggestion.url.clone(),
-                        impression_url: adm_suggestion.impression_url.clone(),
-                        click_url: adm_suggestion.click_url.clone(),
-                        full_keyword: String::new(),
-                        provider: adm_suggestion.advertiser.clone(),
-                        advertiser: adm_suggestion.advertiser.clone(),
-                        is_sponsored: !NON_SPONSORED_IAB_CATEGORIES
-                            .contains(&adm_suggestion.iab_category.as_str()),
-                        icon: icon_url,
-                        score: suggestion_score,
-                    };
-
-                    for keyword in &adm_suggestion.keywords {
-                        let full_keyword =
-                            Self::get_full_keyword(keyword, &adm_suggestion.keywords);
-
-                        new_suggestions.insert(
-                            keyword.clone(),
-                            Suggestion {
-                                full_keyword,
-                                ..merino_suggestion.clone()
-                            },
-                        );
-                    }
+                    new_suggestions.insert(
+                        keyword.clone(),
+                        Suggestion {
+                            full_keyword,
+                            ..merino_suggestion.clone()
+                        },
+                    );
                 }
             }
         }
