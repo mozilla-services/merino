@@ -69,3 +69,17 @@ class Scenario(BaseModel):
     name: str
     description: str
     steps: List[Step]
+
+
+class KintoSuggestion(BaseModel):
+    """Class that holds information about a Suggestion in Kinto."""
+
+    id: int
+    url: str
+    click_url: str
+    impression_url: str
+    iab_category: str
+    icon: str
+    advertiser: str
+    title: str
+    keywords: List[str] = Field(default_factory=list)
