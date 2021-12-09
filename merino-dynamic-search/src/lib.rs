@@ -9,7 +9,7 @@ use std::convert::TryInto;
 use std::path::Path;
 use tantivy::{
     collector::TopDocs,
-    query::{BooleanQuery, BoostQuery, Occur, Query, QueryParser},
+    query::{BooleanQuery, BoostQuery, Occur, QueryParser},
     schema::{IndexRecordOption, Schema, TextFieldIndexing, TextOptions, Value, STORED},
     tokenizer::{Language, LowerCaser, RemoveLongFilter, SimpleTokenizer, Stemmer, TextAnalyzer},
     Document, Index, IndexReader,

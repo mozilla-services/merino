@@ -23,5 +23,9 @@ fn main() -> Result<()> {
         .try_into()
         .context("Setting up search reader")?;
 
+    for (score, doc) in do_search(&reader, &search_query)? {
+        println!("{} - {}", score, index.schema().to_json(&doc));
+    }
+
     Ok(())
 }

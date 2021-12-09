@@ -1,6 +1,7 @@
 use std::{
     collections::HashMap,
-    io::{BufReader, ErrorKind},
+    io::{BufReader, BufWriter, ErrorKind},
+    path::PathBuf,
 };
 
 use anyhow::{anyhow, Context, Result};
@@ -36,8 +37,9 @@ async fn main() -> Result<()> {
     );
 
     let index = merino_dynamic_search::get_search_index()?;
-
     let mut index_writer = index.writer(50 * MEGA)?;
+    index_writer.delete_all_documents()?;
+
     let title_field = index
         .schema()
         .get_field("title")
@@ -58,6 +60,7 @@ async fn main() -> Result<()> {
     for page in pages {
         bar.set_message(page.title.clone());
         bar.inc(1);
+
         index_writer.add_document(doc!(
             title_field => page.title,
             content_field => page.content,
@@ -98,11 +101,10 @@ async fn get_wiki_texts(page_titles: &[&str]) -> Result<Vec<PageToIndex>> {
 
     bar.println("Loading page contents from cache");
     for title in page_titles {
-        bar.set_message(title.to_string());
-        match load_page_from_cache(*title) {
-            Ok(Some(page)) => todo!(),
-            Ok(None) => (),
-            Err(_) => todo!(),
+        bar.set_message((*title).to_string());
+        if let Some(page) = load_page_from_cache(*title)? {
+            pages_by_title.insert(title, page);
+            bar.inc(1);
         }
     }
 
@@ -137,20 +139,7 @@ async fn get_wiki_texts(page_titles: &[&str]) -> Result<Vec<PageToIndex>> {
         data["query"]["pages"]
             .as_array()
             .ok_or_else(|| anyhow!("Could not get list of pages from Wikipedia response"))?
-            .iter()        match std::fs::File::open(format!("./wikipedia-page-cache/{}.json", title)) {
-            Ok(file) => {
-                let buffered = BufReader::new(file);
-                match serde_json::from_reader(buffered) {
-                    Ok(page) => {
-                        pages_by_title.insert(title, page);
-                        bar.inc(1);
-                    }
-                    Err(err) => bar.println(format!("Warn: Could not read cached file: {}", err)),
-                }
-            }
-            Err(err) if err.kind() == ErrorKind::NotFound => (),
-            Err(err) => bar.println(format!("Warn: Could not open cached file: {}", err)),
-        }
+            .iter()
             .zip(chunk)
             .map::<Result<(&str, PageToIndex)>, _>(|(page, original_title)| {
                 let wiki_title = page["title"]
@@ -179,14 +168,12 @@ async fn get_wiki_texts(page_titles: &[&str]) -> Result<Vec<PageToIndex>> {
             .collect::<Result<Vec<_>, _>>()?
             .into_iter()
             .map(|(original_title, page)| {
-                std::fs::File::create(format!("./wikipedia-page-cache/{}.json", original_title))
-                    .context("opening file for writing")
-                    .and_then(|f| {
-                        serde_json::to_writer(f, &page)
-                            .context("serializing downloaded page to cache")
-                    })
+                save_page_to_cache(&page)
                     .map_err(|err| {
-                        bar.println(format!("Could not save downloaded page to cache: {}", err));
+                        bar.println(format!(
+                            "Error: Could not save downloaded page to cache: {}",
+                            err
+                        ));
                     })
                     .ok();
 
@@ -204,24 +191,31 @@ async fn get_wiki_texts(page_titles: &[&str]) -> Result<Vec<PageToIndex>> {
     Ok(pages_by_title.into_values().collect())
 }
 
+fn cache_path(title: &str) -> PathBuf {
+    format!("./wikipedia-page-cache/{}.json", title).into()
+}
+
 fn load_page_from_cache(title: &str) -> Result<Option<PageToIndex>> {
-    todo!();
-    match std::fs::File::open(format!("./wikipedia-page-cache/{}.json", title)) {
+    let file_path = cache_path(title);
+    match std::fs::File::open(&file_path) {
         Ok(file) => {
             let buffered = BufReader::new(file);
-            match serde_json::from_reader(buffered) {
-                Ok(page) => {
-                    pages_by_title.insert(title, page);
-                    bar.inc(1);
-                }
-                Err(err) => bar.println(format!("Warn: Could not read cached file: {}", err)),
-            }
+            serde_json::from_reader(buffered)
+                .map_err(|err| {
+                    std::fs::remove_file(&file_path).ok();
+                    err
+                })
+                .context("deserializing cached page")
         }
-        Err(err) if err.kind() == ErrorKind::NotFound => (),
-        Err(err) => bar.println(format!("Warn: Could not open cached file: {}", err)),
+        Err(err) if err.kind() == ErrorKind::NotFound => Ok(None),
+        Err(err) => Err(anyhow::Error::new(err)),
     }
 }
 
-fn save_page_to_cache(page: PageToIndex) -> Result<()> {
-    todo!()
+fn save_page_to_cache(page: &PageToIndex) -> Result<()> {
+    let file_path = cache_path(&page.title);
+    let f = std::fs::File::create(file_path)?;
+    let buffered = BufWriter::new(f);
+    serde_json::to_writer(buffered, page)?;
+    Ok(())
 }
