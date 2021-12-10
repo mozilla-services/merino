@@ -35,8 +35,8 @@ class Suggestion(BaseModel, extra=Extra.allow):
     provider: str
     advertiser: str
     is_sponsored: bool
-    icon: str
     score: float
+    icon: Optional[str] = Field(...)
 
 
 class ResponseContent(BaseModel):
@@ -69,3 +69,17 @@ class Scenario(BaseModel):
     name: str
     description: str
     steps: List[Step]
+
+
+class KintoSuggestion(BaseModel):
+    """Class that holds information about a Suggestion in Kinto."""
+
+    id: int
+    url: str
+    click_url: str
+    impression_url: str
+    iab_category: str
+    icon: str
+    advertiser: str
+    title: str
+    keywords: List[str] = Field(default_factory=list)
