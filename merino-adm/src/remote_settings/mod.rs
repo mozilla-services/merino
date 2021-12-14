@@ -1,8 +1,10 @@
 //! AdM integration that uses the remote-settings provided data.
 
 mod reqwest_client;
+mod soft_verifier;
 
 use crate::remote_settings::reqwest_client::ReqwestClient;
+use crate::remote_settings::soft_verifier::SoftVerifier;
 use anyhow::Context;
 use async_trait::async_trait;
 use cadence::StatsdClient;
@@ -27,7 +29,7 @@ pub struct RemoteSettingsSuggester {
     /// A map from keywords to suggestions that can be provided.
     suggestions: Arc<DedupedMap<String, (), Suggestion>>,
 
-    /// A map from keywords to suggestions that can be provided.
+    /// The Statsd client used to record statistics.
     metrics_client: StatsdClient,
 }
 
@@ -67,6 +69,7 @@ impl RemoteSettingsSuggester {
                 ..remote_settings_client::client::FileStorage::default()
             }))
             .http_client(Box::new(reqwest_client))
+            .verifier(Box::new(SoftVerifier::new()))
             .build()
             .context("Unable to initialize the Remote Settings client")
             .map_err(SetupError::InvalidConfiguration)?;
