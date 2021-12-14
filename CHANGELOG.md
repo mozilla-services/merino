@@ -1,6 +1,24 @@
+<a name="v0.5.0"></a>
+
+## v0.5.0 (2021-12-14)
+
+The changes in 0.4.4 were never deployed, but probably should have been a minor
+update, since it introduced a large change to the remote settings provider. As
+such, this release is getting that minor version update.
+
+#### Bug Fixes
+
+- **adm:** Include `/v1` on the end of the remote settings URL we give to the RS
+  client ([f89a3adf](f89a3adf))
+
+#### Features
+
+- check signature of remote-settings content ([5a0f1f17](5a0f1f17))
+- don't hide inner errors in the log message ([7d50255d](7d50255d))
+
 <a name="0.4.4"></a>
 
-## 0.4.4 (2021-12-06)
+## 0.4.4 (2021-12-06) - Not deployed
 
 #### Bug Fixes
 
