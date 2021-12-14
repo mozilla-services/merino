@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["SoftVerifier","A custom signature verification helper to use with the remote-settings-client library."]]});

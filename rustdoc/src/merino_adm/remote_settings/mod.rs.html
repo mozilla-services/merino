@@ -630,12 +630,17 @@
 <span id="630">630</span>
 <span id="631">631</span>
 <span id="632">632</span>
+<span id="633">633</span>
+<span id="634">634</span>
+<span id="635">635</span>
 </pre><pre class="rust">
 <span class="doccomment">//! AdM integration that uses the remote-settings provided data.</span>
 
 <span class="kw">mod</span> <span class="ident">reqwest_client</span>;
+<span class="kw">mod</span> <span class="ident">soft_verifier</span>;
 
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::remote_settings::reqwest_client::ReqwestClient</span>;
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::remote_settings::soft_verifier::SoftVerifier</span>;
 <span class="kw">use</span> <span class="ident">anyhow::Context</span>;
 <span class="kw">use</span> <span class="ident">async_trait::async_trait</span>;
 <span class="kw">use</span> <span class="ident">cadence::StatsdClient</span>;
@@ -660,7 +665,7 @@
     <span class="doccomment">/// A map from keywords to suggestions that can be provided.</span>
     <span class="ident">suggestions</span>: <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">DedupedMap</span><span class="op">&lt;</span><span class="ident">String</span>, (), <span class="ident">Suggestion</span><span class="op">&gt;</span><span class="op">&gt;</span>,
 
-    <span class="doccomment">/// A map from keywords to suggestions that can be provided.</span>
+    <span class="doccomment">/// The Statsd client used to record statistics.</span>
     <span class="ident">metrics_client</span>: <span class="ident">StatsdClient</span>,
 }
 
@@ -700,6 +705,7 @@
                 ..<span class="ident">remote_settings_client::client::FileStorage::default</span>()
             }))
             .<span class="ident">http_client</span>(<span class="ident">Box::new</span>(<span class="ident">reqwest_client</span>))
+            .<span class="ident">verifier</span>(<span class="ident">Box::new</span>(<span class="ident">SoftVerifier::new</span>()))
             .<span class="ident">build</span>()
             .<span class="ident">context</span>(<span class="string">&quot;Unable to initialize the Remote Settings client&quot;</span>)
             .<span class="ident">map_err</span>(<span class="ident">SetupError::InvalidConfiguration</span>)<span class="question-mark">?</span>;

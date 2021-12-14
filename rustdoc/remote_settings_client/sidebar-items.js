@@ -1,1 +1,1 @@
-initSidebarItems({"enum":[["SignatureError",""],["StorageError",""]],"mod":[["client",""]],"trait":[["Storage","A trait for giving a type a custom storage implementation"],["Verification","A trait for signature verification of collection data."]]});
+initSidebarItems({"enum":[["SignatureError",""],["StorageError",""]],"mod":[["client",""]],"struct":[["RingVerifier",""]],"trait":[["Storage","A trait for giving a type a custom storage implementation"],["Verification","A trait for signature verification of collection data."]]});
