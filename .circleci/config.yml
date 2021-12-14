@@ -8,50 +8,78 @@ version: 2.1
 
 workflows:
   version: 2
-  build-deploy:
+  pr-workflow:
     jobs:
-      - checks:
-          filters:
-            tags:
-              only: /.*/
-
-      - build-and-test:
-          filters:
-            tags:
-              only: /.*/
-
-      - docs-build
-
-      - docs-publish-github-pages:
-          requires:
-            - docs-build
+      - checks: &pr-filters
           filters:
             branches:
-              only: main
-
+              ignore: main
+      - build-and-test:
+          <<: *pr-filters
+      - docs-build:
+          <<: *pr-filters
       - docker-image-build:
-          filters:
-            tags:
-              only: /.+/
-      
+          <<: *pr-filters
       - contract-tests:
-          name: contract-tests
+          <<: *pr-filters
           requires:
             - checks
             - build-and-test
             - docker-image-build
 
+  main-workflow:
+    jobs:
+      - checks: &main-filters
+          filters:
+            branches:
+              only: main
+      - build-and-test:
+          <<: *main-filters
+      - docs-build:
+          <<: *main-filters
+      - docs-publish-github-pages:
+          <<: *main-filters
+          requires:
+            - docs-build
+      - docker-image-build:
+          <<: *main-filters
+      - contract-tests:
+          <<: *main-filters
+          requires:
+            - checks
+            - build-and-test
+            - docker-image-build
       - docker-image-publish:
+          <<: *main-filters
           requires:
             - checks
             - build-and-test
             - docker-image-build
             - contract-tests
+
+  tag-workflow:
+    jobs:
+      - checks: &tag-filters
           filters:
-            branches:
-              only: main
             tags:
-              only: /v.+/
+              only: /v.*/
+            branches:
+              ignore: /.*/
+      - build-and-test:
+          <<: *tag-filters
+      - docker-image-build:
+          <<: *tag-filters
+      - contract-tests:
+          <<: *tag-filters
+          requires:
+            - docker-image-build
+      - docker-image-publish:
+          <<: *tag-filters
+          requires:
+            - checks
+            - build-and-test
+            - docker-image-build
+            - contract-tests
 
 jobs:
   checks:
