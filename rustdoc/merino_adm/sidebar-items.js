@@ -1,1 +1,1 @@
-initSidebarItems({"mod":[["remote_settings","AdM integration that uses the remote-settings provided data."],["server_side","AdM integration that uses adM’s server-side API to retrieve suggestions to provide to Firefox."]]});
+initSidebarItems({"mod":[["remote_settings","AdM integration that uses the remote-settings provided data."]]});
