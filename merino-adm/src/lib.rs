@@ -3,4 +3,3 @@
 //! Integration between [Merino](../merino/index.html) and AdMarketplace APIs.
 
 pub mod remote_settings;
-pub mod server_side;
