@@ -2,10 +2,10 @@
 
 use std::str::FromStr;
 
-use crate::errors::{HandlerError, HandlerErrorKind};
+use crate::errors::HandlerErrorKind;
 use actix_web::{
     dev::Payload,
-    http::{header, HeaderValue},
+    http::header::{self, AcceptLanguage, Header, HeaderValue},
     web::Query,
     Error as ActixError, FromRequest, HttpRequest,
 };
@@ -17,7 +17,7 @@ use futures_util::{
 use lazy_static::lazy_static;
 use merino_suggest::{
     device_info::{Browser, DeviceInfo, FormFactor, OsFamily},
-    Language, LanguageIdentifier, SuggestionRequest, SupportedLanguages,
+    SuggestionRequest, SupportedLanguages,
 };
 use serde::Deserialize;
 use tokio::try_join;
@@ -31,8 +31,6 @@ lazy_static! {
 pub struct SuggestionRequestWrapper(pub SuggestionRequest);
 
 impl FromRequest for SuggestionRequestWrapper {
-    type Config = ();
-
     type Error = ActixError;
 
     type Future = LocalBoxFuture<'static, Result<Self, Self::Error>>;
@@ -86,85 +84,19 @@ struct SuggestQuery {
 struct SupportedLanguagesWrapper(SupportedLanguages);
 
 impl FromRequest for SupportedLanguagesWrapper {
-    type Config = ();
     type Error = ActixError;
     type Future = Ready<Result<Self, Self::Error>>;
 
     fn from_request(req: &HttpRequest, _payload: &mut Payload) -> Self::Future {
-        /// Parse the quality value from a string of the form q=`<quality value>`.
-        fn parse_quality_value(quality_value: &str) -> Result<f64, HandlerError> {
-            let (_, weight_as_string) = quality_value
-                .split_once('=')
-                .ok_or(HandlerErrorKind::MalformedHeader("Accept-Language"))?;
-
-            let weight = weight_as_string
-                .parse::<f64>()
-                .map_err(|_| HandlerErrorKind::MalformedHeader("Accept-Language"))?;
-
-            if (0.0..=1.0).contains(&weight) {
-                Ok(weight)
-            } else {
-                Err(HandlerErrorKind::MalformedHeader("Accept-Language").into())
+        future::ready({
+            match AcceptLanguage::parse(req) {
+                Ok(languages) if languages.is_empty() => {
+                    Err(HandlerErrorKind::MalformedHeader("Accept-Language").into())
+                }
+                Err(_) => Err(HandlerErrorKind::MalformedHeader("Accept-Language").into()),
+                Ok(languages) => Ok(Self(SupportedLanguages(languages))),
             }
-        }
-
-        /// Parse the Accept-Language HTTP header.
-        fn parse_language(raw_language: &str) -> Result<Language, ActixError> {
-            let (locale_or_wildcard, quality_value) =
-                if let Some((language, quality_value)) = raw_language.split_once(';') {
-                    let quality_value = Some(parse_quality_value(quality_value)?);
-
-                    (language, quality_value)
-                } else {
-                    (raw_language, None)
-                };
-
-            let language = if locale_or_wildcard == "*" {
-                Language {
-                    language_identifier: LanguageIdentifier::Wildcard,
-                    quality_value,
-                }
-            } else if let Some((language, region)) = locale_or_wildcard.split_once("-") {
-                Language {
-                    language_identifier: LanguageIdentifier::Locale {
-                        language: language.to_lowercase(),
-                        region: Some(region.to_lowercase()),
-                    },
-                    quality_value,
-                }
-            } else {
-                Language {
-                    language_identifier: LanguageIdentifier::Locale {
-                        language: locale_or_wildcard.to_lowercase(),
-                        region: None,
-                    },
-                    quality_value,
-                }
-            };
-
-            Ok(language)
-        }
-
-        // A closure is used here to enable the usage of the `?` operator, making error handling
-        // more ergonomic.
-        let parse_header = || {
-            let header = match req.headers().get(header::ACCEPT_LANGUAGE) {
-                Some(header) => header.to_str().map_err::<Self::Error, _>(|_| {
-                    HandlerErrorKind::MalformedHeader("Accept-Language").into()
-                }),
-                None => return Ok(Self(SupportedLanguages::wildcard())),
-            }?;
-
-            let languages = header
-                .split(',')
-                .map(str::trim)
-                .map(parse_language)
-                .collect::<Result<Vec<Language>, _>>()?;
-
-            Ok(Self(SupportedLanguages(languages)))
-        };
-
-        future::ready(parse_header())
+        })
     }
 }
 
@@ -173,7 +105,6 @@ impl FromRequest for SupportedLanguagesWrapper {
 struct DeviceInfoWrapper(DeviceInfo);
 
 impl FromRequest for DeviceInfoWrapper {
-    type Config = ();
     type Error = ActixError;
     type Future = Ready<Result<Self, Self::Error>>;
 
@@ -256,10 +187,18 @@ impl FromWootheeResult for Browser {
 
 #[cfg(test)]
 mod tests {
-    use actix_web::{dev::Payload, http::Method, test::TestRequest, FromRequest, HttpRequest};
+    use actix_web::{
+        dev::Payload,
+        http::{
+            header::{q, AcceptLanguage, LanguageTag, Preference, Quality, QualityItem},
+            Method,
+        },
+        test::TestRequest,
+        FromRequest, HttpRequest,
+    };
     use merino_suggest::{
         device_info::{Browser, DeviceInfo, FormFactor, OsFamily},
-        Language, LanguageIdentifier, SupportedLanguages,
+        SupportedLanguages,
     };
     use pretty_assertions::assert_eq;
 
@@ -279,57 +218,6 @@ mod tests {
     async fn test_valid_accept_language_headers() {
         let mut payload = Payload::None;
 
-        // Test single language without region
-        let req = test_request_with_header(("Accept-Language", "en"));
-        let result = SupportedLanguagesWrapper::from_request(&req, &mut payload)
-            .await
-            .expect("Could not get result in test_valid_accept_language_headers");
-        let expected_supported_languages_wrapper = {
-            let language = Language {
-                language_identifier: LanguageIdentifier::Locale {
-                    language: "en".to_owned(),
-                    region: None,
-                },
-                quality_value: None,
-            };
-            let supported_languages = SupportedLanguages(vec![language]);
-
-            SupportedLanguagesWrapper(supported_languages)
-        };
-
-        assert_eq!(expected_supported_languages_wrapper, result);
-
-        // Test single language with region
-        let req = test_request_with_header(("Accept-Language", "en-US"));
-        let result = SupportedLanguagesWrapper::from_request(&req, &mut payload)
-            .await
-            .expect("Could not get result in test_valid_accept_language_headers");
-        let expected_supported_languages_wrapper = {
-            let language = Language {
-                language_identifier: LanguageIdentifier::Locale {
-                    language: "en".to_owned(),
-                    region: Some("us".to_owned()),
-                },
-                quality_value: None,
-            };
-            let supported_languages = SupportedLanguages(vec![language]);
-
-            SupportedLanguagesWrapper(supported_languages)
-        };
-
-        assert_eq!(expected_supported_languages_wrapper, result);
-
-        // Test wildcard
-        let req = test_request_with_header(("Accept-Language", "*"));
-        let result = SupportedLanguagesWrapper::from_request(&req, &mut payload)
-            .await
-            .expect("Could not get result in test_valid_accept_language_headers");
-        let expected_supported_languages_wrapper =
-            SupportedLanguagesWrapper(SupportedLanguages::wildcard());
-
-        assert_eq!(expected_supported_languages_wrapper, result);
-
-        // Test several languages with quality values
         let req = test_request_with_header((
             "Accept-Language",
             "fr-CH, fr;q=0.9, en;q=0.8, de;q=0.7, *;q=0.5",
@@ -337,42 +225,29 @@ mod tests {
         let result = SupportedLanguagesWrapper::from_request(&req, &mut payload)
             .await
             .expect("Could not get result in test_valid_accept_language_headers");
-        let expected_supported_languages_wrapper = {
-            let fr_ch = Language {
-                language_identifier: LanguageIdentifier::Locale {
-                    language: "fr".to_owned(),
-                    region: Some("ch".to_owned()),
+        let expected_supported_languages_wrapper =
+            SupportedLanguagesWrapper(SupportedLanguages(AcceptLanguage(vec![
+                QualityItem {
+                    item: Preference::Specific(LanguageTag::parse("fr-CH").unwrap()),
+                    quality: Quality::MAX,
                 },
-                quality_value: None,
-            };
-            let fr = Language {
-                language_identifier: LanguageIdentifier::Locale {
-                    language: "fr".to_owned(),
-                    region: None,
+                QualityItem {
+                    item: Preference::Specific(LanguageTag::parse("fr").unwrap()),
+                    quality: q(0.9),
                 },
-                quality_value: Some(0.9),
-            };
-            let en = Language {
-                language_identifier: LanguageIdentifier::Locale {
-                    language: "en".to_owned(),
-                    region: None,
+                QualityItem {
+                    item: Preference::Specific(LanguageTag::parse("en").unwrap()),
+                    quality: q(0.8),
                 },
-                quality_value: Some(0.8),
-            };
-            let de = Language {
-                language_identifier: LanguageIdentifier::Locale {
-                    language: "de".to_owned(),
-                    region: None,
+                QualityItem {
+                    item: Preference::Specific(LanguageTag::parse("de").unwrap()),
+                    quality: q(0.7),
                 },
-                quality_value: Some(0.7),
-            };
-            let wildcard = Language {
-                language_identifier: LanguageIdentifier::Wildcard,
-                quality_value: Some(0.5),
-            };
-
-            SupportedLanguagesWrapper(SupportedLanguages(vec![fr_ch, fr, en, de, wildcard]))
-        };
+                QualityItem {
+                    item: Preference::Any,
+                    quality: q(0.5),
+                },
+            ])));
 
         assert_eq!(expected_supported_languages_wrapper, result);
     }
@@ -418,14 +293,37 @@ mod tests {
             .unwrap()
             .0;
 
-        let expected_supported_languages = SupportedLanguages(vec![
-            Language::locale("es", Some("es"), Some(1.0)),
-            Language::locale("es", Some("mx"), Some(0.5)),
-            Language::locale::<_, String>("es", None, Some(0.7)),
-        ]);
+        let expected_supported_languages = SupportedLanguages(AcceptLanguage(vec![
+            QualityItem {
+                item: Preference::Specific(LanguageTag::parse("es-ES").unwrap()),
+                quality: Quality::MAX,
+            },
+            QualityItem {
+                item: Preference::Specific(LanguageTag::parse("es-MX").unwrap()),
+                quality: q(0.5),
+            },
+            QualityItem {
+                item: Preference::Specific(LanguageTag::parse("es").unwrap()),
+                quality: q(0.7),
+            },
+        ]));
 
         assert_eq!(supported_languages, expected_supported_languages);
         assert!(!supported_languages.includes("en", None));
+    }
+
+    #[actix_rt::test]
+    async fn test_wildcard_language_headers() {
+        let mut payload = Payload::None;
+        let req = test_request_with_header(("Accept-Language", "*"));
+        let supported_languages = SupportedLanguagesWrapper::from_request(&req, &mut payload)
+            .await
+            .unwrap()
+            .0;
+        let expected_supported_languages =
+            SupportedLanguages(AcceptLanguage(vec![QualityItem::max(Preference::Any)]));
+
+        assert_eq!(supported_languages, expected_supported_languages);
     }
 
     #[actix_rt::test]

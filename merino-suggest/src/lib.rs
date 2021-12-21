@@ -13,6 +13,7 @@ use std::ops::Range;
 use std::time::Duration;
 
 use crate::device_info::DeviceInfo;
+use actix_web::http::header::{AcceptLanguage, LanguageTag, Preference};
 use async_trait::async_trait;
 use fake::{
     faker::{
@@ -336,110 +337,46 @@ pub enum SuggestError {
 
 /// Languages supported by the client.
 #[derive(Debug, PartialEq)]
-pub struct SupportedLanguages(pub Vec<Language>);
+pub struct SupportedLanguages(pub AcceptLanguage);
 
 impl SupportedLanguages {
-    /// Create a new SupportedLanguages instance with a wildcard that has no quality value.
-    pub fn wildcard() -> Self {
-        let language = Language {
-            language_identifier: LanguageIdentifier::Wildcard,
-            quality_value: None,
-        };
-
-        Self(vec![language])
-    }
-
     /// Specify whether `self` includes the language specified by the given language and region.
     pub fn includes(&self, language_query: &str, region_query: Option<&str>) -> bool {
-        let region_matches = |supported_region| {
-            match (supported_region, region_query) {
-                // If the region query is None, the caller intends to match every region
-                (_, None) => true,
-                // If the region query is Some(_) but the supported region is None, the regions
-                // don't match
-                (None, Some(_)) => false,
-                (Some(supported_region), Some(region_query)) => supported_region == region_query,
+        let language_tag_to_match = {
+            let language_tag = LanguageTag::parse(
+                match region_query {
+                    Some(region) => format!("{}-{}", language_query, region),
+                    None => language_query.to_owned(),
+                }
+                .as_str(),
+            );
+
+            match language_tag {
+                Ok(tag) => tag,
+                Err(_) => return false,
             }
         };
 
-        self.0
-            .iter()
-            .any(|language| match &language.language_identifier {
-                LanguageIdentifier::Locale { language, region } => {
-                    language == language_query && region_matches(region.as_ref())
-                }
-                LanguageIdentifier::Wildcard => true,
+        self.0.iter().any(|quality_item| {
+            language_tag_to_match.matches(&match &quality_item.item {
+                Preference::Any => return true,
+                Preference::Specific(item) => item.to_owned(),
             })
+        })
     }
-}
-
-/// A representation of a language, as given in the Accept-Language HTTP header.
-#[derive(Debug, PartialEq)]
-pub struct Language {
-    /// Identifies a language (either a specific language or a wildcard).
-    pub language_identifier: LanguageIdentifier,
-
-    /// The quality value of the language.
-    pub quality_value: Option<f64>,
-}
-
-impl Language {
-    /// Create a new Language instance with the given locale and quality.
-    pub fn locale<S1: Into<String>, S2: Into<String>>(
-        language: S1,
-        region: Option<S2>,
-        quality_value: Option<f64>,
-    ) -> Self {
-        Self {
-            language_identifier: LanguageIdentifier::Locale {
-                language: language.into(),
-                region: region.map(Into::into),
-            },
-            quality_value,
-        }
-    }
-}
-
-/// An enum used to signify whether a `Language` refers to a specific language or a wildcard.
-#[derive(Debug, PartialEq)]
-pub enum LanguageIdentifier {
-    /// A specific locale, consisting of a language code and optional country code.
-    Locale {
-        /// An ISO-639 language code.
-        language: String,
-        /// An ISO 3166-1 alpha-2 country code.
-        region: Option<String>,
-    },
-
-    /// A wildcard, matching any language.
-    Wildcard,
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+    use actix_web::http::header::QualityItem;
 
     #[test]
     fn supported_languages_includes_example() {
-        let supported_languages = {
-            let en_ca = Language {
-                language_identifier: LanguageIdentifier::Locale {
-                    language: "en".to_owned(),
-                    region: Some("ca".to_owned()),
-                },
-                quality_value: None,
-            };
-
-            let fr = Language {
-                language_identifier: LanguageIdentifier::Locale {
-                    language: "fr".to_owned(),
-                    region: None,
-                },
-                quality_value: None,
-            };
-
-            SupportedLanguages(vec![en_ca, fr])
-        };
+        let supported_languages = SupportedLanguages(AcceptLanguage(vec![
+            QualityItem::max("en-CA".parse().unwrap()),
+            QualityItem::max("fr".parse().unwrap()),
+        ]));
 
         // Includes en-CA
         assert!(supported_languages.includes("en", Some("ca")));
@@ -456,14 +393,8 @@ mod tests {
         // Does not include fr-CH
         assert!(!supported_languages.includes("fr", Some("ch")));
 
-        let supported_languages = {
-            let wildcard = Language {
-                language_identifier: LanguageIdentifier::Wildcard,
-                quality_value: None,
-            };
-
-            SupportedLanguages(vec![wildcard])
-        };
+        let supported_languages =
+            SupportedLanguages(AcceptLanguage(vec![QualityItem::max("*".parse().unwrap())]));
 
         // Includes en-CA
         assert!(supported_languages.includes("en", Some("ca")));
