@@ -92,12 +92,16 @@ impl FromRequest for SupportedLanguagesWrapper {
             if req.headers().contains_key("Accept-Language") {
                 match AcceptLanguage::parse(req) {
                     Ok(languages) if languages.is_empty() => {
+                        // AcceptLanguage::parse() returns an empty Vec for certain types of
+                        // errors in the header. In these cases, we want to return an error.
                         Err(HandlerErrorKind::MalformedHeader("Accept-Language").into())
                     }
                     Err(_) => Err(HandlerErrorKind::MalformedHeader("Accept-Language").into()),
                     Ok(languages) => Ok(Self(SupportedLanguages(languages))),
                 }
             } else {
+                // If the request does not have an Accept-Language header at all, we assume that
+                // the client will accept any language.
                 Ok(Self(SupportedLanguages(AcceptLanguage(vec![
                     QualityItem::max(Preference::Any),
                 ]))))
