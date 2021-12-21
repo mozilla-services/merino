@@ -5,7 +5,7 @@ use std::str::FromStr;
 use crate::errors::HandlerErrorKind;
 use actix_web::{
     dev::Payload,
-    http::header::{self, AcceptLanguage, Header, HeaderValue},
+    http::header::{self, AcceptLanguage, Header, HeaderValue, Preference, QualityItem},
     web::Query,
     Error as ActixError, FromRequest, HttpRequest,
 };
@@ -89,12 +89,18 @@ impl FromRequest for SupportedLanguagesWrapper {
 
     fn from_request(req: &HttpRequest, _payload: &mut Payload) -> Self::Future {
         future::ready({
-            match AcceptLanguage::parse(req) {
-                Ok(languages) if languages.is_empty() => {
-                    Err(HandlerErrorKind::MalformedHeader("Accept-Language").into())
+            if req.headers().contains_key("Accept-Language") {
+                match AcceptLanguage::parse(req) {
+                    Ok(languages) if languages.is_empty() => {
+                        Err(HandlerErrorKind::MalformedHeader("Accept-Language").into())
+                    }
+                    Err(_) => Err(HandlerErrorKind::MalformedHeader("Accept-Language").into()),
+                    Ok(languages) => Ok(Self(SupportedLanguages(languages))),
                 }
-                Err(_) => Err(HandlerErrorKind::MalformedHeader("Accept-Language").into()),
-                Ok(languages) => Ok(Self(SupportedLanguages(languages))),
+            } else {
+                Ok(Self(SupportedLanguages(AcceptLanguage(vec![
+                    QualityItem::max(Preference::Any),
+                ]))))
             }
         })
     }
@@ -190,7 +196,7 @@ mod tests {
     use actix_web::{
         dev::Payload,
         http::{
-            header::{q, AcceptLanguage, LanguageTag, Preference, Quality, QualityItem},
+            header::{q, AcceptLanguage, LanguageTag, Preference, QualityItem},
             Method,
         },
         test::TestRequest,
@@ -227,10 +233,7 @@ mod tests {
             .expect("Could not get result in test_valid_accept_language_headers");
         let expected_supported_languages_wrapper =
             SupportedLanguagesWrapper(SupportedLanguages(AcceptLanguage(vec![
-                QualityItem {
-                    item: Preference::Specific(LanguageTag::parse("fr-CH").unwrap()),
-                    quality: Quality::MAX,
-                },
+                QualityItem::max(Preference::Specific(LanguageTag::parse("fr-CH").unwrap())),
                 QualityItem {
                     item: Preference::Specific(LanguageTag::parse("fr").unwrap()),
                     quality: q(0.9),
@@ -294,10 +297,7 @@ mod tests {
             .0;
 
         let expected_supported_languages = SupportedLanguages(AcceptLanguage(vec![
-            QualityItem {
-                item: Preference::Specific(LanguageTag::parse("es-ES").unwrap()),
-                quality: Quality::MAX,
-            },
+            QualityItem::max(Preference::Specific(LanguageTag::parse("es-ES").unwrap())),
             QualityItem {
                 item: Preference::Specific(LanguageTag::parse("es-MX").unwrap()),
                 quality: q(0.5),
@@ -316,6 +316,23 @@ mod tests {
     async fn test_wildcard_language_headers() {
         let mut payload = Payload::None;
         let req = test_request_with_header(("Accept-Language", "*"));
+        let supported_languages = SupportedLanguagesWrapper::from_request(&req, &mut payload)
+            .await
+            .unwrap()
+            .0;
+        let expected_supported_languages =
+            SupportedLanguages(AcceptLanguage(vec![QualityItem::max(Preference::Any)]));
+
+        assert_eq!(supported_languages, expected_supported_languages);
+    }
+
+    #[actix_rt::test]
+    async fn test_request_with_no_language_headers() {
+        let mut payload = Payload::None;
+        let req = TestRequest::with_uri(SUGGEST_URI)
+            .method(Method::GET)
+            .param("q", "asdf")
+            .to_http_request();
         let supported_languages = SupportedLanguagesWrapper::from_request(&req, &mut payload)
             .await
             .unwrap()
