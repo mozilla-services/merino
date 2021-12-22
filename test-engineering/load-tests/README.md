@@ -90,13 +90,7 @@ then run:
 
 ```text
 kubectl cp <master-pod-name>:/home/locust/merino_stats.csv merino_stats.csv
-```
-
-```text
 kubectl cp <master-pod-name>:/home/locust/merino_exceptions.csv merino_exceptions.csv
-```
-
-```text
 kubectl cp <master-pod-name>:/home/locust/merino_failures.csv merino_failures.csv
 ```
 
