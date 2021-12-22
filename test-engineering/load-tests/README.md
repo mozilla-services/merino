@@ -110,7 +110,7 @@ Thereafter, copy these 3 files(merino_exceptions.csv, merino_failures.csv, merin
 
 # Deleting the cluster
 
-After you are done with load testing delet the cluster by running the same bash script and choosing `delete` option
+After you are done with load testing delete the cluster by running the same bash script and choosing the `delete` option
 
 ```text
 ./setup_k8.sh
