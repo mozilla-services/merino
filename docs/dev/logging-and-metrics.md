@@ -64,7 +64,7 @@ by them in Merino:
   using a deprecated function. These are not reported to Sentry.
 
 - `INFO` - This is the default level of the production service. Use for logging
-  that something happened that isn't a problem. and we care about in production.
+  that something happened that isn't a problem and we care about in production.
   This is the level that Merino uses for it's one-per-request logs and sync
   status messages. Be careful adding new per-request logs at this level, as they
   can be expensive.

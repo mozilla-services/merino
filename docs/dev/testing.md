@@ -1,7 +1,7 @@
 # Testing strategies
 
-There are three major testing strategies used in this repository: unit tests,
-Rust integration tests, Python system tests, and Python load tests.
+There are four major testing strategies used in this repository: unit tests,
+Rust integration tests, Python contract tests, and Python load tests.
 
 ## Unit Tests
 
