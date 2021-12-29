@@ -112,6 +112,7 @@ impl Suggester {
             let metrics = metrics_client.clone();
             let task_items = items.clone();
             let task_interval = config.cleanup_interval;
+            let max_removals = config.max_removed_entries;
             tokio::spawn(async move {
                 let mut timer = tokio::time::interval(task_interval);
                 // The timer fires immediately, but we don't want to run the
@@ -120,7 +121,7 @@ impl Suggester {
                 timer.tick().await;
                 loop {
                     timer.tick().await;
-                    Self::remove_expired_entries(&task_items, &metrics);
+                    Self::remove_expired_entries(&task_items, max_removals, &metrics);
                 }
             });
         }
@@ -140,6 +141,7 @@ impl Suggester {
     #[tracing::instrument(level = "debug", skip(items))]
     fn remove_expired_entries<K: Eq + Hash + Debug>(
         items: &Arc<DedupedMap<K, Instant, Vec<Suggestion>>>,
+        max_removals: usize,
         metrics_client: &StatsdClient,
     ) {
         let start = Instant::now();
@@ -147,7 +149,6 @@ impl Suggester {
         let count_before_pointers = items.len_pointers();
 
         // Retain all cache entries that have not yet expired.
-        let max_removals = 10_000;
         let mut num_removals = 0;
         items.retain(|_key, expiration, _suggestions| {
             if num_removals > max_removals {
@@ -315,7 +316,7 @@ mod tests {
         let (rx, sink) = SpyMetricSink::new();
         let metrics_client = StatsdClient::from_sink("merino-test", sink);
 
-        Suggester::remove_expired_entries(&cache, &metrics_client);
+        Suggester::remove_expired_entries(&cache, 100, &metrics_client);
 
         assert_eq!(cache.len_storage(), 1);
         assert_eq!(cache.len_pointers(), 1);
