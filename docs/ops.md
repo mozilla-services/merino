@@ -264,7 +264,7 @@ use.
     a matching request is processed.
   - `max_removed_entries` - While running the cleanup task, at most this many
     entries will be removed before cancelling the task. This should be used to
-    limit the maximum amount of time the cleanup task takes. Defaults to 100000.
+    limit the maximum amount of time the cleanup task takes. Defaults to 100_000.
   - `default_lock_timeout_sec` - The amount of time a cache entry can be locked
     for writing.
   - `inner` - Another provider configuration to generate suggestions with.
