@@ -520,14 +520,6 @@ provider config. Example: &quot;main&quot;.</p>
 Remote Settings providers if not specified in the provider config. Example:
 &quot;quicksuggest&quot;.</p>
 </li>
-<li>
-<p><code>remote_settings.server</code> (<code>MERINO_REMOTE_SETTINGS__SERVER</code>) - The server to
-sync from. Example: <code>https://firefox.settings.services.mozilla.com</code>.</p>
-</li>
-<li>
-<p><code>remote_settings.sync_interval_sec</code> - The time between re-syncs of Remote
-Settings data, in seconds. Defaults to 3 hours.</p>
-</li>
 </ul>
 <h3 id="location"><a class="header" href="#location">Location</a></h3>
 <p>Configuration for determining the location of users.</p>
@@ -560,6 +552,8 @@ Settings, below.
 suggestions from. If not specified, the global default will be used.</li>
 <li><code>collection</code> - Optional. The name of the Remote Settings collection to pull
 suggestions from. If not specifeid, the global default will be used.</li>
+<li><code>resync_interval_sec</code> - Optional. The time between re-syncs of Remote
+Settings data, in seconds. Defaults to 3 hours.</li>
 </ul>
 </li>
 </ul>
@@ -593,7 +587,7 @@ respond.</p>
 </ul>
 </li>
 <li>
-<p>KeywordFilter - Filter the suggestions coming from the wrapped provider with the given blocklist.</p>
+<p>KeywordFilter - Filters the suggestions coming from the wrapped provider with the given blocklist.</p>
 <ul>
 <li><code>type=keyword_filter</code></li>
 <li><code>suggestion_blocklist</code> - The map used to define the blocklist rules. Each entry contains a rule id and an associated regular expression that reccommended titles are matched against.</li>
@@ -639,7 +633,7 @@ with this period. Note that expired entries are also removed dynamically if
 a matching request is processed.</li>
 <li><code>max_removed_entries</code> - While running the cleanup task, at most this many
 entries will be removed before cancelling the task. This should be used to
-limit the maximum amount of time the cleanup task takes.</li>
+limit the maximum amount of time the cleanup task takes. Defaults to 100_000.</li>
 <li><code>default_lock_timeout_sec</code> - The amount of time a cache entry can be locked
 for writing.</li>
 <li><code>inner</code> - Another provider configuration to generate suggestions with.</li>
@@ -672,7 +666,7 @@ in the <code>title</code> field of a suggestion.</p>
 <p>WikiFruit - A very basic provider that suggests Wikipedia articles for the
 exact phrases &quot;apple&quot;, &quot;banana&quot;, and &quot;cherry&quot;.</p>
 <ul>
-<li><code>type=debug</code></li>
+<li><code>type=wiki_fruit</code></li>
 </ul>
 </li>
 <li>
@@ -1015,7 +1009,7 @@ using a deprecated function. These are not reported to Sentry.</p>
 </li>
 <li>
 <p><code>INFO</code> - This is the default level of the production service. Use for logging
-that something happened that isn't a problem. and we care about in production.
+that something happened that isn't a problem and we care about in production.
 This is the level that Merino uses for it's one-per-request logs and sync
 status messages. Be careful adding new per-request logs at this level, as they
 can be expensive.</p>
@@ -1066,8 +1060,8 @@ https://www.datadoghq.com/blog/statsd/.</p>
 values that we supply. Often the number of individual events doesn't matter as
 much, since multiple events are aggregated together.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="testing-strategies"><a class="header" href="#testing-strategies">Testing strategies</a></h1>
-<p>There are three major testing strategies used in this repository: unit tests,
-Rust integration tests, Python system tests, and Python load tests.</p>
+<p>There are four major testing strategies used in this repository: unit tests,
+Rust integration tests, Python contract tests, and Python load tests.</p>
 <h2 id="unit-tests"><a class="header" href="#unit-tests">Unit Tests</a></h2>
 <p>Unit tests should appear close to the code they are testing, using standard Rust
 unit tests. This is suitable for testing complex behavior at a small scale, with

@@ -291,14 +291,6 @@ provider config. Example: &quot;main&quot;.</p>
 Remote Settings providers if not specified in the provider config. Example:
 &quot;quicksuggest&quot;.</p>
 </li>
-<li>
-<p><code>remote_settings.server</code> (<code>MERINO_REMOTE_SETTINGS__SERVER</code>) - The server to
-sync from. Example: <code>https://firefox.settings.services.mozilla.com</code>.</p>
-</li>
-<li>
-<p><code>remote_settings.sync_interval_sec</code> - The time between re-syncs of Remote
-Settings data, in seconds. Defaults to 3 hours.</p>
-</li>
 </ul>
 <h3 id="location"><a class="header" href="#location">Location</a></h3>
 <p>Configuration for determining the location of users.</p>
@@ -331,6 +323,8 @@ Settings, below.
 suggestions from. If not specified, the global default will be used.</li>
 <li><code>collection</code> - Optional. The name of the Remote Settings collection to pull
 suggestions from. If not specifeid, the global default will be used.</li>
+<li><code>resync_interval_sec</code> - Optional. The time between re-syncs of Remote
+Settings data, in seconds. Defaults to 3 hours.</li>
 </ul>
 </li>
 </ul>
@@ -364,7 +358,7 @@ respond.</p>
 </ul>
 </li>
 <li>
-<p>KeywordFilter - Filter the suggestions coming from the wrapped provider with the given blocklist.</p>
+<p>KeywordFilter - Filters the suggestions coming from the wrapped provider with the given blocklist.</p>
 <ul>
 <li><code>type=keyword_filter</code></li>
 <li><code>suggestion_blocklist</code> - The map used to define the blocklist rules. Each entry contains a rule id and an associated regular expression that reccommended titles are matched against.</li>
@@ -410,7 +404,7 @@ with this period. Note that expired entries are also removed dynamically if
 a matching request is processed.</li>
 <li><code>max_removed_entries</code> - While running the cleanup task, at most this many
 entries will be removed before cancelling the task. This should be used to
-limit the maximum amount of time the cleanup task takes.</li>
+limit the maximum amount of time the cleanup task takes. Defaults to 100_000.</li>
 <li><code>default_lock_timeout_sec</code> - The amount of time a cache entry can be locked
 for writing.</li>
 <li><code>inner</code> - Another provider configuration to generate suggestions with.</li>
@@ -443,7 +437,7 @@ in the <code>title</code> field of a suggestion.</p>
 <p>WikiFruit - A very basic provider that suggests Wikipedia articles for the
 exact phrases &quot;apple&quot;, &quot;banana&quot;, and &quot;cherry&quot;.</p>
 <ul>
-<li><code>type=debug</code></li>
+<li><code>type=wiki_fruit</code></li>
 </ul>
 </li>
 <li>
