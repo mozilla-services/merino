@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;usr&#x2F;local&#x2F;cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;im-14.3.0&#x2F;.&#x2F;src&#x2F;nodes&#x2F;btree.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>btree.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../im/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">   1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;usr&#x2F;local&#x2F;cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;im-14.3.0&#x2F;.&#x2F;src&#x2F;nodes&#x2F;btree.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>btree.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../im/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">   1</span>
 <span id="2">   2</span>
 <span id="3">   3</span>
 <span id="4">   4</span>
@@ -1344,8 +1344,7 @@
 <span id="1344">1344</span>
 <span id="1345">1345</span>
 <span id="1346">1346</span>
-</pre><pre class="rust">
-<span class="comment">// This Source Code Form is subject to the terms of the Mozilla Public</span>
+</pre><pre class="rust"><code><span class="comment">// This Source Code Form is subject to the terms of the Mozilla Public</span>
 <span class="comment">// License, v. 2.0. If a copy of the MPL was not distributed with this</span>
 <span class="comment">// file, You can obtain one at http://mozilla.org/MPL/2.0/.</span>
 
@@ -1357,31 +1356,31 @@
 <span class="kw">use</span> <span class="ident">sized_chunks::Chunk</span>;
 <span class="kw">use</span> <span class="ident">typenum</span>::{<span class="ident">Add1</span>, <span class="ident">Unsigned</span>};
 
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::config::OrdChunkSize</span> <span class="kw">as</span> <span class="ident">NodeSize</span>;
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::util</span>::{<span class="ident">Pool</span>, <span class="ident">PoolClone</span>, <span class="ident">PoolDefault</span>, <span class="ident">PoolRef</span>};
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::config::OrdChunkSize</span> <span class="kw">as</span> <span class="ident">NodeSize</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::util</span>::{<span class="ident">Pool</span>, <span class="ident">PoolClone</span>, <span class="ident">PoolDefault</span>, <span class="ident">PoolRef</span>};
 
-<span class="kw">use</span> <span class="self">self</span><span class="ident">::Insert</span>::<span class="kw-2">*</span>;
-<span class="kw">use</span> <span class="self">self</span><span class="ident">::InsertAction</span>::<span class="kw-2">*</span>;
+<span class="kw">use</span> <span class="ident"><span class="self">self</span>::Insert</span>::<span class="kw-2">*</span>;
+<span class="kw">use</span> <span class="ident"><span class="self">self</span>::InsertAction</span>::<span class="kw-2">*</span>;
 
 <span class="kw">const</span> <span class="ident">NODE_SIZE</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="ident">NodeSize::USIZE</span>;
 <span class="kw">const</span> <span class="ident">MEDIAN</span>: <span class="ident">usize</span> <span class="op">=</span> (<span class="ident">NODE_SIZE</span> <span class="op">+</span> <span class="number">1</span>) <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">1</span>;
 
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">BTreeValue</span> {
     <span class="kw">type</span> <span class="ident">Key</span>;
-    <span class="kw">fn</span> <span class="ident">ptr_eq</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="self">Self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span>;
-    <span class="kw">fn</span> <span class="ident">search_key</span><span class="op">&lt;</span><span class="ident">BK</span><span class="op">&gt;</span>(<span class="ident">slice</span>: <span class="kw-2">&amp;</span>[<span class="self">Self</span>], <span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">BK</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span>, <span class="ident">usize</span><span class="op">&gt;</span>
+    <span class="kw">fn</span> <span class="ident">ptr_eq</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; <span class="ident">bool</span>;
+    <span class="kw">fn</span> <span class="ident">search_key</span><span class="op">&lt;</span><span class="ident">BK</span><span class="op">&gt;</span>(<span class="ident">slice</span>: <span class="kw-2">&amp;</span>[<span class="self">Self</span>], <span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">BK</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span>, <span class="ident">usize</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="ident">BK</span>: <span class="ident">Ord</span> <span class="op">+</span> <span class="question-mark">?</span><span class="ident">Sized</span>,
         <span class="self">Self</span>: <span class="ident">Sized</span>,
-        <span class="self">Self</span><span class="ident">::Key</span>: <span class="ident">Borrow</span><span class="op">&lt;</span><span class="ident">BK</span><span class="op">&gt;</span>;
-    <span class="kw">fn</span> <span class="ident">search_value</span>(<span class="ident">slice</span>: <span class="kw-2">&amp;</span>[<span class="self">Self</span>], <span class="ident">value</span>: <span class="kw-2">&amp;</span><span class="self">Self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span>, <span class="ident">usize</span><span class="op">&gt;</span>
+        <span class="ident"><span class="self">Self</span>::Key</span>: <span class="ident">Borrow</span><span class="op">&lt;</span><span class="ident">BK</span><span class="op">&gt;</span>;
+    <span class="kw">fn</span> <span class="ident">search_value</span>(<span class="ident">slice</span>: <span class="kw-2">&amp;</span>[<span class="self">Self</span>], <span class="ident">value</span>: <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span>, <span class="ident">usize</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="self">Self</span>: <span class="ident">Sized</span>;
-    <span class="kw">fn</span> <span class="ident">cmp_keys</span><span class="op">&lt;</span><span class="ident">BK</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="ident">BK</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Ordering</span>
+    <span class="kw">fn</span> <span class="ident">cmp_keys</span><span class="op">&lt;</span><span class="ident">BK</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="ident">BK</span>) -&gt; <span class="ident">Ordering</span>
     <span class="kw">where</span>
         <span class="ident">BK</span>: <span class="ident">Ord</span> <span class="op">+</span> <span class="question-mark">?</span><span class="ident">Sized</span>,
-        <span class="self">Self</span><span class="ident">::Key</span>: <span class="ident">Borrow</span><span class="op">&lt;</span><span class="ident">BK</span><span class="op">&gt;</span>;
-    <span class="kw">fn</span> <span class="ident">cmp_values</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="self">Self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Ordering</span>;
+        <span class="ident"><span class="self">Self</span>::Key</span>: <span class="ident">Borrow</span><span class="op">&lt;</span><span class="ident">BK</span><span class="op">&gt;</span>;
+    <span class="kw">fn</span> <span class="ident">cmp_values</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; <span class="ident">Ordering</span>;
 }
 
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct</span> <span class="ident">Node</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span> {
@@ -1391,7 +1390,7 @@
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;pool&quot;</span>)]</span>
 <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unsafe_code</span>)]</span>
-<span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">cast_uninit</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span>(<span class="ident">target</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">A</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">mem::MaybeUninit</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span> {
+<span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">cast_uninit</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span>(<span class="ident">target</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">A</span>) -&gt; <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">mem::MaybeUninit</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span> {
     <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">*</span>(<span class="ident">target</span> <span class="kw">as</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">A</span> <span class="kw">as</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">mem::MaybeUninit</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span>)
 }
 
@@ -1453,7 +1452,7 @@
 <span class="kw">where</span>
     <span class="ident">A</span>: <span class="ident">Clone</span>,
 {
-    <span class="kw">fn</span> <span class="ident">clone</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">clone</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self</span> {
         <span class="ident">Node</span> {
             <span class="ident">keys</span>: <span class="self">self</span>.<span class="ident">keys</span>.<span class="ident">clone</span>(),
             <span class="ident">children</span>: <span class="self">self</span>.<span class="ident">children</span>.<span class="ident">clone</span>(),
@@ -1462,7 +1461,7 @@
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">Node</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="self">Self</span> {
         <span class="ident">Node</span> {
             <span class="ident">keys</span>: <span class="ident">Chunk::new</span>(),
             <span class="ident">children</span>: <span class="ident">Chunk::unit</span>(<span class="prelude-val">None</span>),
@@ -1472,22 +1471,22 @@
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span> <span class="ident">Node</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span> {
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">has_room</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">fn</span> <span class="ident">has_room</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="self">self</span>.<span class="ident">keys</span>.<span class="ident">len</span>() <span class="op">&lt;</span> <span class="ident">NODE_SIZE</span>
     }
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">too_small</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">fn</span> <span class="ident">too_small</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="self">self</span>.<span class="ident">keys</span>.<span class="ident">len</span>() <span class="op">&lt;</span> <span class="ident">MEDIAN</span>
     }
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">is_leaf</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">fn</span> <span class="ident">is_leaf</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="self">self</span>.<span class="ident">children</span>[<span class="number">0</span>].<span class="ident">is_none</span>()
     }
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">unit</span>(<span class="ident">value</span>: <span class="ident">A</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">unit</span>(<span class="ident">value</span>: <span class="ident">A</span>) -&gt; <span class="self">Self</span> {
         <span class="ident">Node</span> {
             <span class="ident">keys</span>: <span class="ident">Chunk::unit</span>(<span class="ident">value</span>),
             <span class="ident">children</span>: <span class="ident">Chunk::pair</span>(<span class="prelude-val">None</span>, <span class="prelude-val">None</span>),
@@ -1500,7 +1499,7 @@
         <span class="ident">left</span>: <span class="ident">Node</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span>,
         <span class="ident">median</span>: <span class="ident">A</span>,
         <span class="ident">right</span>: <span class="ident">Node</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    ) -&gt; <span class="self">Self</span> {
         <span class="ident">Node</span> {
             <span class="ident">keys</span>: <span class="ident">Chunk::unit</span>(<span class="ident">median</span>),
             <span class="ident">children</span>: <span class="ident">Chunk::pair</span>(
@@ -1510,23 +1509,23 @@
         }
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">min</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">A</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">min</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">A</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">children</span>.<span class="ident">first</span>().<span class="ident">unwrap</span>() {
-            <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">keys</span>.<span class="ident">first</span>(),
-            <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">child</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">child</span>.<span class="ident">min</span>(),
+            <span class="prelude-val">None</span> =&gt; <span class="self">self</span>.<span class="ident">keys</span>.<span class="ident">first</span>(),
+            <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">child</span>) =&gt; <span class="ident">child</span>.<span class="ident">min</span>(),
         }
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">max</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">A</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">max</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">A</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">children</span>.<span class="ident">last</span>().<span class="ident">unwrap</span>() {
-            <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">keys</span>.<span class="ident">last</span>(),
-            <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">child</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">child</span>.<span class="ident">max</span>(),
+            <span class="prelude-val">None</span> =&gt; <span class="self">self</span>.<span class="ident">keys</span>.<span class="ident">last</span>(),
+            <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">child</span>) =&gt; <span class="ident">child</span>.<span class="ident">max</span>(),
         }
     }
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">A</span>: <span class="ident">BTreeValue</span><span class="op">&gt;</span> <span class="ident">Node</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">child_contains</span><span class="op">&lt;</span><span class="ident">BK</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">index</span>: <span class="ident">usize</span>, <span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">BK</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span>
+    <span class="kw">fn</span> <span class="ident">child_contains</span><span class="op">&lt;</span><span class="ident">BK</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">index</span>: <span class="ident">usize</span>, <span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">BK</span>) -&gt; <span class="ident">bool</span>
     <span class="kw">where</span>
         <span class="ident">BK</span>: <span class="ident">Ord</span> <span class="op">+</span> <span class="question-mark">?</span><span class="ident">Sized</span>,
         <span class="ident">A::Key</span>: <span class="ident">Borrow</span><span class="op">&lt;</span><span class="ident">BK</span><span class="op">&gt;</span>,
@@ -1538,7 +1537,7 @@
         }
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">lookup</span><span class="op">&lt;</span><span class="ident">BK</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">BK</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">A</span><span class="op">&gt;</span>
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">lookup</span><span class="op">&lt;</span><span class="ident">BK</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">BK</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">A</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="ident">BK</span>: <span class="ident">Ord</span> <span class="op">+</span> <span class="question-mark">?</span><span class="ident">Sized</span>,
         <span class="ident">A::Key</span>: <span class="ident">Borrow</span><span class="op">&lt;</span><span class="ident">BK</span><span class="op">&gt;</span>,
@@ -1550,15 +1549,15 @@
         <span class="comment">// the index of the first higher key, meaning we search the</span>
         <span class="comment">// child to the left of it.</span>
         <span class="kw">match</span> <span class="ident">A::search_key</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">keys</span>, <span class="ident">key</span>) {
-            <span class="prelude-val">Ok</span>(<span class="ident">index</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">keys</span>[<span class="ident">index</span>]),
-            <span class="prelude-val">Err</span>(<span class="ident">index</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">children</span>[<span class="ident">index</span>] {
-                <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
-                <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">node</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">node</span>.<span class="ident">lookup</span>(<span class="ident">key</span>),
+            <span class="prelude-val">Ok</span>(<span class="ident">index</span>) =&gt; <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">keys</span>[<span class="ident">index</span>]),
+            <span class="prelude-val">Err</span>(<span class="ident">index</span>) =&gt; <span class="kw">match</span> <span class="self">self</span>.<span class="ident">children</span>[<span class="ident">index</span>] {
+                <span class="prelude-val">None</span> =&gt; <span class="prelude-val">None</span>,
+                <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">node</span>) =&gt; <span class="ident">node</span>.<span class="ident">lookup</span>(<span class="ident">key</span>),
             },
         }
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">lookup_mut</span><span class="op">&lt;</span><span class="ident">BK</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">pool</span>: <span class="kw-2">&amp;</span><span class="ident">Pool</span><span class="op">&lt;</span><span class="ident">Node</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span><span class="op">&gt;</span>, <span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">BK</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">A</span><span class="op">&gt;</span>
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">lookup_mut</span><span class="op">&lt;</span><span class="ident">BK</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">pool</span>: <span class="kw-2">&amp;</span><span class="ident">Pool</span><span class="op">&lt;</span><span class="ident">Node</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span><span class="op">&gt;</span>, <span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">BK</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">A</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="ident">A</span>: <span class="ident">Clone</span>,
         <span class="ident">BK</span>: <span class="ident">Ord</span> <span class="op">+</span> <span class="question-mark">?</span><span class="ident">Sized</span>,
@@ -1571,10 +1570,10 @@
         <span class="comment">// the index of the first higher key, meaning we search the</span>
         <span class="comment">// child to the left of it.</span>
         <span class="kw">match</span> <span class="ident">A::search_key</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">keys</span>, <span class="ident">key</span>) {
-            <span class="prelude-val">Ok</span>(<span class="ident">index</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">keys</span>[<span class="ident">index</span>]),
-            <span class="prelude-val">Err</span>(<span class="ident">index</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">children</span>[<span class="ident">index</span>] {
-                <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
-                <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">child_ref</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="prelude-val">Ok</span>(<span class="ident">index</span>) =&gt; <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">keys</span>[<span class="ident">index</span>]),
+            <span class="prelude-val">Err</span>(<span class="ident">index</span>) =&gt; <span class="kw">match</span> <span class="self">self</span>.<span class="ident">children</span>[<span class="ident">index</span>] {
+                <span class="prelude-val">None</span> =&gt; <span class="prelude-val">None</span>,
+                <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">child_ref</span>) =&gt; {
                     <span class="kw">let</span> <span class="ident">child</span> <span class="op">=</span> <span class="ident">PoolRef::make_mut</span>(<span class="ident">pool</span>, <span class="ident">child_ref</span>);
                     <span class="ident">child</span>.<span class="ident">lookup_mut</span>(<span class="ident">pool</span>, <span class="ident">key</span>)
                 }
@@ -1582,7 +1581,7 @@
         }
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">lookup_prev</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">BK</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="self">self</span>, <span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">BK</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">A</span><span class="op">&gt;</span>
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">lookup_prev</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">BK</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="self">self</span>, <span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">BK</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">A</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="ident">BK</span>: <span class="ident">Ord</span> <span class="op">+</span> <span class="question-mark">?</span><span class="ident">Sized</span>,
         <span class="ident">A::Key</span>: <span class="ident">Borrow</span><span class="op">&lt;</span><span class="ident">BK</span><span class="op">&gt;</span>,
@@ -1591,19 +1590,19 @@
             <span class="kw">return</span> <span class="prelude-val">None</span>;
         }
         <span class="kw">match</span> <span class="ident">A::search_key</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">keys</span>, <span class="ident">key</span>) {
-            <span class="prelude-val">Ok</span>(<span class="ident">index</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">keys</span>[<span class="ident">index</span>]),
-            <span class="prelude-val">Err</span>(<span class="ident">index</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">children</span>[<span class="ident">index</span>] {
-                <span class="prelude-val">None</span> <span class="kw">if</span> <span class="ident">index</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
-                <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">keys</span>.<span class="ident">get</span>(<span class="ident">index</span> <span class="op">-</span> <span class="number">1</span>) {
-                    <span class="prelude-val">Some</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">keys</span>[<span class="ident">index</span> <span class="op">-</span> <span class="number">1</span>]),
-                    <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
+            <span class="prelude-val">Ok</span>(<span class="ident">index</span>) =&gt; <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">keys</span>[<span class="ident">index</span>]),
+            <span class="prelude-val">Err</span>(<span class="ident">index</span>) =&gt; <span class="kw">match</span> <span class="self">self</span>.<span class="ident">children</span>[<span class="ident">index</span>] {
+                <span class="prelude-val">None</span> <span class="kw">if</span> <span class="ident">index</span> <span class="op">==</span> <span class="number">0</span> =&gt; <span class="prelude-val">None</span>,
+                <span class="prelude-val">None</span> =&gt; <span class="kw">match</span> <span class="self">self</span>.<span class="ident">keys</span>.<span class="ident">get</span>(<span class="ident">index</span> <span class="op">-</span> <span class="number">1</span>) {
+                    <span class="prelude-val">Some</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">keys</span>[<span class="ident">index</span> <span class="op">-</span> <span class="number">1</span>]),
+                    <span class="prelude-val">None</span> =&gt; <span class="prelude-val">None</span>,
                 },
-                <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">node</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">node</span>.<span class="ident">lookup_prev</span>(<span class="ident">key</span>),
+                <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">node</span>) =&gt; <span class="ident">node</span>.<span class="ident">lookup_prev</span>(<span class="ident">key</span>),
             },
         }
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">lookup_next</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">BK</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="self">self</span>, <span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">BK</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">A</span><span class="op">&gt;</span>
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">lookup_next</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">BK</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="self">self</span>, <span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">BK</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">A</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="ident">BK</span>: <span class="ident">Ord</span> <span class="op">+</span> <span class="question-mark">?</span><span class="ident">Sized</span>,
         <span class="ident">A::Key</span>: <span class="ident">Borrow</span><span class="op">&lt;</span><span class="ident">BK</span><span class="op">&gt;</span>,
@@ -1612,13 +1611,13 @@
             <span class="kw">return</span> <span class="prelude-val">None</span>;
         }
         <span class="kw">match</span> <span class="ident">A::search_key</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">keys</span>, <span class="ident">key</span>) {
-            <span class="prelude-val">Ok</span>(<span class="ident">index</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">keys</span>[<span class="ident">index</span>]),
-            <span class="prelude-val">Err</span>(<span class="ident">index</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">children</span>[<span class="ident">index</span>] {
-                <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">keys</span>.<span class="ident">get</span>(<span class="ident">index</span>) {
-                    <span class="prelude-val">Some</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">keys</span>[<span class="ident">index</span>]),
-                    <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
+            <span class="prelude-val">Ok</span>(<span class="ident">index</span>) =&gt; <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">keys</span>[<span class="ident">index</span>]),
+            <span class="prelude-val">Err</span>(<span class="ident">index</span>) =&gt; <span class="kw">match</span> <span class="self">self</span>.<span class="ident">children</span>[<span class="ident">index</span>] {
+                <span class="prelude-val">None</span> =&gt; <span class="kw">match</span> <span class="self">self</span>.<span class="ident">keys</span>.<span class="ident">get</span>(<span class="ident">index</span>) {
+                    <span class="prelude-val">Some</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">keys</span>[<span class="ident">index</span>]),
+                    <span class="prelude-val">None</span> =&gt; <span class="prelude-val">None</span>,
                 },
-                <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">node</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">node</span>.<span class="ident">lookup_next</span>(<span class="ident">key</span>),
+                <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">node</span>) =&gt; <span class="ident">node</span>.<span class="ident">lookup_next</span>(<span class="ident">key</span>),
             },
         }
     }
@@ -1627,7 +1626,7 @@
         <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="self">self</span>,
         <span class="ident">pool</span>: <span class="kw-2">&amp;</span><span class="ident">Pool</span><span class="op">&lt;</span><span class="ident">Node</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span><span class="op">&gt;</span>,
         <span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">BK</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">A</span><span class="op">&gt;</span>
+    ) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">A</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="ident">A</span>: <span class="ident">Clone</span>,
         <span class="ident">BK</span>: <span class="ident">Ord</span> <span class="op">+</span> <span class="question-mark">?</span><span class="ident">Sized</span>,
@@ -1637,14 +1636,14 @@
             <span class="kw">return</span> <span class="prelude-val">None</span>;
         }
         <span class="kw">match</span> <span class="ident">A::search_key</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">keys</span>, <span class="ident">key</span>) {
-            <span class="prelude-val">Ok</span>(<span class="ident">index</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">keys</span>[<span class="ident">index</span>]),
-            <span class="prelude-val">Err</span>(<span class="ident">index</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">children</span>[<span class="ident">index</span>] {
-                <span class="prelude-val">None</span> <span class="kw">if</span> <span class="ident">index</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
-                <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">keys</span>.<span class="ident">get</span>(<span class="ident">index</span> <span class="op">-</span> <span class="number">1</span>) {
-                    <span class="prelude-val">Some</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">keys</span>[<span class="ident">index</span> <span class="op">-</span> <span class="number">1</span>]),
-                    <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
+            <span class="prelude-val">Ok</span>(<span class="ident">index</span>) =&gt; <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">keys</span>[<span class="ident">index</span>]),
+            <span class="prelude-val">Err</span>(<span class="ident">index</span>) =&gt; <span class="kw">match</span> <span class="self">self</span>.<span class="ident">children</span>[<span class="ident">index</span>] {
+                <span class="prelude-val">None</span> <span class="kw">if</span> <span class="ident">index</span> <span class="op">==</span> <span class="number">0</span> =&gt; <span class="prelude-val">None</span>,
+                <span class="prelude-val">None</span> =&gt; <span class="kw">match</span> <span class="self">self</span>.<span class="ident">keys</span>.<span class="ident">get</span>(<span class="ident">index</span> <span class="op">-</span> <span class="number">1</span>) {
+                    <span class="prelude-val">Some</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">keys</span>[<span class="ident">index</span> <span class="op">-</span> <span class="number">1</span>]),
+                    <span class="prelude-val">None</span> =&gt; <span class="prelude-val">None</span>,
                 },
-                <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">node</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">PoolRef::make_mut</span>(<span class="ident">pool</span>, <span class="ident">node</span>).<span class="ident">lookup_prev_mut</span>(<span class="ident">pool</span>, <span class="ident">key</span>),
+                <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">node</span>) =&gt; <span class="ident">PoolRef::make_mut</span>(<span class="ident">pool</span>, <span class="ident">node</span>).<span class="ident">lookup_prev_mut</span>(<span class="ident">pool</span>, <span class="ident">key</span>),
             },
         }
     }
@@ -1653,7 +1652,7 @@
         <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="self">self</span>,
         <span class="ident">pool</span>: <span class="kw-2">&amp;</span><span class="ident">Pool</span><span class="op">&lt;</span><span class="ident">Node</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span><span class="op">&gt;</span>,
         <span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">BK</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">A</span><span class="op">&gt;</span>
+    ) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">A</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="ident">A</span>: <span class="ident">Clone</span>,
         <span class="ident">BK</span>: <span class="ident">Ord</span> <span class="op">+</span> <span class="question-mark">?</span><span class="ident">Sized</span>,
@@ -1663,13 +1662,13 @@
             <span class="kw">return</span> <span class="prelude-val">None</span>;
         }
         <span class="kw">match</span> <span class="ident">A::search_key</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">keys</span>, <span class="ident">key</span>) {
-            <span class="prelude-val">Ok</span>(<span class="ident">index</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">keys</span>[<span class="ident">index</span>]),
-            <span class="prelude-val">Err</span>(<span class="ident">index</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">children</span>[<span class="ident">index</span>] {
-                <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">keys</span>.<span class="ident">get</span>(<span class="ident">index</span>) {
-                    <span class="prelude-val">Some</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">keys</span>[<span class="ident">index</span>]),
-                    <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
+            <span class="prelude-val">Ok</span>(<span class="ident">index</span>) =&gt; <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">keys</span>[<span class="ident">index</span>]),
+            <span class="prelude-val">Err</span>(<span class="ident">index</span>) =&gt; <span class="kw">match</span> <span class="self">self</span>.<span class="ident">children</span>[<span class="ident">index</span>] {
+                <span class="prelude-val">None</span> =&gt; <span class="kw">match</span> <span class="self">self</span>.<span class="ident">keys</span>.<span class="ident">get</span>(<span class="ident">index</span>) {
+                    <span class="prelude-val">Some</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">keys</span>[<span class="ident">index</span>]),
+                    <span class="prelude-val">None</span> =&gt; <span class="prelude-val">None</span>,
                 },
-                <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">node</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">PoolRef::make_mut</span>(<span class="ident">pool</span>, <span class="ident">node</span>).<span class="ident">lookup_next_mut</span>(<span class="ident">pool</span>, <span class="ident">key</span>),
+                <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">node</span>) =&gt; <span class="ident">PoolRef::make_mut</span>(<span class="ident">pool</span>, <span class="ident">node</span>).<span class="ident">lookup_next_mut</span>(<span class="ident">pool</span>, <span class="ident">key</span>),
             },
         }
     }
@@ -1677,7 +1676,7 @@
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">path_first</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">BK</span><span class="op">&gt;</span>(
         <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="self">self</span>,
         <span class="kw-2">mut</span> <span class="ident">path</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Node</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span>, <span class="ident">usize</span>)<span class="op">&gt;</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Node</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span>, <span class="ident">usize</span>)<span class="op">&gt;</span>
+    ) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Node</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span>, <span class="ident">usize</span>)<span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="ident">A</span>: <span class="lifetime">&#39;a</span>,
         <span class="ident">BK</span>: <span class="ident">Ord</span> <span class="op">+</span> <span class="question-mark">?</span><span class="ident">Sized</span>,
@@ -1687,11 +1686,11 @@
             <span class="kw">return</span> <span class="ident">Vec::new</span>();
         }
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">children</span>[<span class="number">0</span>] {
-            <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="prelude-val">None</span> =&gt; {
                 <span class="ident">path</span>.<span class="ident">push</span>((<span class="self">self</span>, <span class="number">0</span>));
                 <span class="ident">path</span>
             }
-            <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">node</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">node</span>) =&gt; {
                 <span class="ident">path</span>.<span class="ident">push</span>((<span class="self">self</span>, <span class="number">0</span>));
                 <span class="ident">node</span>.<span class="ident">path_first</span>(<span class="ident">path</span>)
             }
@@ -1701,7 +1700,7 @@
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">path_last</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">BK</span><span class="op">&gt;</span>(
         <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="self">self</span>,
         <span class="kw-2">mut</span> <span class="ident">path</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Node</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span>, <span class="ident">usize</span>)<span class="op">&gt;</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Node</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span>, <span class="ident">usize</span>)<span class="op">&gt;</span>
+    ) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Node</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span>, <span class="ident">usize</span>)<span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="ident">A</span>: <span class="lifetime">&#39;a</span>,
         <span class="ident">BK</span>: <span class="ident">Ord</span> <span class="op">+</span> <span class="question-mark">?</span><span class="ident">Sized</span>,
@@ -1712,11 +1711,11 @@
         }
         <span class="kw">let</span> <span class="ident">end</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">children</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span>;
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">children</span>[<span class="ident">end</span>] {
-            <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="prelude-val">None</span> =&gt; {
                 <span class="ident">path</span>.<span class="ident">push</span>((<span class="self">self</span>, <span class="ident">end</span> <span class="op">-</span> <span class="number">1</span>));
                 <span class="ident">path</span>
             }
-            <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">node</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">node</span>) =&gt; {
                 <span class="ident">path</span>.<span class="ident">push</span>((<span class="self">self</span>, <span class="ident">end</span>));
                 <span class="ident">node</span>.<span class="ident">path_last</span>(<span class="ident">path</span>)
             }
@@ -1727,7 +1726,7 @@
         <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="self">self</span>,
         <span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">BK</span>,
         <span class="kw-2">mut</span> <span class="ident">path</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Node</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span>, <span class="ident">usize</span>)<span class="op">&gt;</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Node</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span>, <span class="ident">usize</span>)<span class="op">&gt;</span>
+    ) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Node</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span>, <span class="ident">usize</span>)<span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="ident">A</span>: <span class="lifetime">&#39;a</span>,
         <span class="ident">BK</span>: <span class="ident">Ord</span> <span class="op">+</span> <span class="question-mark">?</span><span class="ident">Sized</span>,
@@ -1737,19 +1736,19 @@
             <span class="kw">return</span> <span class="ident">Vec::new</span>();
         }
         <span class="kw">match</span> <span class="ident">A::search_key</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">keys</span>, <span class="ident">key</span>) {
-            <span class="prelude-val">Ok</span>(<span class="ident">index</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="prelude-val">Ok</span>(<span class="ident">index</span>) =&gt; {
                 <span class="ident">path</span>.<span class="ident">push</span>((<span class="self">self</span>, <span class="ident">index</span>));
                 <span class="ident">path</span>
             }
-            <span class="prelude-val">Err</span>(<span class="ident">index</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">children</span>[<span class="ident">index</span>] {
-                <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">keys</span>.<span class="ident">get</span>(<span class="ident">index</span>) {
-                    <span class="prelude-val">Some</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="prelude-val">Err</span>(<span class="ident">index</span>) =&gt; <span class="kw">match</span> <span class="self">self</span>.<span class="ident">children</span>[<span class="ident">index</span>] {
+                <span class="prelude-val">None</span> =&gt; <span class="kw">match</span> <span class="self">self</span>.<span class="ident">keys</span>.<span class="ident">get</span>(<span class="ident">index</span>) {
+                    <span class="prelude-val">Some</span>(<span class="kw">_</span>) =&gt; {
                         <span class="ident">path</span>.<span class="ident">push</span>((<span class="self">self</span>, <span class="ident">index</span>));
                         <span class="ident">path</span>
                     }
-                    <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Vec::new</span>(),
+                    <span class="prelude-val">None</span> =&gt; <span class="ident">Vec::new</span>(),
                 },
-                <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">node</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">node</span>) =&gt; {
                     <span class="ident">path</span>.<span class="ident">push</span>((<span class="self">self</span>, <span class="ident">index</span>));
                     <span class="ident">node</span>.<span class="ident">path_next</span>(<span class="ident">key</span>, <span class="ident">path</span>)
                 }
@@ -1761,7 +1760,7 @@
         <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="self">self</span>,
         <span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">BK</span>,
         <span class="kw-2">mut</span> <span class="ident">path</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Node</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span>, <span class="ident">usize</span>)<span class="op">&gt;</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Node</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span>, <span class="ident">usize</span>)<span class="op">&gt;</span>
+    ) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Node</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span>, <span class="ident">usize</span>)<span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="ident">A</span>: <span class="lifetime">&#39;a</span>,
         <span class="ident">BK</span>: <span class="ident">Ord</span> <span class="op">+</span> <span class="question-mark">?</span><span class="ident">Sized</span>,
@@ -1771,20 +1770,20 @@
             <span class="kw">return</span> <span class="ident">Vec::new</span>();
         }
         <span class="kw">match</span> <span class="ident">A::search_key</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">keys</span>, <span class="ident">key</span>) {
-            <span class="prelude-val">Ok</span>(<span class="ident">index</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="prelude-val">Ok</span>(<span class="ident">index</span>) =&gt; {
                 <span class="ident">path</span>.<span class="ident">push</span>((<span class="self">self</span>, <span class="ident">index</span>));
                 <span class="ident">path</span>
             }
-            <span class="prelude-val">Err</span>(<span class="ident">index</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">children</span>[<span class="ident">index</span>] {
-                <span class="prelude-val">None</span> <span class="kw">if</span> <span class="ident">index</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Vec::new</span>(),
-                <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">keys</span>.<span class="ident">get</span>(<span class="ident">index</span> <span class="op">-</span> <span class="number">1</span>) {
-                    <span class="prelude-val">Some</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="prelude-val">Err</span>(<span class="ident">index</span>) =&gt; <span class="kw">match</span> <span class="self">self</span>.<span class="ident">children</span>[<span class="ident">index</span>] {
+                <span class="prelude-val">None</span> <span class="kw">if</span> <span class="ident">index</span> <span class="op">==</span> <span class="number">0</span> =&gt; <span class="ident">Vec::new</span>(),
+                <span class="prelude-val">None</span> =&gt; <span class="kw">match</span> <span class="self">self</span>.<span class="ident">keys</span>.<span class="ident">get</span>(<span class="ident">index</span> <span class="op">-</span> <span class="number">1</span>) {
+                    <span class="prelude-val">Some</span>(<span class="kw">_</span>) =&gt; {
                         <span class="ident">path</span>.<span class="ident">push</span>((<span class="self">self</span>, <span class="ident">index</span>));
                         <span class="ident">path</span>
                     }
-                    <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Vec::new</span>(),
+                    <span class="prelude-val">None</span> =&gt; <span class="ident">Vec::new</span>(),
                 },
-                <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">node</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">node</span>) =&gt; {
                     <span class="ident">path</span>.<span class="ident">push</span>((<span class="self">self</span>, <span class="ident">index</span>));
                     <span class="ident">node</span>.<span class="ident">path_prev</span>(<span class="ident">key</span>, <span class="ident">path</span>)
                 }
@@ -1798,7 +1797,7 @@
         <span class="ident">value</span>: <span class="ident">A</span>,
         <span class="ident">ins_left</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Node</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span><span class="op">&gt;</span>,
         <span class="ident">ins_right</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Node</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Insert</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span> {
+    ) -&gt; <span class="ident">Insert</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">left_child</span> <span class="op">=</span> <span class="ident">ins_left</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">node</span><span class="op">|</span> <span class="ident">PoolRef::new</span>(<span class="ident">pool</span>, <span class="ident">node</span>));
         <span class="kw">let</span> <span class="ident">right_child</span> <span class="op">=</span> <span class="ident">ins_right</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">node</span><span class="op">|</span> <span class="ident">PoolRef::new</span>(<span class="ident">pool</span>, <span class="ident">node</span>));
         <span class="kw">let</span> <span class="ident">index</span> <span class="op">=</span> <span class="ident">A::search_value</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">keys</span>, <span class="kw-2">&amp;</span><span class="ident">value</span>).<span class="ident">unwrap_err</span>();
@@ -1808,7 +1807,7 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">right_children</span>;
         <span class="kw">let</span> <span class="ident">median</span>;
         <span class="kw">match</span> <span class="ident">index</span>.<span class="ident">cmp</span>(<span class="kw-2">&amp;</span><span class="ident">MEDIAN</span>) {
-            <span class="ident">Ordering::Less</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">Ordering::Less</span> =&gt; {
                 <span class="self">self</span>.<span class="ident">children</span>[<span class="ident">index</span>] <span class="op">=</span> <span class="ident">left_child</span>;
 
                 <span class="ident">left_keys</span> <span class="op">=</span> <span class="ident">Chunk::from_front</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">keys</span>, <span class="ident">index</span>);
@@ -1824,7 +1823,7 @@
                 <span class="ident">right_keys</span> <span class="op">=</span> <span class="ident">Chunk::drain_from</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">keys</span>);
                 <span class="ident">right_children</span> <span class="op">=</span> <span class="ident">Chunk::drain_from</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">children</span>);
             }
-            <span class="ident">Ordering::Greater</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">Ordering::Greater</span> =&gt; {
                 <span class="self">self</span>.<span class="ident">children</span>[<span class="ident">index</span>] <span class="op">=</span> <span class="ident">left_child</span>;
 
                 <span class="ident">left_keys</span> <span class="op">=</span> <span class="ident">Chunk::from_front</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">keys</span>, <span class="ident">MEDIAN</span>);
@@ -1840,7 +1839,7 @@
                 <span class="ident">right_children</span>.<span class="ident">push_back</span>(<span class="ident">right_child</span>);
                 <span class="ident">right_children</span>.<span class="ident">append</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">children</span>);
             }
-            <span class="ident">Ordering::Equal</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">Ordering::Equal</span> =&gt; {
                 <span class="ident">left_keys</span> <span class="op">=</span> <span class="ident">Chunk::from_front</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">keys</span>, <span class="ident">MEDIAN</span>);
                 <span class="ident">left_children</span> <span class="op">=</span> <span class="ident">Chunk::from_front</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">children</span>, <span class="ident">MEDIAN</span>);
                 <span class="ident">left_children</span>.<span class="ident">push_back</span>(<span class="ident">left_child</span>);
@@ -1853,10 +1852,10 @@
             }
         }
 
-        <span class="macro">debug_assert!</span>(<span class="ident">left_keys</span>.<span class="ident">len</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">MEDIAN</span>);
-        <span class="macro">debug_assert!</span>(<span class="ident">left_children</span>.<span class="ident">len</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">MEDIAN</span> <span class="op">+</span> <span class="number">1</span>);
-        <span class="macro">debug_assert!</span>(<span class="ident">right_keys</span>.<span class="ident">len</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">MEDIAN</span>);
-        <span class="macro">debug_assert!</span>(<span class="ident">right_children</span>.<span class="ident">len</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">MEDIAN</span> <span class="op">+</span> <span class="number">1</span>);
+        <span class="macro">debug_assert!</span>(<span class="ident">left_keys</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="ident">MEDIAN</span>);
+        <span class="macro">debug_assert!</span>(<span class="ident">left_children</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="ident">MEDIAN</span> <span class="op">+</span> <span class="number">1</span>);
+        <span class="macro">debug_assert!</span>(<span class="ident">right_keys</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="ident">MEDIAN</span>);
+        <span class="macro">debug_assert!</span>(<span class="ident">right_children</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="ident">MEDIAN</span> <span class="op">+</span> <span class="number">1</span>);
 
         <span class="ident">Split</span>(
             <span class="ident">Node</span> {
@@ -1871,7 +1870,7 @@
         )
     }
 
-    <span class="kw">fn</span> <span class="ident">merge</span>(<span class="ident">middle</span>: <span class="ident">A</span>, <span class="ident">left</span>: <span class="ident">Node</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span>, <span class="kw-2">mut</span> <span class="ident">right</span>: <span class="ident">Node</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Node</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">merge</span>(<span class="ident">middle</span>: <span class="ident">A</span>, <span class="ident">left</span>: <span class="ident">Node</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span>, <span class="kw-2">mut</span> <span class="ident">right</span>: <span class="ident">Node</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span>) -&gt; <span class="ident">Node</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">keys</span> <span class="op">=</span> <span class="ident">left</span>.<span class="ident">keys</span>;
         <span class="ident">keys</span>.<span class="ident">push_back</span>(<span class="ident">middle</span>);
         <span class="ident">keys</span>.<span class="ident">append</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">right</span>.<span class="ident">keys</span>);
@@ -1880,13 +1879,13 @@
         <span class="ident">Node</span> { <span class="ident">keys</span>, <span class="ident">children</span> }
     }
 
-    <span class="kw">fn</span> <span class="ident">pop_min</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">A</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PoolRef</span><span class="op">&lt;</span><span class="ident">Node</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>) {
+    <span class="kw">fn</span> <span class="ident">pop_min</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; (<span class="ident">A</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PoolRef</span><span class="op">&lt;</span><span class="ident">Node</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>) {
         <span class="kw">let</span> <span class="ident">value</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">keys</span>.<span class="ident">pop_front</span>();
         <span class="kw">let</span> <span class="ident">child</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">children</span>.<span class="ident">pop_front</span>();
         (<span class="ident">value</span>, <span class="ident">child</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">pop_max</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">A</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PoolRef</span><span class="op">&lt;</span><span class="ident">Node</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>) {
+    <span class="kw">fn</span> <span class="ident">pop_max</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; (<span class="ident">A</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PoolRef</span><span class="op">&lt;</span><span class="ident">Node</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>) {
         <span class="kw">let</span> <span class="ident">value</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">keys</span>.<span class="ident">pop_back</span>();
         <span class="kw">let</span> <span class="ident">child</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">children</span>.<span class="ident">pop_back</span>();
         (<span class="ident">value</span>, <span class="ident">child</span>)
@@ -1902,7 +1901,7 @@
         <span class="self">self</span>.<span class="ident">children</span>.<span class="ident">push_back</span>(<span class="ident">child</span>);
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">insert</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">pool</span>: <span class="kw-2">&amp;</span><span class="ident">Pool</span><span class="op">&lt;</span><span class="ident">Node</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span><span class="op">&gt;</span>, <span class="ident">value</span>: <span class="ident">A</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Insert</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span>
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">insert</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">pool</span>: <span class="kw-2">&amp;</span><span class="ident">Pool</span><span class="op">&lt;</span><span class="ident">Node</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span><span class="op">&gt;</span>, <span class="ident">value</span>: <span class="ident">A</span>) -&gt; <span class="ident">Insert</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="ident">A</span>: <span class="ident">Clone</span>,
     {
@@ -1913,31 +1912,31 @@
         }
         <span class="kw">let</span> (<span class="ident">median</span>, <span class="ident">left</span>, <span class="ident">right</span>) <span class="op">=</span> <span class="kw">match</span> <span class="ident">A::search_value</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">keys</span>, <span class="kw-2">&amp;</span><span class="ident">value</span>) {
             <span class="comment">// Key exists in node</span>
-            <span class="prelude-val">Ok</span>(<span class="ident">index</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="prelude-val">Ok</span>(<span class="ident">index</span>) =&gt; {
                 <span class="kw">return</span> <span class="ident">Insert::Replaced</span>(<span class="ident">mem::replace</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">keys</span>[<span class="ident">index</span>], <span class="ident">value</span>));
             }
             <span class="comment">// Key is adjacent to some key in node</span>
-            <span class="prelude-val">Err</span>(<span class="ident">index</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="prelude-val">Err</span>(<span class="ident">index</span>) =&gt; {
                 <span class="kw">let</span> <span class="ident">has_room</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">has_room</span>();
                 <span class="kw">let</span> <span class="ident">action</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">children</span>[<span class="ident">index</span>] {
                     <span class="comment">// No child at location, this is the target node.</span>
-                    <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">InsertAt</span>,
+                    <span class="prelude-val">None</span> =&gt; <span class="ident">InsertAt</span>,
                     <span class="comment">// Child at location, pass it on.</span>
-                    <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">child_ref</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">child_ref</span>) =&gt; {
                         <span class="kw">let</span> <span class="ident">child</span> <span class="op">=</span> <span class="ident">PoolRef::make_mut</span>(<span class="ident">pool</span>, <span class="ident">child_ref</span>);
                         <span class="kw">match</span> <span class="ident">child</span>.<span class="ident">insert</span>(<span class="ident">pool</span>, <span class="ident">value</span>.<span class="ident">clone</span>()) {
-                            <span class="ident">Insert::Added</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">AddedAction</span>,
-                            <span class="ident">Insert::Replaced</span>(<span class="ident">value</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ReplacedAction</span>(<span class="ident">value</span>),
-                            <span class="ident">Insert::Split</span>(<span class="ident">left</span>, <span class="ident">median</span>, <span class="ident">right</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">InsertSplit</span>(<span class="ident">left</span>, <span class="ident">median</span>, <span class="ident">right</span>),
+                            <span class="ident">Insert::Added</span> =&gt; <span class="ident">AddedAction</span>,
+                            <span class="ident">Insert::Replaced</span>(<span class="ident">value</span>) =&gt; <span class="ident">ReplacedAction</span>(<span class="ident">value</span>),
+                            <span class="ident">Insert::Split</span>(<span class="ident">left</span>, <span class="ident">median</span>, <span class="ident">right</span>) =&gt; <span class="ident">InsertSplit</span>(<span class="ident">left</span>, <span class="ident">median</span>, <span class="ident">right</span>),
                         }
                     }
                 };
                 <span class="kw">match</span> <span class="ident">action</span> {
-                    <span class="ident">ReplacedAction</span>(<span class="ident">value</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="ident">Insert::Replaced</span>(<span class="ident">value</span>),
-                    <span class="ident">AddedAction</span> <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="ident">ReplacedAction</span>(<span class="ident">value</span>) =&gt; <span class="kw">return</span> <span class="ident">Insert::Replaced</span>(<span class="ident">value</span>),
+                    <span class="ident">AddedAction</span> =&gt; {
                         <span class="kw">return</span> <span class="ident">Insert::Added</span>;
                     }
-                    <span class="ident">InsertAt</span> <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="ident">InsertAt</span> =&gt; {
                         <span class="kw">if</span> <span class="ident">has_room</span> {
                             <span class="self">self</span>.<span class="ident">keys</span>.<span class="ident">insert</span>(<span class="ident">index</span>, <span class="ident">value</span>);
                             <span class="self">self</span>.<span class="ident">children</span>.<span class="ident">insert</span>(<span class="ident">index</span> <span class="op">+</span> <span class="number">1</span>, <span class="prelude-val">None</span>);
@@ -1946,7 +1945,7 @@
                             (<span class="ident">value</span>, <span class="prelude-val">None</span>, <span class="prelude-val">None</span>)
                         }
                     }
-                    <span class="ident">InsertSplit</span>(<span class="ident">left</span>, <span class="ident">median</span>, <span class="ident">right</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="ident">InsertSplit</span>(<span class="ident">left</span>, <span class="ident">median</span>, <span class="ident">right</span>) =&gt; {
                         <span class="kw">if</span> <span class="ident">has_room</span> {
                             <span class="self">self</span>.<span class="ident">children</span>[<span class="ident">index</span>] <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">PoolRef::new</span>(<span class="ident">pool</span>, <span class="ident">left</span>));
                             <span class="self">self</span>.<span class="ident">keys</span>.<span class="ident">insert</span>(<span class="ident">index</span>, <span class="ident">median</span>);
@@ -1963,7 +1962,7 @@
         <span class="self">self</span>.<span class="ident">split</span>(<span class="ident">pool</span>, <span class="ident">median</span>, <span class="ident">left</span>, <span class="ident">right</span>)
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">remove</span><span class="op">&lt;</span><span class="ident">BK</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">pool</span>: <span class="kw-2">&amp;</span><span class="ident">Pool</span><span class="op">&lt;</span><span class="ident">Node</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span><span class="op">&gt;</span>, <span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">BK</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Remove</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span>
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">remove</span><span class="op">&lt;</span><span class="ident">BK</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">pool</span>: <span class="kw-2">&amp;</span><span class="ident">Pool</span><span class="op">&lt;</span><span class="ident">Node</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span><span class="op">&gt;</span>, <span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">BK</span>) -&gt; <span class="ident">Remove</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="ident">A</span>: <span class="ident">Clone</span>,
         <span class="ident">BK</span>: <span class="ident">Ord</span> <span class="op">+</span> <span class="question-mark">?</span><span class="ident">Sized</span>,
@@ -1978,7 +1977,7 @@
         <span class="ident">pool</span>: <span class="kw-2">&amp;</span><span class="ident">Pool</span><span class="op">&lt;</span><span class="ident">Node</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span><span class="op">&gt;</span>,
         <span class="ident">index</span>: <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span>, <span class="ident">usize</span><span class="op">&gt;</span>,
         <span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">BK</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Remove</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span>
+    ) -&gt; <span class="ident">Remove</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="ident">A</span>: <span class="ident">Clone</span>,
         <span class="ident">BK</span>: <span class="ident">Ord</span> <span class="op">+</span> <span class="question-mark">?</span><span class="ident">Sized</span>,
@@ -1986,12 +1985,12 @@
     {
         <span class="kw">let</span> <span class="ident">action</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">index</span> {
             <span class="comment">// Key exists in node, remove it.</span>
-            <span class="prelude-val">Ok</span>(<span class="ident">index</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="prelude-val">Ok</span>(<span class="ident">index</span>) =&gt; {
                 <span class="kw">match</span> (<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">children</span>[<span class="ident">index</span>], <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">children</span>[<span class="ident">index</span> <span class="op">+</span> <span class="number">1</span>]) {
                     <span class="comment">// If we&#39;re a leaf, just delete the entry.</span>
-                    (<span class="kw-2">&amp;</span><span class="prelude-val">None</span>, <span class="kw-2">&amp;</span><span class="prelude-val">None</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">RemoveAction::DeleteAt</span>(<span class="ident">index</span>),
+                    (<span class="kw-2">&amp;</span><span class="prelude-val">None</span>, <span class="kw-2">&amp;</span><span class="prelude-val">None</span>) =&gt; <span class="ident">RemoveAction::DeleteAt</span>(<span class="ident">index</span>),
                     <span class="comment">// If the left hand child has capacity, pull the predecessor up.</span>
-                    (<span class="kw-2">&amp;</span><span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">left</span>), <span class="kw">_</span>) <span class="kw">if</span> <span class="op">!</span><span class="ident">left</span>.<span class="ident">too_small</span>() <span class="op">=</span><span class="op">&gt;</span> {
+                    (<span class="kw-2">&amp;</span><span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">left</span>), <span class="kw">_</span>) <span class="kw">if</span> <span class="op">!</span><span class="ident">left</span>.<span class="ident">too_small</span>() =&gt; {
                         <span class="kw">if</span> <span class="ident">left</span>.<span class="ident">is_leaf</span>() {
                             <span class="ident">RemoveAction::PullUp</span>(<span class="ident">left</span>.<span class="ident">keys</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span>, <span class="ident">index</span>, <span class="ident">index</span>)
                         } <span class="kw">else</span> {
@@ -1999,7 +1998,7 @@
                         }
                     }
                     <span class="comment">// If the right hand child has capacity, pull the successor up.</span>
-                    (<span class="kw">_</span>, <span class="kw-2">&amp;</span><span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">right</span>)) <span class="kw">if</span> <span class="op">!</span><span class="ident">right</span>.<span class="ident">too_small</span>() <span class="op">=</span><span class="op">&gt;</span> {
+                    (<span class="kw">_</span>, <span class="kw-2">&amp;</span><span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">right</span>)) <span class="kw">if</span> <span class="op">!</span><span class="ident">right</span>.<span class="ident">too_small</span>() =&gt; {
                         <span class="kw">if</span> <span class="ident">right</span>.<span class="ident">is_leaf</span>() {
                             <span class="ident">RemoveAction::PullUp</span>(<span class="number">0</span>, <span class="ident">index</span>, <span class="ident">index</span> <span class="op">+</span> <span class="number">1</span>)
                         } <span class="kw">else</span> {
@@ -2007,17 +2006,17 @@
                         }
                     }
                     <span class="comment">// If neither child has capacity, we&#39;ll have to merge them.</span>
-                    (<span class="kw-2">&amp;</span><span class="prelude-val">Some</span>(<span class="kw">_</span>), <span class="kw-2">&amp;</span><span class="prelude-val">Some</span>(<span class="kw">_</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">RemoveAction::Merge</span>(<span class="ident">index</span>),
+                    (<span class="kw-2">&amp;</span><span class="prelude-val">Some</span>(<span class="kw">_</span>), <span class="kw-2">&amp;</span><span class="prelude-val">Some</span>(<span class="kw">_</span>)) =&gt; <span class="ident">RemoveAction::Merge</span>(<span class="ident">index</span>),
                     <span class="comment">// If one child exists and the other doesn&#39;t, we&#39;re in a bad state.</span>
-                    <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
+                    <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
                 }
             }
             <span class="comment">// Key is adjacent to some key in node</span>
-            <span class="prelude-val">Err</span>(<span class="ident">index</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">children</span>[<span class="ident">index</span>] {
+            <span class="prelude-val">Err</span>(<span class="ident">index</span>) =&gt; <span class="kw">match</span> <span class="self">self</span>.<span class="ident">children</span>[<span class="ident">index</span>] {
                 <span class="comment">// No child at location means key isn&#39;t in map.</span>
-                <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="ident">Remove::NoChange</span>,
+                <span class="prelude-val">None</span> =&gt; <span class="kw">return</span> <span class="ident">Remove::NoChange</span>,
                 <span class="comment">// Child at location, but it&#39;s at minimum capacity.</span>
-                <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">child</span>) <span class="kw">if</span> <span class="ident">child</span>.<span class="ident">too_small</span>() <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">child</span>) <span class="kw">if</span> <span class="ident">child</span>.<span class="ident">too_small</span>() =&gt; {
                     <span class="kw">let</span> <span class="ident">left</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">index</span> <span class="op">&gt;</span> <span class="number">0</span> {
                         <span class="self">self</span>.<span class="ident">children</span>.<span class="ident">get</span>(<span class="ident">index</span> <span class="op">-</span> <span class="number">1</span>)
                     } <span class="kw">else</span> {
@@ -2025,44 +2024,44 @@
                     }; <span class="comment">// index is usize and can&#39;t be negative, best make sure it never is.</span>
                     <span class="kw">match</span> (<span class="ident">left</span>, <span class="self">self</span>.<span class="ident">children</span>.<span class="ident">get</span>(<span class="ident">index</span> <span class="op">+</span> <span class="number">1</span>)) {
                         <span class="comment">// If it has a left sibling with capacity, steal a key from it.</span>
-                        (<span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">old_left</span>)), <span class="kw">_</span>) <span class="kw">if</span> <span class="op">!</span><span class="ident">old_left</span>.<span class="ident">too_small</span>() <span class="op">=</span><span class="op">&gt;</span> {
+                        (<span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">old_left</span>)), <span class="kw">_</span>) <span class="kw">if</span> <span class="op">!</span><span class="ident">old_left</span>.<span class="ident">too_small</span>() =&gt; {
                             <span class="ident">RemoveAction::StealFromLeft</span>(<span class="ident">index</span>)
                         }
                         <span class="comment">// If it has a right sibling with capacity, same as above.</span>
-                        (<span class="kw">_</span>, <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">old_right</span>))) <span class="kw">if</span> <span class="op">!</span><span class="ident">old_right</span>.<span class="ident">too_small</span>() <span class="op">=</span><span class="op">&gt;</span> {
+                        (<span class="kw">_</span>, <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">old_right</span>))) <span class="kw">if</span> <span class="op">!</span><span class="ident">old_right</span>.<span class="ident">too_small</span>() =&gt; {
                             <span class="ident">RemoveAction::StealFromRight</span>(<span class="ident">index</span>)
                         }
                         <span class="comment">// If it has neither, we&#39;ll have to merge it with a sibling.</span>
                         <span class="comment">// If we have a right sibling, we&#39;ll merge with that.</span>
-                        (<span class="kw">_</span>, <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="prelude-val">Some</span>(<span class="kw">_</span>))) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">RemoveAction::MergeFirst</span>(<span class="ident">index</span>),
+                        (<span class="kw">_</span>, <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="prelude-val">Some</span>(<span class="kw">_</span>))) =&gt; <span class="ident">RemoveAction::MergeFirst</span>(<span class="ident">index</span>),
                         <span class="comment">// If we have a left sibling, we&#39;ll merge with that.</span>
-                        (<span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="prelude-val">Some</span>(<span class="kw">_</span>)), <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">RemoveAction::MergeFirst</span>(<span class="ident">index</span> <span class="op">-</span> <span class="number">1</span>),
+                        (<span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="prelude-val">Some</span>(<span class="kw">_</span>)), <span class="kw">_</span>) =&gt; <span class="ident">RemoveAction::MergeFirst</span>(<span class="ident">index</span> <span class="op">-</span> <span class="number">1</span>),
                         <span class="comment">// If none of the above, we&#39;re in a bad state.</span>
-                        <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
+                        <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
                     }
                 }
                 <span class="comment">// Child at location, and it&#39;s big enough, we can recurse down.</span>
-                <span class="prelude-val">Some</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">RemoveAction::ContinueDown</span>(<span class="ident">index</span>),
+                <span class="prelude-val">Some</span>(<span class="kw">_</span>) =&gt; <span class="ident">RemoveAction::ContinueDown</span>(<span class="ident">index</span>),
             },
         };
         <span class="kw">match</span> <span class="ident">action</span> {
-            <span class="ident">RemoveAction::DeleteAt</span>(<span class="ident">index</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">RemoveAction::DeleteAt</span>(<span class="ident">index</span>) =&gt; {
                 <span class="kw">let</span> <span class="ident">pair</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">keys</span>.<span class="ident">remove</span>(<span class="ident">index</span>);
                 <span class="self">self</span>.<span class="ident">children</span>.<span class="ident">remove</span>(<span class="ident">index</span>);
                 <span class="ident">Remove::Removed</span>(<span class="ident">pair</span>)
             }
-            <span class="ident">RemoveAction::PullUp</span>(<span class="ident">target_index</span>, <span class="ident">pull_to</span>, <span class="ident">child_index</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">RemoveAction::PullUp</span>(<span class="ident">target_index</span>, <span class="ident">pull_to</span>, <span class="ident">child_index</span>) =&gt; {
                 <span class="kw">let</span> <span class="ident">children</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">children</span>;
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">update</span> <span class="op">=</span> <span class="prelude-val">None</span>;
                 <span class="kw">let</span> <span class="ident">value</span>;
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">child_ref</span>)) <span class="op">=</span> <span class="ident">children</span>.<span class="ident">get_mut</span>(<span class="ident">child_index</span>) {
                     <span class="kw">let</span> <span class="ident">child</span> <span class="op">=</span> <span class="ident">PoolRef::make_mut</span>(<span class="ident">pool</span>, <span class="ident">child_ref</span>);
                     <span class="kw">match</span> <span class="ident">child</span>.<span class="ident">remove_index</span>(<span class="ident">pool</span>, <span class="prelude-val">Ok</span>(<span class="ident">target_index</span>), <span class="ident">key</span>) {
-                        <span class="ident">Remove::NoChange</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
-                        <span class="ident">Remove::Removed</span>(<span class="ident">pulled_value</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="ident">Remove::NoChange</span> =&gt; <span class="macro">unreachable!</span>(),
+                        <span class="ident">Remove::Removed</span>(<span class="ident">pulled_value</span>) =&gt; {
                             <span class="ident">value</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">keys</span>.<span class="ident">set</span>(<span class="ident">pull_to</span>, <span class="ident">pulled_value</span>);
                         }
-                        <span class="ident">Remove::Update</span>(<span class="ident">pulled_value</span>, <span class="ident">new_child</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="ident">Remove::Update</span>(<span class="ident">pulled_value</span>, <span class="ident">new_child</span>) =&gt; {
                             <span class="ident">value</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">keys</span>.<span class="ident">set</span>(<span class="ident">pull_to</span>, <span class="ident">pulled_value</span>);
                             <span class="ident">update</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">new_child</span>);
                         }
@@ -2075,7 +2074,7 @@
                 }
                 <span class="ident">Remove::Removed</span>(<span class="ident">value</span>)
             }
-            <span class="ident">RemoveAction::Merge</span>(<span class="ident">index</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">RemoveAction::Merge</span>(<span class="ident">index</span>) =&gt; {
                 <span class="kw">let</span> <span class="ident">left</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">children</span>.<span class="ident">remove</span>(<span class="ident">index</span>).<span class="ident">unwrap</span>();
                 <span class="kw">let</span> <span class="ident">right</span> <span class="op">=</span> <span class="ident">mem::replace</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">children</span>[<span class="ident">index</span>], <span class="prelude-val">None</span>).<span class="ident">unwrap</span>();
                 <span class="kw">let</span> <span class="ident">value</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">keys</span>.<span class="ident">remove</span>(<span class="ident">index</span>);
@@ -2085,9 +2084,9 @@
                     <span class="ident">PoolRef::unwrap_or_clone</span>(<span class="ident">right</span>),
                 );
                 <span class="kw">let</span> (<span class="ident">removed</span>, <span class="ident">new_child</span>) <span class="op">=</span> <span class="kw">match</span> <span class="ident">merged_child</span>.<span class="ident">remove</span>(<span class="ident">pool</span>, <span class="ident">key</span>) {
-                    <span class="ident">Remove::NoChange</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
-                    <span class="ident">Remove::Removed</span>(<span class="ident">removed</span>) <span class="op">=</span><span class="op">&gt;</span> (<span class="ident">removed</span>, <span class="ident">merged_child</span>),
-                    <span class="ident">Remove::Update</span>(<span class="ident">removed</span>, <span class="ident">updated_child</span>) <span class="op">=</span><span class="op">&gt;</span> (<span class="ident">removed</span>, <span class="ident">updated_child</span>),
+                    <span class="ident">Remove::NoChange</span> =&gt; <span class="macro">unreachable!</span>(),
+                    <span class="ident">Remove::Removed</span>(<span class="ident">removed</span>) =&gt; (<span class="ident">removed</span>, <span class="ident">merged_child</span>),
+                    <span class="ident">Remove::Update</span>(<span class="ident">removed</span>, <span class="ident">updated_child</span>) =&gt; (<span class="ident">removed</span>, <span class="ident">updated_child</span>),
                 };
                 <span class="kw">if</span> <span class="self">self</span>.<span class="ident">keys</span>.<span class="ident">is_empty</span>() {
                     <span class="comment">// If we&#39;ve depleted the root node, the merged child becomes the root.</span>
@@ -2097,7 +2096,7 @@
                     <span class="ident">Remove::Removed</span>(<span class="ident">removed</span>)
                 }
             }
-            <span class="ident">RemoveAction::StealFromLeft</span>(<span class="ident">index</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">RemoveAction::StealFromLeft</span>(<span class="ident">index</span>) =&gt; {
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">update</span> <span class="op">=</span> <span class="prelude-val">None</span>;
                 <span class="kw">let</span> <span class="ident">out_value</span>;
                 {
@@ -2118,18 +2117,18 @@
                         <span class="self">self</span>.<span class="ident">keys</span>[<span class="ident">index</span> <span class="op">-</span> <span class="number">1</span>].<span class="ident">clone</span>(),
                     );
                     <span class="kw">match</span> <span class="ident">child</span>.<span class="ident">remove</span>(<span class="ident">pool</span>, <span class="ident">key</span>) {
-                        <span class="ident">Remove::NoChange</span> <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="ident">Remove::NoChange</span> =&gt; {
                             <span class="comment">// Key wasn&#39;t there, we need to revert the steal.</span>
                             <span class="ident">child</span>.<span class="ident">pop_min</span>();
                             <span class="kw">return</span> <span class="ident">Remove::NoChange</span>;
                         }
-                        <span class="ident">Remove::Removed</span>(<span class="ident">value</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="ident">Remove::Removed</span>(<span class="ident">value</span>) =&gt; {
                             <span class="comment">// If we did remove something, we complete the rebalancing.</span>
                             <span class="kw">let</span> (<span class="ident">left_value</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="ident">left</span>.<span class="ident">pop_max</span>();
                             <span class="self">self</span>.<span class="ident">keys</span>[<span class="ident">index</span> <span class="op">-</span> <span class="number">1</span>] <span class="op">=</span> <span class="ident">left_value</span>;
                             <span class="ident">out_value</span> <span class="op">=</span> <span class="ident">value</span>;
                         }
-                        <span class="ident">Remove::Update</span>(<span class="ident">value</span>, <span class="ident">new_child</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="ident">Remove::Update</span>(<span class="ident">value</span>, <span class="ident">new_child</span>) =&gt; {
                             <span class="comment">// If we did remove something, we complete the rebalancing.</span>
                             <span class="kw">let</span> (<span class="ident">left_value</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="ident">left</span>.<span class="ident">pop_max</span>();
                             <span class="self">self</span>.<span class="ident">keys</span>[<span class="ident">index</span> <span class="op">-</span> <span class="number">1</span>] <span class="op">=</span> <span class="ident">left_value</span>;
@@ -2143,7 +2142,7 @@
                 }
                 <span class="ident">Remove::Removed</span>(<span class="ident">out_value</span>)
             }
-            <span class="ident">RemoveAction::StealFromRight</span>(<span class="ident">index</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">RemoveAction::StealFromRight</span>(<span class="ident">index</span>) =&gt; {
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">update</span> <span class="op">=</span> <span class="prelude-val">None</span>;
                 <span class="kw">let</span> <span class="ident">out_value</span>;
                 {
@@ -2161,18 +2160,18 @@
                     <span class="comment">// Prepare the rebalanced node.</span>
                     <span class="ident">child</span>.<span class="ident">push_max</span>(<span class="ident">right</span>.<span class="ident">children</span>[<span class="number">0</span>].<span class="ident">clone</span>(), <span class="self">self</span>.<span class="ident">keys</span>[<span class="ident">index</span>].<span class="ident">clone</span>());
                     <span class="kw">match</span> <span class="ident">child</span>.<span class="ident">remove</span>(<span class="ident">pool</span>, <span class="ident">key</span>) {
-                        <span class="ident">Remove::NoChange</span> <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="ident">Remove::NoChange</span> =&gt; {
                             <span class="comment">// Key wasn&#39;t there, we need to revert the steal.</span>
                             <span class="ident">child</span>.<span class="ident">pop_max</span>();
                             <span class="kw">return</span> <span class="ident">Remove::NoChange</span>;
                         }
-                        <span class="ident">Remove::Removed</span>(<span class="ident">value</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="ident">Remove::Removed</span>(<span class="ident">value</span>) =&gt; {
                             <span class="comment">// If we did remove something, we complete the rebalancing.</span>
                             <span class="kw">let</span> (<span class="ident">right_value</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="ident">right</span>.<span class="ident">pop_min</span>();
                             <span class="self">self</span>.<span class="ident">keys</span>[<span class="ident">index</span>] <span class="op">=</span> <span class="ident">right_value</span>;
                             <span class="ident">out_value</span> <span class="op">=</span> <span class="ident">value</span>;
                         }
-                        <span class="ident">Remove::Update</span>(<span class="ident">value</span>, <span class="ident">new_child</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="ident">Remove::Update</span>(<span class="ident">value</span>, <span class="ident">new_child</span>) =&gt; {
                             <span class="comment">// If we did remove something, we complete the rebalancing.</span>
                             <span class="kw">let</span> (<span class="ident">right_value</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="ident">right</span>.<span class="ident">pop_min</span>();
                             <span class="self">self</span>.<span class="ident">keys</span>[<span class="ident">index</span>] <span class="op">=</span> <span class="ident">right_value</span>;
@@ -2186,7 +2185,7 @@
                 }
                 <span class="ident">Remove::Removed</span>(<span class="ident">out_value</span>)
             }
-            <span class="ident">RemoveAction::MergeFirst</span>(<span class="ident">index</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">RemoveAction::MergeFirst</span>(<span class="ident">index</span>) =&gt; {
                 <span class="kw">if</span> <span class="self">self</span>.<span class="ident">keys</span>[<span class="ident">index</span>].<span class="ident">cmp_keys</span>(<span class="ident">key</span>) <span class="op">!</span><span class="op">=</span> <span class="ident">Ordering::Equal</span>
                     <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">child_contains</span>(<span class="ident">index</span>, <span class="ident">key</span>)
                     <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">child_contains</span>(<span class="ident">index</span> <span class="op">+</span> <span class="number">1</span>, <span class="ident">key</span>)
@@ -2204,17 +2203,17 @@
                 <span class="kw">let</span> <span class="ident">update</span>;
                 <span class="kw">let</span> <span class="ident">out_value</span>;
                 <span class="kw">match</span> <span class="ident">merged</span>.<span class="ident">remove</span>(<span class="ident">pool</span>, <span class="ident">key</span>) {
-                    <span class="ident">Remove::NoChange</span> <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="ident">Remove::NoChange</span> =&gt; {
                         <span class="macro">panic!</span>(<span class="string">&quot;nodes::btree::Node::remove: caught an absent key too late while merging&quot;</span>);
                     }
-                    <span class="ident">Remove::Removed</span>(<span class="ident">value</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="ident">Remove::Removed</span>(<span class="ident">value</span>) =&gt; {
                         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">keys</span>.<span class="ident">is_empty</span>() {
                             <span class="kw">return</span> <span class="ident">Remove::Update</span>(<span class="ident">value</span>, <span class="ident">merged</span>);
                         }
                         <span class="ident">update</span> <span class="op">=</span> <span class="ident">merged</span>;
                         <span class="ident">out_value</span> <span class="op">=</span> <span class="ident">value</span>;
                     }
-                    <span class="ident">Remove::Update</span>(<span class="ident">value</span>, <span class="ident">new_child</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="ident">Remove::Update</span>(<span class="ident">value</span>, <span class="ident">new_child</span>) =&gt; {
                         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">keys</span>.<span class="ident">is_empty</span>() {
                             <span class="kw">return</span> <span class="ident">Remove::Update</span>(<span class="ident">value</span>, <span class="ident">new_child</span>);
                         }
@@ -2225,17 +2224,17 @@
                 <span class="self">self</span>.<span class="ident">children</span>[<span class="ident">index</span>] <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">PoolRef::new</span>(<span class="ident">pool</span>, <span class="ident">update</span>));
                 <span class="ident">Remove::Removed</span>(<span class="ident">out_value</span>)
             }
-            <span class="ident">RemoveAction::ContinueDown</span>(<span class="ident">index</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">RemoveAction::ContinueDown</span>(<span class="ident">index</span>) =&gt; {
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">update</span> <span class="op">=</span> <span class="prelude-val">None</span>;
                 <span class="kw">let</span> <span class="ident">out_value</span>;
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">child_ref</span>)) <span class="op">=</span> <span class="self">self</span>.<span class="ident">children</span>.<span class="ident">get_mut</span>(<span class="ident">index</span>) {
                     <span class="kw">let</span> <span class="ident">child</span> <span class="op">=</span> <span class="ident">PoolRef::make_mut</span>(<span class="ident">pool</span>, <span class="ident">child_ref</span>);
                     <span class="kw">match</span> <span class="ident">child</span>.<span class="ident">remove</span>(<span class="ident">pool</span>, <span class="ident">key</span>) {
-                        <span class="ident">Remove::NoChange</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="ident">Remove::NoChange</span>,
-                        <span class="ident">Remove::Removed</span>(<span class="ident">value</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="ident">Remove::NoChange</span> =&gt; <span class="kw">return</span> <span class="ident">Remove::NoChange</span>,
+                        <span class="ident">Remove::Removed</span>(<span class="ident">value</span>) =&gt; {
                             <span class="ident">out_value</span> <span class="op">=</span> <span class="ident">value</span>;
                         }
-                        <span class="ident">Remove::Update</span>(<span class="ident">value</span>, <span class="ident">new_child</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="ident">Remove::Update</span>(<span class="ident">value</span>, <span class="ident">new_child</span>) =&gt; {
                             <span class="ident">update</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">new_child</span>);
                             <span class="ident">out_value</span> <span class="op">=</span> <span class="ident">value</span>;
                         }
@@ -2262,37 +2261,37 @@
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">A</span>: <span class="ident">BTreeValue</span><span class="op">&gt;</span> <span class="ident">Iter</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">A</span><span class="op">&gt;</span> {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident">BK</span><span class="op">&gt;</span>(<span class="ident">root</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Node</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span>, <span class="ident">size</span>: <span class="ident">usize</span>, <span class="ident">range</span>: <span class="ident">R</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident">BK</span><span class="op">&gt;</span>(<span class="ident">root</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Node</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span>, <span class="ident">size</span>: <span class="ident">usize</span>, <span class="ident">range</span>: <span class="ident">R</span>) -&gt; <span class="self">Self</span>
     <span class="kw">where</span>
         <span class="ident">R</span>: <span class="ident">RangeBounds</span><span class="op">&lt;</span><span class="ident">BK</span><span class="op">&gt;</span>,
         <span class="ident">A::Key</span>: <span class="ident">Borrow</span><span class="op">&lt;</span><span class="ident">BK</span><span class="op">&gt;</span>,
         <span class="ident">BK</span>: <span class="ident">Ord</span> <span class="op">+</span> <span class="question-mark">?</span><span class="ident">Sized</span>,
     {
         <span class="kw">let</span> <span class="ident">fwd_path</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">range</span>.<span class="ident">start_bound</span>() {
-            <span class="ident">Bound::Included</span>(<span class="ident">key</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">root</span>.<span class="ident">path_next</span>(<span class="ident">key</span>, <span class="ident">Vec::new</span>()),
-            <span class="ident">Bound::Excluded</span>(<span class="ident">key</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">Bound::Included</span>(<span class="ident">key</span>) =&gt; <span class="ident">root</span>.<span class="ident">path_next</span>(<span class="ident">key</span>, <span class="ident">Vec::new</span>()),
+            <span class="ident">Bound::Excluded</span>(<span class="ident">key</span>) =&gt; {
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident">root</span>.<span class="ident">path_next</span>(<span class="ident">key</span>, <span class="ident">Vec::new</span>());
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">value</span>) <span class="op">=</span> <span class="self">Self</span><span class="ident">::get</span>(<span class="kw-2">&amp;</span><span class="ident">path</span>) {
-                    <span class="kw">if</span> <span class="ident">value</span>.<span class="ident">cmp_keys</span>(<span class="ident">key</span>) <span class="op">=</span><span class="op">=</span> <span class="ident">Ordering::Equal</span> {
-                        <span class="self">Self</span><span class="ident">::step_forward</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">path</span>);
+                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">value</span>) <span class="op">=</span> <span class="ident"><span class="self">Self</span>::get</span>(<span class="kw-2">&amp;</span><span class="ident">path</span>) {
+                    <span class="kw">if</span> <span class="ident">value</span>.<span class="ident">cmp_keys</span>(<span class="ident">key</span>) <span class="op">==</span> <span class="ident">Ordering::Equal</span> {
+                        <span class="ident"><span class="self">Self</span>::step_forward</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">path</span>);
                     }
                 }
                 <span class="ident">path</span>
             }
-            <span class="ident">Bound::Unbounded</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">root</span>.<span class="ident">path_first</span>(<span class="ident">Vec::new</span>()),
+            <span class="ident">Bound::Unbounded</span> =&gt; <span class="ident">root</span>.<span class="ident">path_first</span>(<span class="ident">Vec::new</span>()),
         };
         <span class="kw">let</span> <span class="ident">back_path</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">range</span>.<span class="ident">end_bound</span>() {
-            <span class="ident">Bound::Included</span>(<span class="ident">key</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">root</span>.<span class="ident">path_prev</span>(<span class="ident">key</span>, <span class="ident">Vec::new</span>()),
-            <span class="ident">Bound::Excluded</span>(<span class="ident">key</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">Bound::Included</span>(<span class="ident">key</span>) =&gt; <span class="ident">root</span>.<span class="ident">path_prev</span>(<span class="ident">key</span>, <span class="ident">Vec::new</span>()),
+            <span class="ident">Bound::Excluded</span>(<span class="ident">key</span>) =&gt; {
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident">root</span>.<span class="ident">path_prev</span>(<span class="ident">key</span>, <span class="ident">Vec::new</span>());
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">value</span>) <span class="op">=</span> <span class="self">Self</span><span class="ident">::get</span>(<span class="kw-2">&amp;</span><span class="ident">path</span>) {
-                    <span class="kw">if</span> <span class="ident">value</span>.<span class="ident">cmp_keys</span>(<span class="ident">key</span>) <span class="op">=</span><span class="op">=</span> <span class="ident">Ordering::Equal</span> {
-                        <span class="self">Self</span><span class="ident">::step_back</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">path</span>);
+                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">value</span>) <span class="op">=</span> <span class="ident"><span class="self">Self</span>::get</span>(<span class="kw-2">&amp;</span><span class="ident">path</span>) {
+                    <span class="kw">if</span> <span class="ident">value</span>.<span class="ident">cmp_keys</span>(<span class="ident">key</span>) <span class="op">==</span> <span class="ident">Ordering::Equal</span> {
+                        <span class="ident"><span class="self">Self</span>::step_back</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">path</span>);
                     }
                 }
                 <span class="ident">path</span>
             }
-            <span class="ident">Bound::Unbounded</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">root</span>.<span class="ident">path_last</span>(<span class="ident">Vec::new</span>()),
+            <span class="ident">Bound::Unbounded</span> =&gt; <span class="ident">root</span>.<span class="ident">path_last</span>(<span class="ident">Vec::new</span>()),
         };
         <span class="ident">Iter</span> {
             <span class="ident">fwd_path</span>,
@@ -2301,20 +2300,20 @@
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">get</span>(<span class="ident">path</span>: <span class="kw-2">&amp;</span>[(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Node</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span>, <span class="ident">usize</span>)]) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">A</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">get</span>(<span class="ident">path</span>: <span class="kw-2">&amp;</span>[(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Node</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span>, <span class="ident">usize</span>)]) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">A</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="ident">path</span>.<span class="ident">last</span>() {
-            <span class="prelude-val">Some</span>((<span class="ident">node</span>, <span class="ident">index</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="ident">node</span>.<span class="ident">keys</span>[<span class="kw-2">*</span><span class="ident">index</span>]),
-            <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
+            <span class="prelude-val">Some</span>((<span class="ident">node</span>, <span class="ident">index</span>)) =&gt; <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="ident">node</span>.<span class="ident">keys</span>[<span class="kw-2">*</span><span class="ident">index</span>]),
+            <span class="prelude-val">None</span> =&gt; <span class="prelude-val">None</span>,
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">step_forward</span>(<span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Node</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span>, <span class="ident">usize</span>)<span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">A</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">step_forward</span>(<span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Node</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span>, <span class="ident">usize</span>)<span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">A</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="ident">path</span>.<span class="ident">pop</span>() {
-            <span class="prelude-val">Some</span>((<span class="ident">node</span>, <span class="ident">index</span>)) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="prelude-val">Some</span>((<span class="ident">node</span>, <span class="ident">index</span>)) =&gt; {
                 <span class="kw">let</span> <span class="ident">index</span> <span class="op">=</span> <span class="ident">index</span> <span class="op">+</span> <span class="number">1</span>;
                 <span class="kw">match</span> <span class="ident">node</span>.<span class="ident">children</span>[<span class="ident">index</span>] {
                     <span class="comment">// Child between current and next key -&gt; step down</span>
-                    <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">child</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">child</span>) =&gt; {
                         <span class="ident">path</span>.<span class="ident">push</span>((<span class="ident">node</span>, <span class="ident">index</span>));
                         <span class="ident">path</span>.<span class="ident">push</span>((<span class="ident">child</span>, <span class="number">0</span>));
                         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">node</span> <span class="op">=</span> <span class="ident">child</span>;
@@ -2324,19 +2323,19 @@
                         }
                         <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="ident">node</span>.<span class="ident">keys</span>[<span class="number">0</span>])
                     }
-                    <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">node</span>.<span class="ident">keys</span>.<span class="ident">get</span>(<span class="ident">index</span>) {
+                    <span class="prelude-val">None</span> =&gt; <span class="kw">match</span> <span class="ident">node</span>.<span class="ident">keys</span>.<span class="ident">get</span>(<span class="ident">index</span>) {
                         <span class="comment">// Yield next key</span>
-                        <span class="ident">value</span> @ <span class="prelude-val">Some</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="ident">value</span> @ <span class="prelude-val">Some</span>(<span class="kw">_</span>) =&gt; {
                             <span class="ident">path</span>.<span class="ident">push</span>((<span class="ident">node</span>, <span class="ident">index</span>));
                             <span class="ident">value</span>
                         }
                         <span class="comment">// No more keys -&gt; exhausted level, step up and yield</span>
-                        <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">loop</span> {
+                        <span class="prelude-val">None</span> =&gt; <span class="kw">loop</span> {
                             <span class="kw">match</span> <span class="ident">path</span>.<span class="ident">pop</span>() {
-                                <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> {
+                                <span class="prelude-val">None</span> =&gt; {
                                     <span class="kw">return</span> <span class="prelude-val">None</span>;
                                 }
-                                <span class="prelude-val">Some</span>((<span class="ident">node</span>, <span class="ident">index</span>)) <span class="op">=</span><span class="op">&gt;</span> {
+                                <span class="prelude-val">Some</span>((<span class="ident">node</span>, <span class="ident">index</span>)) =&gt; {
                                     <span class="kw">if</span> <span class="kw">let</span> <span class="ident">value</span> @ <span class="prelude-val">Some</span>(<span class="kw">_</span>) <span class="op">=</span> <span class="ident">node</span>.<span class="ident">keys</span>.<span class="ident">get</span>(<span class="ident">index</span>) {
                                         <span class="ident">path</span>.<span class="ident">push</span>((<span class="ident">node</span>, <span class="ident">index</span>));
                                         <span class="kw">return</span> <span class="ident">value</span>;
@@ -2347,14 +2346,14 @@
                     },
                 }
             }
-            <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
+            <span class="prelude-val">None</span> =&gt; <span class="prelude-val">None</span>,
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">step_back</span>(<span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Node</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span>, <span class="ident">usize</span>)<span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">A</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">step_back</span>(<span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Node</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span>, <span class="ident">usize</span>)<span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">A</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="ident">path</span>.<span class="ident">pop</span>() {
-            <span class="prelude-val">Some</span>((<span class="ident">node</span>, <span class="ident">index</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">node</span>.<span class="ident">children</span>[<span class="ident">index</span>] {
-                <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">child</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="prelude-val">Some</span>((<span class="ident">node</span>, <span class="ident">index</span>)) =&gt; <span class="kw">match</span> <span class="ident">node</span>.<span class="ident">children</span>[<span class="ident">index</span>] {
+                <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">child</span>) =&gt; {
                     <span class="ident">path</span>.<span class="ident">push</span>((<span class="ident">node</span>, <span class="ident">index</span>));
                     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">end</span> <span class="op">=</span> <span class="ident">child</span>.<span class="ident">keys</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span>;
                     <span class="ident">path</span>.<span class="ident">push</span>((<span class="ident">child</span>, <span class="ident">end</span>));
@@ -2366,14 +2365,14 @@
                     }
                     <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="ident">node</span>.<span class="ident">keys</span>[<span class="ident">end</span>])
                 }
-                <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="kw">if</span> <span class="ident">index</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
+                <span class="prelude-val">None</span> =&gt; {
+                    <span class="kw">if</span> <span class="ident">index</span> <span class="op">==</span> <span class="number">0</span> {
                         <span class="kw">loop</span> {
                             <span class="kw">match</span> <span class="ident">path</span>.<span class="ident">pop</span>() {
-                                <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> {
+                                <span class="prelude-val">None</span> =&gt; {
                                     <span class="kw">return</span> <span class="prelude-val">None</span>;
                                 }
-                                <span class="prelude-val">Some</span>((<span class="ident">node</span>, <span class="ident">index</span>)) <span class="op">=</span><span class="op">&gt;</span> {
+                                <span class="prelude-val">Some</span>((<span class="ident">node</span>, <span class="ident">index</span>)) =&gt; {
                                     <span class="kw">if</span> <span class="ident">index</span> <span class="op">&gt;</span> <span class="number">0</span> {
                                         <span class="kw">let</span> <span class="ident">index</span> <span class="op">=</span> <span class="ident">index</span> <span class="op">-</span> <span class="number">1</span>;
                                         <span class="ident">path</span>.<span class="ident">push</span>((<span class="ident">node</span>, <span class="ident">index</span>));
@@ -2389,7 +2388,7 @@
                     }
                 }
             },
-            <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
+            <span class="prelude-val">None</span> =&gt; <span class="prelude-val">None</span>,
         }
     }
 }
@@ -2397,13 +2396,13 @@
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">A</span>: <span class="lifetime">&#39;a</span> <span class="op">+</span> <span class="ident">BTreeValue</span><span class="op">&gt;</span> <span class="ident">Iterator</span> <span class="kw">for</span> <span class="ident">Iter</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">A</span><span class="op">&gt;</span> {
     <span class="kw">type</span> <span class="ident">Item</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">A</span>;
 
-    <span class="kw">fn</span> <span class="ident">next</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span><span class="ident">::Item</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">next</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Item</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="ident">Iter::get</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">fwd_path</span>) {
-            <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
-            <span class="prelude-val">Some</span>(<span class="ident">value</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">Iter::get</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">back_path</span>) {
-                <span class="prelude-val">Some</span>(<span class="ident">last_value</span>) <span class="kw">if</span> <span class="ident">value</span>.<span class="ident">cmp_values</span>(<span class="ident">last_value</span>) <span class="op">=</span><span class="op">=</span> <span class="ident">Ordering::Greater</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
-                <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
-                <span class="prelude-val">Some</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="prelude-val">None</span> =&gt; <span class="prelude-val">None</span>,
+            <span class="prelude-val">Some</span>(<span class="ident">value</span>) =&gt; <span class="kw">match</span> <span class="ident">Iter::get</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">back_path</span>) {
+                <span class="prelude-val">Some</span>(<span class="ident">last_value</span>) <span class="kw">if</span> <span class="ident">value</span>.<span class="ident">cmp_values</span>(<span class="ident">last_value</span>) <span class="op">==</span> <span class="ident">Ordering::Greater</span> =&gt; <span class="prelude-val">None</span>,
+                <span class="prelude-val">None</span> =&gt; <span class="prelude-val">None</span>,
+                <span class="prelude-val">Some</span>(<span class="kw">_</span>) =&gt; {
                     <span class="ident">Iter::step_forward</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">fwd_path</span>);
                     <span class="self">self</span>.<span class="ident">remaining</span> <span class="op">-</span><span class="op">=</span> <span class="number">1</span>;
                     <span class="prelude-val">Some</span>(<span class="ident">value</span>)
@@ -2412,20 +2411,20 @@
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">size_hint</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">usize</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>) {
+    <span class="kw">fn</span> <span class="ident">size_hint</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; (<span class="ident">usize</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>) {
         <span class="comment">// (0, Some(self.remaining))</span>
         (<span class="number">0</span>, <span class="prelude-val">None</span>)
     }
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">A</span>: <span class="lifetime">&#39;a</span> <span class="op">+</span> <span class="ident">BTreeValue</span><span class="op">&gt;</span> <span class="ident">DoubleEndedIterator</span> <span class="kw">for</span> <span class="ident">Iter</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">A</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">next_back</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span><span class="ident">::Item</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">next_back</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Item</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="ident">Iter::get</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">back_path</span>) {
-            <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
-            <span class="prelude-val">Some</span>(<span class="ident">value</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">Iter::get</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">fwd_path</span>) {
-                <span class="prelude-val">Some</span>(<span class="ident">last_value</span>) <span class="kw">if</span> <span class="ident">value</span>.<span class="ident">cmp_values</span>(<span class="ident">last_value</span>) <span class="op">=</span><span class="op">=</span> <span class="ident">Ordering::Less</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
-                <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
-                <span class="prelude-val">Some</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="prelude-val">None</span> =&gt; <span class="prelude-val">None</span>,
+            <span class="prelude-val">Some</span>(<span class="ident">value</span>) =&gt; <span class="kw">match</span> <span class="ident">Iter::get</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">fwd_path</span>) {
+                <span class="prelude-val">Some</span>(<span class="ident">last_value</span>) <span class="kw">if</span> <span class="ident">value</span>.<span class="ident">cmp_values</span>(<span class="ident">last_value</span>) <span class="op">==</span> <span class="ident">Ordering::Less</span> =&gt; <span class="prelude-val">None</span>,
+                <span class="prelude-val">None</span> =&gt; <span class="prelude-val">None</span>,
+                <span class="prelude-val">Some</span>(<span class="kw">_</span>) =&gt; {
                     <span class="ident">Iter::step_back</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">back_path</span>);
                     <span class="self">self</span>.<span class="ident">remaining</span> <span class="op">-</span><span class="op">=</span> <span class="number">1</span>;
                     <span class="prelude-val">Some</span>(<span class="ident">value</span>)
@@ -2452,7 +2451,7 @@
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">A</span>: <span class="ident">Clone</span><span class="op">&gt;</span> <span class="ident">ConsumingIter</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span> {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">root</span>: <span class="kw-2">&amp;</span><span class="ident">Node</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span>, <span class="ident">total</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">root</span>: <span class="kw-2">&amp;</span><span class="ident">Node</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span>, <span class="ident">total</span>: <span class="ident">usize</span>) -&gt; <span class="self">Self</span> {
         <span class="ident">ConsumingIter</span> {
             <span class="ident">fwd_last</span>: <span class="prelude-val">None</span>,
             <span class="ident">fwd_stack</span>: <span class="macro">vec!</span>[<span class="ident">ConsumingIterItem::Consider</span>(<span class="ident">root</span>.<span class="ident">clone</span>())],
@@ -2503,15 +2502,15 @@
 {
     <span class="kw">type</span> <span class="ident">Item</span> <span class="op">=</span> <span class="ident">A</span>;
 
-    <span class="kw">fn</span> <span class="ident">next</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span><span class="ident">::Item</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">next</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Item</span><span class="op">&gt;</span> {
         <span class="kw">loop</span> {
             <span class="kw">match</span> <span class="self">self</span>.<span class="ident">fwd_stack</span>.<span class="ident">pop</span>() {
-                <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="prelude-val">None</span> =&gt; {
                     <span class="self">self</span>.<span class="ident">remaining</span> <span class="op">=</span> <span class="number">0</span>;
                     <span class="kw">return</span> <span class="prelude-val">None</span>;
                 }
-                <span class="prelude-val">Some</span>(<span class="ident">ConsumingIterItem::Consider</span>(<span class="ident">node</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">push_fwd</span>(<span class="ident">node</span>),
-                <span class="prelude-val">Some</span>(<span class="ident">ConsumingIterItem::Yield</span>(<span class="ident">value</span>)) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="prelude-val">Some</span>(<span class="ident">ConsumingIterItem::Consider</span>(<span class="ident">node</span>)) =&gt; <span class="self">self</span>.<span class="ident">push_fwd</span>(<span class="ident">node</span>),
+                <span class="prelude-val">Some</span>(<span class="ident">ConsumingIterItem::Yield</span>(<span class="ident">value</span>)) =&gt; {
                     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">last</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">back_last</span> {
                         <span class="kw">if</span> <span class="ident">value</span>.<span class="ident">cmp_values</span>(<span class="ident">last</span>) <span class="op">!</span><span class="op">=</span> <span class="ident">Ordering::Less</span> {
                             <span class="self">self</span>.<span class="ident">fwd_stack</span>.<span class="ident">clear</span>();
@@ -2528,7 +2527,7 @@
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">size_hint</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">usize</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>) {
+    <span class="kw">fn</span> <span class="ident">size_hint</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; (<span class="ident">usize</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>) {
         (<span class="self">self</span>.<span class="ident">remaining</span>, <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">remaining</span>))
     }
 }
@@ -2537,15 +2536,15 @@
 <span class="kw">where</span>
     <span class="ident">A</span>: <span class="ident">BTreeValue</span> <span class="op">+</span> <span class="ident">Clone</span>,
 {
-    <span class="kw">fn</span> <span class="ident">next_back</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span><span class="ident">::Item</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">next_back</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Item</span><span class="op">&gt;</span> {
         <span class="kw">loop</span> {
             <span class="kw">match</span> <span class="self">self</span>.<span class="ident">back_stack</span>.<span class="ident">pop</span>() {
-                <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="prelude-val">None</span> =&gt; {
                     <span class="self">self</span>.<span class="ident">remaining</span> <span class="op">=</span> <span class="number">0</span>;
                     <span class="kw">return</span> <span class="prelude-val">None</span>;
                 }
-                <span class="prelude-val">Some</span>(<span class="ident">ConsumingIterItem::Consider</span>(<span class="ident">node</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">push_back</span>(<span class="ident">node</span>),
-                <span class="prelude-val">Some</span>(<span class="ident">ConsumingIterItem::Yield</span>(<span class="ident">value</span>)) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="prelude-val">Some</span>(<span class="ident">ConsumingIterItem::Consider</span>(<span class="ident">node</span>)) =&gt; <span class="self">self</span>.<span class="ident">push_back</span>(<span class="ident">node</span>),
+                <span class="prelude-val">Some</span>(<span class="ident">ConsumingIterItem::Yield</span>(<span class="ident">value</span>)) =&gt; {
                     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">last</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">fwd_last</span> {
                         <span class="kw">if</span> <span class="ident">value</span>.<span class="ident">cmp_values</span>(<span class="ident">last</span>) <span class="op">!</span><span class="op">=</span> <span class="ident">Ordering::Greater</span> {
                             <span class="self">self</span>.<span class="ident">fwd_stack</span>.<span class="ident">clear</span>();
@@ -2595,7 +2594,7 @@
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">A</span>: <span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">DiffIter</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">A</span><span class="op">&gt;</span> {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">old</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Node</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span>, <span class="ident">new</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Node</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">old</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Node</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span>, <span class="ident">new</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Node</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
         <span class="ident">DiffIter</span> {
             <span class="ident">old_stack</span>: <span class="kw">if</span> <span class="ident">old</span>.<span class="ident">keys</span>.<span class="ident">is_empty</span>() {
                 <span class="ident">Vec::new</span>()
@@ -2619,10 +2618,10 @@
     <span class="kw">fn</span> <span class="ident">push</span>(<span class="ident">stack</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">IterItem</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">A</span><span class="op">&gt;</span><span class="op">&gt;</span>, <span class="ident">node</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Node</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span>) {
         <span class="kw">for</span> <span class="ident">n</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">node</span>.<span class="ident">keys</span>.<span class="ident">len</span>() {
             <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="ident">node</span>.<span class="ident">keys</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="ident">n</span>;
-            <span class="self">Self</span><span class="ident">::push_node</span>(<span class="ident">stack</span>, <span class="kw-2">&amp;</span><span class="ident">node</span>.<span class="ident">children</span>[<span class="ident">i</span>]);
+            <span class="ident"><span class="self">Self</span>::push_node</span>(<span class="ident">stack</span>, <span class="kw-2">&amp;</span><span class="ident">node</span>.<span class="ident">children</span>[<span class="ident">i</span>]);
             <span class="ident">stack</span>.<span class="ident">push</span>(<span class="ident">IterItem::Yield</span>(<span class="kw-2">&amp;</span><span class="ident">node</span>.<span class="ident">keys</span>[<span class="ident">i</span> <span class="op">-</span> <span class="number">1</span>]));
         }
-        <span class="self">Self</span><span class="ident">::push_node</span>(<span class="ident">stack</span>, <span class="kw-2">&amp;</span><span class="ident">node</span>.<span class="ident">children</span>[<span class="number">0</span>]);
+        <span class="ident"><span class="self">Self</span>::push_node</span>(<span class="ident">stack</span>, <span class="kw-2">&amp;</span><span class="ident">node</span>.<span class="ident">children</span>[<span class="number">0</span>]);
     }
 }
 
@@ -2632,56 +2631,56 @@
 {
     <span class="kw">type</span> <span class="ident">Item</span> <span class="op">=</span> <span class="ident">DiffItem</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">A</span><span class="op">&gt;</span>;
 
-    <span class="kw">fn</span> <span class="ident">next</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span><span class="ident">::Item</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">next</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Item</span><span class="op">&gt;</span> {
         <span class="kw">loop</span> {
             <span class="kw">match</span> (<span class="self">self</span>.<span class="ident">old_stack</span>.<span class="ident">pop</span>(), <span class="self">self</span>.<span class="ident">new_stack</span>.<span class="ident">pop</span>()) {
-                (<span class="prelude-val">None</span>, <span class="prelude-val">None</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">None</span>,
-                (<span class="prelude-val">None</span>, <span class="prelude-val">Some</span>(<span class="ident">new</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">new</span> {
-                    <span class="ident">IterItem::Consider</span>(<span class="ident">new</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">Self</span><span class="ident">::push</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">new_stack</span>, <span class="kw-2">&amp;</span><span class="ident">new</span>),
-                    <span class="ident">IterItem::Yield</span>(<span class="ident">new</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">DiffItem::Add</span>(<span class="ident">new</span>)),
+                (<span class="prelude-val">None</span>, <span class="prelude-val">None</span>) =&gt; <span class="kw">return</span> <span class="prelude-val">None</span>,
+                (<span class="prelude-val">None</span>, <span class="prelude-val">Some</span>(<span class="ident">new</span>)) =&gt; <span class="kw">match</span> <span class="ident">new</span> {
+                    <span class="ident">IterItem::Consider</span>(<span class="ident">new</span>) =&gt; <span class="ident"><span class="self">Self</span>::push</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">new_stack</span>, <span class="kw-2">&amp;</span><span class="ident">new</span>),
+                    <span class="ident">IterItem::Yield</span>(<span class="ident">new</span>) =&gt; <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">DiffItem::Add</span>(<span class="ident">new</span>)),
                 },
-                (<span class="prelude-val">Some</span>(<span class="ident">old</span>), <span class="prelude-val">None</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">old</span> {
-                    <span class="ident">IterItem::Consider</span>(<span class="ident">old</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">Self</span><span class="ident">::push</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">old_stack</span>, <span class="kw-2">&amp;</span><span class="ident">old</span>),
-                    <span class="ident">IterItem::Yield</span>(<span class="ident">old</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">DiffItem::Remove</span>(<span class="ident">old</span>)),
+                (<span class="prelude-val">Some</span>(<span class="ident">old</span>), <span class="prelude-val">None</span>) =&gt; <span class="kw">match</span> <span class="ident">old</span> {
+                    <span class="ident">IterItem::Consider</span>(<span class="ident">old</span>) =&gt; <span class="ident"><span class="self">Self</span>::push</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">old_stack</span>, <span class="kw-2">&amp;</span><span class="ident">old</span>),
+                    <span class="ident">IterItem::Yield</span>(<span class="ident">old</span>) =&gt; <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">DiffItem::Remove</span>(<span class="ident">old</span>)),
                 },
-                (<span class="prelude-val">Some</span>(<span class="ident">old</span>), <span class="prelude-val">Some</span>(<span class="ident">new</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> (<span class="ident">old</span>, <span class="ident">new</span>) {
-                    (<span class="ident">IterItem::Consider</span>(<span class="ident">old</span>), <span class="ident">IterItem::Consider</span>(<span class="ident">new</span>)) <span class="op">=</span><span class="op">&gt;</span> {
+                (<span class="prelude-val">Some</span>(<span class="ident">old</span>), <span class="prelude-val">Some</span>(<span class="ident">new</span>)) =&gt; <span class="kw">match</span> (<span class="ident">old</span>, <span class="ident">new</span>) {
+                    (<span class="ident">IterItem::Consider</span>(<span class="ident">old</span>), <span class="ident">IterItem::Consider</span>(<span class="ident">new</span>)) =&gt; {
                         <span class="kw">if</span> <span class="op">!</span><span class="ident">std::ptr::eq</span>(<span class="ident">old</span>, <span class="ident">new</span>) {
                             <span class="kw">match</span> <span class="ident">old</span>.<span class="ident">keys</span>[<span class="number">0</span>].<span class="ident">cmp_values</span>(<span class="kw-2">&amp;</span><span class="ident">new</span>.<span class="ident">keys</span>[<span class="number">0</span>]) {
-                                <span class="ident">Ordering::Less</span> <span class="op">=</span><span class="op">&gt;</span> {
-                                    <span class="self">Self</span><span class="ident">::push</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">old_stack</span>, <span class="kw-2">&amp;</span><span class="ident">old</span>);
+                                <span class="ident">Ordering::Less</span> =&gt; {
+                                    <span class="ident"><span class="self">Self</span>::push</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">old_stack</span>, <span class="kw-2">&amp;</span><span class="ident">old</span>);
                                     <span class="self">self</span>.<span class="ident">new_stack</span>.<span class="ident">push</span>(<span class="ident">IterItem::Consider</span>(<span class="ident">new</span>));
                                 }
-                                <span class="ident">Ordering::Greater</span> <span class="op">=</span><span class="op">&gt;</span> {
+                                <span class="ident">Ordering::Greater</span> =&gt; {
                                     <span class="self">self</span>.<span class="ident">old_stack</span>.<span class="ident">push</span>(<span class="ident">IterItem::Consider</span>(<span class="ident">old</span>));
-                                    <span class="self">Self</span><span class="ident">::push</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">new_stack</span>, <span class="kw-2">&amp;</span><span class="ident">new</span>);
+                                    <span class="ident"><span class="self">Self</span>::push</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">new_stack</span>, <span class="kw-2">&amp;</span><span class="ident">new</span>);
                                 }
-                                <span class="ident">Ordering::Equal</span> <span class="op">=</span><span class="op">&gt;</span> {
-                                    <span class="self">Self</span><span class="ident">::push</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">old_stack</span>, <span class="kw-2">&amp;</span><span class="ident">old</span>);
-                                    <span class="self">Self</span><span class="ident">::push</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">new_stack</span>, <span class="kw-2">&amp;</span><span class="ident">new</span>);
+                                <span class="ident">Ordering::Equal</span> =&gt; {
+                                    <span class="ident"><span class="self">Self</span>::push</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">old_stack</span>, <span class="kw-2">&amp;</span><span class="ident">old</span>);
+                                    <span class="ident"><span class="self">Self</span>::push</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">new_stack</span>, <span class="kw-2">&amp;</span><span class="ident">new</span>);
                                 }
                             }
                         }
                     }
-                    (<span class="ident">IterItem::Consider</span>(<span class="ident">old</span>), <span class="ident">IterItem::Yield</span>(<span class="ident">new</span>)) <span class="op">=</span><span class="op">&gt;</span> {
-                        <span class="self">Self</span><span class="ident">::push</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">old_stack</span>, <span class="kw-2">&amp;</span><span class="ident">old</span>);
+                    (<span class="ident">IterItem::Consider</span>(<span class="ident">old</span>), <span class="ident">IterItem::Yield</span>(<span class="ident">new</span>)) =&gt; {
+                        <span class="ident"><span class="self">Self</span>::push</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">old_stack</span>, <span class="kw-2">&amp;</span><span class="ident">old</span>);
                         <span class="self">self</span>.<span class="ident">new_stack</span>.<span class="ident">push</span>(<span class="ident">IterItem::Yield</span>(<span class="ident">new</span>));
                     }
-                    (<span class="ident">IterItem::Yield</span>(<span class="ident">old</span>), <span class="ident">IterItem::Consider</span>(<span class="ident">new</span>)) <span class="op">=</span><span class="op">&gt;</span> {
+                    (<span class="ident">IterItem::Yield</span>(<span class="ident">old</span>), <span class="ident">IterItem::Consider</span>(<span class="ident">new</span>)) =&gt; {
                         <span class="self">self</span>.<span class="ident">old_stack</span>.<span class="ident">push</span>(<span class="ident">IterItem::Yield</span>(<span class="ident">old</span>));
-                        <span class="self">Self</span><span class="ident">::push</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">new_stack</span>, <span class="kw-2">&amp;</span><span class="ident">new</span>);
+                        <span class="ident"><span class="self">Self</span>::push</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">new_stack</span>, <span class="kw-2">&amp;</span><span class="ident">new</span>);
                     }
-                    (<span class="ident">IterItem::Yield</span>(<span class="ident">old</span>), <span class="ident">IterItem::Yield</span>(<span class="ident">new</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">old</span>.<span class="ident">cmp_values</span>(<span class="kw-2">&amp;</span><span class="ident">new</span>) {
-                        <span class="ident">Ordering::Less</span> <span class="op">=</span><span class="op">&gt;</span> {
+                    (<span class="ident">IterItem::Yield</span>(<span class="ident">old</span>), <span class="ident">IterItem::Yield</span>(<span class="ident">new</span>)) =&gt; <span class="kw">match</span> <span class="ident">old</span>.<span class="ident">cmp_values</span>(<span class="kw-2">&amp;</span><span class="ident">new</span>) {
+                        <span class="ident">Ordering::Less</span> =&gt; {
                             <span class="self">self</span>.<span class="ident">new_stack</span>.<span class="ident">push</span>(<span class="ident">IterItem::Yield</span>(<span class="ident">new</span>));
                             <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">DiffItem::Remove</span>(<span class="ident">old</span>));
                         }
-                        <span class="ident">Ordering::Equal</span> <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="ident">Ordering::Equal</span> =&gt; {
                             <span class="kw">if</span> <span class="ident">old</span> <span class="op">!</span><span class="op">=</span> <span class="ident">new</span> {
                                 <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">DiffItem::Update</span> { <span class="ident">old</span>, <span class="ident">new</span> });
                             }
                         }
-                        <span class="ident">Ordering::Greater</span> <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="ident">Ordering::Greater</span> =&gt; {
                             <span class="self">self</span>.<span class="ident">old_stack</span>.<span class="ident">push</span>(<span class="ident">IterItem::Yield</span>(<span class="ident">old</span>));
                             <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">DiffItem::Add</span>(<span class="ident">new</span>));
                         }
@@ -2691,7 +2690,7 @@
         }
     }
 }
-</pre></div>
+</code></pre></div>
 </section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="im" data-search-index-js="../../../search-index.js" data-search-js="../../../search.js"></div>
     <script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script>
 </body></html>

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `merino-cache&#x2F;src&#x2F;redis&#x2F;mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../merino_cache/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `merino-cache&#x2F;src&#x2F;redis&#x2F;mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../merino_cache/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -539,8 +539,7 @@
 <span id="539">539</span>
 <span id="540">540</span>
 <span id="541">541</span>
-</pre><pre class="rust">
-<span class="doccomment">//! Interactions with Redis.</span>
+</pre><pre class="rust"><code><span class="doccomment">//! Interactions with Redis.</span>
 
 <span class="kw">mod</span> <span class="ident">domain</span>;
 
@@ -549,7 +548,7 @@
     <span class="ident">time</span>::{<span class="ident">Duration</span>, <span class="ident">Instant</span>},
 };
 
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::redis::domain::RedisSuggestions</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::redis::domain::RedisSuggestions</span>;
 <span class="kw">use</span> <span class="ident">anyhow::Context</span>;
 <span class="kw">use</span> <span class="ident">async_trait::async_trait</span>;
 <span class="kw">use</span> <span class="ident">cadence</span>::{<span class="ident">CountedExt</span>, <span class="ident">StatsdClient</span>};
@@ -563,7 +562,7 @@
 <span class="kw">use</span> <span class="ident">tracing_futures</span>::{<span class="ident">Instrument</span>, <span class="ident">WithSubscriber</span>};
 <span class="kw">use</span> <span class="ident">uuid::Uuid</span>;
 
-<span class="kw">use</span> <span class="self">self</span><span class="ident">::domain::RedisTtl</span>;
+<span class="kw">use</span> <span class="ident"><span class="self">self</span>::domain::RedisTtl</span>;
 
 <span class="doccomment">/// A suggester that uses Redis to cache previous results.</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Suggester</span> {
@@ -604,7 +603,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">redis::aio::ConnectionManager</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">SimpleRedisLock</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">connection</span>: <span class="kw-2">&amp;</span><span class="ident">redis::aio::ConnectionManager</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">connection</span>: <span class="kw-2">&amp;</span><span class="ident">redis::aio::ConnectionManager</span>) -&gt; <span class="self">Self</span> {
         <span class="self">Self</span> {
             <span class="ident">connection</span>: <span class="ident">connection</span>.<span class="ident">clone</span>(),
         }
@@ -616,15 +615,15 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// This is a VERY simple locking mechanism. The only bit of fancy is that it will</span>
     <span class="doccomment">/// expire, allowing for &quot;stuck&quot; queries to eventually resolve.</span>
-    <span class="kw">fn</span> <span class="ident">lock_key</span>(<span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
+    <span class="kw">fn</span> <span class="ident">lock_key</span>(<span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">String</span> {
         <span class="macro">format!</span>(<span class="string">&quot;pending_{}&quot;</span>, <span class="ident">key</span>)
     }
 
     <span class="doccomment">/// See if a record update is locked for pending update.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// This does not check lock value, only if a lock exists.</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">is_locked</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">bool</span>, <span class="ident">SuggestError</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">lock_key</span> <span class="op">=</span> <span class="self">Self</span><span class="ident">::lock_key</span>(<span class="ident">key</span>);
+    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">is_locked</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">bool</span>, <span class="ident">SuggestError</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">lock_key</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::lock_key</span>(<span class="ident">key</span>);
 
         <span class="macro">tracing::trace!</span>(<span class="op">%</span><span class="ident">lock_key</span>, <span class="string">&quot;🔒Checking key&quot;</span>);
         <span class="kw">let</span> <span class="ident">lock</span> <span class="op">=</span> <span class="ident">redis::Cmd::get</span>(<span class="kw-2">&amp;</span><span class="ident">lock_key</span>)
@@ -645,8 +644,8 @@
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
         <span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
         <span class="ident">default_lock_timeout</span>: <span class="ident">Duration</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>, <span class="ident">SuggestError</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">lock_key</span> <span class="op">=</span> <span class="self">Self</span><span class="ident">::lock_key</span>(<span class="ident">key</span>);
+    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>, <span class="ident">SuggestError</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">lock_key</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::lock_key</span>(<span class="ident">key</span>);
         <span class="kw">let</span> <span class="ident">lock</span> <span class="op">=</span> <span class="ident">Uuid::new_v4</span>().<span class="ident">to_simple</span>().<span class="ident">to_string</span>();
         <span class="macro">tracing::trace!</span>(<span class="string">&quot;🔒Setting lock for {:?} to {:?}&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">lock_key</span>, <span class="kw-2">&amp;</span><span class="ident">lock</span>);
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">v</span>) <span class="op">=</span> <span class="ident">redis::Cmd::set</span>(<span class="kw-2">&amp;</span><span class="ident">lock_key</span>, <span class="kw-2">&amp;</span><span class="ident">lock</span>)
@@ -660,7 +659,7 @@
                 <span class="ident">SuggestError::Internal</span>(<span class="ident">e</span>.<span class="ident">into</span>())
             })<span class="question-mark">?</span>
         {
-            <span class="kw">if</span> <span class="ident">v</span> <span class="op">=</span><span class="op">=</span> <span class="kw-2">*</span><span class="string">&quot;OK&quot;</span> {
+            <span class="kw">if</span> <span class="ident">v</span> <span class="op">==</span> <span class="kw-2">*</span><span class="string">&quot;OK&quot;</span> {
                 <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="ident">lock</span>));
             }
         };
@@ -676,8 +675,8 @@
         <span class="ident">lock</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
         <span class="ident">to_store</span>: <span class="ident">RedisSuggestions</span>,
         <span class="ident">ttl</span>: <span class="ident">Duration</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">SuggestError</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">lock_key</span> <span class="op">=</span> <span class="self">Self</span><span class="ident">::lock_key</span>(<span class="ident">key</span>);
+    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">SuggestError</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">lock_key</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::lock_key</span>(<span class="ident">key</span>);
         <span class="macro">tracing::debug!</span>(<span class="op">%</span><span class="ident">key</span>, <span class="string">&quot;🔒 attempting to store cache entry&quot;</span>);
         <span class="comment">// atomically check the lock to make sure it matches our stored</span>
         <span class="comment">// value, and if it does write the corresponding storage and</span>
@@ -702,7 +701,7 @@
             .<span class="ident">query_async</span>::<span class="op">&lt;</span><span class="ident">redis::aio::ConnectionManager</span>, <span class="ident">bool</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">connection</span>)
             .<span class="kw">await</span>
         {
-            <span class="prelude-val">Ok</span>(<span class="ident">v</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="prelude-val">Ok</span>(<span class="ident">v</span>) =&gt; {
                 <span class="kw">if</span> <span class="ident">v</span> {
                     <span class="macro">tracing::debug!</span>(<span class="op">%</span><span class="ident">key</span>, <span class="string">&quot;🔒Successfully stored cache entry&quot;</span>);
                 } <span class="kw">else</span> {
@@ -712,7 +711,7 @@
                 }
                 <span class="prelude-val">Ok</span>(())
             }
-            <span class="prelude-val">Err</span>(<span class="ident">error</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="prelude-val">Err</span>(<span class="ident">error</span>) =&gt; {
                 <span class="macro">tracing::error!</span>(
                     <span class="ident">r#type</span> <span class="op">=</span> <span class="string">&quot;cache.redis.save-error&quot;</span>,
                     <span class="op">%</span><span class="ident">error</span>, <span class="ident">r#type</span><span class="op">=</span><span class="string">&quot;cache.redis.save-error&quot;</span>, <span class="string">&quot;Could not save suggestion to redis&quot;</span>);
@@ -736,7 +735,7 @@
         <span class="ident">config</span>: <span class="kw-2">&amp;</span><span class="ident">RedisCacheConfig</span>,
         <span class="ident">metrics_client</span>: <span class="ident">StatsdClient</span>,
         <span class="ident">provider</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">SuggestionProvider</span> <span class="op">+</span> <span class="lifetime">&#39;static</span><span class="op">&gt;</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">SetupError</span><span class="op">&gt;</span> {
+    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">SetupError</span><span class="op">&gt;</span> {
         <span class="macro">tracing::debug!</span>(<span class="question-mark">?</span><span class="ident">settings</span>.<span class="ident">redis</span>.<span class="ident">url</span>, <span class="string">&quot;Setting up redis connection&quot;</span>);
         <span class="kw">let</span> <span class="ident">client</span> <span class="op">=</span> <span class="ident">redis::Client::open</span>(<span class="ident">settings</span>.<span class="ident">redis</span>.<span class="ident">url</span>.<span class="ident">clone</span>())
             .<span class="ident">context</span>(<span class="string">&quot;Setting up Redis client&quot;</span>)
@@ -763,7 +762,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// If the item retrieved cannot be deserialized, it will be deleted. If</span>
     <span class="doccomment">/// there is no TTL for the retrieved item, one will be added to it.</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_key</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">CacheCheckResult</span>, <span class="ident">SuggestError</span><span class="op">&gt;</span> {
+    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_key</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">CacheCheckResult</span>, <span class="ident">SuggestError</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">connection</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">redis_connection</span>.<span class="ident">clone</span>();
         <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="macro">tracing::info_span!</span>(<span class="string">&quot;getting-cache-entry&quot;</span>, <span class="op">%</span><span class="ident">key</span>);
 
@@ -775,23 +774,23 @@
             .<span class="kw">await</span>;
 
         <span class="kw">match</span> <span class="ident">cache_result</span> {
-            <span class="prelude-val">Ok</span>((<span class="prelude-val">Some</span>(<span class="ident">suggestions</span>), <span class="ident">ttl</span>)) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="prelude-val">Ok</span>((<span class="prelude-val">Some</span>(<span class="ident">suggestions</span>), <span class="ident">ttl</span>)) =&gt; {
                 <span class="kw">let</span> <span class="ident">ttl</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">ttl</span> {
-                    <span class="ident">RedisTtl::KeyDoesNotExist</span> <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="ident">RedisTtl::KeyDoesNotExist</span> =&gt; {
                         <span class="comment">// This probably should never happen?</span>
                         <span class="macro">tracing::error!</span>(
                             <span class="ident">r#type</span> <span class="op">=</span> <span class="string">&quot;cache.redis.claims-no-ttl&quot;</span>,
                             <span class="op">%</span><span class="ident">key</span>, <span class="string">&quot;Cache provided a suggestion but claims it doesn&#39;t exist for TTL determination&quot;</span>);
                         <span class="self">self</span>.<span class="ident">default_ttl</span>
                     }
-                    <span class="ident">RedisTtl::KeyHasNoTtl</span> <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="ident">RedisTtl::KeyHasNoTtl</span> =&gt; {
                         <span class="macro">tracing::warn!</span>(
                             <span class="ident">r#type</span> <span class="op">=</span> <span class="string">&quot;cache.redis.no-ttl&quot;</span>,
                             <span class="op">%</span><span class="ident">key</span>, <span class="ident">default_ttl</span> <span class="op">=</span> <span class="question-mark">?</span><span class="self">self</span>.<span class="ident">default_ttl</span>, <span class="string">&quot;Value in cache without TTL, setting default TTL&quot;</span>);
                         <span class="self">self</span>.<span class="ident">queue_set_key_ttl</span>(<span class="ident">key</span>, <span class="self">self</span>.<span class="ident">default_ttl</span>)<span class="question-mark">?</span>;
                         <span class="self">self</span>.<span class="ident">default_ttl</span>
                     }
-                    <span class="ident">RedisTtl::Ttl</span>(<span class="ident">t</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Duration::from_secs</span>(<span class="ident">t</span> <span class="kw">as</span> <span class="ident">u64</span>),
+                    <span class="ident">RedisTtl::Ttl</span>(<span class="ident">t</span>) =&gt; <span class="ident">Duration::from_secs</span>(<span class="ident">t</span> <span class="kw">as</span> <span class="ident">u64</span>),
                 };
                 <span class="prelude-val">Ok</span>(<span class="ident">CacheCheckResult::Hit</span>(
                     <span class="ident">SuggestionResponse::new</span>(<span class="ident">suggestions</span>.<span class="number">0</span>)
@@ -800,17 +799,17 @@
                 ))
             }
 
-            <span class="prelude-val">Ok</span>((<span class="prelude-val">None</span>, <span class="kw">_</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">CacheCheckResult::Miss</span>),
+            <span class="prelude-val">Ok</span>((<span class="prelude-val">None</span>, <span class="kw">_</span>)) =&gt; <span class="prelude-val">Ok</span>(<span class="ident">CacheCheckResult::Miss</span>),
 
-            <span class="prelude-val">Err</span>(<span class="ident">error</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="prelude-val">Err</span>(<span class="ident">error</span>) =&gt; {
                 <span class="kw">match</span> <span class="ident">error</span>.<span class="ident">kind</span>() {
-                    <span class="ident">redis::ErrorKind::TypeError</span> <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="ident">redis::ErrorKind::TypeError</span> =&gt; {
                         <span class="macro">tracing::warn!</span>(
                             <span class="ident">r#type</span> <span class="op">=</span> <span class="string">&quot;cache.redis.wrong-type-as-miss&quot;</span>,
                             <span class="op">%</span><span class="ident">error</span>, <span class="op">%</span><span class="ident">key</span>, <span class="string">&quot;Cached value not of expected type, deleting and treating as cache miss&quot;</span>);
                         <span class="self">self</span>.<span class="ident">queue_delete_key</span>(<span class="ident">key</span>)<span class="question-mark">?</span>;
                     }
-                    <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="kw">_</span> =&gt; {
                         <span class="macro">tracing::error!</span>(
                             <span class="ident">r#type</span> <span class="op">=</span> <span class="string">&quot;cache.redis.failed-read-as-miss&quot;</span>,
                             <span class="op">%</span><span class="ident">error</span>, <span class="string">&quot;Error reading suggestion from cache, treating as cache miss&quot;</span>);
@@ -834,7 +833,7 @@
         <span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
         <span class="ident">suggestions</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Suggestion</span><span class="op">&gt;</span>,
         <span class="ident">lock</span>: <span class="ident">String</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">SuggestError</span><span class="op">&gt;</span> {
+    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">SuggestError</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">connection</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">redis_connection</span>.<span class="ident">clone</span>();
         <span class="kw">let</span> <span class="ident">key</span> <span class="op">=</span> <span class="ident">key</span>.<span class="ident">to_string</span>();
         <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="macro">tracing::info_span!</span>(<span class="string">&quot;storing-cache-entry&quot;</span>, <span class="op">%</span><span class="ident">key</span>);
@@ -863,7 +862,7 @@
     <span class="doccomment">/// # Errors</span>
     <span class="doccomment">/// Returns an error if the command cannot be queued. Does *not* error if the</span>
     <span class="doccomment">/// command fails to run to completion.</span>
-    <span class="kw">fn</span> <span class="ident">queue_delete_key</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">SuggestError</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">queue_delete_key</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">SuggestError</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">connection</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">redis_connection</span>.<span class="ident">clone</span>();
         <span class="kw">let</span> <span class="ident">key</span> <span class="op">=</span> <span class="ident">key</span>.<span class="ident">to_string</span>();
         <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="macro">tracing::info_span!</span>(<span class="string">&quot;deleting-cache-entry&quot;</span>, <span class="op">%</span><span class="ident">key</span>);
@@ -871,8 +870,8 @@
         <span class="ident">tokio::task::spawn</span>(
             <span class="kw">async</span> <span class="kw">move</span> {
                 <span class="kw">match</span> <span class="ident">redis::Cmd::del</span>(<span class="kw-2">&amp;</span><span class="ident">key</span>).<span class="ident">query_async</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">connection</span>).<span class="kw">await</span> {
-                    <span class="prelude-val">Ok</span>(()) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">tracing::trace!</span>(<span class="string">&quot;Successfully deleted cache key&quot;</span>),
-                    <span class="prelude-val">Err</span>(<span class="ident">error</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">tracing::error!</span>(
+                    <span class="prelude-val">Ok</span>(()) =&gt; <span class="macro">tracing::trace!</span>(<span class="string">&quot;Successfully deleted cache key&quot;</span>),
+                    <span class="prelude-val">Err</span>(<span class="ident">error</span>) =&gt; <span class="macro">tracing::error!</span>(
                         <span class="ident">r#type</span> <span class="op">=</span> <span class="string">&quot;cache.redis.key-deletion-failed&quot;</span>,
                         <span class="op">%</span><span class="ident">error</span>, <span class="string">&quot;Couldn&#39;t delete cache key&quot;</span>),
                 };
@@ -892,7 +891,7 @@
     <span class="doccomment">/// # Errors</span>
     <span class="doccomment">/// Returns an error if the command cannot be queued. Does *not* error if the</span>
     <span class="doccomment">/// command fails to run to completion.</span>
-    <span class="kw">fn</span> <span class="ident">queue_set_key_ttl</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">ttl</span>: <span class="ident">Duration</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">SuggestError</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">queue_set_key_ttl</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">ttl</span>: <span class="ident">Duration</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">SuggestError</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">connection</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">redis_connection</span>.<span class="ident">clone</span>();
         <span class="kw">let</span> <span class="ident">key</span> <span class="op">=</span> <span class="ident">key</span>.<span class="ident">to_string</span>();
         <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="macro">tracing::info_span!</span>(<span class="string">&quot;setting-cache-ttl&quot;</span>, <span class="op">%</span><span class="ident">key</span>);
@@ -903,8 +902,8 @@
                     .<span class="ident">query_async</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">connection</span>)
                     .<span class="kw">await</span>
                 {
-                    <span class="prelude-val">Ok</span>(()) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">tracing::trace!</span>(<span class="string">&quot;Successfully set TTL for cache key&quot;</span>),
-                    <span class="prelude-val">Err</span>(<span class="ident">error</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">tracing::error!</span>(
+                    <span class="prelude-val">Ok</span>(()) =&gt; <span class="macro">tracing::trace!</span>(<span class="string">&quot;Successfully set TTL for cache key&quot;</span>),
+                    <span class="prelude-val">Err</span>(<span class="ident">error</span>) =&gt; <span class="macro">tracing::error!</span>(
                         <span class="ident">r#type</span> <span class="op">=</span> <span class="string">&quot;cache.redis.failed-set-ttl&quot;</span>,
                         <span class="op">%</span><span class="ident">error</span>, <span class="string">&quot;Couldn&#39;t set key TTL&quot;</span>),
                 };
@@ -918,7 +917,7 @@
 
 <span class="attribute">#[<span class="ident">async_trait</span>]</span>
 <span class="kw">impl</span> <span class="ident">SuggestionProvider</span> <span class="kw">for</span> <span class="ident">Suggester</span> {
-    <span class="kw">fn</span> <span class="ident">name</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
+    <span class="kw">fn</span> <span class="ident">name</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">String</span> {
         <span class="macro">format!</span>(<span class="string">&quot;RedisCache({})&quot;</span>, <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">name</span>())
     }
 
@@ -929,7 +928,7 @@
     <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">suggest</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         <span class="ident">request</span>: <span class="ident">SuggestionRequest</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">SuggestionResponse</span>, <span class="ident">SuggestError</span><span class="op">&gt;</span> {
+    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">SuggestionResponse</span>, <span class="ident">SuggestError</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">start</span> <span class="op">=</span> <span class="ident">Instant::now</span>();
         <span class="kw">let</span> <span class="ident">key</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">cache_key</span>(<span class="kw-2">&amp;</span><span class="ident">request</span>);
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rlock</span> <span class="op">=</span> <span class="ident">SimpleRedisLock::from</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">redis_connection</span>);
@@ -978,16 +977,16 @@
 <span class="kw">mod</span> <span class="ident">test</span> {
     <span class="kw">use</span> <span class="ident">std::time::Duration</span>;
 
-    <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::redis</span>::{<span class="ident">domain::RedisSuggestions</span>, <span class="ident">SimpleRedisLock</span>};
+    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::redis</span>::{<span class="ident">domain::RedisSuggestions</span>, <span class="ident">SimpleRedisLock</span>};
 
-    <span class="kw">use</span> <span class="kw">super</span><span class="ident">::SetupError</span>;
+    <span class="kw">use</span> <span class="ident"><span class="kw">super</span>::SetupError</span>;
     <span class="kw">use</span> <span class="ident">anyhow</span>::{<span class="ident">anyhow</span>, <span class="ident">Context</span>};
     <span class="kw">use</span> <span class="ident">http::Uri</span>;
     <span class="kw">use</span> <span class="ident">merino_settings::Settings</span>;
     <span class="kw">use</span> <span class="ident">merino_suggest</span>::{<span class="ident">Proportion</span>, <span class="ident">Suggestion</span>};
 
     <span class="attribute">#[<span class="ident">tokio::test</span>]</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">check_cache</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">anyhow::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">check_cache</span>() -&gt; <span class="ident">anyhow::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">settings</span> <span class="op">=</span> <span class="ident">Settings::load_for_tests</span>();
 
         <span class="kw">let</span> <span class="ident">r_client</span> <span class="op">=</span> <span class="ident">redis::Client::open</span>(<span class="ident">settings</span>.<span class="ident">redis</span>.<span class="ident">url</span>.<span class="ident">clone</span>())
@@ -1081,7 +1080,7 @@
         <span class="prelude-val">Ok</span>(())
     }
 }
-</pre></div>
+</code></pre></div>
 </section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="merino_cache" data-search-index-js="../../../search-index.js" data-search-js="../../../search.js"></div>
     <script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script>
 </body></html>

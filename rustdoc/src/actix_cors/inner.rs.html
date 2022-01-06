@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;usr&#x2F;local&#x2F;cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;actix-cors-0.6.0-beta.2&#x2F;src&#x2F;inner.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>inner.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="shortcut icon" href="https:&#x2F;&#x2F;actix.rs&#x2F;favicon.ico"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../actix_cors/index.html'><div class='logo-container rust-logo'><img src='https:&#x2F;&#x2F;actix.rs&#x2F;img&#x2F;logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;usr&#x2F;local&#x2F;cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;actix-cors-0.6.0-beta.2&#x2F;src&#x2F;inner.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>inner.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="shortcut icon" href="https:&#x2F;&#x2F;actix.rs&#x2F;favicon.ico"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../actix_cors/index.html'><div class='logo-container rust-logo'><img src='https:&#x2F;&#x2F;actix.rs&#x2F;img&#x2F;logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -336,8 +336,7 @@
 <span id="336">336</span>
 <span id="337">337</span>
 <span id="338">338</span>
-</pre><pre class="rust">
-<span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">collections::HashSet</span>, <span class="ident">convert::TryFrom</span>, <span class="ident">convert::TryInto</span>, <span class="ident">fmt</span>, <span class="ident">rc::Rc</span>};
+</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">collections::HashSet</span>, <span class="ident">convert::TryFrom</span>, <span class="ident">convert::TryInto</span>, <span class="ident">fmt</span>, <span class="ident">rc::Rc</span>};
 
 <span class="kw">use</span> <span class="ident">actix_web</span>::{
     <span class="ident">dev::RequestHead</span>,
@@ -354,25 +353,25 @@
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>)]</span>
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct</span> <span class="ident">OriginFn</span> {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">boxed_fn</span>: <span class="ident">Rc</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="ident">HeaderValue</span>, <span class="kw-2">&amp;</span><span class="ident">RequestHead</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">boxed_fn</span>: <span class="ident">Rc</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="ident">HeaderValue</span>, <span class="kw-2">&amp;</span><span class="ident">RequestHead</span>) -&gt; <span class="ident">bool</span><span class="op">&gt;</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">OriginFn</span> {
     <span class="doccomment">/// Dummy default for use in tiny_vec. Do not use.</span>
-    <span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="kw">let</span> <span class="ident">boxed_fn</span>: <span class="ident">Rc</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="kw">_</span>, <span class="kw-2">&amp;</span><span class="kw">_</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">_</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Rc::new</span>(<span class="op">|</span><span class="ident">_origin</span>, <span class="ident">_req_head</span><span class="op">|</span> <span class="bool-val">false</span>);
+    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="self">Self</span> {
+        <span class="kw">let</span> <span class="ident">boxed_fn</span>: <span class="ident">Rc</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="kw">_</span>, <span class="kw-2">&amp;</span><span class="kw">_</span>) -&gt; <span class="kw">_</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Rc::new</span>(<span class="op">|</span><span class="ident">_origin</span>, <span class="ident">_req_head</span><span class="op">|</span> <span class="bool-val">false</span>);
         <span class="self">Self</span> { <span class="ident">boxed_fn</span> }
     }
 }
 
 <span class="kw">impl</span> <span class="ident">fmt::Debug</span> <span class="kw">for</span> <span class="ident">OriginFn</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">fmt::Result</span> {
         <span class="ident">f</span>.<span class="ident">write_str</span>(<span class="string">&quot;origin_fn&quot;</span>)
     }
 }
 
 <span class="doccomment">/// Try to parse header value as HTTP method.</span>
-<span class="kw">fn</span> <span class="ident">header_value_try_into_method</span>(<span class="ident">hdr</span>: <span class="kw-2">&amp;</span><span class="ident">HeaderValue</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Method</span><span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">header_value_try_into_method</span>(<span class="ident">hdr</span>: <span class="kw-2">&amp;</span><span class="ident">HeaderValue</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Method</span><span class="op">&gt;</span> {
     <span class="ident">hdr</span>.<span class="ident">to_str</span>()
         .<span class="ident">ok</span>()
         .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">meth</span><span class="op">|</span> <span class="ident">Method::try_from</span>(<span class="ident">meth</span>).<span class="ident">ok</span>())
@@ -403,20 +402,20 @@
 <span class="kw">static</span> <span class="ident">EMPTY_ORIGIN_SET</span>: <span class="ident">Lazy</span><span class="op">&lt;</span><span class="ident">HashSet</span><span class="op">&lt;</span><span class="ident">HeaderValue</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Lazy::new</span>(<span class="ident">HashSet::new</span>);
 
 <span class="kw">impl</span> <span class="ident">Inner</span> {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">validate_origin</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">req</span>: <span class="kw-2">&amp;</span><span class="ident">RequestHead</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">CorsError</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">validate_origin</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">req</span>: <span class="kw-2">&amp;</span><span class="ident">RequestHead</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">CorsError</span><span class="op">&gt;</span> {
         <span class="comment">// return early if all origins are allowed or get ref to allowed origins set</span>
         <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::mutable_key_type</span>)]</span>
         <span class="kw">let</span> <span class="ident">allowed_origins</span> <span class="op">=</span> <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">allowed_origins</span> {
-            <span class="ident">AllOrSome::All</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">allowed_origins_fns</span>.<span class="ident">is_empty</span>() <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Ok</span>(()),
-            <span class="ident">AllOrSome::Some</span>(<span class="ident">allowed_origins</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">allowed_origins</span>,
+            <span class="ident">AllOrSome::All</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">allowed_origins_fns</span>.<span class="ident">is_empty</span>() =&gt; <span class="kw">return</span> <span class="prelude-val">Ok</span>(()),
+            <span class="ident">AllOrSome::Some</span>(<span class="ident">allowed_origins</span>) =&gt; <span class="ident">allowed_origins</span>,
             <span class="comment">// only function origin validators are defined</span>
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">EMPTY_ORIGIN_SET</span>,
+            <span class="kw">_</span> =&gt; <span class="kw-2">&amp;</span><span class="ident">EMPTY_ORIGIN_SET</span>,
         };
 
         <span class="comment">// get origin header and try to parse as string</span>
         <span class="kw">match</span> <span class="ident">req</span>.<span class="ident">headers</span>().<span class="ident">get</span>(<span class="ident">header::ORIGIN</span>) {
             <span class="comment">// origin header exists and is a string</span>
-            <span class="prelude-val">Some</span>(<span class="ident">origin</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="prelude-val">Some</span>(<span class="ident">origin</span>) =&gt; {
                 <span class="kw">if</span> <span class="ident">allowed_origins</span>.<span class="ident">contains</span>(<span class="ident">origin</span>)
                     <span class="op">|</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">validate_origin_fns</span>(<span class="ident">origin</span>, <span class="ident">req</span>)
                 {
@@ -429,12 +428,12 @@
             <span class="comment">// origin header is missing</span>
             <span class="comment">// note: with our implementation, the origin header is required for OPTIONS request or</span>
             <span class="comment">// else this would be unreachable</span>
-            <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">CorsError::MissingOrigin</span>),
+            <span class="prelude-val">None</span> =&gt; <span class="prelude-val">Err</span>(<span class="ident">CorsError::MissingOrigin</span>),
         }
     }
 
     <span class="doccomment">/// Accepts origin if _ANY_ functions return true. Only called when Origin exists.</span>
-    <span class="kw">fn</span> <span class="ident">validate_origin_fns</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">origin</span>: <span class="kw-2">&amp;</span><span class="ident">HeaderValue</span>, <span class="ident">req</span>: <span class="kw-2">&amp;</span><span class="ident">RequestHead</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">fn</span> <span class="ident">validate_origin_fns</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">origin</span>: <span class="kw-2">&amp;</span><span class="ident">HeaderValue</span>, <span class="ident">req</span>: <span class="kw-2">&amp;</span><span class="ident">RequestHead</span>) -&gt; <span class="ident">bool</span> {
         <span class="self">self</span>.<span class="ident">allowed_origins_fns</span>
             .<span class="ident">iter</span>()
             .<span class="ident">any</span>(<span class="op">|</span><span class="ident">origin_fn</span><span class="op">|</span> (<span class="ident">origin_fn</span>.<span class="ident">boxed_fn</span>)(<span class="ident">origin</span>, <span class="ident">req</span>))
@@ -444,11 +443,11 @@
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">access_control_allow_origin</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         <span class="ident">req</span>: <span class="kw-2">&amp;</span><span class="ident">RequestHead</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">HeaderValue</span><span class="op">&gt;</span> {
+    ) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">HeaderValue</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">origin</span> <span class="op">=</span> <span class="ident">req</span>.<span class="ident">headers</span>().<span class="ident">get</span>(<span class="ident">header::ORIGIN</span>);
 
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">allowed_origins</span> {
-            <span class="ident">AllOrSome::All</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">AllOrSome::All</span> =&gt; {
                 <span class="kw">if</span> <span class="self">self</span>.<span class="ident">send_wildcard</span> {
                     <span class="prelude-val">Some</span>(<span class="ident">HeaderValue::from_static</span>(<span class="string">&quot;*&quot;</span>))
                 } <span class="kw">else</span> {
@@ -457,7 +456,7 @@
                 }
             }
 
-            <span class="ident">AllOrSome::Some</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">AllOrSome::Some</span>(<span class="kw">_</span>) =&gt; {
                 <span class="comment">// since origin (if it exists) is known to be allowed if this method is called</span>
                 <span class="comment">// then cloning the option is all that is required to be used as an echoed back</span>
                 <span class="comment">// header value (or omitted if None)</span>
@@ -471,7 +470,7 @@
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">validate_allowed_method</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         <span class="ident">req</span>: <span class="kw-2">&amp;</span><span class="ident">RequestHead</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">CorsError</span><span class="op">&gt;</span> {
+    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">CorsError</span><span class="op">&gt;</span> {
         <span class="comment">// extract access control header and try to parse as method</span>
         <span class="kw">let</span> <span class="ident">request_method</span> <span class="op">=</span> <span class="ident">req</span>
             .<span class="ident">headers</span>()
@@ -480,28 +479,28 @@
 
         <span class="kw">match</span> <span class="ident">request_method</span> {
             <span class="comment">// method valid and allowed</span>
-            <span class="prelude-val">Some</span>(<span class="prelude-val">Some</span>(<span class="ident">method</span>)) <span class="kw">if</span> <span class="self">self</span>.<span class="ident">allowed_methods</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">method</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(()),
+            <span class="prelude-val">Some</span>(<span class="prelude-val">Some</span>(<span class="ident">method</span>)) <span class="kw">if</span> <span class="self">self</span>.<span class="ident">allowed_methods</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">method</span>) =&gt; <span class="prelude-val">Ok</span>(()),
 
             <span class="comment">// method valid but not allowed</span>
-            <span class="prelude-val">Some</span>(<span class="prelude-val">Some</span>(<span class="kw">_</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">CorsError::MethodNotAllowed</span>),
+            <span class="prelude-val">Some</span>(<span class="prelude-val">Some</span>(<span class="kw">_</span>)) =&gt; <span class="prelude-val">Err</span>(<span class="ident">CorsError::MethodNotAllowed</span>),
 
             <span class="comment">// method invalid</span>
-            <span class="prelude-val">Some</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">CorsError::BadRequestMethod</span>),
+            <span class="prelude-val">Some</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">Err</span>(<span class="ident">CorsError::BadRequestMethod</span>),
 
             <span class="comment">// method missing</span>
-            <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">CorsError::MissingRequestMethod</span>),
+            <span class="prelude-val">None</span> =&gt; <span class="prelude-val">Err</span>(<span class="ident">CorsError::MissingRequestMethod</span>),
         }
     }
 
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">validate_allowed_headers</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         <span class="ident">req</span>: <span class="kw-2">&amp;</span><span class="ident">RequestHead</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">CorsError</span><span class="op">&gt;</span> {
+    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">CorsError</span><span class="op">&gt;</span> {
         <span class="comment">// return early if all headers are allowed or get ref to allowed origins set</span>
         <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::mutable_key_type</span>)]</span>
         <span class="kw">let</span> <span class="ident">allowed_headers</span> <span class="op">=</span> <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">allowed_headers</span> {
-            <span class="ident">AllOrSome::All</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Ok</span>(()),
-            <span class="ident">AllOrSome::Some</span>(<span class="ident">allowed_headers</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">allowed_headers</span>,
+            <span class="ident">AllOrSome::All</span> =&gt; <span class="kw">return</span> <span class="prelude-val">Ok</span>(()),
+            <span class="ident">AllOrSome::Some</span>(<span class="ident">allowed_headers</span>) =&gt; <span class="ident">allowed_headers</span>,
         };
 
         <span class="comment">// extract access control header as string</span>
@@ -513,7 +512,7 @@
 
         <span class="kw">match</span> <span class="ident">request_headers</span> {
             <span class="comment">// header list is valid string</span>
-            <span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(<span class="ident">headers</span>)) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(<span class="ident">headers</span>)) =&gt; {
                 <span class="comment">// the set is ephemeral we take care not to mutate the</span>
                 <span class="comment">// inserted keys so this lint exception is acceptable</span>
                 <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::mutable_key_type</span>)]</span>
@@ -522,8 +521,8 @@
                 <span class="comment">// try to convert each header name in the comma-separated list</span>
                 <span class="kw">for</span> <span class="ident">hdr</span> <span class="kw">in</span> <span class="ident">headers</span>.<span class="ident">split</span>(<span class="string">&#39;,&#39;</span>) {
                     <span class="kw">match</span> <span class="ident">hdr</span>.<span class="ident">trim</span>().<span class="ident">try_into</span>() {
-                        <span class="prelude-val">Ok</span>(<span class="ident">hdr</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">request_headers</span>.<span class="ident">insert</span>(<span class="ident">hdr</span>),
-                        <span class="prelude-val">Err</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">CorsError::BadRequestHeaders</span>),
+                        <span class="prelude-val">Ok</span>(<span class="ident">hdr</span>) =&gt; <span class="ident">request_headers</span>.<span class="ident">insert</span>(<span class="ident">hdr</span>),
+                        <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">CorsError::BadRequestHeaders</span>),
                     };
                 }
 
@@ -541,10 +540,10 @@
             }
 
             <span class="comment">// header list is not a string</span>
-            <span class="prelude-val">Some</span>(<span class="prelude-val">Err</span>(<span class="kw">_</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">CorsError::BadRequestHeaders</span>),
+            <span class="prelude-val">Some</span>(<span class="prelude-val">Err</span>(<span class="kw">_</span>)) =&gt; <span class="prelude-val">Err</span>(<span class="ident">CorsError::BadRequestHeaders</span>),
 
             <span class="comment">// header list missing</span>
-            <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(()),
+            <span class="prelude-val">None</span> =&gt; <span class="prelude-val">Ok</span>(()),
         }
     }
 }
@@ -559,9 +558,9 @@
         <span class="ident">test</span>::{<span class="self">self</span>, <span class="ident">TestRequest</span>},
     };
 
-    <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::Cors</span>;
+    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Cors</span>;
 
-    <span class="kw">fn</span> <span class="ident">val_as_str</span>(<span class="ident">val</span>: <span class="kw-2">&amp;</span><span class="ident">HeaderValue</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">str</span> {
+    <span class="kw">fn</span> <span class="ident">val_as_str</span>(<span class="ident">val</span>: <span class="kw-2">&amp;</span><span class="ident">HeaderValue</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">str</span> {
         <span class="ident">val</span>.<span class="ident">to_str</span>().<span class="ident">unwrap</span>()
     }
 
@@ -675,7 +674,7 @@
         <span class="macro">assert_eq!</span>(<span class="ident">resp</span>.<span class="ident">status</span>(), <span class="ident">StatusCode::OK</span>);
     }
 }
-</pre></div>
+</code></pre></div>
 </section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="actix_cors" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
     <script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script>
 </body></html>

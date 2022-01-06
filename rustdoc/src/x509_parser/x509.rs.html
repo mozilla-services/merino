@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;usr&#x2F;local&#x2F;cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;x509-parser-0.12.0&#x2F;src&#x2F;x509.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>x509.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg"><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../x509_parser/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;usr&#x2F;local&#x2F;cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;x509-parser-0.12.0&#x2F;src&#x2F;x509.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>x509.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../x509_parser/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -615,15 +615,14 @@
 <span id="615">615</span>
 <span id="616">616</span>
 <span id="617">617</span>
-</pre><pre class="rust">
-<span class="doccomment">//! X.509 objects and types</span>
+</pre><pre class="rust"><code><span class="doccomment">//! X.509 objects and types</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! Based on RFC5280</span>
 <span class="doccomment">//!</span>
 
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::error</span>::{<span class="ident">X509Error</span>, <span class="ident">X509Result</span>};
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::objects</span>::<span class="kw-2">*</span>;
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::traits::FromDer</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::error</span>::{<span class="ident">X509Error</span>, <span class="ident">X509Result</span>};
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::objects</span>::<span class="kw-2">*</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::traits::FromDer</span>;
 
 <span class="kw">use</span> <span class="ident">data_encoding::HEXUPPER</span>;
 <span class="kw">use</span> <span class="ident">der_parser::ber</span>::{<span class="ident">parse_ber_integer</span>, <span class="ident">BitStringObject</span>, <span class="ident">MAX_OBJECT_SIZE</span>};
@@ -655,28 +654,28 @@
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">X509Version</span>(<span class="kw">pub</span> <span class="ident">u32</span>);
 
 <span class="kw">impl</span> <span class="ident">X509Version</span> {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">from_der_required</span>(<span class="ident">i</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">X509Result</span><span class="op">&lt;</span><span class="ident">X509Version</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">from_der_required</span>(<span class="ident">i</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="ident">X509Result</span><span class="op">&lt;</span><span class="ident">X509Version</span><span class="op">&gt;</span> {
         <span class="kw">let</span> (<span class="ident">rem</span>, <span class="ident">hdr</span>) <span class="op">=</span>
             <span class="ident">der_read_element_header</span>(<span class="ident">i</span>).<span class="ident">or</span>(<span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>(<span class="ident">X509Error::InvalidVersion</span>)))<span class="question-mark">?</span>;
         <span class="kw">match</span> <span class="ident">hdr</span>.<span class="ident">tag</span>.<span class="number">0</span> {
-            <span class="number">0</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="number">0</span> =&gt; {
                 <span class="ident">map</span>(<span class="ident">parse_der_u32</span>, <span class="ident">X509Version</span>)(<span class="ident">rem</span>).<span class="ident">or</span>(<span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>(<span class="ident">X509Error::InvalidVersion</span>)))
             }
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>((<span class="kw-2">&amp;</span><span class="ident">rem</span>[<span class="number">1</span>..], <span class="ident">X509Version::V1</span>)),
+            <span class="kw">_</span> =&gt; <span class="prelude-val">Ok</span>((<span class="kw-2">&amp;</span><span class="ident">rem</span>[<span class="number">1</span>..], <span class="ident">X509Version::V1</span>)),
         }
     }
 }
 
 <span class="comment">// Parse [0] EXPLICIT Version DEFAULT v1</span>
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">FromDer</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">X509Version</span> {
-    <span class="kw">fn</span> <span class="ident">from_der</span>(<span class="ident">i</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">X509Result</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="self">Self</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">from_der</span>(<span class="ident">i</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">u8</span>]) -&gt; <span class="ident">X509Result</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="self">Self</span><span class="op">&gt;</span> {
         <span class="kw">let</span> (<span class="ident">rem</span>, <span class="ident">hdr</span>) <span class="op">=</span>
             <span class="ident">der_read_element_header</span>(<span class="ident">i</span>).<span class="ident">or</span>(<span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>(<span class="ident">X509Error::InvalidVersion</span>)))<span class="question-mark">?</span>;
         <span class="kw">match</span> <span class="ident">hdr</span>.<span class="ident">tag</span>.<span class="number">0</span> {
-            <span class="number">0</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="number">0</span> =&gt; {
                 <span class="ident">map</span>(<span class="ident">parse_der_u32</span>, <span class="ident">X509Version</span>)(<span class="ident">rem</span>).<span class="ident">or</span>(<span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>(<span class="ident">X509Error::InvalidVersion</span>)))
             }
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>((<span class="ident">i</span>, <span class="ident">X509Version::V1</span>)),
+            <span class="kw">_</span> =&gt; <span class="prelude-val">Ok</span>((<span class="ident">i</span>, <span class="ident">X509Version::V1</span>)),
         }
     }
 }
@@ -701,7 +700,7 @@
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">AttributeTypeAndValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="doccomment">/// Builds a new `AttributeTypeAndValue`</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">attr_type</span>: <span class="ident">Oid</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>, <span class="ident">attr_value</span>: <span class="ident">DerObject</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">attr_type</span>: <span class="ident">Oid</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>, <span class="ident">attr_value</span>: <span class="ident">DerObject</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
         <span class="ident">AttributeTypeAndValue</span> {
             <span class="ident">attr_type</span>,
             <span class="ident">attr_value</span>,
@@ -710,13 +709,13 @@
 
     <span class="doccomment">/// Returns the attribute type</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">attr_type</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">Oid</span> {
+    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">attr_type</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">Oid</span> {
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">attr_type</span>
     }
 
     <span class="doccomment">/// Returns the attribute value, as raw `DerObject`</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">attr_value</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">DerObject</span> {
+    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">attr_value</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">DerObject</span> {
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">attr_value</span>
     }
 
@@ -728,7 +727,7 @@
     <span class="doccomment">/// Only NumericString, PrintableString, UTF8String and IA5String</span>
     <span class="doccomment">/// are considered here. Other string types can be read using `as_slice`.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">as_str</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>, <span class="ident">X509Error</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">as_str</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>, <span class="ident">X509Error</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">attr_value</span>.<span class="ident">as_str</span>().<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> <span class="ident">e</span>.<span class="ident">into</span>())
     }
 
@@ -738,7 +737,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// Note: the [`TryFrom`] trait is implemented for `&amp;[u8]`, so this is equivalent to `attr.try_into()`.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">as_slice</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">u8</span>], <span class="ident">X509Error</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">as_slice</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">u8</span>], <span class="ident">X509Error</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">attr_value</span>.<span class="ident">as_slice</span>().<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> <span class="ident">e</span>.<span class="ident">into</span>())
     }
 }
@@ -746,7 +745,7 @@
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="ident">AttributeTypeAndValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span> {
     <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">X509Error</span>;
 
-    <span class="kw">fn</span> <span class="ident">try_from</span>(<span class="ident">value</span>: <span class="ident">AttributeTypeAndValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="self">Self</span><span class="ident">::Error</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">try_from</span>(<span class="ident">value</span>: <span class="ident">AttributeTypeAndValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
         <span class="ident">value</span>.<span class="ident">attr_value</span>.<span class="ident">as_str</span>().<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> <span class="ident">e</span>.<span class="ident">into</span>())
     }
 }
@@ -754,7 +753,7 @@
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="ident">AttributeTypeAndValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">u8</span>] {
     <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">X509Error</span>;
 
-    <span class="kw">fn</span> <span class="ident">try_from</span>(<span class="ident">value</span>: <span class="ident">AttributeTypeAndValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="self">Self</span><span class="ident">::Error</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">try_from</span>(<span class="ident">value</span>: <span class="ident">AttributeTypeAndValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
         <span class="ident">value</span>.<span class="ident">attr_value</span>.<span class="ident">as_slice</span>().<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> <span class="ident">e</span>.<span class="ident">into</span>())
     }
 }
@@ -763,7 +762,7 @@
 <span class="comment">//     type    AttributeType,</span>
 <span class="comment">//     value   AttributeValue }</span>
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">FromDer</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">AttributeTypeAndValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">from_der</span>(<span class="ident">i</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">X509Result</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="self">Self</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">from_der</span>(<span class="ident">i</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">u8</span>]) -&gt; <span class="ident">X509Result</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="self">Self</span><span class="op">&gt;</span> {
         <span class="ident">parse_der_sequence_defined_g</span>(<span class="op">|</span><span class="ident">i</span>, <span class="kw">_</span><span class="op">|</span> {
             <span class="kw">let</span> (<span class="ident">i</span>, <span class="ident">attr_type</span>) <span class="op">=</span> <span class="ident">map_res</span>(<span class="ident">parse_der_oid</span>, <span class="op">|</span><span class="ident">x</span>: <span class="ident">DerObject</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">as_oid_val</span>())(<span class="ident">i</span>)
                 .<span class="ident">or</span>(<span class="prelude-val">Err</span>(<span class="ident">X509Error::InvalidX509Name</span>))<span class="question-mark">?</span>;
@@ -776,18 +775,18 @@
 
 <span class="comment">// AttributeValue          ::= ANY -- DEFINED BY AttributeType</span>
 <span class="attribute">#[<span class="ident">inline</span>]</span>
-<span class="kw">fn</span> <span class="ident">parse_attribute_value</span>(<span class="ident">i</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">DerResult</span> {
+<span class="kw">fn</span> <span class="ident">parse_attribute_value</span>(<span class="ident">i</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="ident">DerResult</span> {
     <span class="ident">alt</span>((<span class="ident">parse_der</span>, <span class="ident">parse_malformed_string</span>))(<span class="ident">i</span>)
 }
 
-<span class="kw">fn</span> <span class="ident">parse_malformed_string</span>(<span class="ident">i</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">DerResult</span> {
+<span class="kw">fn</span> <span class="ident">parse_malformed_string</span>(<span class="ident">i</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="ident">DerResult</span> {
     <span class="kw">let</span> (<span class="ident">rem</span>, <span class="ident">hdr</span>) <span class="op">=</span> <span class="ident">der_read_element_header</span>(<span class="ident">i</span>)<span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">hdr</span>.<span class="ident">len</span>.<span class="ident">primitive</span>()<span class="question-mark">?</span>;
     <span class="kw">if</span> <span class="ident">len</span> <span class="op">&gt;</span> <span class="ident">MAX_OBJECT_SIZE</span> {
         <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">nom::Err::Error</span>(<span class="ident">BerError::InvalidLength</span>));
     }
     <span class="kw">match</span> <span class="ident">hdr</span>.<span class="ident">tag</span> {
-        <span class="ident">DerTag::PrintableString</span> <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="ident">DerTag::PrintableString</span> =&gt; {
             <span class="comment">// if we are in this function, the PrintableString could not be validated.</span>
             <span class="comment">// Accept it without validating charset, because some tools do not respect the charset</span>
             <span class="comment">// restrictions (for ex. they use &#39;*&#39; while explicingly disallowed)</span>
@@ -797,7 +796,7 @@
             <span class="kw">let</span> <span class="ident">obj</span> <span class="op">=</span> <span class="ident">DerObject::from_header_and_content</span>(<span class="ident">hdr</span>, <span class="ident">content</span>);
             <span class="prelude-val">Ok</span>((<span class="ident">rem</span>, <span class="ident">obj</span>))
         }
-        <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">nom::Err::Error</span>(<span class="ident">BerError::InvalidTag</span>)),
+        <span class="kw">_</span> =&gt; <span class="prelude-val">Err</span>(<span class="ident">nom::Err::Error</span>(<span class="ident">BerError::InvalidTag</span>)),
     }
 }
 
@@ -812,25 +811,25 @@
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">RelativeDistinguishedName</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="doccomment">/// Builds a new `RelativeDistinguishedName`</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">set</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">AttributeTypeAndValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">set</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">AttributeTypeAndValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
         <span class="ident">RelativeDistinguishedName</span> { <span class="ident">set</span> }
     }
 
     <span class="doccomment">/// Return an iterator over the components of this object</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">iter</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">impl</span> <span class="ident">Iterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">AttributeTypeAndValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">iter</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">impl</span> <span class="ident">Iterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">AttributeTypeAndValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">set</span>.<span class="ident">iter</span>()
     }
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">FromIterator</span><span class="op">&lt;</span><span class="ident">AttributeTypeAndValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">RelativeDistinguishedName</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">from_iter</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">IntoIterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="ident">AttributeTypeAndValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">iter</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">from_iter</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">IntoIterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="ident">AttributeTypeAndValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">iter</span>: <span class="ident">T</span>) -&gt; <span class="self">Self</span> {
         <span class="kw">let</span> <span class="ident">set</span> <span class="op">=</span> <span class="ident">iter</span>.<span class="ident">into_iter</span>().<span class="ident">collect</span>();
         <span class="ident">RelativeDistinguishedName</span> { <span class="ident">set</span> }
     }
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">FromDer</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">RelativeDistinguishedName</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">from_der</span>(<span class="ident">i</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">X509Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">from_der</span>(<span class="ident">i</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">u8</span>]) -&gt; <span class="ident">X509Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
         <span class="ident">parse_der_set_defined_g</span>(<span class="op">|</span><span class="ident">i</span>, <span class="kw">_</span><span class="op">|</span> {
             <span class="kw">let</span> (<span class="ident">i</span>, <span class="ident">set</span>) <span class="op">=</span> <span class="ident">many1</span>(<span class="ident">complete</span>(<span class="ident">AttributeTypeAndValue::from_der</span>))(<span class="ident">i</span>)<span class="question-mark">?</span>;
             <span class="kw">let</span> <span class="ident">rdn</span> <span class="op">=</span> <span class="ident">RelativeDistinguishedName</span> { <span class="ident">set</span> };
@@ -849,14 +848,14 @@
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">FromDer</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">SubjectPublicKeyInfo</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="doccomment">/// Parse the SubjectPublicKeyInfo struct portion of a DER-encoded X.509 Certificate</span>
-    <span class="kw">fn</span> <span class="ident">from_der</span>(<span class="ident">i</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">X509Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">from_der</span>(<span class="ident">i</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">u8</span>]) -&gt; <span class="ident">X509Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">start_i</span> <span class="op">=</span> <span class="ident">i</span>;
         <span class="ident">parse_der_sequence_defined_g</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">i</span>, <span class="kw">_</span><span class="op">|</span> {
             <span class="kw">let</span> (<span class="ident">i</span>, <span class="ident">algorithm</span>) <span class="op">=</span> <span class="ident">AlgorithmIdentifier::from_der</span>(<span class="ident">i</span>)<span class="question-mark">?</span>;
             <span class="kw">let</span> (<span class="ident">i</span>, <span class="ident">subject_public_key</span>) <span class="op">=</span> <span class="ident">map_res</span>(<span class="ident">parse_der_bitstring</span>, <span class="op">|</span><span class="ident">x</span>: <span class="ident">DerObject</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">|</span> {
                 <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">content</span> {
-                    <span class="ident">DerObjectContent::BitString</span>(<span class="kw">_</span>, <span class="kw-2">ref</span> <span class="ident">b</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">b</span>.<span class="ident">to_owned</span>()), <span class="comment">// XXX padding ignored</span>
-                    <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">BerError::BerTypeError</span>),
+                    <span class="ident">DerObjectContent::BitString</span>(<span class="kw">_</span>, <span class="kw-2">ref</span> <span class="ident">b</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="ident">b</span>.<span class="ident">to_owned</span>()), <span class="comment">// XXX padding ignored</span>
+                    <span class="kw">_</span> =&gt; <span class="prelude-val">Err</span>(<span class="ident">BerError::BerTypeError</span>),
                 }
             })(<span class="ident">i</span>)
             .<span class="ident">or</span>(<span class="prelude-val">Err</span>(<span class="ident">X509Error::InvalidSPKI</span>))<span class="question-mark">?</span>;
@@ -894,7 +893,7 @@
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">FromDer</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">AlgorithmIdentifier</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::needless_lifetimes</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">from_der</span>(<span class="ident">i</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">X509Result</span><span class="op">&lt;</span><span class="ident">AlgorithmIdentifier</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">from_der</span>(<span class="ident">i</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="ident">X509Result</span><span class="op">&lt;</span><span class="ident">AlgorithmIdentifier</span><span class="op">&gt;</span> {
         <span class="ident">parse_der_sequence_defined_g</span>(<span class="op">|</span><span class="ident">i</span>, <span class="kw">_</span><span class="op">|</span> {
             <span class="kw">let</span> (<span class="ident">i</span>, <span class="ident">algorithm</span>) <span class="op">=</span> <span class="ident">map_res</span>(<span class="ident">parse_der_oid</span>, <span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">as_oid_val</span>())(<span class="ident">i</span>)
                 .<span class="ident">or</span>(<span class="prelude-val">Err</span>(<span class="ident">X509Error::InvalidAlgorithmIdentifier</span>))<span class="question-mark">?</span>;
@@ -923,10 +922,10 @@
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">fmt::Display</span> <span class="kw">for</span> <span class="ident">X509Name</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span>) -&gt; <span class="ident">fmt::Result</span> {
         <span class="kw">match</span> <span class="ident">x509name_to_string</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">rdn_seq</span>, <span class="ident">oid_registry</span>()) {
-            <span class="prelude-val">Ok</span>(<span class="ident">o</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">o</span>),
-            <span class="prelude-val">Err</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;&lt;X509Error: Invalid X.509 name&gt;&quot;</span>),
+            <span class="prelude-val">Ok</span>(<span class="ident">o</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">o</span>),
+            <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;&lt;X509Error: Invalid X.509 name&gt;&quot;</span>),
         }
     }
 }
@@ -934,7 +933,7 @@
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">X509Name</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="doccomment">/// Builds a new `X509Name` from the provided elements.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">rdn_seq</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">RelativeDistinguishedName</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>, <span class="ident">raw</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">rdn_seq</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">RelativeDistinguishedName</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>, <span class="ident">raw</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">u8</span>]) -&gt; <span class="self">Self</span> {
         <span class="ident">X509Name</span> { <span class="ident">rdn_seq</span>, <span class="ident">raw</span> }
     }
 
@@ -942,27 +941,27 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// Note: a default registry is provided with this crate, and is returned by the</span>
     <span class="doccomment">/// [`oid_registry()`] method.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_string_with_registry</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">oid_registry</span>: <span class="kw-2">&amp;</span><span class="ident">OidRegistry</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">X509Error</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_string_with_registry</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">oid_registry</span>: <span class="kw-2">&amp;</span><span class="ident">OidRegistry</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">X509Error</span><span class="op">&gt;</span> {
         <span class="ident">x509name_to_string</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">rdn_seq</span>, <span class="ident">oid_registry</span>)
     }
 
     <span class="comment">// Not using the AsRef trait, as that would not give back the full &#39;a lifetime</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">as_raw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">u8</span>] {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">as_raw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">u8</span>] {
         <span class="self">self</span>.<span class="ident">raw</span>
     }
 
     <span class="doccomment">/// Return an iterator over the `RelativeDistinguishedName` components of the name</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">iter</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">impl</span> <span class="ident">Iterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">RelativeDistinguishedName</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">iter</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">impl</span> <span class="ident">Iterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">RelativeDistinguishedName</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">rdn_seq</span>.<span class="ident">iter</span>()
     }
 
     <span class="doccomment">/// Return an iterator over the `RelativeDistinguishedName` components of the name</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">iter_rdn</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">impl</span> <span class="ident">Iterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">RelativeDistinguishedName</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">iter_rdn</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">impl</span> <span class="ident">Iterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">RelativeDistinguishedName</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">rdn_seq</span>.<span class="ident">iter</span>()
     }
 
     <span class="doccomment">/// Return an iterator over the attribute types and values of the name</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">iter_attributes</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">impl</span> <span class="ident">Iterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">AttributeTypeAndValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">iter_attributes</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">impl</span> <span class="ident">Iterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">AttributeTypeAndValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">rdn_seq</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">rdn</span><span class="op">|</span> <span class="ident">rdn</span>.<span class="ident">set</span>.<span class="ident">iter</span>()).<span class="ident">flatten</span>()
     }
 
@@ -977,14 +976,14 @@
     <span class="doccomment">///   - 0: not found</span>
     <span class="doccomment">///   - 1: present once (common case)</span>
     <span class="doccomment">///   - 2 or more: attribute is present multiple times</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">iter_by_oid</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">oid</span>: <span class="kw-2">&amp;</span><span class="ident">Oid</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">impl</span> <span class="ident">Iterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">AttributeTypeAndValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">iter_by_oid</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">oid</span>: <span class="kw-2">&amp;</span><span class="ident">Oid</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) -&gt; <span class="kw">impl</span> <span class="ident">Iterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">AttributeTypeAndValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="comment">// this is necessary, otherwise rustc complains</span>
         <span class="comment">// that caller creates a temporary value for reference (for ex.</span>
         <span class="comment">// `self.iter_by_oid(&amp;OID_X509_LOCALITY_NAME)`</span>
         <span class="comment">// )</span>
         <span class="kw">let</span> <span class="ident">oid</span> <span class="op">=</span> <span class="ident">oid</span>.<span class="ident">clone</span>();
         <span class="self">self</span>.<span class="ident">iter_attributes</span>()
-            .<span class="ident">filter</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">obj</span><span class="op">|</span> <span class="ident">obj</span>.<span class="ident">attr_type</span> <span class="op">=</span><span class="op">=</span> <span class="ident">oid</span>)
+            .<span class="ident">filter</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">obj</span><span class="op">|</span> <span class="ident">obj</span>.<span class="ident">attr_type</span> <span class="op">==</span> <span class="ident">oid</span>)
     }
 
     <span class="doccomment">/// Return an iterator over the `CommonName` attributes of the X.509 Name.</span>
@@ -1008,57 +1007,57 @@
     <span class="doccomment">/// Note that there are multiple reasons for failure or incorrect behavior, for ex. if</span>
     <span class="doccomment">/// the attribute is present multiple times, or is not a UTF-8 encoded string (it can be</span>
     <span class="doccomment">/// UTF-16, or even an OCTETSTRING according to the standard).</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">iter_common_name</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">impl</span> <span class="ident">Iterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">AttributeTypeAndValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">iter_common_name</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">impl</span> <span class="ident">Iterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">AttributeTypeAndValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">iter_by_oid</span>(<span class="kw-2">&amp;</span><span class="ident">OID_X509_COMMON_NAME</span>)
     }
 
     <span class="doccomment">/// Return an iterator over the `Country` attributes of the X.509 Name.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">iter_country</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">impl</span> <span class="ident">Iterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">AttributeTypeAndValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">iter_country</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">impl</span> <span class="ident">Iterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">AttributeTypeAndValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">iter_by_oid</span>(<span class="kw-2">&amp;</span><span class="ident">OID_X509_COUNTRY_NAME</span>)
     }
 
     <span class="doccomment">/// Return an iterator over the `Organization` attributes of the X.509 Name.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">iter_organization</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">impl</span> <span class="ident">Iterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">AttributeTypeAndValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">iter_organization</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">impl</span> <span class="ident">Iterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">AttributeTypeAndValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">iter_by_oid</span>(<span class="kw-2">&amp;</span><span class="ident">OID_X509_ORGANIZATION_NAME</span>)
     }
 
     <span class="doccomment">/// Return an iterator over the `OrganizationalUnit` attributes of the X.509 Name.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">iter_organizational_unit</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">impl</span> <span class="ident">Iterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">AttributeTypeAndValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">iter_organizational_unit</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">impl</span> <span class="ident">Iterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">AttributeTypeAndValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">iter_by_oid</span>(<span class="kw-2">&amp;</span><span class="ident">OID_X509_ORGANIZATIONAL_UNIT</span>)
     }
 
     <span class="doccomment">/// Return an iterator over the `StateOrProvinceName` attributes of the X.509 Name.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">iter_state_or_province</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">impl</span> <span class="ident">Iterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">AttributeTypeAndValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">iter_state_or_province</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">impl</span> <span class="ident">Iterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">AttributeTypeAndValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">iter_by_oid</span>(<span class="kw-2">&amp;</span><span class="ident">OID_X509_STATE_OR_PROVINCE_NAME</span>)
     }
 
     <span class="doccomment">/// Return an iterator over the `Locality` attributes of the X.509 Name.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">iter_locality</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">impl</span> <span class="ident">Iterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">AttributeTypeAndValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">iter_locality</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">impl</span> <span class="ident">Iterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">AttributeTypeAndValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">iter_by_oid</span>(<span class="kw-2">&amp;</span><span class="ident">OID_X509_LOCALITY_NAME</span>)
     }
 
     <span class="doccomment">/// Return an iterator over the `EmailAddress` attributes of the X.509 Name.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">iter_email</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">impl</span> <span class="ident">Iterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">AttributeTypeAndValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">iter_email</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">impl</span> <span class="ident">Iterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">AttributeTypeAndValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">iter_by_oid</span>(<span class="kw-2">&amp;</span><span class="ident">OID_PKCS9_EMAIL_ADDRESS</span>)
     }
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">FromIterator</span><span class="op">&lt;</span><span class="ident">RelativeDistinguishedName</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">X509Name</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">from_iter</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">IntoIterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="ident">RelativeDistinguishedName</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">iter</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">from_iter</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">IntoIterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="ident">RelativeDistinguishedName</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">iter</span>: <span class="ident">T</span>) -&gt; <span class="self">Self</span> {
         <span class="kw">let</span> <span class="ident">rdn_seq</span> <span class="op">=</span> <span class="ident">iter</span>.<span class="ident">into_iter</span>().<span class="ident">collect</span>();
         <span class="ident">X509Name</span> { <span class="ident">rdn_seq</span>, <span class="ident">raw</span>: <span class="kw-2">&amp;</span>[] }
     }
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">X509Name</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">RelativeDistinguishedName</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">name</span>: <span class="ident">X509Name</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">name</span>: <span class="ident">X509Name</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
         <span class="ident">name</span>.<span class="ident">rdn_seq</span>
     }
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">FromDer</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">X509Name</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="doccomment">/// Parse the X.501 type Name, used for ex in issuer and subject of a X.509 certificate</span>
-    <span class="kw">fn</span> <span class="ident">from_der</span>(<span class="ident">i</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">X509Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">from_der</span>(<span class="ident">i</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">u8</span>]) -&gt; <span class="ident">X509Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">start_i</span> <span class="op">=</span> <span class="ident">i</span>;
         <span class="ident">parse_der_sequence_defined_g</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">i</span>, <span class="kw">_</span><span class="op">|</span> {
             <span class="kw">let</span> (<span class="ident">i</span>, <span class="ident">rdn_seq</span>) <span class="op">=</span> <span class="ident">many0</span>(<span class="ident">complete</span>(<span class="ident">RelativeDistinguishedName::from_der</span>))(<span class="ident">i</span>)<span class="question-mark">?</span>;
@@ -1092,20 +1091,20 @@
 }
 
 <span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">ReasonCode</span> {
-    <span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="self">Self</span> {
         <span class="ident">ReasonCode::Unspecified</span>
     }
 }
 
 <span class="comment">// Attempt to convert attribute to string. If type is not a string, return value is the hex</span>
 <span class="comment">// encoding of the attribute value</span>
-<span class="kw">fn</span> <span class="ident">attribute_value_to_string</span>(<span class="ident">attr</span>: <span class="kw-2">&amp;</span><span class="ident">DerObject</span>, <span class="ident">_attr_type</span>: <span class="kw-2">&amp;</span><span class="ident">Oid</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">X509Error</span><span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">attribute_value_to_string</span>(<span class="ident">attr</span>: <span class="kw-2">&amp;</span><span class="ident">DerObject</span>, <span class="ident">_attr_type</span>: <span class="kw-2">&amp;</span><span class="ident">Oid</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">X509Error</span><span class="op">&gt;</span> {
     <span class="kw">match</span> <span class="ident">attr</span>.<span class="ident">content</span> {
         <span class="ident">DerObjectContent::NumericString</span>(<span class="ident">s</span>)
         <span class="op">|</span> <span class="ident">DerObjectContent::PrintableString</span>(<span class="ident">s</span>)
         <span class="op">|</span> <span class="ident">DerObjectContent::UTF8String</span>(<span class="ident">s</span>)
-        <span class="op">|</span> <span class="ident">DerObjectContent::IA5String</span>(<span class="ident">s</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">s</span>.<span class="ident">to_owned</span>()),
-        <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="op">|</span> <span class="ident">DerObjectContent::IA5String</span>(<span class="ident">s</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="ident">s</span>.<span class="ident">to_owned</span>()),
+        <span class="kw">_</span> =&gt; {
             <span class="comment">// type is not a string, get slice and convert it to base64</span>
             <span class="ident">attr</span>.<span class="ident">as_slice</span>()
                 .<span class="ident">map</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="ident">HEXUPPER</span>.<span class="ident">encode</span>(<span class="ident">s</span>))
@@ -1123,7 +1122,7 @@
 <span class="kw">fn</span> <span class="ident">x509name_to_string</span>(
     <span class="ident">rdn_seq</span>: <span class="kw-2">&amp;</span>[<span class="ident">RelativeDistinguishedName</span>],
     <span class="ident">oid_registry</span>: <span class="kw-2">&amp;</span><span class="ident">OidRegistry</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">X509Error</span><span class="op">&gt;</span> {
+) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">X509Error</span><span class="op">&gt;</span> {
     <span class="ident">rdn_seq</span>.<span class="ident">iter</span>().<span class="ident">fold</span>(<span class="prelude-val">Ok</span>(<span class="ident">String::new</span>()), <span class="op">|</span><span class="ident">acc</span>, <span class="ident">rdn</span><span class="op">|</span> {
         <span class="ident">acc</span>.<span class="ident">and_then</span>(<span class="op">|</span><span class="kw-2">mut</span> <span class="ident">_vec</span><span class="op">|</span> {
             <span class="ident">rdn</span>.<span class="ident">set</span>
@@ -1133,40 +1132,40 @@
                         <span class="kw">let</span> <span class="ident">val_str</span> <span class="op">=</span> <span class="ident">attribute_value_to_string</span>(<span class="kw-2">&amp;</span><span class="ident">attr</span>.<span class="ident">attr_value</span>, <span class="kw-2">&amp;</span><span class="ident">attr</span>.<span class="ident">attr_type</span>)<span class="question-mark">?</span>;
                         <span class="comment">// look ABBREV, and if not found, use shortname</span>
                         <span class="kw">let</span> <span class="ident">abbrev</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">oid2abbrev</span>(<span class="kw-2">&amp;</span><span class="ident">attr</span>.<span class="ident">attr_type</span>, <span class="ident">oid_registry</span>) {
-                            <span class="prelude-val">Ok</span>(<span class="ident">s</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">String::from</span>(<span class="ident">s</span>),
-                            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">format!</span>(<span class="string">&quot;{:?}&quot;</span>, <span class="ident">attr</span>.<span class="ident">attr_type</span>),
+                            <span class="prelude-val">Ok</span>(<span class="ident">s</span>) =&gt; <span class="ident">String::from</span>(<span class="ident">s</span>),
+                            <span class="kw">_</span> =&gt; <span class="macro">format!</span>(<span class="string">&quot;{:?}&quot;</span>, <span class="ident">attr</span>.<span class="ident">attr_type</span>),
                         };
                         <span class="kw">let</span> <span class="ident">rdn</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;{}={}&quot;</span>, <span class="ident">abbrev</span>, <span class="ident">val_str</span>);
                         <span class="kw">match</span> <span class="ident">_vec2</span>.<span class="ident">len</span>() {
-                            <span class="number">0</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">rdn</span>),
-                            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">_vec2</span> <span class="op">+</span> <span class="string">&quot; + &quot;</span> <span class="op">+</span> <span class="kw-2">&amp;</span><span class="ident">rdn</span>),
+                            <span class="number">0</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">rdn</span>),
+                            <span class="kw">_</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">_vec2</span> <span class="op">+</span> <span class="string">&quot; + &quot;</span> <span class="op">+</span> <span class="kw-2">&amp;</span><span class="ident">rdn</span>),
                         }
                     })
                 })
                 .<span class="ident">map</span>(<span class="op">|</span><span class="ident">v</span><span class="op">|</span> <span class="kw">match</span> <span class="ident">_vec</span>.<span class="ident">len</span>() {
-                    <span class="number">0</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">v</span>,
-                    <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">_vec</span> <span class="op">+</span> <span class="string">&quot;, &quot;</span> <span class="op">+</span> <span class="kw-2">&amp;</span><span class="ident">v</span>,
+                    <span class="number">0</span> =&gt; <span class="ident">v</span>,
+                    <span class="kw">_</span> =&gt; <span class="ident">_vec</span> <span class="op">+</span> <span class="string">&quot;, &quot;</span> <span class="op">+</span> <span class="kw-2">&amp;</span><span class="ident">v</span>,
                 })
         })
     })
 }
 
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">parse_signature_value</span>(<span class="ident">i</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">X509Result</span><span class="op">&lt;</span><span class="ident">BitStringObject</span><span class="op">&gt;</span> {
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">parse_signature_value</span>(<span class="ident">i</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="ident">X509Result</span><span class="op">&lt;</span><span class="ident">BitStringObject</span><span class="op">&gt;</span> {
     <span class="ident">map_res</span>(<span class="ident">parse_der_bitstring</span>, <span class="op">|</span><span class="ident">x</span>: <span class="ident">DerObject</span><span class="op">|</span> {
         <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">content</span> {
-            <span class="ident">DerObjectContent::BitString</span>(<span class="kw">_</span>, <span class="kw-2">ref</span> <span class="ident">b</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">b</span>.<span class="ident">to_owned</span>()), <span class="comment">// XXX padding ignored</span>
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">BerError::BerTypeError</span>),
+            <span class="ident">DerObjectContent::BitString</span>(<span class="kw">_</span>, <span class="kw-2">ref</span> <span class="ident">b</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="ident">b</span>.<span class="ident">to_owned</span>()), <span class="comment">// XXX padding ignored</span>
+            <span class="kw">_</span> =&gt; <span class="prelude-val">Err</span>(<span class="ident">BerError::BerTypeError</span>),
         }
     })(<span class="ident">i</span>)
     .<span class="ident">or</span>(<span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>(<span class="ident">X509Error::InvalidSignatureValue</span>)))
 }
 
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">parse_serial</span>(<span class="ident">i</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">X509Result</span><span class="op">&lt;</span>(<span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">BigUint</span>)<span class="op">&gt;</span> {
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">parse_serial</span>(<span class="ident">i</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="ident">X509Result</span><span class="op">&lt;</span>(<span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">BigUint</span>)<span class="op">&gt;</span> {
     <span class="comment">// This should be parse_der_integer, but some certificates encode leading zeroes</span>
     <span class="ident">map_opt</span>(<span class="ident">parse_ber_integer</span>, <span class="ident">get_serial_info</span>)(<span class="ident">i</span>).<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">X509Error::InvalidSerial</span>.<span class="ident">into</span>())
 }
 
-<span class="kw">fn</span> <span class="ident">get_serial_info</span>(<span class="ident">o</span>: <span class="ident">DerObject</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">BigUint</span>)<span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">get_serial_info</span>(<span class="ident">o</span>: <span class="ident">DerObject</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">BigUint</span>)<span class="op">&gt;</span> {
     <span class="comment">// RFC 5280 4.1.2.2: &quot;The serial number MUST be a positive integer&quot;</span>
     <span class="comment">// however, many CAs do not respect this and send integers with MSB set,</span>
     <span class="comment">// so we do not use `as_biguint()`</span>
@@ -1233,7 +1232,7 @@
         );
     }
 }
-</pre></div>
+</code></pre></div>
 </section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="x509_parser" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
     <script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script>
 </body></html>

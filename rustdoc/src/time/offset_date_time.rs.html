@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;usr&#x2F;local&#x2F;cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;time-0.2.27&#x2F;src&#x2F;offset_date_time.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>offset_date_time.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="shortcut icon" href="https:&#x2F;&#x2F;avatars0.githubusercontent.com&#x2F;u&#x2F;55999857"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../time/index.html'><div class='logo-container rust-logo'><img src='https:&#x2F;&#x2F;avatars0.githubusercontent.com&#x2F;u&#x2F;55999857' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">   1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;usr&#x2F;local&#x2F;cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;time-0.2.27&#x2F;src&#x2F;offset_date_time.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>offset_date_time.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="shortcut icon" href="https:&#x2F;&#x2F;avatars0.githubusercontent.com&#x2F;u&#x2F;55999857"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../time/index.html'><div class='logo-container rust-logo'><img src='https:&#x2F;&#x2F;avatars0.githubusercontent.com&#x2F;u&#x2F;55999857' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">   1</span>
 <span id="2">   2</span>
 <span id="3">   3</span>
 <span id="4">   4</span>
@@ -1136,9 +1136,8 @@
 <span id="1136">1136</span>
 <span id="1137">1137</span>
 <span id="1138">1138</span>
-</pre><pre class="rust">
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>)]</span>
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::error</span>;
+</pre><pre class="rust"><code><span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>)]</span>
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::error</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">format::parse</span>::{<span class="ident">parse</span>, <span class="ident">ParsedItems</span>},
     <span class="ident">internals</span>, <span class="ident">Date</span>, <span class="ident">DeferredFormat</span>, <span class="ident">Duration</span>, <span class="ident">Format</span>, <span class="ident">ParseResult</span>, <span class="ident">PrimitiveDateTime</span>, <span class="ident">Time</span>,
@@ -1181,11 +1180,11 @@
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;serde&quot;</span>)]</span>
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">serde::Deserialize</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">OffsetDateTime</span> {
-    <span class="kw">fn</span> <span class="ident">deserialize</span><span class="op">&lt;</span><span class="ident">D</span><span class="op">&gt;</span>(<span class="ident">deserializer</span>: <span class="ident">D</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">D::Error</span><span class="op">&gt;</span>
+    <span class="kw">fn</span> <span class="ident">deserialize</span><span class="op">&lt;</span><span class="ident">D</span><span class="op">&gt;</span>(<span class="ident">deserializer</span>: <span class="ident">D</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">D::Error</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="ident">D</span>: <span class="ident">serde::Deserializer</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
     {
-        <span class="kw">crate</span><span class="ident">::serde::PrimitiveDateTime::deserialize</span>(<span class="ident">deserializer</span>)<span class="question-mark">?</span>
+        <span class="ident"><span class="kw">crate</span>::serde::PrimitiveDateTime::deserialize</span>(<span class="ident">deserializer</span>)<span class="question-mark">?</span>
             .<span class="ident">try_into</span>()
             .<span class="ident">map_err</span>(<span class="ident">serde::de::Error::custom</span>)
     }
@@ -1196,7 +1195,7 @@
     <span class="doccomment">/// `UtcOffset`. The `PrimitiveDateTime` is assumed to be in the provided</span>
     <span class="doccomment">/// offset.</span>
     <span class="comment">// TODO Should this be made public?</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new_assuming_offset</span>(<span class="ident">utc_datetime</span>: <span class="ident">PrimitiveDateTime</span>, <span class="ident">offset</span>: <span class="ident">UtcOffset</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new_assuming_offset</span>(<span class="ident">utc_datetime</span>: <span class="ident">PrimitiveDateTime</span>, <span class="ident">offset</span>: <span class="ident">UtcOffset</span>) -&gt; <span class="self">Self</span> {
         <span class="self">Self</span> {
             <span class="ident">utc_datetime</span>: <span class="ident">utc_datetime</span> <span class="op">-</span> <span class="ident">offset</span>.<span class="ident">as_duration</span>(),
             <span class="ident">offset</span>,
@@ -1206,7 +1205,7 @@
     <span class="doccomment">/// Create a new `OffsetDateTime` from the provided `PrimitiveDateTime` and</span>
     <span class="doccomment">/// `UtcOffset`. The `PrimitiveDateTime` is assumed to be in UTC.</span>
     <span class="comment">// TODO Should this be made public?</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">new_assuming_utc</span>(<span class="ident">utc_datetime</span>: <span class="ident">PrimitiveDateTime</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">new_assuming_utc</span>(<span class="ident">utc_datetime</span>: <span class="ident">PrimitiveDateTime</span>) -&gt; <span class="self">Self</span> {
         <span class="self">Self</span> {
             <span class="ident">utc_datetime</span>,
             <span class="ident">offset</span>: <span class="ident">UtcOffset::UTC</span>,
@@ -1228,7 +1227,7 @@
     )]</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>)]</span>
     <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">__time_02_docs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>)))]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">now</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">now</span>() -&gt; <span class="self">Self</span> {
         <span class="ident">SystemTime::now</span>().<span class="ident">into</span>()
     }
 
@@ -1241,7 +1240,7 @@
     <span class="doccomment">/// ```</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>)]</span>
     <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">__time_02_docs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>)))]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">now_utc</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">now_utc</span>() -&gt; <span class="self">Self</span> {
         <span class="ident">SystemTime::now</span>().<span class="ident">into</span>()
     }
 
@@ -1260,8 +1259,8 @@
         <span class="ident">note</span> <span class="op">=</span> <span class="string">&quot;UTC is returned if the local offset cannot be determined&quot;</span>
     )]</span>
     <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">deprecated</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">now_local</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="kw">let</span> <span class="ident">t</span> <span class="op">=</span> <span class="self">Self</span><span class="ident">::now_utc</span>();
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">now_local</span>() -&gt; <span class="self">Self</span> {
+        <span class="kw">let</span> <span class="ident">t</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::now_utc</span>();
         <span class="ident">t</span>.<span class="ident">to_offset</span>(<span class="ident">UtcOffset::local_offset_at</span>(<span class="ident">t</span>))
     }
 
@@ -1278,8 +1277,8 @@
     <span class="doccomment">/// ```</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>)]</span>
     <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">__time_02_docs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>)))]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">try_now_local</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">error::IndeterminateOffset</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">t</span> <span class="op">=</span> <span class="self">Self</span><span class="ident">::now_utc</span>();
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">try_now_local</span>() -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">error::IndeterminateOffset</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">t</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::now_utc</span>();
         <span class="prelude-val">Ok</span>(<span class="ident">t</span>.<span class="ident">to_offset</span>(<span class="ident">UtcOffset::try_local_offset_at</span>(<span class="ident">t</span>)<span class="question-mark">?</span>))
     }
 
@@ -1309,7 +1308,7 @@
     <span class="doccomment">/// assert_eq!(new_york.hour(), 8);</span>
     <span class="doccomment">/// assert_eq!(los_angeles.hour(), 5);</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">to_offset</span>(<span class="self">self</span>, <span class="ident">offset</span>: <span class="ident">UtcOffset</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">to_offset</span>(<span class="self">self</span>, <span class="ident">offset</span>: <span class="ident">UtcOffset</span>) -&gt; <span class="self">Self</span> {
         <span class="self">Self</span> {
             <span class="ident">utc_datetime</span>: <span class="self">self</span>.<span class="ident">utc_datetime</span>,
             <span class="ident">offset</span>,
@@ -1327,7 +1326,7 @@
     <span class="doccomment">///         .assume_utc(),</span>
     <span class="doccomment">/// );</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">unix_epoch</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">unix_epoch</span>() -&gt; <span class="self">Self</span> {
         <span class="ident">internals::Date::from_yo_unchecked</span>(<span class="number">1970</span>, <span class="number">1</span>)
             .<span class="ident">midnight</span>()
             .<span class="ident">assume_utc</span>()
@@ -1360,7 +1359,7 @@
     <span class="doccomment">///     OffsetDateTime::unix_epoch() + 1.5.seconds()</span>
     <span class="doccomment">/// );</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_unix_timestamp</span>(<span class="ident">timestamp</span>: <span class="ident">i64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_unix_timestamp</span>(<span class="ident">timestamp</span>: <span class="ident">i64</span>) -&gt; <span class="self">Self</span> {
         <span class="ident">OffsetDateTime::unix_epoch</span>() <span class="op">+</span> <span class="ident">Duration::seconds</span>(<span class="ident">timestamp</span>)
     }
 
@@ -1386,7 +1385,7 @@
     <span class="doccomment">/// responsibility_ to ensure the timestamp provided as a parameter is</span>
     <span class="doccomment">/// valid. No behavior is guaranteed if this parameter would not result in a</span>
     <span class="doccomment">/// valid value.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_unix_timestamp_nanos</span>(<span class="ident">timestamp</span>: <span class="ident">i128</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_unix_timestamp_nanos</span>(<span class="ident">timestamp</span>: <span class="ident">i128</span>) -&gt; <span class="self">Self</span> {
         <span class="ident">OffsetDateTime::unix_epoch</span>() <span class="op">+</span> <span class="ident">Duration::nanoseconds_i128</span>(<span class="ident">timestamp</span>)
     }
 
@@ -1409,7 +1408,7 @@
     <span class="doccomment">///     offset!(+1),</span>
     <span class="doccomment">/// );</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">offset</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">UtcOffset</span> {
+    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">offset</span>(<span class="self">self</span>) -&gt; <span class="ident">UtcOffset</span> {
         <span class="self">self</span>.<span class="ident">offset</span>
     }
 
@@ -1434,7 +1433,7 @@
     <span class="doccomment">/// );</span>
     <span class="doccomment">/// ```</span>
     <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::missing_const_for_fn</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">unix_timestamp</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">i64</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">unix_timestamp</span>(<span class="self">self</span>) -&gt; <span class="ident">i64</span> {
         <span class="kw">let</span> <span class="ident">days</span> <span class="op">=</span> (<span class="self">self</span>.<span class="ident">utc_datetime</span>.<span class="ident">date</span>.<span class="ident">julian_day</span>()
             <span class="op">-</span> <span class="ident">internals::Date::from_yo_unchecked</span>(<span class="number">1970</span>, <span class="number">1</span>).<span class="ident">julian_day</span>())
             <span class="op">*</span> <span class="number">86_400</span>;
@@ -1469,7 +1468,7 @@
         <span class="ident">since</span> <span class="op">=</span> <span class="string">&quot;0.2.23&quot;</span>,
         <span class="ident">note</span> <span class="op">=</span> <span class="string">&quot;Use `OffsetDateTime::unix_timestamp` instead&quot;</span>
     )]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">timestamp</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">i64</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">timestamp</span>(<span class="self">self</span>) -&gt; <span class="ident">i64</span> {
         <span class="self">self</span>.<span class="ident">unix_timestamp</span>()
     }
 
@@ -1493,8 +1492,8 @@
     <span class="doccomment">///     3_600_000_000_000,</span>
     <span class="doccomment">/// );</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">unix_timestamp_nanos</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">i128</span> {
-        (<span class="self">self</span> <span class="op">-</span> <span class="self">Self</span><span class="ident">::unix_epoch</span>()).<span class="ident">whole_nanoseconds</span>()
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">unix_timestamp_nanos</span>(<span class="self">self</span>) -&gt; <span class="ident">i128</span> {
+        (<span class="self">self</span> <span class="op">-</span> <span class="ident"><span class="self">Self</span>::unix_epoch</span>()).<span class="ident">whole_nanoseconds</span>()
     }
 
     <span class="doccomment">/// Get the Unix timestamp in nanoseconds.</span>
@@ -1522,7 +1521,7 @@
         <span class="ident">since</span> <span class="op">=</span> <span class="string">&quot;0.2.23&quot;</span>,
         <span class="ident">note</span> <span class="op">=</span> <span class="string">&quot;Use `OffsetDateTime::unix_timestamp_nanos` instead&quot;</span>
     )]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">timestamp_nanos</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">i128</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">timestamp_nanos</span>(<span class="self">self</span>) -&gt; <span class="ident">i128</span> {
         <span class="self">self</span>.<span class="ident">unix_timestamp_nanos</span>()
     }
 
@@ -1546,7 +1545,7 @@
     <span class="doccomment">///     date!(2018-12-31),</span>
     <span class="doccomment">/// );</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">date</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Date</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">date</span>(<span class="self">self</span>) -&gt; <span class="ident">Date</span> {
         (<span class="self">self</span>.<span class="ident">utc_datetime</span> <span class="op">+</span> <span class="self">self</span>.<span class="ident">offset</span>.<span class="ident">as_duration</span>()).<span class="ident">date</span>()
     }
 
@@ -1570,7 +1569,7 @@
     <span class="doccomment">///     time!(23:00)</span>
     <span class="doccomment">/// );</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">time</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Time</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">time</span>(<span class="self">self</span>) -&gt; <span class="ident">Time</span> {
         (<span class="self">self</span>.<span class="ident">utc_datetime</span> <span class="op">+</span> <span class="self">self</span>.<span class="ident">offset</span>.<span class="ident">as_duration</span>()).<span class="ident">time</span>()
     }
 
@@ -1601,7 +1600,7 @@
     <span class="doccomment">///     2020,</span>
     <span class="doccomment">/// );</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">year</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">i32</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">year</span>(<span class="self">self</span>) -&gt; <span class="ident">i32</span> {
         <span class="self">self</span>.<span class="ident">date</span>().<span class="ident">year</span>()
     }
 
@@ -1629,7 +1628,7 @@
     <span class="doccomment">///     1,</span>
     <span class="doccomment">/// );</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">month</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u8</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">month</span>(<span class="self">self</span>) -&gt; <span class="ident">u8</span> {
         <span class="self">self</span>.<span class="ident">date</span>().<span class="ident">month</span>()
     }
 
@@ -1656,7 +1655,7 @@
     <span class="doccomment">///     1,</span>
     <span class="doccomment">/// );</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">day</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u8</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">day</span>(<span class="self">self</span>) -&gt; <span class="ident">u8</span> {
         <span class="self">self</span>.<span class="ident">date</span>().<span class="ident">day</span>()
     }
 
@@ -1683,7 +1682,7 @@
     <span class="doccomment">///     (1, 1),</span>
     <span class="doccomment">/// );</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">month_day</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">u8</span>, <span class="ident">u8</span>) {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">month_day</span>(<span class="self">self</span>) -&gt; (<span class="ident">u8</span>, <span class="ident">u8</span>) {
         <span class="self">self</span>.<span class="ident">date</span>().<span class="ident">month_day</span>()
     }
 
@@ -1709,7 +1708,7 @@
     <span class="doccomment">///     1,</span>
     <span class="doccomment">/// );</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ordinal</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u16</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ordinal</span>(<span class="self">self</span>) -&gt; <span class="ident">u16</span> {
         <span class="self">self</span>.<span class="ident">date</span>().<span class="ident">ordinal</span>()
     }
 
@@ -1753,7 +1752,7 @@
     <span class="doccomment">///     (2020, 53),</span>
     <span class="doccomment">/// );</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">iso_year_week</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">i32</span>, <span class="ident">u8</span>) {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">iso_year_week</span>(<span class="self">self</span>) -&gt; (<span class="ident">i32</span>, <span class="ident">u8</span>) {
         <span class="self">self</span>.<span class="ident">date</span>().<span class="ident">iso_year_week</span>()
     }
 
@@ -1792,7 +1791,7 @@
     <span class="doccomment">///     53,</span>
     <span class="doccomment">/// );</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">week</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u8</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">week</span>(<span class="self">self</span>) -&gt; <span class="ident">u8</span> {
         <span class="self">self</span>.<span class="ident">date</span>().<span class="ident">week</span>()
     }
 
@@ -1825,7 +1824,7 @@
     <span class="doccomment">///     Friday,</span>
     <span class="doccomment">/// );</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">weekday</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Weekday</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">weekday</span>(<span class="self">self</span>) -&gt; <span class="ident">Weekday</span> {
         <span class="self">self</span>.<span class="ident">date</span>().<span class="ident">weekday</span>()
     }
 
@@ -1851,7 +1850,7 @@
     <span class="doccomment">///     21,</span>
     <span class="doccomment">/// );</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">hour</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u8</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">hour</span>(<span class="self">self</span>) -&gt; <span class="ident">u8</span> {
         <span class="self">self</span>.<span class="ident">time</span>().<span class="ident">hour</span>()
     }
 
@@ -1877,7 +1876,7 @@
     <span class="doccomment">///     29,</span>
     <span class="doccomment">/// );</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">minute</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u8</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">minute</span>(<span class="self">self</span>) -&gt; <span class="ident">u8</span> {
         <span class="self">self</span>.<span class="ident">time</span>().<span class="ident">minute</span>()
     }
 
@@ -1903,7 +1902,7 @@
     <span class="doccomment">///     29,</span>
     <span class="doccomment">/// );</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">second</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u8</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">second</span>(<span class="self">self</span>) -&gt; <span class="ident">u8</span> {
         <span class="self">self</span>.<span class="ident">time</span>().<span class="ident">second</span>()
     }
 
@@ -1928,7 +1927,7 @@
     <span class="doccomment">///     999,</span>
     <span class="doccomment">/// );</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">millisecond</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u16</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">millisecond</span>(<span class="self">self</span>) -&gt; <span class="ident">u16</span> {
         <span class="self">self</span>.<span class="ident">time</span>().<span class="ident">millisecond</span>()
     }
 
@@ -1953,7 +1952,7 @@
     <span class="doccomment">///     999_999,</span>
     <span class="doccomment">/// );</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">microsecond</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u32</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">microsecond</span>(<span class="self">self</span>) -&gt; <span class="ident">u32</span> {
         <span class="self">self</span>.<span class="ident">time</span>().<span class="ident">microsecond</span>()
     }
 
@@ -1978,7 +1977,7 @@
     <span class="doccomment">///     999_999_999,</span>
     <span class="doccomment">/// );</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">nanosecond</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u32</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">nanosecond</span>(<span class="self">self</span>) -&gt; <span class="ident">u32</span> {
         <span class="self">self</span>.<span class="ident">time</span>().<span class="ident">nanosecond</span>()
     }
 }
@@ -1997,7 +1996,7 @@
     <span class="doccomment">///     &quot;2019-01-02 12:00:00 am +0000&quot;,</span>
     <span class="doccomment">/// );</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">format</span>(<span class="self">self</span>, <span class="ident">format</span>: <span class="kw">impl</span> <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Format</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">format</span>(<span class="self">self</span>, <span class="ident">format</span>: <span class="kw">impl</span> <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Format</span><span class="op">&gt;</span>) -&gt; <span class="ident">String</span> {
         <span class="self">self</span>.<span class="ident">lazy_format</span>(<span class="ident">format</span>).<span class="ident">to_string</span>()
     }
 
@@ -2014,7 +2013,7 @@
     <span class="doccomment">///     &quot;2019-01-02 12:00:00 am +0000&quot;,</span>
     <span class="doccomment">/// );</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">lazy_format</span>(<span class="self">self</span>, <span class="ident">format</span>: <span class="kw">impl</span> <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Format</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">impl</span> <span class="ident">Display</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">lazy_format</span>(<span class="self">self</span>, <span class="ident">format</span>: <span class="kw">impl</span> <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Format</span><span class="op">&gt;</span>) -&gt; <span class="kw">impl</span> <span class="ident">Display</span> {
         <span class="ident">DeferredFormat::new</span>(<span class="ident">format</span>)
             .<span class="ident">with_date</span>(<span class="self">self</span>.<span class="ident">date</span>())
             .<span class="ident">with_time</span>(<span class="self">self</span>.<span class="ident">time</span>())
@@ -2039,37 +2038,37 @@
     <span class="doccomment">///     Ok(date!(2019-W01-3).with_time(time!(12:00)).assume_utc()),</span>
     <span class="doccomment">/// );</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">parse</span>(<span class="ident">s</span>: <span class="kw">impl</span> <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span>, <span class="ident">format</span>: <span class="kw">impl</span> <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Format</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ParseResult</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
-        <span class="self">Self</span><span class="ident">::try_from_parsed_items</span>(<span class="ident">parse</span>(<span class="ident">s</span>.<span class="ident">as_ref</span>(), <span class="kw-2">&amp;</span><span class="ident">format</span>.<span class="ident">into</span>())<span class="question-mark">?</span>)
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">parse</span>(<span class="ident">s</span>: <span class="kw">impl</span> <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span>, <span class="ident">format</span>: <span class="kw">impl</span> <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Format</span><span class="op">&gt;</span>) -&gt; <span class="ident">ParseResult</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
+        <span class="ident"><span class="self">Self</span>::try_from_parsed_items</span>(<span class="ident">parse</span>(<span class="ident">s</span>.<span class="ident">as_ref</span>(), <span class="kw-2">&amp;</span><span class="ident">format</span>.<span class="ident">into</span>())<span class="question-mark">?</span>)
     }
 
     <span class="doccomment">/// Given the items already parsed, attempt to create an `OffsetDateTime`.</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">try_from_parsed_items</span>(<span class="ident">items</span>: <span class="ident">ParsedItems</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ParseResult</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">try_from_parsed_items</span>(<span class="ident">items</span>: <span class="ident">ParsedItems</span>) -&gt; <span class="ident">ParseResult</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">offset</span> <span class="op">=</span> <span class="ident">UtcOffset::try_from_parsed_items</span>(<span class="ident">items</span>)<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(<span class="ident">PrimitiveDateTime::try_from_parsed_items</span>(<span class="ident">items</span>)<span class="question-mark">?</span>.<span class="ident">assume_offset</span>(<span class="ident">offset</span>))
     }
 }
 
 <span class="kw">impl</span> <span class="ident">Display</span> <span class="kw">for</span> <span class="ident">OffsetDateTime</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">fmt::Result</span> {
         <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{} {} {}&quot;</span>, <span class="self">self</span>.<span class="ident">date</span>(), <span class="self">self</span>.<span class="ident">time</span>(), <span class="self">self</span>.<span class="ident">offset</span>())
     }
 }
 
 <span class="kw">impl</span> <span class="ident">PartialEq</span> <span class="kw">for</span> <span class="ident">OffsetDateTime</span> {
-    <span class="kw">fn</span> <span class="ident">eq</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">rhs</span>: <span class="kw-2">&amp;</span><span class="self">Self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">fn</span> <span class="ident">eq</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">rhs</span>: <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; <span class="ident">bool</span> {
         <span class="self">self</span>.<span class="ident">utc_datetime</span>.<span class="ident">eq</span>(<span class="kw-2">&amp;</span><span class="ident">rhs</span>.<span class="ident">utc_datetime</span>)
     }
 }
 
 <span class="kw">impl</span> <span class="ident">PartialOrd</span> <span class="kw">for</span> <span class="ident">OffsetDateTime</span> {
-    <span class="kw">fn</span> <span class="ident">partial_cmp</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">rhs</span>: <span class="kw-2">&amp;</span><span class="self">Self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Ordering</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">partial_cmp</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">rhs</span>: <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Ordering</span><span class="op">&gt;</span> {
         <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">cmp</span>(<span class="ident">rhs</span>))
     }
 }
 
 <span class="kw">impl</span> <span class="ident">Ord</span> <span class="kw">for</span> <span class="ident">OffsetDateTime</span> {
-    <span class="kw">fn</span> <span class="ident">cmp</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">rhs</span>: <span class="kw-2">&amp;</span><span class="self">Self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Ordering</span> {
+    <span class="kw">fn</span> <span class="ident">cmp</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">rhs</span>: <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; <span class="ident">Ordering</span> {
         <span class="self">self</span>.<span class="ident">utc_datetime</span>.<span class="ident">cmp</span>(<span class="kw-2">&amp;</span><span class="ident">rhs</span>.<span class="ident">utc_datetime</span>)
     }
 }
@@ -2086,7 +2085,7 @@
 <span class="kw">impl</span> <span class="ident">Add</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">OffsetDateTime</span> {
     <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="self">Self</span>;
 
-    <span class="kw">fn</span> <span class="ident">add</span>(<span class="self">self</span>, <span class="ident">duration</span>: <span class="ident">Duration</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span><span class="ident">::Output</span> {
+    <span class="kw">fn</span> <span class="ident">add</span>(<span class="self">self</span>, <span class="ident">duration</span>: <span class="ident">Duration</span>) -&gt; <span class="ident"><span class="self">Self</span>::Output</span> {
         <span class="self">Self</span> {
             <span class="ident">utc_datetime</span>: <span class="self">self</span>.<span class="ident">utc_datetime</span> <span class="op">+</span> <span class="ident">duration</span>,
             <span class="ident">offset</span>: <span class="self">self</span>.<span class="ident">offset</span>,
@@ -2097,7 +2096,7 @@
 <span class="kw">impl</span> <span class="ident">Add</span><span class="op">&lt;</span><span class="ident">StdDuration</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">OffsetDateTime</span> {
     <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="self">Self</span>;
 
-    <span class="kw">fn</span> <span class="ident">add</span>(<span class="self">self</span>, <span class="ident">duration</span>: <span class="ident">StdDuration</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span><span class="ident">::Output</span> {
+    <span class="kw">fn</span> <span class="ident">add</span>(<span class="self">self</span>, <span class="ident">duration</span>: <span class="ident">StdDuration</span>) -&gt; <span class="ident"><span class="self">Self</span>::Output</span> {
         <span class="self">Self</span> {
             <span class="ident">utc_datetime</span>: <span class="self">self</span>.<span class="ident">utc_datetime</span> <span class="op">+</span> <span class="ident">duration</span>,
             <span class="ident">offset</span>: <span class="self">self</span>.<span class="ident">offset</span>,
@@ -2120,7 +2119,7 @@
 <span class="kw">impl</span> <span class="ident">Sub</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">OffsetDateTime</span> {
     <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="self">Self</span>;
 
-    <span class="kw">fn</span> <span class="ident">sub</span>(<span class="self">self</span>, <span class="ident">duration</span>: <span class="ident">Duration</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span><span class="ident">::Output</span> {
+    <span class="kw">fn</span> <span class="ident">sub</span>(<span class="self">self</span>, <span class="ident">duration</span>: <span class="ident">Duration</span>) -&gt; <span class="ident"><span class="self">Self</span>::Output</span> {
         <span class="self">Self</span> {
             <span class="ident">utc_datetime</span>: <span class="self">self</span>.<span class="ident">utc_datetime</span> <span class="op">-</span> <span class="ident">duration</span>,
             <span class="ident">offset</span>: <span class="self">self</span>.<span class="ident">offset</span>,
@@ -2131,7 +2130,7 @@
 <span class="kw">impl</span> <span class="ident">Sub</span><span class="op">&lt;</span><span class="ident">StdDuration</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">OffsetDateTime</span> {
     <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="self">Self</span>;
 
-    <span class="kw">fn</span> <span class="ident">sub</span>(<span class="self">self</span>, <span class="ident">duration</span>: <span class="ident">StdDuration</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span><span class="ident">::Output</span> {
+    <span class="kw">fn</span> <span class="ident">sub</span>(<span class="self">self</span>, <span class="ident">duration</span>: <span class="ident">StdDuration</span>) -&gt; <span class="ident"><span class="self">Self</span>::Output</span> {
         <span class="self">Self</span> {
             <span class="ident">utc_datetime</span>: <span class="self">self</span>.<span class="ident">utc_datetime</span> <span class="op">-</span> <span class="ident">duration</span>,
             <span class="ident">offset</span>: <span class="self">self</span>.<span class="ident">offset</span>,
@@ -2154,7 +2153,7 @@
 <span class="kw">impl</span> <span class="ident">Sub</span><span class="op">&lt;</span><span class="ident">OffsetDateTime</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">OffsetDateTime</span> {
     <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="ident">Duration</span>;
 
-    <span class="kw">fn</span> <span class="ident">sub</span>(<span class="self">self</span>, <span class="ident">rhs</span>: <span class="self">Self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span><span class="ident">::Output</span> {
+    <span class="kw">fn</span> <span class="ident">sub</span>(<span class="self">self</span>, <span class="ident">rhs</span>: <span class="self">Self</span>) -&gt; <span class="ident"><span class="self">Self</span>::Output</span> {
         <span class="self">self</span>.<span class="ident">utc_datetime</span> <span class="op">-</span> <span class="ident">rhs</span>.<span class="ident">utc_datetime</span>
     }
 }
@@ -2163,7 +2162,7 @@
 <span class="kw">impl</span> <span class="ident">Add</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">SystemTime</span> {
     <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="self">Self</span>;
 
-    <span class="kw">fn</span> <span class="ident">add</span>(<span class="self">self</span>, <span class="ident">duration</span>: <span class="ident">Duration</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span><span class="ident">::Output</span> {
+    <span class="kw">fn</span> <span class="ident">add</span>(<span class="self">self</span>, <span class="ident">duration</span>: <span class="ident">Duration</span>) -&gt; <span class="ident"><span class="self">Self</span>::Output</span> {
         <span class="kw">if</span> <span class="ident">duration</span>.<span class="ident">is_zero</span>() {
             <span class="self">self</span>
         } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">duration</span>.<span class="ident">is_positive</span>() {
@@ -2186,7 +2185,7 @@
 <span class="kw">impl</span> <span class="ident">Sub</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">SystemTime</span> {
     <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="self">Self</span>;
 
-    <span class="kw">fn</span> <span class="ident">sub</span>(<span class="self">self</span>, <span class="ident">duration</span>: <span class="ident">Duration</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span><span class="ident">::Output</span> {
+    <span class="kw">fn</span> <span class="ident">sub</span>(<span class="self">self</span>, <span class="ident">duration</span>: <span class="ident">Duration</span>) -&gt; <span class="ident"><span class="self">Self</span>::Output</span> {
         (<span class="ident">OffsetDateTime::from</span>(<span class="self">self</span>) <span class="op">-</span> <span class="ident">duration</span>).<span class="ident">into</span>()
     }
 }
@@ -2202,8 +2201,8 @@
 <span class="kw">impl</span> <span class="ident">Sub</span><span class="op">&lt;</span><span class="ident">SystemTime</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">OffsetDateTime</span> {
     <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="ident">Duration</span>;
 
-    <span class="kw">fn</span> <span class="ident">sub</span>(<span class="self">self</span>, <span class="ident">rhs</span>: <span class="ident">SystemTime</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span><span class="ident">::Output</span> {
-        <span class="self">self</span> <span class="op">-</span> <span class="self">Self</span><span class="ident">::from</span>(<span class="ident">rhs</span>)
+    <span class="kw">fn</span> <span class="ident">sub</span>(<span class="self">self</span>, <span class="ident">rhs</span>: <span class="ident">SystemTime</span>) -&gt; <span class="ident"><span class="self">Self</span>::Output</span> {
+        <span class="self">self</span> <span class="op">-</span> <span class="ident"><span class="self">Self</span>::from</span>(<span class="ident">rhs</span>)
     }
 }
 
@@ -2211,35 +2210,35 @@
 <span class="kw">impl</span> <span class="ident">Sub</span><span class="op">&lt;</span><span class="ident">OffsetDateTime</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">SystemTime</span> {
     <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="ident">Duration</span>;
 
-    <span class="kw">fn</span> <span class="ident">sub</span>(<span class="self">self</span>, <span class="ident">rhs</span>: <span class="ident">OffsetDateTime</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span><span class="ident">::Output</span> {
+    <span class="kw">fn</span> <span class="ident">sub</span>(<span class="self">self</span>, <span class="ident">rhs</span>: <span class="ident">OffsetDateTime</span>) -&gt; <span class="ident"><span class="self">Self</span>::Output</span> {
         <span class="ident">OffsetDateTime::from</span>(<span class="self">self</span>) <span class="op">-</span> <span class="ident">rhs</span>
     }
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>)]</span>
 <span class="kw">impl</span> <span class="ident">PartialEq</span><span class="op">&lt;</span><span class="ident">SystemTime</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">OffsetDateTime</span> {
-    <span class="kw">fn</span> <span class="ident">eq</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">rhs</span>: <span class="kw-2">&amp;</span><span class="ident">SystemTime</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-        <span class="self">self</span> <span class="op">=</span><span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">Self</span><span class="ident">::from</span>(<span class="kw-2">*</span><span class="ident">rhs</span>)
+    <span class="kw">fn</span> <span class="ident">eq</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">rhs</span>: <span class="kw-2">&amp;</span><span class="ident">SystemTime</span>) -&gt; <span class="ident">bool</span> {
+        <span class="self">self</span> <span class="op">==</span> <span class="kw-2">&amp;</span><span class="ident"><span class="self">Self</span>::from</span>(<span class="kw-2">*</span><span class="ident">rhs</span>)
     }
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>)]</span>
 <span class="kw">impl</span> <span class="ident">PartialEq</span><span class="op">&lt;</span><span class="ident">OffsetDateTime</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">SystemTime</span> {
-    <span class="kw">fn</span> <span class="ident">eq</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">rhs</span>: <span class="kw-2">&amp;</span><span class="ident">OffsetDateTime</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-        <span class="kw-2">&amp;</span><span class="ident">OffsetDateTime::from</span>(<span class="kw-2">*</span><span class="self">self</span>) <span class="op">=</span><span class="op">=</span> <span class="ident">rhs</span>
+    <span class="kw">fn</span> <span class="ident">eq</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">rhs</span>: <span class="kw-2">&amp;</span><span class="ident">OffsetDateTime</span>) -&gt; <span class="ident">bool</span> {
+        <span class="kw-2">&amp;</span><span class="ident">OffsetDateTime::from</span>(<span class="kw-2">*</span><span class="self">self</span>) <span class="op">==</span> <span class="ident">rhs</span>
     }
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>)]</span>
 <span class="kw">impl</span> <span class="ident">PartialOrd</span><span class="op">&lt;</span><span class="ident">SystemTime</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">OffsetDateTime</span> {
-    <span class="kw">fn</span> <span class="ident">partial_cmp</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="ident">SystemTime</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Ordering</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">partial_cmp</span>(<span class="kw-2">&amp;</span><span class="self">Self</span><span class="ident">::from</span>(<span class="kw-2">*</span><span class="ident">other</span>))
+    <span class="kw">fn</span> <span class="ident">partial_cmp</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="ident">SystemTime</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Ordering</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">partial_cmp</span>(<span class="kw-2">&amp;</span><span class="ident"><span class="self">Self</span>::from</span>(<span class="kw-2">*</span><span class="ident">other</span>))
     }
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>)]</span>
 <span class="kw">impl</span> <span class="ident">PartialOrd</span><span class="op">&lt;</span><span class="ident">OffsetDateTime</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">SystemTime</span> {
-    <span class="kw">fn</span> <span class="ident">partial_cmp</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="ident">OffsetDateTime</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Ordering</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">partial_cmp</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="ident">OffsetDateTime</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Ordering</span><span class="op">&gt;</span> {
         <span class="ident">OffsetDateTime::from</span>(<span class="kw-2">*</span><span class="self">self</span>).<span class="ident">partial_cmp</span>(<span class="ident">other</span>)
     }
 }
@@ -2248,34 +2247,34 @@
 <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">SystemTime</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">OffsetDateTime</span> {
     <span class="comment">// There is definitely some way to have this conversion be infallible, but</span>
     <span class="comment">// it won&#39;t be an issue for over 500 years.</span>
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">system_time</span>: <span class="ident">SystemTime</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">system_time</span>: <span class="ident">SystemTime</span>) -&gt; <span class="self">Self</span> {
         <span class="kw">let</span> <span class="ident">duration</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">system_time</span>.<span class="ident">duration_since</span>(<span class="ident">SystemTime::UNIX_EPOCH</span>) {
-            <span class="prelude-val">Ok</span>(<span class="ident">duration</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Duration::try_from</span>(<span class="ident">duration</span>)
+            <span class="prelude-val">Ok</span>(<span class="ident">duration</span>) =&gt; <span class="ident">Duration::try_from</span>(<span class="ident">duration</span>)
                 .<span class="ident">expect</span>(<span class="string">&quot;overflow converting `std::time::Duration` to `time::Duration`&quot;</span>),
-            <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="op">-</span><span class="ident">Duration::try_from</span>(<span class="ident">err</span>.<span class="ident">duration</span>())
+            <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; <span class="op">-</span><span class="ident">Duration::try_from</span>(<span class="ident">err</span>.<span class="ident">duration</span>())
                 .<span class="ident">expect</span>(<span class="string">&quot;overflow converting `std::time::Duration` to `time::Duration`&quot;</span>),
         };
 
-        <span class="self">Self</span><span class="ident">::unix_epoch</span>() <span class="op">+</span> <span class="ident">duration</span>
+        <span class="ident"><span class="self">Self</span>::unix_epoch</span>() <span class="op">+</span> <span class="ident">duration</span>
     }
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>)]</span>
 <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">OffsetDateTime</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">SystemTime</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">datetime</span>: <span class="ident">OffsetDateTime</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">datetime</span>: <span class="ident">OffsetDateTime</span>) -&gt; <span class="self">Self</span> {
         <span class="kw">let</span> <span class="ident">duration</span> <span class="op">=</span> <span class="ident">datetime</span> <span class="op">-</span> <span class="ident">OffsetDateTime::unix_epoch</span>();
 
         <span class="kw">if</span> <span class="ident">duration</span>.<span class="ident">is_zero</span>() {
-            <span class="self">Self</span><span class="ident">::UNIX_EPOCH</span>
+            <span class="ident"><span class="self">Self</span>::UNIX_EPOCH</span>
         } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">duration</span>.<span class="ident">is_positive</span>() {
-            <span class="self">Self</span><span class="ident">::UNIX_EPOCH</span> <span class="op">+</span> <span class="ident">duration</span>.<span class="ident">abs_std</span>()
+            <span class="ident"><span class="self">Self</span>::UNIX_EPOCH</span> <span class="op">+</span> <span class="ident">duration</span>.<span class="ident">abs_std</span>()
         } <span class="kw">else</span> {
             <span class="comment">// duration.is_negative()</span>
-            <span class="self">Self</span><span class="ident">::UNIX_EPOCH</span> <span class="op">-</span> <span class="ident">duration</span>.<span class="ident">abs_std</span>()
+            <span class="ident"><span class="self">Self</span>::UNIX_EPOCH</span> <span class="op">-</span> <span class="ident">duration</span>.<span class="ident">abs_std</span>()
         }
     }
 }
-</pre></div>
+</code></pre></div>
 </section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="time" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
     <script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script>
 </body></html>

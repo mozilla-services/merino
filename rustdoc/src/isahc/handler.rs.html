@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;usr&#x2F;local&#x2F;cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;isahc-1.4.0&#x2F;src&#x2F;handler.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>handler.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="shortcut icon" href="https:&#x2F;&#x2F;raw.githubusercontent.com&#x2F;sagebind&#x2F;isahc&#x2F;master&#x2F;media&#x2F;icon.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../isahc/index.html'><div class='logo-container rust-logo'><img src='https:&#x2F;&#x2F;raw.githubusercontent.com&#x2F;sagebind&#x2F;isahc&#x2F;master&#x2F;media&#x2F;isahc.svg.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;usr&#x2F;local&#x2F;cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;isahc-1.4.0&#x2F;src&#x2F;handler.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>handler.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="shortcut icon" href="https:&#x2F;&#x2F;raw.githubusercontent.com&#x2F;sagebind&#x2F;isahc&#x2F;master&#x2F;media&#x2F;icon.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../isahc/index.html'><div class='logo-container rust-logo'><img src='https:&#x2F;&#x2F;raw.githubusercontent.com&#x2F;sagebind&#x2F;isahc&#x2F;master&#x2F;media&#x2F;isahc.svg.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -678,8 +678,7 @@
 <span id="678">678</span>
 <span id="679">679</span>
 <span id="680">680</span>
-</pre><pre class="rust">
-<span class="attribute">#![<span class="ident">allow</span>(<span class="ident">unsafe_code</span>)]</span>
+</pre><pre class="rust"><code><span class="attribute">#![<span class="ident">allow</span>(<span class="ident">unsafe_code</span>)]</span>
 
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">body::AsyncBody</span>,
@@ -798,7 +797,7 @@
     <span class="doccomment">/// Create a new request handler and an associated response future.</span>
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new</span>(
         <span class="ident">request_body</span>: <span class="ident">AsyncBody</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> (
+    ) -&gt; (
         <span class="self">Self</span>,
         <span class="kw">impl</span> <span class="ident">Future</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Response</span><span class="op">&lt;</span><span class="ident">ResponseBodyReader</span><span class="op">&gt;</span>, <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     ) {
@@ -845,7 +844,7 @@
 
     <span class="doccomment">/// Check whether debug info should be generated. This function is used to</span>
     <span class="doccomment">/// determine whether to set the `verbose` curl option to true.</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">is_debug_enabled</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">is_debug_enabled</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="comment">// To avoid having curl generate debug strings unnecessarily, we want to</span>
         <span class="comment">// enable debug info only if:</span>
         <span class="comment">//</span>
@@ -861,7 +860,7 @@
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">is_future_canceled</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">fn</span> <span class="ident">is_future_canceled</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="self">self</span>.<span class="ident">sender</span>.<span class="ident">as_ref</span>().<span class="ident">map</span>(<span class="ident">Sender::is_closed</span>).<span class="ident">unwrap_or</span>(<span class="bool-val">false</span>)
     }
 
@@ -922,7 +921,7 @@
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">build_response</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">http::response::Builder</span> {
+    <span class="kw">fn</span> <span class="ident">build_response</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">http::response::Builder</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">builder</span> <span class="op">=</span> <span class="ident">http::Response::builder</span>();
 
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">status</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">response_status_code</span>.<span class="ident">take</span>() {
@@ -962,14 +961,14 @@
         <span class="ident">builder</span>
     }
 
-    <span class="kw">fn</span> <span class="ident">get_primary_addr</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">SocketAddr</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">get_primary_addr</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">SocketAddr</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">ip</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">get_primary_ip</span>()<span class="question-mark">?</span>.<span class="ident">parse</span>().<span class="ident">ok</span>()<span class="question-mark">?</span>;
         <span class="kw">let</span> <span class="ident">port</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">get_primary_port</span>()<span class="question-mark">?</span>;
 
         <span class="prelude-val">Some</span>(<span class="ident">SocketAddr::new</span>(<span class="ident">ip</span>, <span class="ident">port</span>))
     }
 
-    <span class="kw">fn</span> <span class="ident">get_primary_ip</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">get_primary_ip</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">handle</span>.<span class="ident">is_null</span>() {
             <span class="kw">return</span> <span class="prelude-val">None</span>;
         }
@@ -991,7 +990,7 @@
         <span class="kw">unsafe</span> { <span class="ident">CStr::from_ptr</span>(<span class="ident">ptr</span>) }.<span class="ident">to_str</span>().<span class="ident">ok</span>()
     }
 
-    <span class="kw">fn</span> <span class="ident">get_primary_port</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u16</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">get_primary_port</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u16</span><span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">handle</span>.<span class="ident">is_null</span>() {
             <span class="kw">return</span> <span class="prelude-val">None</span>;
         }
@@ -1009,14 +1008,14 @@
         <span class="prelude-val">Some</span>(<span class="ident">port</span> <span class="kw">as</span> <span class="ident">u16</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">get_local_addr</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">SocketAddr</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">get_local_addr</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">SocketAddr</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">ip</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">get_local_ip</span>()<span class="question-mark">?</span>.<span class="ident">parse</span>().<span class="ident">ok</span>()<span class="question-mark">?</span>;
         <span class="kw">let</span> <span class="ident">port</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">get_local_port</span>()<span class="question-mark">?</span>;
 
         <span class="prelude-val">Some</span>(<span class="ident">SocketAddr::new</span>(<span class="ident">ip</span>, <span class="ident">port</span>))
     }
 
-    <span class="kw">fn</span> <span class="ident">get_local_ip</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">get_local_ip</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">handle</span>.<span class="ident">is_null</span>() {
             <span class="kw">return</span> <span class="prelude-val">None</span>;
         }
@@ -1038,7 +1037,7 @@
         <span class="kw">unsafe</span> { <span class="ident">CStr::from_ptr</span>(<span class="ident">ptr</span>) }.<span class="ident">to_str</span>().<span class="ident">ok</span>()
     }
 
-    <span class="kw">fn</span> <span class="ident">get_local_port</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u16</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">get_local_port</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u16</span><span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">handle</span>.<span class="ident">is_null</span>() {
             <span class="kw">return</span> <span class="prelude-val">None</span>;
         }
@@ -1059,7 +1058,7 @@
 
 <span class="kw">impl</span> <span class="ident">curl::easy::Handler</span> <span class="kw">for</span> <span class="ident">RequestHandler</span> {
     <span class="doccomment">/// Gets called by curl for each line of data in the HTTP response header.</span>
-    <span class="kw">fn</span> <span class="ident">header</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">data</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">fn</span> <span class="ident">header</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">data</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="ident">bool</span> {
         <span class="comment">// Abort the request if it has been canceled.</span>
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">is_future_canceled</span>() {
             <span class="kw">return</span> <span class="bool-val">false</span>;
@@ -1104,7 +1103,7 @@
         }
 
         <span class="comment">// Is this the end of the response header?</span>
-        <span class="kw">if</span> <span class="ident">data</span> <span class="op">=</span><span class="op">=</span> <span class="string">b&quot;\r\n&quot;</span> {
+        <span class="kw">if</span> <span class="ident">data</span> <span class="op">==</span> <span class="string">b&quot;\r\n&quot;</span> {
             <span class="comment">// We will acknowledge the end of the header, but we can&#39;t complete</span>
             <span class="comment">// our response future yet. If curl decides to follow a redirect,</span>
             <span class="comment">// then this current response is not the final response and not the</span>
@@ -1120,7 +1119,7 @@
     }
 
     <span class="doccomment">/// Gets called by curl when attempting to send bytes of the request body.</span>
-    <span class="kw">fn</span> <span class="ident">read</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">data</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span>, <span class="ident">ReadError</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">read</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">data</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u8</span>]) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span>, <span class="ident">ReadError</span><span class="op">&gt;</span> {
         <span class="comment">// Abort the request if it has been canceled.</span>
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">is_future_canceled</span>() {
             <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ReadError::Abort</span>);
@@ -1135,9 +1134,9 @@
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">context</span> <span class="op">=</span> <span class="ident">Context::from_waker</span>(<span class="ident">waker</span>);
 
             <span class="kw">match</span> <span class="ident">Pin::new</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">request_body</span>).<span class="ident">poll_read</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">context</span>, <span class="ident">data</span>) {
-                <span class="ident">Poll::Pending</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">ReadError::Pause</span>),
-                <span class="ident">Poll::Ready</span>(<span class="prelude-val">Ok</span>(<span class="ident">len</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">len</span>),
-                <span class="ident">Poll::Ready</span>(<span class="prelude-val">Err</span>(<span class="ident">e</span>)) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">Poll::Pending</span> =&gt; <span class="prelude-val">Err</span>(<span class="ident">ReadError::Pause</span>),
+                <span class="ident">Poll::Ready</span>(<span class="prelude-val">Ok</span>(<span class="ident">len</span>)) =&gt; <span class="prelude-val">Ok</span>(<span class="ident">len</span>),
+                <span class="ident">Poll::Ready</span>(<span class="prelude-val">Err</span>(<span class="ident">e</span>)) =&gt; {
                     <span class="macro">tracing::error!</span>(<span class="string">&quot;error reading request body: {}&quot;</span>, <span class="ident">e</span>);
 
                     <span class="comment">// While we could just return an error here to curl and let</span>
@@ -1164,13 +1163,13 @@
     <span class="doccomment">/// Since this method is synchronous and provides no means of deferring the</span>
     <span class="doccomment">/// seek, we can&#39;t do any async operations in this callback. That&#39;s why we</span>
     <span class="doccomment">/// only support trivial types of seeking.</span>
-    <span class="kw">fn</span> <span class="ident">seek</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">whence</span>: <span class="ident">io::SeekFrom</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">SeekResult</span> {
+    <span class="kw">fn</span> <span class="ident">seek</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">whence</span>: <span class="ident">io::SeekFrom</span>) -&gt; <span class="ident">SeekResult</span> {
         <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="macro">tracing::trace_span!</span>(<span class="ident">parent</span>: <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">span</span>, <span class="string">&quot;seek&quot;</span>, <span class="ident">whence</span> <span class="op">=</span> <span class="question-mark">?</span><span class="ident">whence</span>);
         <span class="kw">let</span> <span class="ident">_enter</span> <span class="op">=</span> <span class="ident">span</span>.<span class="ident">enter</span>();
 
         <span class="comment">// If curl wants to seek to the beginning, there&#39;s a chance that we</span>
         <span class="comment">// can do that.</span>
-        <span class="kw">if</span> <span class="ident">whence</span> <span class="op">=</span><span class="op">=</span> <span class="ident">io::SeekFrom::Start</span>(<span class="number">0</span>) <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">request_body</span>.<span class="ident">reset</span>() {
+        <span class="kw">if</span> <span class="ident">whence</span> <span class="op">==</span> <span class="ident">io::SeekFrom::Start</span>(<span class="number">0</span>) <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">request_body</span>.<span class="ident">reset</span>() {
             <span class="ident">SeekResult::Ok</span>
         } <span class="kw">else</span> {
             <span class="macro">tracing::warn!</span>(<span class="string">&quot;seek requested for request body, but it is not supported&quot;</span>);
@@ -1180,7 +1179,7 @@
     }
 
     <span class="doccomment">/// Gets called by curl when bytes from the response body are received.</span>
-    <span class="kw">fn</span> <span class="ident">write</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">data</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span>, <span class="ident">WriteError</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">write</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">data</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span>, <span class="ident">WriteError</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="macro">tracing::trace_span!</span>(<span class="ident">parent</span>: <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">span</span>, <span class="string">&quot;write&quot;</span>);
         <span class="kw">let</span> <span class="ident">_enter</span> <span class="op">=</span> <span class="ident">span</span>.<span class="ident">enter</span>();
         <span class="macro">tracing::trace!</span>(<span class="string">&quot;received {} bytes of data&quot;</span>, <span class="ident">data</span>.<span class="ident">len</span>());
@@ -1195,10 +1194,10 @@
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">context</span> <span class="op">=</span> <span class="ident">Context::from_waker</span>(<span class="ident">waker</span>);
 
             <span class="kw">match</span> <span class="ident">Pin::new</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">response_body_writer</span>).<span class="ident">poll_write</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">context</span>, <span class="ident">data</span>) {
-                <span class="ident">Poll::Pending</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">WriteError::Pause</span>),
-                <span class="ident">Poll::Ready</span>(<span class="prelude-val">Ok</span>(<span class="ident">len</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">len</span>),
-                <span class="ident">Poll::Ready</span>(<span class="prelude-val">Err</span>(<span class="ident">e</span>)) <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="kw">if</span> <span class="ident">e</span>.<span class="ident">kind</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">io::ErrorKind::BrokenPipe</span> {
+                <span class="ident">Poll::Pending</span> =&gt; <span class="prelude-val">Err</span>(<span class="ident">WriteError::Pause</span>),
+                <span class="ident">Poll::Ready</span>(<span class="prelude-val">Ok</span>(<span class="ident">len</span>)) =&gt; <span class="prelude-val">Ok</span>(<span class="ident">len</span>),
+                <span class="ident">Poll::Ready</span>(<span class="prelude-val">Err</span>(<span class="ident">e</span>)) =&gt; {
+                    <span class="kw">if</span> <span class="ident">e</span>.<span class="ident">kind</span>() <span class="op">==</span> <span class="ident">io::ErrorKind::BrokenPipe</span> {
                         <span class="macro">tracing::info!</span>(
                             <span class="string">&quot;response dropped without fully consuming the response body, which may result in sub-optimal performance&quot;</span>
                         );
@@ -1216,7 +1215,7 @@
     }
 
     <span class="doccomment">/// Capture transfer progress updates from curl.</span>
-    <span class="kw">fn</span> <span class="ident">progress</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">dltotal</span>: <span class="ident">f64</span>, <span class="ident">dlnow</span>: <span class="ident">f64</span>, <span class="ident">ultotal</span>: <span class="ident">f64</span>, <span class="ident">ulnow</span>: <span class="ident">f64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">fn</span> <span class="ident">progress</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">dltotal</span>: <span class="ident">f64</span>, <span class="ident">dlnow</span>: <span class="ident">f64</span>, <span class="ident">ultotal</span>: <span class="ident">f64</span>, <span class="ident">ulnow</span>: <span class="ident">f64</span>) -&gt; <span class="ident">bool</span> {
         <span class="comment">// Initialize metrics if required.</span>
         <span class="kw">let</span> <span class="ident">metrics</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">metrics</span>.<span class="ident">get_or_insert_with</span>(<span class="ident">Metrics::new</span>);
 
@@ -1298,7 +1297,7 @@
         <span class="kw">struct</span> <span class="ident">FormatAscii</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">T</span>);
 
         <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">AsRef</span><span class="op">&lt;</span>[<span class="ident">u8</span>]<span class="op">&gt;</span><span class="op">&gt;</span> <span class="ident">fmt::Display</span> <span class="kw">for</span> <span class="ident">FormatAscii</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-            <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
+            <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">fmt::Result</span> {
                 <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="ident">byte</span> <span class="kw">in</span> <span class="self">self</span>.<span class="number">0</span>.<span class="ident">as_ref</span>() {
                     <span class="ident">ascii::escape_default</span>(<span class="ident">byte</span>).<span class="ident">fmt</span>(<span class="ident">f</span>)<span class="question-mark">?</span>;
                 }
@@ -1307,22 +1306,22 @@
         }
 
         <span class="kw">match</span> <span class="ident">kind</span> {
-            <span class="ident">InfoType::Text</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">InfoType::Text</span> =&gt; {
                 <span class="macro">tracing::debug!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">String::from_utf8_lossy</span>(<span class="ident">data</span>).<span class="ident">trim_end</span>())
             }
-            <span class="ident">InfoType::HeaderIn</span> <span class="op">|</span> <span class="ident">InfoType::DataIn</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">InfoType::HeaderIn</span> <span class="op">|</span> <span class="ident">InfoType::DataIn</span> =&gt; {
                 <span class="macro">tracing::trace!</span>(<span class="ident">target</span>: <span class="string">&quot;isahc::wire&quot;</span>, <span class="string">&quot;&lt;&lt; {}&quot;</span>, <span class="ident">FormatAscii</span>(<span class="ident">data</span>))
             }
-            <span class="ident">InfoType::HeaderOut</span> <span class="op">|</span> <span class="ident">InfoType::DataOut</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">InfoType::HeaderOut</span> <span class="op">|</span> <span class="ident">InfoType::DataOut</span> =&gt; {
                 <span class="macro">tracing::trace!</span>(<span class="ident">target</span>: <span class="string">&quot;isahc::wire&quot;</span>, <span class="string">&quot;&gt;&gt; {}&quot;</span>, <span class="ident">FormatAscii</span>(<span class="ident">data</span>))
             }
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> (),
+            <span class="kw">_</span> =&gt; (),
         }
     }
 }
 
 <span class="kw">impl</span> <span class="ident">fmt::Debug</span> <span class="kw">for</span> <span class="ident">RequestHandler</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">fmt::Result</span> {
         <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;RequestHandler&quot;</span>)
     }
 }
@@ -1339,27 +1338,27 @@
         <span class="kw-2">mut</span> <span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span><span class="op">&gt;</span>,
         <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
         <span class="ident">buf</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u8</span>],
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    ) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">inner</span> <span class="op">=</span> <span class="ident">Pin::new</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">inner</span>);
 
         <span class="kw">match</span> <span class="ident">inner</span>.<span class="ident">poll_read</span>(<span class="ident">cx</span>, <span class="ident">buf</span>) {
             <span class="comment">// On EOF, check to see if the transfer was cancelled, and if so,</span>
             <span class="comment">// return an error.</span>
-            <span class="ident">Poll::Ready</span>(<span class="prelude-val">Ok</span>(<span class="number">0</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">shared</span>.<span class="ident">result</span>.<span class="ident">get</span>() {
+            <span class="ident">Poll::Ready</span>(<span class="prelude-val">Ok</span>(<span class="number">0</span>)) =&gt; <span class="kw">match</span> <span class="self">self</span>.<span class="ident">shared</span>.<span class="ident">result</span>.<span class="ident">get</span>() {
                 <span class="comment">// The transfer did finish successfully, so return EOF.</span>
-                <span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(())) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Poll::Ready</span>(<span class="prelude-val">Ok</span>(<span class="number">0</span>)),
+                <span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(())) =&gt; <span class="ident">Poll::Ready</span>(<span class="prelude-val">Ok</span>(<span class="number">0</span>)),
 
                 <span class="comment">// The transfer finished with an error, so return the error.</span>
-                <span class="prelude-val">Some</span>(<span class="prelude-val">Err</span>(<span class="ident">e</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Poll::Ready</span>(<span class="prelude-val">Err</span>(<span class="ident">io::Error::from</span>(<span class="ident">e</span>.<span class="ident">clone</span>()))),
+                <span class="prelude-val">Some</span>(<span class="prelude-val">Err</span>(<span class="ident">e</span>)) =&gt; <span class="ident">Poll::Ready</span>(<span class="prelude-val">Err</span>(<span class="ident">io::Error::from</span>(<span class="ident">e</span>.<span class="ident">clone</span>()))),
 
                 <span class="comment">// The transfer did not finish properly at all, so return an error.</span>
-                <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Poll::Ready</span>(<span class="prelude-val">Err</span>(<span class="ident">io::ErrorKind::ConnectionAborted</span>.<span class="ident">into</span>())),
+                <span class="prelude-val">None</span> =&gt; <span class="ident">Poll::Ready</span>(<span class="prelude-val">Err</span>(<span class="ident">io::ErrorKind::ConnectionAborted</span>.<span class="ident">into</span>())),
             },
-            <span class="ident">poll</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">poll</span>,
+            <span class="ident">poll</span> =&gt; <span class="ident">poll</span>,
         }
     }
 }
-</pre></div>
+</code></pre></div>
 </section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="isahc" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
     <script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script>
 </body></html>

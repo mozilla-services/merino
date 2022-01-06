@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;usr&#x2F;local&#x2F;cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;fix-hidden-lifetime-bug-proc_macros-0.2.4&#x2F;manually_unsugar_async.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>manually_unsugar_async.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg"><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../fix_hidden_lifetime_bug_proc_macros/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;usr&#x2F;local&#x2F;cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;fix-hidden-lifetime-bug-proc_macros-0.2.4&#x2F;manually_unsugar_async.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>manually_unsugar_async.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../fix_hidden_lifetime_bug_proc_macros/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -162,14 +162,13 @@
 <span id="162">162</span>
 <span id="163">163</span>
 <span id="164">164</span>
-</pre><pre class="rust">
-<span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+</pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
 
 <span class="doccomment">/// Transform an `async fn` into an equivalent `fn … -&gt; impl Future` signature.</span>
 <span class="kw">pub</span>(<span class="kw">in</span> <span class="kw">crate</span>)
 <span class="kw">fn</span> <span class="ident">manually_unsugar_async</span> (
     <span class="kw-2">mut</span> <span class="ident">fun</span>: <span class="ident">ImplItemMethod</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ImplItemMethod</span>
+) -&gt; <span class="ident">ImplItemMethod</span>
 {
     <span class="comment">// 1) Remove the `async` keyword to get a normal `fn`.</span>
     <span class="ident">fun</span>.<span class="ident">sig</span>.<span class="ident">asyncness</span> <span class="op">=</span> <span class="prelude-val">None</span>;
@@ -209,13 +208,13 @@
     <span class="kw">let</span> <span class="ident">idx</span> <span class="op">=</span> <span class="ident">generics</span>.<span class="ident">lifetimes</span>().<span class="ident">count</span>();
     <span class="ident">generics</span>.<span class="ident">params</span>.<span class="ident">insert</span>(<span class="ident">idx</span>, <span class="macro">parse_quote!</span>( #<span class="ident">minimum_lifetime</span> ));
     <span class="kw">let</span> <span class="ident">input_tys</span> <span class="op">=</span> <span class="ident">fun</span>.<span class="ident">sig</span>.<span class="ident">inputs</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">fn_arg</span><span class="op">|</span> <span class="kw">match</span> <span class="kw-2">*</span><span class="ident">fn_arg</span> {
-        <span class="op">|</span> <span class="ident">FnArg::Receiver</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Self_</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>(),
-        <span class="op">|</span> <span class="ident">FnArg::Typed</span>(<span class="ident">PatType</span> { <span class="kw-2">ref</span> <span class="ident">ty</span>, .. }) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ty</span>,
+        <span class="op">|</span> <span class="ident">FnArg::Receiver</span>(<span class="kw">_</span>) =&gt; <span class="ident">Self_</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>(),
+        <span class="op">|</span> <span class="ident">FnArg::Typed</span>(<span class="ident">PatType</span> { <span class="kw-2">ref</span> <span class="ident">ty</span>, .. }) =&gt; <span class="ident">ty</span>,
     });
     <span class="ident">generics</span>
         .<span class="ident">make_where_clause</span>()
         .<span class="ident">predicates</span>
-        .<span class="ident">extend</span>(<span class="ident">input_tys</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">ty</span><span class="op">|</span> <span class="op">-</span><span class="op">&gt;</span> <span class="ident">WherePredicate</span> {
+        .<span class="ident">extend</span>(<span class="ident">input_tys</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">ty</span><span class="op">|</span> -&gt; <span class="ident">WherePredicate</span> {
             <span class="macro">parse_quote!</span>(
                 <span class="comment">//  ≥</span>
                 #<span class="ident">ty</span> : #<span class="ident">minimum_lifetime</span>
@@ -226,11 +225,11 @@
     <span class="comment">// 3) Replace `-&gt; RetTy` with `-&gt; impl &#39;lt + Future&lt;Output = RetTy&gt;`</span>
     <span class="comment">// (Note: no need to worry about auto-traits here, since they leak anyways)</span>
     <span class="kw">let</span> <span class="ident">Ret</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">mem::replace</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fun</span>.<span class="ident">sig</span>.<span class="ident">output</span>, <span class="ident">ReturnType::Default</span>) {
-        <span class="op">|</span> <span class="ident">ReturnType::Type</span>(<span class="ident">_arrow</span>, <span class="ident">ty</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ty</span>,
-        <span class="op">|</span> <span class="ident">ReturnType::Default</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">parse_quote!</span>( () ),
+        <span class="op">|</span> <span class="ident">ReturnType::Type</span>(<span class="ident">_arrow</span>, <span class="ident">ty</span>) =&gt; <span class="ident">ty</span>,
+        <span class="op">|</span> <span class="ident">ReturnType::Default</span> =&gt; <span class="macro">parse_quote!</span>( () ),
     };
     <span class="ident">fun</span>.<span class="ident">sig</span>.<span class="ident">output</span> <span class="op">=</span> <span class="macro">parse_quote!</span>(
-        <span class="op">-</span><span class="op">&gt;</span>
+        -&gt;
         <span class="kw">impl</span>
             #<span class="ident">minimum_lifetime</span> <span class="op">+</span>
             <span class="ident">::fix_hidden_lifetime_bug::core::future::Future</span><span class="op">&lt;</span>
@@ -279,23 +278,23 @@
                     <span class="op">|</span> <span class="ident">FnArg::Typed</span>(<span class="ident">PatType</span> {
                         <span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">pat</span>,
                         ..
-                    }) <span class="op">=</span><span class="op">&gt;</span> {
+                    }) =&gt; {
                         <span class="ident">simple_name</span>.<span class="ident">set_span</span>(<span class="ident">pat</span>.<span class="ident">span</span>());
                         <span class="kw">match</span> <span class="kw-2">*</span><span class="kw-2">*</span><span class="ident">pat</span> {
                             <span class="op">|</span> <span class="ident">Pat::Ident</span>(<span class="ident">PatIdent</span> { <span class="kw-2">ref</span> <span class="ident">ident</span>, .. })
                                 <span class="kw">if</span> <span class="ident">ident</span>.<span class="ident">to_string</span>().<span class="ident">starts_with</span>(<span class="string">&quot;__arg_&quot;</span>).<span class="ident">not</span>()
-                            <span class="op">=</span><span class="op">&gt;</span> {
+                            =&gt; {
                                 <span class="ident">simple_name</span>.<span class="ident">clone_from</span>(<span class="ident">ident</span>);
                                 (<span class="kw-2">*</span><span class="kw-2">*</span><span class="ident">pat</span>).<span class="ident">clone</span>()
                             },
-                            <span class="op">|</span> <span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">it</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">mem::replace</span>(
+                            <span class="op">|</span> <span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">it</span> =&gt; <span class="ident">mem::replace</span>(
                                 <span class="ident">it</span>,
                                 <span class="macro">parse_quote!</span>(#<span class="ident">simple_name</span>),
                             ),
                         }
                     },
 
-                    <span class="op">|</span> <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
+                    <span class="op">|</span> <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
                 })
         ;
         <span class="comment">// A comment for people looking at the output of `showme` to understand</span>
@@ -327,7 +326,7 @@
     });
     <span class="ident">fun</span>
 }
-</pre></div>
+</code></pre></div>
 </section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="fix_hidden_lifetime_bug_proc_macros" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
     <script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script>
 </body></html>

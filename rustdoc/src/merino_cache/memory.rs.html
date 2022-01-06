@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `merino-cache&#x2F;src&#x2F;memory.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>memory.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg"><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../merino_cache/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `merino-cache&#x2F;src&#x2F;memory.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>memory.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../merino_cache/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -359,8 +359,15 @@
 <span id="359">359</span>
 <span id="360">360</span>
 <span id="361">361</span>
-</pre><pre class="rust">
-<span class="doccomment">//! A cache system that uses local in-memory storage to store a limited number of items.</span>
+<span id="362">362</span>
+<span id="363">363</span>
+<span id="364">364</span>
+<span id="365">365</span>
+<span id="366">366</span>
+<span id="367">367</span>
+<span id="368">368</span>
+<span id="369">369</span>
+</pre><pre class="rust"><code><span class="doccomment">//! A cache system that uses local in-memory storage to store a limited number of items.</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! The cache system here is actually two tiered. The first tier maps from</span>
 <span class="doccomment">//! suggestion requests to the hash of the response they should use. The second</span>
@@ -379,8 +386,6 @@
 };
 <span class="kw">use</span> <span class="ident">std</span>::{
     <span class="ident">collections::HashMap</span>,
-    <span class="ident">fmt::Debug</span>,
-    <span class="ident">hash::Hash</span>,
     <span class="ident">sync::Arc</span>,
     <span class="ident">time</span>::{<span class="ident">Duration</span>, <span class="ident">Instant</span>},
 };
@@ -395,7 +400,7 @@
 
 <span class="kw">impl</span> <span class="ident">LOCK_TABLE</span> {
     <span class="doccomment">/// Check to see if there&#39;s any lock for a given key</span>
-    <span class="kw">fn</span> <span class="ident">is_locked</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">fn</span> <span class="ident">is_locked</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">bool</span> {
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">lock_val</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">load</span>().<span class="ident">get</span>(<span class="ident">key</span>) {
             <span class="kw">return</span> <span class="kw-2">*</span><span class="ident">lock_val</span> <span class="op">&gt;</span> <span class="ident">Instant::now</span>();
         }
@@ -403,7 +408,7 @@
     }
 
     <span class="doccomment">/// Generate a lock for the given key and timeout</span>
-    <span class="kw">fn</span> <span class="ident">add_lock</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">lock_timeout</span>: <span class="ident">Duration</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Instant</span> {
+    <span class="kw">fn</span> <span class="ident">add_lock</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">lock_timeout</span>: <span class="ident">Duration</span>) -&gt; <span class="ident">Instant</span> {
         <span class="kw">let</span> <span class="ident">lock</span> <span class="op">=</span> <span class="ident">Instant::now</span>() <span class="op">+</span> <span class="ident">lock_timeout</span>;
         <span class="self">self</span>.<span class="ident">rcu</span>(<span class="op">|</span><span class="ident">table</span><span class="op">|</span> {
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">locked</span> <span class="op">=</span> <span class="ident">HashMap::clone</span>(<span class="ident">table</span>);
@@ -422,7 +427,7 @@
         <span class="self">self</span>.<span class="ident">rcu</span>(<span class="op">|</span><span class="ident">table</span><span class="op">|</span> {
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">locked</span> <span class="op">=</span> <span class="ident">HashMap::clone</span>(<span class="ident">table</span>);
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ts</span>) <span class="op">=</span> <span class="ident">locked</span>.<span class="ident">get</span>(<span class="ident">key</span>) {
-                <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">ts</span> <span class="op">=</span><span class="op">=</span> <span class="ident">lock</span> {
+                <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">ts</span> <span class="op">==</span> <span class="ident">lock</span> {
                     <span class="ident">func</span>();
                 }
                 <span class="ident">locked</span>.<span class="ident">remove</span>(<span class="ident">key</span>);
@@ -443,9 +448,10 @@
 }
 
 <span class="doccomment">/// A in-memory cache for suggestions.</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Suggester</span> {
     <span class="doccomment">/// The suggester to query on cache-miss.</span>
-    <span class="ident">inner</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">SuggestionProvider</span><span class="op">&gt;</span>,
+    <span class="ident">inner</span>: <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">SuggestionProvider</span><span class="op">&gt;</span><span class="op">&gt;</span>,
 
     <span class="doccomment">/// The Statsd client used to record statistics.</span>
     <span class="ident">metrics_client</span>: <span class="ident">StatsdClient</span>,
@@ -458,6 +464,9 @@
 
     <span class="doccomment">/// TTL for locks on cache refresh updates</span>
     <span class="ident">default_lock_timeout</span>: <span class="ident">Duration</span>,
+
+    <span class="doccomment">/// Maximum number of entries to remove in a single background expiration iteration.</span>
+    <span class="ident">max_background_removals</span>: <span class="ident">usize</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">Suggester</span> {
@@ -467,12 +476,18 @@
         <span class="ident">config</span>: <span class="kw-2">&amp;</span><span class="ident">MemoryCacheConfig</span>,
         <span class="ident">provider</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">SuggestionProvider</span><span class="op">&gt;</span>,
         <span class="ident">metrics_client</span>: <span class="ident">StatsdClient</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">items</span> <span class="op">=</span> <span class="ident">Arc::new</span>(<span class="ident">DedupedMap::new</span>());
+    ) -&gt; <span class="ident">Box</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">suggester</span> <span class="op">=</span> <span class="self">Self</span> {
+            <span class="ident">inner</span>: <span class="ident">Arc::new</span>(<span class="ident">provider</span>),
+            <span class="ident">metrics_client</span>,
+            <span class="ident">items</span>: <span class="ident">Arc::new</span>(<span class="ident">DedupedMap::new</span>()),
+            <span class="ident">default_ttl</span>: <span class="ident">config</span>.<span class="ident">default_ttl</span>,
+            <span class="ident">default_lock_timeout</span>: <span class="ident">config</span>.<span class="ident">default_lock_timeout</span>,
+            <span class="ident">max_background_removals</span>: <span class="ident">config</span>.<span class="ident">max_removed_entries</span>,
+        };
 
         {
-            <span class="kw">let</span> <span class="ident">metrics</span> <span class="op">=</span> <span class="ident">metrics_client</span>.<span class="ident">clone</span>();
-            <span class="kw">let</span> <span class="ident">task_items</span> <span class="op">=</span> <span class="ident">items</span>.<span class="ident">clone</span>();
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cloned_suggester</span> <span class="op">=</span> <span class="ident">suggester</span>.<span class="ident">clone</span>();
             <span class="kw">let</span> <span class="ident">task_interval</span> <span class="op">=</span> <span class="ident">config</span>.<span class="ident">cleanup_interval</span>;
             <span class="ident">tokio::spawn</span>(<span class="kw">async</span> <span class="kw">move</span> {
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">timer</span> <span class="op">=</span> <span class="ident">tokio::time::interval</span>(<span class="ident">task_interval</span>);
@@ -482,40 +497,28 @@
                 <span class="ident">timer</span>.<span class="ident">tick</span>().<span class="kw">await</span>;
                 <span class="kw">loop</span> {
                     <span class="ident">timer</span>.<span class="ident">tick</span>().<span class="kw">await</span>;
-                    <span class="self">Self</span><span class="ident">::remove_expired_entries</span>(<span class="kw-2">&amp;</span><span class="ident">task_items</span>, <span class="kw-2">&amp;</span><span class="ident">metrics</span>);
+                    <span class="ident">cloned_suggester</span>.<span class="ident">remove_expired_entries</span>();
                 }
             });
         }
 
-        <span class="ident">Box::new</span>(<span class="self">Self</span> {
-            <span class="ident">inner</span>: <span class="ident">provider</span>,
-            <span class="ident">metrics_client</span>,
-            <span class="ident">items</span>,
-            <span class="ident">default_ttl</span>: <span class="ident">config</span>.<span class="ident">default_ttl</span>,
-            <span class="ident">default_lock_timeout</span>: <span class="ident">config</span>.<span class="ident">default_lock_timeout</span>,
-        })
+        <span class="ident">Box::new</span>(<span class="ident">suggester</span>)
     }
 
     <span class="doccomment">/// Remove expired entries from `items`</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This is a selfless method so that it can be called from a spawned Tokio task.</span>
-    <span class="attribute">#[<span class="ident">tracing::instrument</span>(<span class="ident">level</span> <span class="op">=</span> <span class="string">&quot;debug&quot;</span>, <span class="ident">skip</span>(<span class="ident">items</span>))]</span>
-    <span class="kw">fn</span> <span class="ident">remove_expired_entries</span><span class="op">&lt;</span><span class="ident">K</span>: <span class="ident">Eq</span> <span class="op">+</span> <span class="ident">Hash</span> <span class="op">+</span> <span class="ident">Debug</span><span class="op">&gt;</span>(
-        <span class="ident">items</span>: <span class="kw-2">&amp;</span><span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">DedupedMap</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">Instant</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Suggestion</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-        <span class="ident">metrics_client</span>: <span class="kw-2">&amp;</span><span class="ident">StatsdClient</span>,
-    ) {
+    <span class="attribute">#[<span class="ident">tracing::instrument</span>(<span class="ident">level</span> <span class="op">=</span> <span class="string">&quot;debug&quot;</span>, <span class="ident">skip</span>(<span class="self">self</span>))]</span>
+    <span class="kw">fn</span> <span class="ident">remove_expired_entries</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
         <span class="kw">let</span> <span class="ident">start</span> <span class="op">=</span> <span class="ident">Instant::now</span>();
-        <span class="kw">let</span> <span class="ident">count_before_storage</span> <span class="op">=</span> <span class="ident">items</span>.<span class="ident">len_storage</span>();
-        <span class="kw">let</span> <span class="ident">count_before_pointers</span> <span class="op">=</span> <span class="ident">items</span>.<span class="ident">len_pointers</span>();
+        <span class="kw">let</span> <span class="ident">count_before_storage</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">items</span>.<span class="ident">len_storage</span>();
+        <span class="kw">let</span> <span class="ident">count_before_pointers</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">items</span>.<span class="ident">len_pointers</span>();
 
         <span class="comment">// Retain all cache entries that have not yet expired.</span>
-        <span class="kw">let</span> <span class="ident">max_removals</span> <span class="op">=</span> <span class="number">10_000</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">num_removals</span> <span class="op">=</span> <span class="number">0</span>;
-        <span class="ident">items</span>.<span class="ident">retain</span>(<span class="op">|</span><span class="ident">_key</span>, <span class="ident">expiration</span>, <span class="ident">_suggestions</span><span class="op">|</span> {
-            <span class="kw">if</span> <span class="ident">num_removals</span> <span class="op">&gt;</span> <span class="ident">max_removals</span> {
+        <span class="self">self</span>.<span class="ident">items</span>.<span class="ident">retain</span>(<span class="op">|</span><span class="ident">_key</span>, <span class="ident">expiration</span>, <span class="ident">_suggestions</span><span class="op">|</span> {
+            <span class="kw">if</span> <span class="ident">num_removals</span> <span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">max_background_removals</span> {
                 <span class="macro">tracing::warn!</span>(
                     <span class="ident">r#type</span> <span class="op">=</span> <span class="string">&quot;cache.memory.max-removals&quot;</span>,
-                    <span class="question-mark">?</span><span class="ident">max_removals</span>,
+                    <span class="question-mark">?</span><span class="self">self</span>.<span class="ident">max_background_removals</span>,
                     <span class="string">&quot;memory-cache cleanup reached max number of removed entries&quot;</span>
                 );
                 <span class="kw">return</span> <span class="ident">ControlFlow::Break</span>;
@@ -532,8 +535,8 @@
 
         <span class="comment">// Report finishing.</span>
         <span class="kw">let</span> <span class="ident">duration</span> <span class="op">=</span> <span class="ident">Instant::now</span>() <span class="op">-</span> <span class="ident">start</span>;
-        <span class="kw">let</span> <span class="ident">removed_storage</span> <span class="op">=</span> <span class="ident">count_before_storage</span> <span class="op">-</span> <span class="ident">items</span>.<span class="ident">len_storage</span>();
-        <span class="kw">let</span> <span class="ident">removed_pointers</span> <span class="op">=</span> <span class="ident">count_before_pointers</span> <span class="op">-</span> <span class="ident">items</span>.<span class="ident">len_pointers</span>();
+        <span class="kw">let</span> <span class="ident">removed_storage</span> <span class="op">=</span> <span class="ident">count_before_storage</span> <span class="op">-</span> <span class="self">self</span>.<span class="ident">items</span>.<span class="ident">len_storage</span>();
+        <span class="kw">let</span> <span class="ident">removed_pointers</span> <span class="op">=</span> <span class="ident">count_before_pointers</span> <span class="op">-</span> <span class="self">self</span>.<span class="ident">items</span>.<span class="ident">len_pointers</span>();
         <span class="macro">tracing::info!</span>(
             <span class="ident">r#type</span> <span class="op">=</span> <span class="string">&quot;cache.memory.remove-expired&quot;</span>,
             <span class="question-mark">?</span><span class="ident">duration</span>,
@@ -542,18 +545,21 @@
             <span class="string">&quot;finished removing expired entries from cache&quot;</span>
         );
 
-        <span class="ident">metrics_client</span>
-            .<span class="ident">gauge</span>(<span class="string">&quot;cache.memory.storage-len&quot;</span>, <span class="ident">items</span>.<span class="ident">len_storage</span>() <span class="kw">as</span> <span class="ident">u64</span>)
+        <span class="self">self</span>.<span class="ident">metrics_client</span>
+            .<span class="ident">gauge</span>(<span class="string">&quot;cache.memory.storage-len&quot;</span>, <span class="self">self</span>.<span class="ident">items</span>.<span class="ident">len_storage</span>() <span class="kw">as</span> <span class="ident">u64</span>)
             .<span class="ident">ok</span>();
-        <span class="ident">metrics_client</span>
-            .<span class="ident">gauge</span>(<span class="string">&quot;cache.memory.pointers-len&quot;</span>, <span class="ident">items</span>.<span class="ident">len_pointers</span>() <span class="kw">as</span> <span class="ident">u64</span>)
+        <span class="self">self</span>.<span class="ident">metrics_client</span>
+            .<span class="ident">gauge</span>(
+                <span class="string">&quot;cache.memory.pointers-len&quot;</span>,
+                <span class="self">self</span>.<span class="ident">items</span>.<span class="ident">len_pointers</span>() <span class="kw">as</span> <span class="ident">u64</span>,
+            )
             .<span class="ident">ok</span>();
     }
 }
 
 <span class="attribute">#[<span class="ident">async_trait</span>]</span>
 <span class="kw">impl</span> <span class="ident">SuggestionProvider</span> <span class="kw">for</span> <span class="ident">Suggester</span> {
-    <span class="kw">fn</span> <span class="ident">name</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
+    <span class="kw">fn</span> <span class="ident">name</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">String</span> {
         <span class="macro">format!</span>(<span class="string">&quot;MemoryCache({})&quot;</span>, <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">name</span>())
     }
 
@@ -564,7 +570,7 @@
     <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">suggest</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         <span class="ident">query</span>: <span class="ident">SuggestionRequest</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">SuggestionResponse</span>, <span class="ident">merino_suggest::SuggestError</span><span class="op">&gt;</span> {
+    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">SuggestionResponse</span>, <span class="ident">merino_suggest::SuggestError</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">now</span> <span class="op">=</span> <span class="ident">Instant::now</span>();
         <span class="kw">let</span> <span class="ident">key</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">cache_key</span>(<span class="kw-2">&amp;</span><span class="ident">query</span>);
         <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="macro">tracing::debug_span!</span>(<span class="string">&quot;memory-suggest&quot;</span>, <span class="question-mark">?</span><span class="ident">key</span>);
@@ -575,11 +581,11 @@
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rv</span> <span class="op">=</span> <span class="prelude-val">None</span>;
 
             <span class="kw">match</span> <span class="self">self</span>.<span class="ident">items</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">key</span>) {
-                <span class="prelude-val">Some</span>((<span class="ident">expiration</span>, <span class="kw">_</span>)) <span class="kw">if</span> <span class="ident">expiration</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident">now</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="prelude-val">Some</span>((<span class="ident">expiration</span>, <span class="kw">_</span>)) <span class="kw">if</span> <span class="ident">expiration</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident">now</span> =&gt; {
                     <span class="macro">tracing::debug!</span>(<span class="string">&quot;cache expired&quot;</span>);
                     <span class="self">self</span>.<span class="ident">items</span>.<span class="ident">remove</span>(<span class="ident">key</span>.<span class="ident">clone</span>());
                 }
-                <span class="prelude-val">Some</span>((<span class="ident">expiration</span>, <span class="ident">suggestions</span>)) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="prelude-val">Some</span>((<span class="ident">expiration</span>, <span class="ident">suggestions</span>)) =&gt; {
                     <span class="macro">tracing::debug!</span>(<span class="string">&quot;cache hit&quot;</span>);
                     <span class="self">self</span>.<span class="ident">metrics_client</span>.<span class="ident">incr</span>(<span class="string">&quot;cache.memory.hit&quot;</span>).<span class="ident">ok</span>();
                     <span class="ident">rv</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">SuggestionResponse</span> {
@@ -588,7 +594,7 @@
                         <span class="ident">suggestions</span>,
                     });
                 }
-                <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="prelude-val">None</span> =&gt; {
                     <span class="macro">tracing::debug!</span>(<span class="string">&quot;cache miss&quot;</span>);
                     <span class="self">self</span>.<span class="ident">metrics_client</span>.<span class="ident">incr</span>(<span class="string">&quot;cache.memory.miss&quot;</span>).<span class="ident">ok</span>();
                 }
@@ -647,7 +653,7 @@
     <span class="kw">use</span> <span class="ident">cadence</span>::{<span class="ident">SpyMetricSink</span>, <span class="ident">StatsdClient</span>};
     <span class="kw">use</span> <span class="ident">deduped_dashmap::DedupedMap</span>;
     <span class="kw">use</span> <span class="ident">fake</span>::{<span class="ident">Fake</span>, <span class="ident">Faker</span>};
-    <span class="kw">use</span> <span class="ident">merino_suggest::Suggestion</span>;
+    <span class="kw">use</span> <span class="ident">merino_suggest</span>::{<span class="ident">NullProvider</span>, <span class="ident">Suggestion</span>};
     <span class="kw">use</span> <span class="ident">std</span>::{
         <span class="ident">sync::Arc</span>,
         <span class="ident">time</span>::{<span class="ident">Duration</span>, <span class="ident">Instant</span>},
@@ -677,7 +683,16 @@
         <span class="kw">let</span> (<span class="ident">rx</span>, <span class="ident">sink</span>) <span class="op">=</span> <span class="ident">SpyMetricSink::new</span>();
         <span class="kw">let</span> <span class="ident">metrics_client</span> <span class="op">=</span> <span class="ident">StatsdClient::from_sink</span>(<span class="string">&quot;merino-test&quot;</span>, <span class="ident">sink</span>);
 
-        <span class="ident">Suggester::remove_expired_entries</span>(<span class="kw-2">&amp;</span><span class="ident">cache</span>, <span class="kw-2">&amp;</span><span class="ident">metrics_client</span>);
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">suggester</span> <span class="op">=</span> <span class="ident">Suggester</span> {
+            <span class="ident">inner</span>: <span class="ident">Arc::new</span>(<span class="ident">Box::new</span>(<span class="ident">NullProvider</span>)),
+            <span class="ident">metrics_client</span>,
+            <span class="ident">items</span>: <span class="ident">cache</span>.<span class="ident">clone</span>(),
+            <span class="ident">default_ttl</span>: <span class="ident">Duration::from_secs</span>(<span class="number">30</span>),
+            <span class="ident">default_lock_timeout</span>: <span class="ident">Duration::from_secs</span>(<span class="number">1</span>),
+            <span class="ident">max_background_removals</span>: <span class="ident">usize::MAX</span>,
+        };
+
+        <span class="ident">suggester</span>.<span class="ident">remove_expired_entries</span>();
 
         <span class="macro">assert_eq!</span>(<span class="ident">cache</span>.<span class="ident">len_storage</span>(), <span class="number">1</span>);
         <span class="macro">assert_eq!</span>(<span class="ident">cache</span>.<span class="ident">len_pointers</span>(), <span class="number">1</span>);
@@ -721,7 +736,7 @@
         <span class="macro">assert!</span>(<span class="ident">lock_check</span>);
     }
 }
-</pre></div>
+</code></pre></div>
 </section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="merino_cache" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
     <script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script>
 </body></html>

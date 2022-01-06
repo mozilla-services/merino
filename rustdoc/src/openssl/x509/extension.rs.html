@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;usr&#x2F;local&#x2F;cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;openssl-0.10.35&#x2F;src&#x2F;x509&#x2F;extension.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>extension.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../openssl/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;usr&#x2F;local&#x2F;cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;openssl-0.10.35&#x2F;src&#x2F;x509&#x2F;extension.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>extension.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../openssl/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -556,8 +556,7 @@
 <span id="556">556</span>
 <span id="557">557</span>
 <span id="558">558</span>
-</pre><pre class="rust">
-<span class="doccomment">//! Add extensions to an `X509` certificate or certificate request.</span>
+</pre><pre class="rust"><code><span class="doccomment">//! Add extensions to an `X509` certificate or certificate request.</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! The extensions defined for X.509 v3 certificates provide methods for</span>
 <span class="doccomment">//! associating additional attributes with users or public keys and for</span>
@@ -577,9 +576,9 @@
 <span class="doccomment">//! ```</span>
 <span class="kw">use</span> <span class="ident">std::fmt::Write</span>;
 
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::error::ErrorStack</span>;
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::nid::Nid</span>;
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::x509</span>::{<span class="ident">X509Extension</span>, <span class="ident">X509v3Context</span>};
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::error::ErrorStack</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::nid::Nid</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::x509</span>::{<span class="ident">X509Extension</span>, <span class="ident">X509v3Context</span>};
 
 <span class="doccomment">/// An extension which indicates whether a certificate is a CA certificate.</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">BasicConstraints</span> {
@@ -589,14 +588,14 @@
 }
 
 <span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">BasicConstraints</span> {
-    <span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">BasicConstraints</span> {
+    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="ident">BasicConstraints</span> {
         <span class="ident">BasicConstraints::new</span>()
     }
 }
 
 <span class="kw">impl</span> <span class="ident">BasicConstraints</span> {
     <span class="doccomment">/// Construct a new `BasicConstraints` extension.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">BasicConstraints</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="ident">BasicConstraints</span> {
         <span class="ident">BasicConstraints</span> {
             <span class="ident">critical</span>: <span class="bool-val">false</span>,
             <span class="ident">ca</span>: <span class="bool-val">false</span>,
@@ -605,26 +604,26 @@
     }
 
     <span class="doccomment">/// Sets the `critical` flag to `true`. The extension will be critical.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">critical</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">BasicConstraints</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">critical</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">BasicConstraints</span> {
         <span class="self">self</span>.<span class="ident">critical</span> <span class="op">=</span> <span class="bool-val">true</span>;
         <span class="self">self</span>
     }
 
     <span class="doccomment">/// Sets the `ca` flag to `true`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ca</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">BasicConstraints</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ca</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">BasicConstraints</span> {
         <span class="self">self</span>.<span class="ident">ca</span> <span class="op">=</span> <span class="bool-val">true</span>;
         <span class="self">self</span>
     }
 
     <span class="doccomment">/// Sets the pathlen to an optional non-negative value. The pathlen is the</span>
     <span class="doccomment">/// maximum number of CAs that can appear below this one in a chain.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">pathlen</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">pathlen</span>: <span class="ident">u32</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">BasicConstraints</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">pathlen</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">pathlen</span>: <span class="ident">u32</span>) -&gt; <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">BasicConstraints</span> {
         <span class="self">self</span>.<span class="ident">pathlen</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">pathlen</span>);
         <span class="self">self</span>
     }
 
     <span class="doccomment">/// Return the `BasicConstraints` extension as an `X509Extension`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">build</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">X509Extension</span>, <span class="ident">ErrorStack</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">build</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">X509Extension</span>, <span class="ident">ErrorStack</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">value</span> <span class="op">=</span> <span class="ident">String::new</span>();
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">critical</span> {
             <span class="ident">value</span>.<span class="ident">push_str</span>(<span class="string">&quot;critical,&quot;</span>);
@@ -657,14 +656,14 @@
 }
 
 <span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">KeyUsage</span> {
-    <span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">KeyUsage</span> {
+    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="ident">KeyUsage</span> {
         <span class="ident">KeyUsage::new</span>()
     }
 }
 
 <span class="kw">impl</span> <span class="ident">KeyUsage</span> {
     <span class="doccomment">/// Construct a new `KeyUsage` extension.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">KeyUsage</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="ident">KeyUsage</span> {
         <span class="ident">KeyUsage</span> {
             <span class="ident">critical</span>: <span class="bool-val">false</span>,
             <span class="ident">digital_signature</span>: <span class="bool-val">false</span>,
@@ -680,67 +679,67 @@
     }
 
     <span class="doccomment">/// Sets the `critical` flag to `true`. The extension will be critical.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">critical</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyUsage</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">critical</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyUsage</span> {
         <span class="self">self</span>.<span class="ident">critical</span> <span class="op">=</span> <span class="bool-val">true</span>;
         <span class="self">self</span>
     }
 
     <span class="doccomment">/// Sets the `digitalSignature` flag to `true`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">digital_signature</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyUsage</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">digital_signature</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyUsage</span> {
         <span class="self">self</span>.<span class="ident">digital_signature</span> <span class="op">=</span> <span class="bool-val">true</span>;
         <span class="self">self</span>
     }
 
     <span class="doccomment">/// Sets the `nonRepudiation` flag to `true`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">non_repudiation</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyUsage</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">non_repudiation</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyUsage</span> {
         <span class="self">self</span>.<span class="ident">non_repudiation</span> <span class="op">=</span> <span class="bool-val">true</span>;
         <span class="self">self</span>
     }
 
     <span class="doccomment">/// Sets the `keyEncipherment` flag to `true`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">key_encipherment</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyUsage</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">key_encipherment</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyUsage</span> {
         <span class="self">self</span>.<span class="ident">key_encipherment</span> <span class="op">=</span> <span class="bool-val">true</span>;
         <span class="self">self</span>
     }
 
     <span class="doccomment">/// Sets the `dataEncipherment` flag to `true`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">data_encipherment</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyUsage</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">data_encipherment</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyUsage</span> {
         <span class="self">self</span>.<span class="ident">data_encipherment</span> <span class="op">=</span> <span class="bool-val">true</span>;
         <span class="self">self</span>
     }
 
     <span class="doccomment">/// Sets the `keyAgreement` flag to `true`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">key_agreement</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyUsage</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">key_agreement</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyUsage</span> {
         <span class="self">self</span>.<span class="ident">key_agreement</span> <span class="op">=</span> <span class="bool-val">true</span>;
         <span class="self">self</span>
     }
 
     <span class="doccomment">/// Sets the `keyCertSign` flag to `true`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">key_cert_sign</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyUsage</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">key_cert_sign</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyUsage</span> {
         <span class="self">self</span>.<span class="ident">key_cert_sign</span> <span class="op">=</span> <span class="bool-val">true</span>;
         <span class="self">self</span>
     }
 
     <span class="doccomment">/// Sets the `cRLSign` flag to `true`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">crl_sign</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyUsage</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">crl_sign</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyUsage</span> {
         <span class="self">self</span>.<span class="ident">crl_sign</span> <span class="op">=</span> <span class="bool-val">true</span>;
         <span class="self">self</span>
     }
 
     <span class="doccomment">/// Sets the `encipherOnly` flag to `true`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">encipher_only</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyUsage</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">encipher_only</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyUsage</span> {
         <span class="self">self</span>.<span class="ident">encipher_only</span> <span class="op">=</span> <span class="bool-val">true</span>;
         <span class="self">self</span>
     }
 
     <span class="doccomment">/// Sets the `decipherOnly` flag to `true`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">decipher_only</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyUsage</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">decipher_only</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyUsage</span> {
         <span class="self">self</span>.<span class="ident">decipher_only</span> <span class="op">=</span> <span class="bool-val">true</span>;
         <span class="self">self</span>
     }
 
     <span class="doccomment">/// Return the `KeyUsage` extension as an `X509Extension`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">build</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">X509Extension</span>, <span class="ident">ErrorStack</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">build</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">X509Extension</span>, <span class="ident">ErrorStack</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">value</span> <span class="op">=</span> <span class="ident">String::new</span>();
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">first</span> <span class="op">=</span> <span class="bool-val">true</span>;
         <span class="ident">append</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">value</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">first</span>, <span class="self">self</span>.<span class="ident">critical</span>, <span class="string">&quot;critical&quot;</span>);
@@ -796,14 +795,14 @@
 }
 
 <span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">ExtendedKeyUsage</span> {
-    <span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ExtendedKeyUsage</span> {
+    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="ident">ExtendedKeyUsage</span> {
         <span class="ident">ExtendedKeyUsage::new</span>()
     }
 }
 
 <span class="kw">impl</span> <span class="ident">ExtendedKeyUsage</span> {
     <span class="doccomment">/// Construct a new `ExtendedKeyUsage` extension.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ExtendedKeyUsage</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="ident">ExtendedKeyUsage</span> {
         <span class="ident">ExtendedKeyUsage</span> {
             <span class="ident">critical</span>: <span class="bool-val">false</span>,
             <span class="ident">server_auth</span>: <span class="bool-val">false</span>,
@@ -822,85 +821,85 @@
     }
 
     <span class="doccomment">/// Sets the `critical` flag to `true`. The extension will be critical.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">critical</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ExtendedKeyUsage</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">critical</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ExtendedKeyUsage</span> {
         <span class="self">self</span>.<span class="ident">critical</span> <span class="op">=</span> <span class="bool-val">true</span>;
         <span class="self">self</span>
     }
 
     <span class="doccomment">/// Sets the `serverAuth` flag to `true`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">server_auth</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ExtendedKeyUsage</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">server_auth</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ExtendedKeyUsage</span> {
         <span class="self">self</span>.<span class="ident">server_auth</span> <span class="op">=</span> <span class="bool-val">true</span>;
         <span class="self">self</span>
     }
 
     <span class="doccomment">/// Sets the `clientAuth` flag to `true`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">client_auth</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ExtendedKeyUsage</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">client_auth</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ExtendedKeyUsage</span> {
         <span class="self">self</span>.<span class="ident">client_auth</span> <span class="op">=</span> <span class="bool-val">true</span>;
         <span class="self">self</span>
     }
 
     <span class="doccomment">/// Sets the `codeSigning` flag to `true`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">code_signing</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ExtendedKeyUsage</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">code_signing</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ExtendedKeyUsage</span> {
         <span class="self">self</span>.<span class="ident">code_signing</span> <span class="op">=</span> <span class="bool-val">true</span>;
         <span class="self">self</span>
     }
 
     <span class="doccomment">/// Sets the `emailProtection` flag to `true`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">email_protection</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ExtendedKeyUsage</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">email_protection</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ExtendedKeyUsage</span> {
         <span class="self">self</span>.<span class="ident">email_protection</span> <span class="op">=</span> <span class="bool-val">true</span>;
         <span class="self">self</span>
     }
 
     <span class="doccomment">/// Sets the `timeStamping` flag to `true`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">time_stamping</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ExtendedKeyUsage</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">time_stamping</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ExtendedKeyUsage</span> {
         <span class="self">self</span>.<span class="ident">time_stamping</span> <span class="op">=</span> <span class="bool-val">true</span>;
         <span class="self">self</span>
     }
 
     <span class="doccomment">/// Sets the `msCodeInd` flag to `true`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ms_code_ind</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ExtendedKeyUsage</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ms_code_ind</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ExtendedKeyUsage</span> {
         <span class="self">self</span>.<span class="ident">ms_code_ind</span> <span class="op">=</span> <span class="bool-val">true</span>;
         <span class="self">self</span>
     }
 
     <span class="doccomment">/// Sets the `msCodeCom` flag to `true`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ms_code_com</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ExtendedKeyUsage</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ms_code_com</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ExtendedKeyUsage</span> {
         <span class="self">self</span>.<span class="ident">ms_code_com</span> <span class="op">=</span> <span class="bool-val">true</span>;
         <span class="self">self</span>
     }
 
     <span class="doccomment">/// Sets the `msCTLSign` flag to `true`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ms_ctl_sign</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ExtendedKeyUsage</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ms_ctl_sign</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ExtendedKeyUsage</span> {
         <span class="self">self</span>.<span class="ident">ms_ctl_sign</span> <span class="op">=</span> <span class="bool-val">true</span>;
         <span class="self">self</span>
     }
 
     <span class="doccomment">/// Sets the `msSGC` flag to `true`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ms_sgc</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ExtendedKeyUsage</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ms_sgc</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ExtendedKeyUsage</span> {
         <span class="self">self</span>.<span class="ident">ms_sgc</span> <span class="op">=</span> <span class="bool-val">true</span>;
         <span class="self">self</span>
     }
 
     <span class="doccomment">/// Sets the `msEFS` flag to `true`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ms_efs</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ExtendedKeyUsage</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ms_efs</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ExtendedKeyUsage</span> {
         <span class="self">self</span>.<span class="ident">ms_efs</span> <span class="op">=</span> <span class="bool-val">true</span>;
         <span class="self">self</span>
     }
 
     <span class="doccomment">/// Sets the `nsSGC` flag to `true`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ns_sgc</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ExtendedKeyUsage</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ns_sgc</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ExtendedKeyUsage</span> {
         <span class="self">self</span>.<span class="ident">ns_sgc</span> <span class="op">=</span> <span class="bool-val">true</span>;
         <span class="self">self</span>
     }
 
     <span class="doccomment">/// Sets a flag not already defined.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">other</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ExtendedKeyUsage</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">other</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ExtendedKeyUsage</span> {
         <span class="self">self</span>.<span class="ident">other</span>.<span class="ident">push</span>(<span class="ident">other</span>.<span class="ident">to_owned</span>());
         <span class="self">self</span>
     }
 
     <span class="doccomment">/// Return the `ExtendedKeyUsage` extension as an `X509Extension`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">build</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">X509Extension</span>, <span class="ident">ErrorStack</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">build</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">X509Extension</span>, <span class="ident">ErrorStack</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">value</span> <span class="op">=</span> <span class="ident">String::new</span>();
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">first</span> <span class="op">=</span> <span class="bool-val">true</span>;
         <span class="ident">append</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">value</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">first</span>, <span class="self">self</span>.<span class="ident">critical</span>, <span class="string">&quot;critical&quot;</span>);
@@ -934,25 +933,25 @@
 }
 
 <span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">SubjectKeyIdentifier</span> {
-    <span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">SubjectKeyIdentifier</span> {
+    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="ident">SubjectKeyIdentifier</span> {
         <span class="ident">SubjectKeyIdentifier::new</span>()
     }
 }
 
 <span class="kw">impl</span> <span class="ident">SubjectKeyIdentifier</span> {
     <span class="doccomment">/// Construct a new `SubjectKeyIdentifier` extension.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">SubjectKeyIdentifier</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="ident">SubjectKeyIdentifier</span> {
         <span class="ident">SubjectKeyIdentifier</span> { <span class="ident">critical</span>: <span class="bool-val">false</span> }
     }
 
     <span class="doccomment">/// Sets the `critical` flag to `true`. The extension will be critical.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">critical</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">SubjectKeyIdentifier</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">critical</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">SubjectKeyIdentifier</span> {
         <span class="self">self</span>.<span class="ident">critical</span> <span class="op">=</span> <span class="bool-val">true</span>;
         <span class="self">self</span>
     }
 
     <span class="doccomment">/// Return a `SubjectKeyIdentifier` extension as an `X509Extension`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">build</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">X509v3Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">X509Extension</span>, <span class="ident">ErrorStack</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">build</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">X509v3Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">X509Extension</span>, <span class="ident">ErrorStack</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">value</span> <span class="op">=</span> <span class="ident">String::new</span>();
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">first</span> <span class="op">=</span> <span class="bool-val">true</span>;
         <span class="ident">append</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">value</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">first</span>, <span class="self">self</span>.<span class="ident">critical</span>, <span class="string">&quot;critical&quot;</span>);
@@ -970,14 +969,14 @@
 }
 
 <span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">AuthorityKeyIdentifier</span> {
-    <span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">AuthorityKeyIdentifier</span> {
+    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="ident">AuthorityKeyIdentifier</span> {
         <span class="ident">AuthorityKeyIdentifier::new</span>()
     }
 }
 
 <span class="kw">impl</span> <span class="ident">AuthorityKeyIdentifier</span> {
     <span class="doccomment">/// Construct a new `AuthorityKeyIdentifier` extension.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">AuthorityKeyIdentifier</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="ident">AuthorityKeyIdentifier</span> {
         <span class="ident">AuthorityKeyIdentifier</span> {
             <span class="ident">critical</span>: <span class="bool-val">false</span>,
             <span class="ident">keyid</span>: <span class="prelude-val">None</span>,
@@ -986,37 +985,37 @@
     }
 
     <span class="doccomment">/// Sets the `critical` flag to `true`. The extension will be critical.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">critical</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">AuthorityKeyIdentifier</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">critical</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">AuthorityKeyIdentifier</span> {
         <span class="self">self</span>.<span class="ident">critical</span> <span class="op">=</span> <span class="bool-val">true</span>;
         <span class="self">self</span>
     }
 
     <span class="doccomment">/// Sets the `keyid` flag.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">keyid</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">always</span>: <span class="ident">bool</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">AuthorityKeyIdentifier</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">keyid</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">always</span>: <span class="ident">bool</span>) -&gt; <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">AuthorityKeyIdentifier</span> {
         <span class="self">self</span>.<span class="ident">keyid</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">always</span>);
         <span class="self">self</span>
     }
 
     <span class="doccomment">/// Sets the `issuer` flag.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">issuer</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">always</span>: <span class="ident">bool</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">AuthorityKeyIdentifier</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">issuer</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">always</span>: <span class="ident">bool</span>) -&gt; <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">AuthorityKeyIdentifier</span> {
         <span class="self">self</span>.<span class="ident">issuer</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">always</span>);
         <span class="self">self</span>
     }
 
     <span class="doccomment">/// Return a `AuthorityKeyIdentifier` extension as an `X509Extension`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">build</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">X509v3Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">X509Extension</span>, <span class="ident">ErrorStack</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">build</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">X509v3Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">X509Extension</span>, <span class="ident">ErrorStack</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">value</span> <span class="op">=</span> <span class="ident">String::new</span>();
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">first</span> <span class="op">=</span> <span class="bool-val">true</span>;
         <span class="ident">append</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">value</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">first</span>, <span class="self">self</span>.<span class="ident">critical</span>, <span class="string">&quot;critical&quot;</span>);
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">keyid</span> {
-            <span class="prelude-val">Some</span>(<span class="bool-val">true</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">append</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">value</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">first</span>, <span class="bool-val">true</span>, <span class="string">&quot;keyid:always&quot;</span>),
-            <span class="prelude-val">Some</span>(<span class="bool-val">false</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">append</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">value</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">first</span>, <span class="bool-val">true</span>, <span class="string">&quot;keyid&quot;</span>),
-            <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> {}
+            <span class="prelude-val">Some</span>(<span class="bool-val">true</span>) =&gt; <span class="ident">append</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">value</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">first</span>, <span class="bool-val">true</span>, <span class="string">&quot;keyid:always&quot;</span>),
+            <span class="prelude-val">Some</span>(<span class="bool-val">false</span>) =&gt; <span class="ident">append</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">value</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">first</span>, <span class="bool-val">true</span>, <span class="string">&quot;keyid&quot;</span>),
+            <span class="prelude-val">None</span> =&gt; {}
         }
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">issuer</span> {
-            <span class="prelude-val">Some</span>(<span class="bool-val">true</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">append</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">value</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">first</span>, <span class="bool-val">true</span>, <span class="string">&quot;issuer:always&quot;</span>),
-            <span class="prelude-val">Some</span>(<span class="bool-val">false</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">append</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">value</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">first</span>, <span class="bool-val">true</span>, <span class="string">&quot;issuer&quot;</span>),
-            <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> {}
+            <span class="prelude-val">Some</span>(<span class="bool-val">true</span>) =&gt; <span class="ident">append</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">value</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">first</span>, <span class="bool-val">true</span>, <span class="string">&quot;issuer:always&quot;</span>),
+            <span class="prelude-val">Some</span>(<span class="bool-val">false</span>) =&gt; <span class="ident">append</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">value</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">first</span>, <span class="bool-val">true</span>, <span class="string">&quot;issuer&quot;</span>),
+            <span class="prelude-val">None</span> =&gt; {}
         }
         <span class="ident">X509Extension::new_nid</span>(<span class="prelude-val">None</span>, <span class="prelude-val">Some</span>(<span class="ident">ctx</span>), <span class="ident">Nid::AUTHORITY_KEY_IDENTIFIER</span>, <span class="kw-2">&amp;</span><span class="ident">value</span>)
     }
@@ -1030,14 +1029,14 @@
 }
 
 <span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">SubjectAlternativeName</span> {
-    <span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">SubjectAlternativeName</span> {
+    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="ident">SubjectAlternativeName</span> {
         <span class="ident">SubjectAlternativeName::new</span>()
     }
 }
 
 <span class="kw">impl</span> <span class="ident">SubjectAlternativeName</span> {
     <span class="doccomment">/// Construct a new `SubjectAlternativeName` extension.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">SubjectAlternativeName</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="ident">SubjectAlternativeName</span> {
         <span class="ident">SubjectAlternativeName</span> {
             <span class="ident">critical</span>: <span class="bool-val">false</span>,
             <span class="ident">names</span>: <span class="macro">vec!</span>[],
@@ -1045,55 +1044,55 @@
     }
 
     <span class="doccomment">/// Sets the `critical` flag to `true`. The extension will be critical.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">critical</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">SubjectAlternativeName</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">critical</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">SubjectAlternativeName</span> {
         <span class="self">self</span>.<span class="ident">critical</span> <span class="op">=</span> <span class="bool-val">true</span>;
         <span class="self">self</span>
     }
 
     <span class="doccomment">/// Sets the `email` flag.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">email</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">email</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">SubjectAlternativeName</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">email</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">email</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">SubjectAlternativeName</span> {
         <span class="self">self</span>.<span class="ident">names</span>.<span class="ident">push</span>(<span class="macro">format!</span>(<span class="string">&quot;email:{}&quot;</span>, <span class="ident">email</span>));
         <span class="self">self</span>
     }
 
     <span class="doccomment">/// Sets the `uri` flag.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">uri</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">uri</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">SubjectAlternativeName</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">uri</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">uri</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">SubjectAlternativeName</span> {
         <span class="self">self</span>.<span class="ident">names</span>.<span class="ident">push</span>(<span class="macro">format!</span>(<span class="string">&quot;URI:{}&quot;</span>, <span class="ident">uri</span>));
         <span class="self">self</span>
     }
 
     <span class="doccomment">/// Sets the `dns` flag.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">dns</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">dns</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">SubjectAlternativeName</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">dns</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">dns</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">SubjectAlternativeName</span> {
         <span class="self">self</span>.<span class="ident">names</span>.<span class="ident">push</span>(<span class="macro">format!</span>(<span class="string">&quot;DNS:{}&quot;</span>, <span class="ident">dns</span>));
         <span class="self">self</span>
     }
 
     <span class="doccomment">/// Sets the `rid` flag.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">rid</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">rid</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">SubjectAlternativeName</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">rid</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">rid</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">SubjectAlternativeName</span> {
         <span class="self">self</span>.<span class="ident">names</span>.<span class="ident">push</span>(<span class="macro">format!</span>(<span class="string">&quot;RID:{}&quot;</span>, <span class="ident">rid</span>));
         <span class="self">self</span>
     }
 
     <span class="doccomment">/// Sets the `ip` flag.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ip</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ip</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">SubjectAlternativeName</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ip</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ip</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">SubjectAlternativeName</span> {
         <span class="self">self</span>.<span class="ident">names</span>.<span class="ident">push</span>(<span class="macro">format!</span>(<span class="string">&quot;IP:{}&quot;</span>, <span class="ident">ip</span>));
         <span class="self">self</span>
     }
 
     <span class="doccomment">/// Sets the `dirName` flag.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">dir_name</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">dir_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">SubjectAlternativeName</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">dir_name</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">dir_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">SubjectAlternativeName</span> {
         <span class="self">self</span>.<span class="ident">names</span>.<span class="ident">push</span>(<span class="macro">format!</span>(<span class="string">&quot;dirName:{}&quot;</span>, <span class="ident">dir_name</span>));
         <span class="self">self</span>
     }
 
     <span class="doccomment">/// Sets the `otherName` flag.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">other_name</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">other_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">SubjectAlternativeName</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">other_name</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">other_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">SubjectAlternativeName</span> {
         <span class="self">self</span>.<span class="ident">names</span>.<span class="ident">push</span>(<span class="macro">format!</span>(<span class="string">&quot;otherName:{}&quot;</span>, <span class="ident">other_name</span>));
         <span class="self">self</span>
     }
 
     <span class="doccomment">/// Return a `SubjectAlternativeName` extension as an `X509Extension`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">build</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">X509v3Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">X509Extension</span>, <span class="ident">ErrorStack</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">build</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">X509v3Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">X509Extension</span>, <span class="ident">ErrorStack</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">value</span> <span class="op">=</span> <span class="ident">String::new</span>();
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">first</span> <span class="op">=</span> <span class="bool-val">true</span>;
         <span class="ident">append</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">value</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">first</span>, <span class="self">self</span>.<span class="ident">critical</span>, <span class="string">&quot;critical&quot;</span>);
@@ -1115,7 +1114,7 @@
     <span class="kw-2">*</span><span class="ident">first</span> <span class="op">=</span> <span class="bool-val">false</span>;
     <span class="ident">value</span>.<span class="ident">push_str</span>(<span class="ident">element</span>);
 }
-</pre></div>
+</code></pre></div>
 </section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="openssl" data-search-index-js="../../../search-index.js" data-search-js="../../../search.js"></div>
     <script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script>
 </body></html>

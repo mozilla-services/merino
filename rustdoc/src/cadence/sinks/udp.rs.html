@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;usr&#x2F;local&#x2F;cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;cadence-0.26.0&#x2F;src&#x2F;sinks&#x2F;udp.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>udp.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../cadence/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;usr&#x2F;local&#x2F;cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;cadence-0.26.0&#x2F;src&#x2F;sinks&#x2F;udp.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>udp.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../cadence/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -310,8 +310,7 @@
 <span id="310">310</span>
 <span id="311">311</span>
 <span id="312">312</span>
-</pre><pre class="rust">
-<span class="comment">// Cadence - An extensible Statsd client for Rust!</span>
+</pre><pre class="rust"><code><span class="comment">// Cadence - An extensible Statsd client for Rust!</span>
 <span class="comment">//</span>
 <span class="comment">// Copyright 2015-2021 Nick Pillitteri</span>
 <span class="comment">//</span>
@@ -326,9 +325,9 @@
 <span class="kw">use</span> <span class="ident">std::net</span>::{<span class="ident">SocketAddr</span>, <span class="ident">ToSocketAddrs</span>, <span class="ident">UdpSocket</span>};
 <span class="kw">use</span> <span class="ident">std::sync::Mutex</span>;
 
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::io::MultiLineWriter</span>;
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::sinks::core::MetricSink</span>;
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::types</span>::{<span class="ident">ErrorKind</span>, <span class="ident">MetricError</span>, <span class="ident">MetricResult</span>};
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::io::MultiLineWriter</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::sinks::core::MetricSink</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::types</span>::{<span class="ident">ErrorKind</span>, <span class="ident">MetricError</span>, <span class="ident">MetricResult</span>};
 
 <span class="comment">// Default size of the buffer for buffered metric sinks. This</span>
 <span class="comment">// is a rather conservative value, picked to make sure the entire</span>
@@ -343,10 +342,10 @@
 <span class="comment">// Public portion of the API (the sink constructors) is pass by value so</span>
 <span class="comment">// there&#39;s no point in changing this to be pass by reference yet.</span>
 <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::needless_pass_by_value</span>)]</span>
-<span class="kw">fn</span> <span class="ident">get_addr</span><span class="op">&lt;</span><span class="ident">A</span>: <span class="ident">ToSocketAddrs</span><span class="op">&gt;</span>(<span class="ident">addr</span>: <span class="ident">A</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">MetricResult</span><span class="op">&lt;</span><span class="ident">SocketAddr</span><span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">get_addr</span><span class="op">&lt;</span><span class="ident">A</span>: <span class="ident">ToSocketAddrs</span><span class="op">&gt;</span>(<span class="ident">addr</span>: <span class="ident">A</span>) -&gt; <span class="ident">MetricResult</span><span class="op">&lt;</span><span class="ident">SocketAddr</span><span class="op">&gt;</span> {
     <span class="kw">match</span> <span class="ident">addr</span>.<span class="ident">to_socket_addrs</span>()<span class="question-mark">?</span>.<span class="ident">next</span>() {
-        <span class="prelude-val">Some</span>(<span class="ident">addr</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">addr</span>),
-        <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">MetricError::from</span>((
+        <span class="prelude-val">Some</span>(<span class="ident">addr</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="ident">addr</span>),
+        <span class="prelude-val">None</span> =&gt; <span class="prelude-val">Err</span>(<span class="ident">MetricError::from</span>((
             <span class="ident">ErrorKind::InvalidInput</span>,
             <span class="string">&quot;No socket addresses yielded&quot;</span>,
         ))),
@@ -411,7 +410,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// * It is unable to resolve the hostname of the metric server.</span>
     <span class="doccomment">/// * The host address is otherwise unable to be parsed</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span>(<span class="ident">to_addr</span>: <span class="ident">A</span>, <span class="ident">socket</span>: <span class="ident">UdpSocket</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">MetricResult</span><span class="op">&lt;</span><span class="ident">UdpMetricSink</span><span class="op">&gt;</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span>(<span class="ident">to_addr</span>: <span class="ident">A</span>, <span class="ident">socket</span>: <span class="ident">UdpSocket</span>) -&gt; <span class="ident">MetricResult</span><span class="op">&lt;</span><span class="ident">UdpMetricSink</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="ident">A</span>: <span class="ident">ToSocketAddrs</span>,
     {
@@ -421,7 +420,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">MetricSink</span> <span class="kw">for</span> <span class="ident">UdpMetricSink</span> {
-    <span class="kw">fn</span> <span class="ident">emit</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">metric</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">emit</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">metric</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">socket</span>.<span class="ident">send_to</span>(<span class="ident">metric</span>.<span class="ident">as_bytes</span>(), <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">addr</span>)
     }
 }
@@ -434,17 +433,17 @@
 }
 
 <span class="kw">impl</span> <span class="ident">UdpWriteAdapter</span> {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">addr</span>: <span class="ident">SocketAddr</span>, <span class="ident">socket</span>: <span class="ident">UdpSocket</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">UdpWriteAdapter</span> {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">addr</span>: <span class="ident">SocketAddr</span>, <span class="ident">socket</span>: <span class="ident">UdpSocket</span>) -&gt; <span class="ident">UdpWriteAdapter</span> {
         <span class="ident">UdpWriteAdapter</span> { <span class="ident">addr</span>, <span class="ident">socket</span> }
     }
 }
 
 <span class="kw">impl</span> <span class="ident">Write</span> <span class="kw">for</span> <span class="ident">UdpWriteAdapter</span> {
-    <span class="kw">fn</span> <span class="ident">write</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">buf</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">write</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">buf</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">socket</span>.<span class="ident">send_to</span>(<span class="ident">buf</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">addr</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">flush</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">flush</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="prelude-val">Ok</span>(())
     }
 }
@@ -507,11 +506,11 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// * It is unable to resolve the hostname of the metric server.</span>
     <span class="doccomment">/// * The host address is otherwise unable to be parsed</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span>(<span class="ident">sink_addr</span>: <span class="ident">A</span>, <span class="ident">socket</span>: <span class="ident">UdpSocket</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">MetricResult</span><span class="op">&lt;</span><span class="ident">BufferedUdpMetricSink</span><span class="op">&gt;</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span>(<span class="ident">sink_addr</span>: <span class="ident">A</span>, <span class="ident">socket</span>: <span class="ident">UdpSocket</span>) -&gt; <span class="ident">MetricResult</span><span class="op">&lt;</span><span class="ident">BufferedUdpMetricSink</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="ident">A</span>: <span class="ident">ToSocketAddrs</span>,
     {
-        <span class="self">Self</span><span class="ident">::with_capacity</span>(<span class="ident">sink_addr</span>, <span class="ident">socket</span>, <span class="ident">DEFAULT_BUFFER_SIZE</span>)
+        <span class="ident"><span class="self">Self</span>::with_capacity</span>(<span class="ident">sink_addr</span>, <span class="ident">socket</span>, <span class="ident">DEFAULT_BUFFER_SIZE</span>)
     }
 
     <span class="doccomment">/// Construct a new `BufferedUdpMetricSink` instance with a custom</span>
@@ -546,7 +545,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// * It is unable to resolve the hostname of the metric server.</span>
     <span class="doccomment">/// * The host address is otherwise unable to be parsed</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_capacity</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span>(<span class="ident">sink_addr</span>: <span class="ident">A</span>, <span class="ident">socket</span>: <span class="ident">UdpSocket</span>, <span class="ident">cap</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">MetricResult</span><span class="op">&lt;</span><span class="ident">BufferedUdpMetricSink</span><span class="op">&gt;</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_capacity</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span>(<span class="ident">sink_addr</span>: <span class="ident">A</span>, <span class="ident">socket</span>: <span class="ident">UdpSocket</span>, <span class="ident">cap</span>: <span class="ident">usize</span>) -&gt; <span class="ident">MetricResult</span><span class="op">&lt;</span><span class="ident">BufferedUdpMetricSink</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="ident">A</span>: <span class="ident">ToSocketAddrs</span>,
     {
@@ -558,12 +557,12 @@
 }
 
 <span class="kw">impl</span> <span class="ident">MetricSink</span> <span class="kw">for</span> <span class="ident">BufferedUdpMetricSink</span> {
-    <span class="kw">fn</span> <span class="ident">emit</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">metric</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">emit</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">metric</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">writer</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">buffer</span>.<span class="ident">lock</span>().<span class="ident">unwrap</span>();
         <span class="ident">writer</span>.<span class="ident">write</span>(<span class="ident">metric</span>.<span class="ident">as_bytes</span>())
     }
 
-    <span class="kw">fn</span> <span class="ident">flush</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">flush</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">writer</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">buffer</span>.<span class="ident">lock</span>().<span class="ident">unwrap</span>();
         <span class="ident">writer</span>.<span class="ident">flush</span>()
     }
@@ -623,7 +622,7 @@
         <span class="macro">assert!</span>(<span class="ident">sink</span>.<span class="ident">flush</span>().<span class="ident">is_ok</span>());
     }
 }
-</pre></div>
+</code></pre></div>
 </section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="cadence" data-search-index-js="../../../search-index.js" data-search-js="../../../search.js"></div>
     <script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script>
 </body></html>

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;usr&#x2F;local&#x2F;cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;nom-7.1.0&#x2F;src&#x2F;multi&#x2F;mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../nom/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;usr&#x2F;local&#x2F;cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;nom-7.1.0&#x2F;src&#x2F;multi&#x2F;mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../nom/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -979,18 +979,17 @@
 <span id="979">979</span>
 <span id="980">980</span>
 <span id="981">981</span>
-</pre><pre class="rust">
-<span class="doccomment">//! Combinators applying their child parser multiple times</span>
+</pre><pre class="rust"><code><span class="doccomment">//! Combinators applying their child parser multiple times</span>
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
 <span class="kw">mod</span> <span class="ident">tests</span>;
 
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::error::ErrorKind</span>;
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::error::ParseError</span>;
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::internal</span>::{<span class="prelude-val">Err</span>, <span class="ident">IResult</span>, <span class="ident">Needed</span>, <span class="ident">Parser</span>};
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::error::ErrorKind</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::error::ParseError</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::internal</span>::{<span class="prelude-val">Err</span>, <span class="ident">IResult</span>, <span class="ident">Needed</span>, <span class="ident">Parser</span>};
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;alloc&quot;</span>)]</span>
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::lib::std::vec::Vec</span>;
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::traits</span>::{<span class="ident">InputLength</span>, <span class="ident">InputTake</span>, <span class="ident">ToUsize</span>};
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::lib::std::vec::Vec</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::traits</span>::{<span class="ident">InputLength</span>, <span class="ident">InputTake</span>, <span class="ident">ToUsize</span>};
 <span class="kw">use</span> <span class="ident">core::num::NonZeroUsize</span>;
 
 <span class="doccomment">/// Repeats the embedded parser until it fails</span>
@@ -1019,22 +1018,22 @@
 <span class="doccomment">/// ```</span>
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;alloc&quot;</span>)]</span>
 <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;docsrs&quot;</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;alloc&quot;</span>)))]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">many0</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">O</span>, <span class="ident">E</span>, <span class="ident">F</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="ident">f</span>: <span class="ident">F</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">impl</span> <span class="ident">FnMut</span>(<span class="ident">I</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">IResult</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">O</span><span class="op">&gt;</span>, <span class="ident">E</span><span class="op">&gt;</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">many0</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">O</span>, <span class="ident">E</span>, <span class="ident">F</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="ident">f</span>: <span class="ident">F</span>) -&gt; <span class="kw">impl</span> <span class="ident">FnMut</span>(<span class="ident">I</span>) -&gt; <span class="ident">IResult</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">O</span><span class="op">&gt;</span>, <span class="ident">E</span><span class="op">&gt;</span>
 <span class="kw">where</span>
   <span class="ident">I</span>: <span class="ident">Clone</span> <span class="op">+</span> <span class="ident">InputLength</span>,
   <span class="ident">F</span>: <span class="ident">Parser</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">O</span>, <span class="ident">E</span><span class="op">&gt;</span>,
   <span class="ident">E</span>: <span class="ident">ParseError</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span>,
 {
   <span class="kw">move</span> <span class="op">|</span><span class="kw-2">mut</span> <span class="ident">i</span>: <span class="ident">I</span><span class="op">|</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">acc</span> <span class="op">=</span> <span class="kw">crate</span><span class="ident">::lib::std::vec::Vec::with_capacity</span>(<span class="number">4</span>);
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">acc</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::lib::std::vec::Vec::with_capacity</span>(<span class="number">4</span>);
     <span class="kw">loop</span> {
       <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">i</span>.<span class="ident">input_len</span>();
       <span class="kw">match</span> <span class="ident">f</span>.<span class="ident">parse</span>(<span class="ident">i</span>.<span class="ident">clone</span>()) {
-        <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>(<span class="kw">_</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Ok</span>((<span class="ident">i</span>, <span class="ident">acc</span>)),
-        <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>),
-        <span class="prelude-val">Ok</span>((<span class="ident">i1</span>, <span class="ident">o</span>)) <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>(<span class="kw">_</span>)) =&gt; <span class="kw">return</span> <span class="prelude-val">Ok</span>((<span class="ident">i</span>, <span class="ident">acc</span>)),
+        <span class="prelude-val">Err</span>(<span class="ident">e</span>) =&gt; <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>),
+        <span class="prelude-val">Ok</span>((<span class="ident">i1</span>, <span class="ident">o</span>)) =&gt; {
           <span class="comment">// infinite loop check: the parser must always consume</span>
-          <span class="kw">if</span> <span class="ident">i1</span>.<span class="ident">input_len</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">len</span> {
+          <span class="kw">if</span> <span class="ident">i1</span>.<span class="ident">input_len</span>() <span class="op">==</span> <span class="ident">len</span> {
             <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>(<span class="ident">E::from_error_kind</span>(<span class="ident">i</span>, <span class="ident">ErrorKind::Many0</span>)));
           }
 
@@ -1074,28 +1073,28 @@
 <span class="doccomment">/// ```</span>
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;alloc&quot;</span>)]</span>
 <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;docsrs&quot;</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;alloc&quot;</span>)))]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">many1</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">O</span>, <span class="ident">E</span>, <span class="ident">F</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="ident">f</span>: <span class="ident">F</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">impl</span> <span class="ident">FnMut</span>(<span class="ident">I</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">IResult</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">O</span><span class="op">&gt;</span>, <span class="ident">E</span><span class="op">&gt;</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">many1</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">O</span>, <span class="ident">E</span>, <span class="ident">F</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="ident">f</span>: <span class="ident">F</span>) -&gt; <span class="kw">impl</span> <span class="ident">FnMut</span>(<span class="ident">I</span>) -&gt; <span class="ident">IResult</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">O</span><span class="op">&gt;</span>, <span class="ident">E</span><span class="op">&gt;</span>
 <span class="kw">where</span>
   <span class="ident">I</span>: <span class="ident">Clone</span> <span class="op">+</span> <span class="ident">InputLength</span>,
   <span class="ident">F</span>: <span class="ident">Parser</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">O</span>, <span class="ident">E</span><span class="op">&gt;</span>,
   <span class="ident">E</span>: <span class="ident">ParseError</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span>,
 {
   <span class="kw">move</span> <span class="op">|</span><span class="kw-2">mut</span> <span class="ident">i</span>: <span class="ident">I</span><span class="op">|</span> <span class="kw">match</span> <span class="ident">f</span>.<span class="ident">parse</span>(<span class="ident">i</span>.<span class="ident">clone</span>()) {
-    <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>(<span class="ident">err</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>(<span class="ident">E::append</span>(<span class="ident">i</span>, <span class="ident">ErrorKind::Many1</span>, <span class="ident">err</span>))),
-    <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>),
-    <span class="prelude-val">Ok</span>((<span class="ident">i1</span>, <span class="ident">o</span>)) <span class="op">=</span><span class="op">&gt;</span> {
-      <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">acc</span> <span class="op">=</span> <span class="kw">crate</span><span class="ident">::lib::std::vec::Vec::with_capacity</span>(<span class="number">4</span>);
+    <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>(<span class="ident">err</span>)) =&gt; <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>(<span class="ident">E::append</span>(<span class="ident">i</span>, <span class="ident">ErrorKind::Many1</span>, <span class="ident">err</span>))),
+    <span class="prelude-val">Err</span>(<span class="ident">e</span>) =&gt; <span class="prelude-val">Err</span>(<span class="ident">e</span>),
+    <span class="prelude-val">Ok</span>((<span class="ident">i1</span>, <span class="ident">o</span>)) =&gt; {
+      <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">acc</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::lib::std::vec::Vec::with_capacity</span>(<span class="number">4</span>);
       <span class="ident">acc</span>.<span class="ident">push</span>(<span class="ident">o</span>);
       <span class="ident">i</span> <span class="op">=</span> <span class="ident">i1</span>;
 
       <span class="kw">loop</span> {
         <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">i</span>.<span class="ident">input_len</span>();
         <span class="kw">match</span> <span class="ident">f</span>.<span class="ident">parse</span>(<span class="ident">i</span>.<span class="ident">clone</span>()) {
-          <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>(<span class="kw">_</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Ok</span>((<span class="ident">i</span>, <span class="ident">acc</span>)),
-          <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>),
-          <span class="prelude-val">Ok</span>((<span class="ident">i1</span>, <span class="ident">o</span>)) <span class="op">=</span><span class="op">&gt;</span> {
+          <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>(<span class="kw">_</span>)) =&gt; <span class="kw">return</span> <span class="prelude-val">Ok</span>((<span class="ident">i</span>, <span class="ident">acc</span>)),
+          <span class="prelude-val">Err</span>(<span class="ident">e</span>) =&gt; <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>),
+          <span class="prelude-val">Ok</span>((<span class="ident">i1</span>, <span class="ident">o</span>)) =&gt; {
             <span class="comment">// infinite loop check: the parser must always consume</span>
-            <span class="kw">if</span> <span class="ident">i1</span>.<span class="ident">input_len</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">len</span> {
+            <span class="kw">if</span> <span class="ident">i1</span>.<span class="ident">input_len</span>() <span class="op">==</span> <span class="ident">len</span> {
               <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>(<span class="ident">E::from_error_kind</span>(<span class="ident">i</span>, <span class="ident">ErrorKind::Many1</span>)));
             }
 
@@ -1131,7 +1130,7 @@
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">many_till</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">O</span>, <span class="ident">P</span>, <span class="ident">E</span>, <span class="ident">F</span>, <span class="ident">G</span><span class="op">&gt;</span>(
   <span class="kw-2">mut</span> <span class="ident">f</span>: <span class="ident">F</span>,
   <span class="kw-2">mut</span> <span class="ident">g</span>: <span class="ident">G</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">impl</span> <span class="ident">FnMut</span>(<span class="ident">I</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">IResult</span><span class="op">&lt;</span><span class="ident">I</span>, (<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">O</span><span class="op">&gt;</span>, <span class="ident">P</span>), <span class="ident">E</span><span class="op">&gt;</span>
+) -&gt; <span class="kw">impl</span> <span class="ident">FnMut</span>(<span class="ident">I</span>) -&gt; <span class="ident">IResult</span><span class="op">&lt;</span><span class="ident">I</span>, (<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">O</span><span class="op">&gt;</span>, <span class="ident">P</span>), <span class="ident">E</span><span class="op">&gt;</span>
 <span class="kw">where</span>
   <span class="ident">I</span>: <span class="ident">Clone</span> <span class="op">+</span> <span class="ident">InputLength</span>,
   <span class="ident">F</span>: <span class="ident">Parser</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">O</span>, <span class="ident">E</span><span class="op">&gt;</span>,
@@ -1139,18 +1138,18 @@
   <span class="ident">E</span>: <span class="ident">ParseError</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span>,
 {
   <span class="kw">move</span> <span class="op">|</span><span class="kw-2">mut</span> <span class="ident">i</span>: <span class="ident">I</span><span class="op">|</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">res</span> <span class="op">=</span> <span class="kw">crate</span><span class="ident">::lib::std::vec::Vec::new</span>();
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::lib::std::vec::Vec::new</span>();
     <span class="kw">loop</span> {
       <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">i</span>.<span class="ident">input_len</span>();
       <span class="kw">match</span> <span class="ident">g</span>.<span class="ident">parse</span>(<span class="ident">i</span>.<span class="ident">clone</span>()) {
-        <span class="prelude-val">Ok</span>((<span class="ident">i1</span>, <span class="ident">o</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Ok</span>((<span class="ident">i1</span>, (<span class="ident">res</span>, <span class="ident">o</span>))),
-        <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>(<span class="kw">_</span>)) <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="prelude-val">Ok</span>((<span class="ident">i1</span>, <span class="ident">o</span>)) =&gt; <span class="kw">return</span> <span class="prelude-val">Ok</span>((<span class="ident">i1</span>, (<span class="ident">res</span>, <span class="ident">o</span>))),
+        <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>(<span class="kw">_</span>)) =&gt; {
           <span class="kw">match</span> <span class="ident">f</span>.<span class="ident">parse</span>(<span class="ident">i</span>.<span class="ident">clone</span>()) {
-            <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>(<span class="ident">err</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>(<span class="ident">E::append</span>(<span class="ident">i</span>, <span class="ident">ErrorKind::ManyTill</span>, <span class="ident">err</span>))),
-            <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>),
-            <span class="prelude-val">Ok</span>((<span class="ident">i1</span>, <span class="ident">o</span>)) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>(<span class="ident">err</span>)) =&gt; <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>(<span class="ident">E::append</span>(<span class="ident">i</span>, <span class="ident">ErrorKind::ManyTill</span>, <span class="ident">err</span>))),
+            <span class="prelude-val">Err</span>(<span class="ident">e</span>) =&gt; <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>),
+            <span class="prelude-val">Ok</span>((<span class="ident">i1</span>, <span class="ident">o</span>)) =&gt; {
               <span class="comment">// infinite loop check: the parser must always consume</span>
-              <span class="kw">if</span> <span class="ident">i1</span>.<span class="ident">input_len</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">len</span> {
+              <span class="kw">if</span> <span class="ident">i1</span>.<span class="ident">input_len</span>() <span class="op">==</span> <span class="ident">len</span> {
                 <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>(<span class="ident">E::from_error_kind</span>(<span class="ident">i1</span>, <span class="ident">ErrorKind::ManyTill</span>)));
               }
 
@@ -1159,7 +1158,7 @@
             }
           }
         }
-        <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>),
+        <span class="prelude-val">Err</span>(<span class="ident">e</span>) =&gt; <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>),
       }
     }
   }
@@ -1191,7 +1190,7 @@
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">separated_list0</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">O</span>, <span class="ident">O2</span>, <span class="ident">E</span>, <span class="ident">F</span>, <span class="ident">G</span><span class="op">&gt;</span>(
   <span class="kw-2">mut</span> <span class="ident">sep</span>: <span class="ident">G</span>,
   <span class="kw-2">mut</span> <span class="ident">f</span>: <span class="ident">F</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">impl</span> <span class="ident">FnMut</span>(<span class="ident">I</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">IResult</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">O</span><span class="op">&gt;</span>, <span class="ident">E</span><span class="op">&gt;</span>
+) -&gt; <span class="kw">impl</span> <span class="ident">FnMut</span>(<span class="ident">I</span>) -&gt; <span class="ident">IResult</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">O</span><span class="op">&gt;</span>, <span class="ident">E</span><span class="op">&gt;</span>
 <span class="kw">where</span>
   <span class="ident">I</span>: <span class="ident">Clone</span> <span class="op">+</span> <span class="ident">InputLength</span>,
   <span class="ident">F</span>: <span class="ident">Parser</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">O</span>, <span class="ident">E</span><span class="op">&gt;</span>,
@@ -1202,9 +1201,9 @@
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
 
     <span class="kw">match</span> <span class="ident">f</span>.<span class="ident">parse</span>(<span class="ident">i</span>.<span class="ident">clone</span>()) {
-      <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>(<span class="kw">_</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Ok</span>((<span class="ident">i</span>, <span class="ident">res</span>)),
-      <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>),
-      <span class="prelude-val">Ok</span>((<span class="ident">i1</span>, <span class="ident">o</span>)) <span class="op">=</span><span class="op">&gt;</span> {
+      <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>(<span class="kw">_</span>)) =&gt; <span class="kw">return</span> <span class="prelude-val">Ok</span>((<span class="ident">i</span>, <span class="ident">res</span>)),
+      <span class="prelude-val">Err</span>(<span class="ident">e</span>) =&gt; <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>),
+      <span class="prelude-val">Ok</span>((<span class="ident">i1</span>, <span class="ident">o</span>)) =&gt; {
         <span class="ident">res</span>.<span class="ident">push</span>(<span class="ident">o</span>);
         <span class="ident">i</span> <span class="op">=</span> <span class="ident">i1</span>;
       }
@@ -1213,18 +1212,18 @@
     <span class="kw">loop</span> {
       <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">i</span>.<span class="ident">input_len</span>();
       <span class="kw">match</span> <span class="ident">sep</span>.<span class="ident">parse</span>(<span class="ident">i</span>.<span class="ident">clone</span>()) {
-        <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>(<span class="kw">_</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Ok</span>((<span class="ident">i</span>, <span class="ident">res</span>)),
-        <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>),
-        <span class="prelude-val">Ok</span>((<span class="ident">i1</span>, <span class="kw">_</span>)) <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>(<span class="kw">_</span>)) =&gt; <span class="kw">return</span> <span class="prelude-val">Ok</span>((<span class="ident">i</span>, <span class="ident">res</span>)),
+        <span class="prelude-val">Err</span>(<span class="ident">e</span>) =&gt; <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>),
+        <span class="prelude-val">Ok</span>((<span class="ident">i1</span>, <span class="kw">_</span>)) =&gt; {
           <span class="comment">// infinite loop check: the parser must always consume</span>
-          <span class="kw">if</span> <span class="ident">i1</span>.<span class="ident">input_len</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">len</span> {
+          <span class="kw">if</span> <span class="ident">i1</span>.<span class="ident">input_len</span>() <span class="op">==</span> <span class="ident">len</span> {
             <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>(<span class="ident">E::from_error_kind</span>(<span class="ident">i1</span>, <span class="ident">ErrorKind::SeparatedList</span>)));
           }
 
           <span class="kw">match</span> <span class="ident">f</span>.<span class="ident">parse</span>(<span class="ident">i1</span>.<span class="ident">clone</span>()) {
-            <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>(<span class="kw">_</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Ok</span>((<span class="ident">i</span>, <span class="ident">res</span>)),
-            <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>),
-            <span class="prelude-val">Ok</span>((<span class="ident">i2</span>, <span class="ident">o</span>)) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>(<span class="kw">_</span>)) =&gt; <span class="kw">return</span> <span class="prelude-val">Ok</span>((<span class="ident">i</span>, <span class="ident">res</span>)),
+            <span class="prelude-val">Err</span>(<span class="ident">e</span>) =&gt; <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>),
+            <span class="prelude-val">Ok</span>((<span class="ident">i2</span>, <span class="ident">o</span>)) =&gt; {
               <span class="ident">res</span>.<span class="ident">push</span>(<span class="ident">o</span>);
               <span class="ident">i</span> <span class="op">=</span> <span class="ident">i2</span>;
             }
@@ -1261,7 +1260,7 @@
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">separated_list1</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">O</span>, <span class="ident">O2</span>, <span class="ident">E</span>, <span class="ident">F</span>, <span class="ident">G</span><span class="op">&gt;</span>(
   <span class="kw-2">mut</span> <span class="ident">sep</span>: <span class="ident">G</span>,
   <span class="kw-2">mut</span> <span class="ident">f</span>: <span class="ident">F</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">impl</span> <span class="ident">FnMut</span>(<span class="ident">I</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">IResult</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">O</span><span class="op">&gt;</span>, <span class="ident">E</span><span class="op">&gt;</span>
+) -&gt; <span class="kw">impl</span> <span class="ident">FnMut</span>(<span class="ident">I</span>) -&gt; <span class="ident">IResult</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">O</span><span class="op">&gt;</span>, <span class="ident">E</span><span class="op">&gt;</span>
 <span class="kw">where</span>
   <span class="ident">I</span>: <span class="ident">Clone</span> <span class="op">+</span> <span class="ident">InputLength</span>,
   <span class="ident">F</span>: <span class="ident">Parser</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">O</span>, <span class="ident">E</span><span class="op">&gt;</span>,
@@ -1273,8 +1272,8 @@
 
     <span class="comment">// Parse the first element</span>
     <span class="kw">match</span> <span class="ident">f</span>.<span class="ident">parse</span>(<span class="ident">i</span>.<span class="ident">clone</span>()) {
-      <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>),
-      <span class="prelude-val">Ok</span>((<span class="ident">i1</span>, <span class="ident">o</span>)) <span class="op">=</span><span class="op">&gt;</span> {
+      <span class="prelude-val">Err</span>(<span class="ident">e</span>) =&gt; <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>),
+      <span class="prelude-val">Ok</span>((<span class="ident">i1</span>, <span class="ident">o</span>)) =&gt; {
         <span class="ident">res</span>.<span class="ident">push</span>(<span class="ident">o</span>);
         <span class="ident">i</span> <span class="op">=</span> <span class="ident">i1</span>;
       }
@@ -1283,18 +1282,18 @@
     <span class="kw">loop</span> {
       <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">i</span>.<span class="ident">input_len</span>();
       <span class="kw">match</span> <span class="ident">sep</span>.<span class="ident">parse</span>(<span class="ident">i</span>.<span class="ident">clone</span>()) {
-        <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>(<span class="kw">_</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Ok</span>((<span class="ident">i</span>, <span class="ident">res</span>)),
-        <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>),
-        <span class="prelude-val">Ok</span>((<span class="ident">i1</span>, <span class="kw">_</span>)) <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>(<span class="kw">_</span>)) =&gt; <span class="kw">return</span> <span class="prelude-val">Ok</span>((<span class="ident">i</span>, <span class="ident">res</span>)),
+        <span class="prelude-val">Err</span>(<span class="ident">e</span>) =&gt; <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>),
+        <span class="prelude-val">Ok</span>((<span class="ident">i1</span>, <span class="kw">_</span>)) =&gt; {
           <span class="comment">// infinite loop check: the parser must always consume</span>
-          <span class="kw">if</span> <span class="ident">i1</span>.<span class="ident">input_len</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">len</span> {
+          <span class="kw">if</span> <span class="ident">i1</span>.<span class="ident">input_len</span>() <span class="op">==</span> <span class="ident">len</span> {
             <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>(<span class="ident">E::from_error_kind</span>(<span class="ident">i1</span>, <span class="ident">ErrorKind::SeparatedList</span>)));
           }
 
           <span class="kw">match</span> <span class="ident">f</span>.<span class="ident">parse</span>(<span class="ident">i1</span>.<span class="ident">clone</span>()) {
-            <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>(<span class="kw">_</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Ok</span>((<span class="ident">i</span>, <span class="ident">res</span>)),
-            <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>),
-            <span class="prelude-val">Ok</span>((<span class="ident">i2</span>, <span class="ident">o</span>)) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>(<span class="kw">_</span>)) =&gt; <span class="kw">return</span> <span class="prelude-val">Ok</span>((<span class="ident">i</span>, <span class="ident">res</span>)),
+            <span class="prelude-val">Err</span>(<span class="ident">e</span>) =&gt; <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>),
+            <span class="prelude-val">Ok</span>((<span class="ident">i2</span>, <span class="ident">o</span>)) =&gt; {
               <span class="ident">res</span>.<span class="ident">push</span>(<span class="ident">o</span>);
               <span class="ident">i</span> <span class="op">=</span> <span class="ident">i2</span>;
             }
@@ -1333,7 +1332,7 @@
   <span class="ident">min</span>: <span class="ident">usize</span>,
   <span class="ident">max</span>: <span class="ident">usize</span>,
   <span class="kw-2">mut</span> <span class="ident">parse</span>: <span class="ident">F</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">impl</span> <span class="ident">FnMut</span>(<span class="ident">I</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">IResult</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">O</span><span class="op">&gt;</span>, <span class="ident">E</span><span class="op">&gt;</span>
+) -&gt; <span class="kw">impl</span> <span class="ident">FnMut</span>(<span class="ident">I</span>) -&gt; <span class="ident">IResult</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">O</span><span class="op">&gt;</span>, <span class="ident">E</span><span class="op">&gt;</span>
 <span class="kw">where</span>
   <span class="ident">I</span>: <span class="ident">Clone</span> <span class="op">+</span> <span class="ident">InputLength</span>,
   <span class="ident">F</span>: <span class="ident">Parser</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">O</span>, <span class="ident">E</span><span class="op">&gt;</span>,
@@ -1344,27 +1343,27 @@
       <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Err::Failure</span>(<span class="ident">E::from_error_kind</span>(<span class="ident">input</span>, <span class="ident">ErrorKind::ManyMN</span>)));
     }
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">res</span> <span class="op">=</span> <span class="kw">crate</span><span class="ident">::lib::std::vec::Vec::with_capacity</span>(<span class="ident">min</span>);
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::lib::std::vec::Vec::with_capacity</span>(<span class="ident">min</span>);
     <span class="kw">for</span> <span class="ident">count</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">max</span> {
       <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">input</span>.<span class="ident">input_len</span>();
       <span class="kw">match</span> <span class="ident">parse</span>.<span class="ident">parse</span>(<span class="ident">input</span>.<span class="ident">clone</span>()) {
-        <span class="prelude-val">Ok</span>((<span class="ident">tail</span>, <span class="ident">value</span>)) <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="prelude-val">Ok</span>((<span class="ident">tail</span>, <span class="ident">value</span>)) =&gt; {
           <span class="comment">// infinite loop check: the parser must always consume</span>
-          <span class="kw">if</span> <span class="ident">tail</span>.<span class="ident">input_len</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">len</span> {
+          <span class="kw">if</span> <span class="ident">tail</span>.<span class="ident">input_len</span>() <span class="op">==</span> <span class="ident">len</span> {
             <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>(<span class="ident">E::from_error_kind</span>(<span class="ident">input</span>, <span class="ident">ErrorKind::ManyMN</span>)));
           }
 
           <span class="ident">res</span>.<span class="ident">push</span>(<span class="ident">value</span>);
           <span class="ident">input</span> <span class="op">=</span> <span class="ident">tail</span>;
         }
-        <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>(<span class="ident">e</span>)) <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>(<span class="ident">e</span>)) =&gt; {
           <span class="kw">if</span> <span class="ident">count</span> <span class="op">&lt;</span> <span class="ident">min</span> {
             <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>(<span class="ident">E::append</span>(<span class="ident">input</span>, <span class="ident">ErrorKind::ManyMN</span>, <span class="ident">e</span>)));
           } <span class="kw">else</span> {
             <span class="kw">return</span> <span class="prelude-val">Ok</span>((<span class="ident">input</span>, <span class="ident">res</span>));
           }
         }
-        <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="prelude-val">Err</span>(<span class="ident">e</span>) =&gt; {
           <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>);
         }
       }
@@ -1392,7 +1391,7 @@
 <span class="doccomment">/// assert_eq!(parser(&quot;123123&quot;), Ok((&quot;123123&quot;, 0)));</span>
 <span class="doccomment">/// assert_eq!(parser(&quot;&quot;), Ok((&quot;&quot;, 0)));</span>
 <span class="doccomment">/// ```</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">many0_count</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">O</span>, <span class="ident">E</span>, <span class="ident">F</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="ident">f</span>: <span class="ident">F</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">impl</span> <span class="ident">FnMut</span>(<span class="ident">I</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">IResult</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">usize</span>, <span class="ident">E</span><span class="op">&gt;</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">many0_count</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">O</span>, <span class="ident">E</span>, <span class="ident">F</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="ident">f</span>: <span class="ident">F</span>) -&gt; <span class="kw">impl</span> <span class="ident">FnMut</span>(<span class="ident">I</span>) -&gt; <span class="ident">IResult</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">usize</span>, <span class="ident">E</span><span class="op">&gt;</span>
 <span class="kw">where</span>
   <span class="ident">I</span>: <span class="ident">Clone</span> <span class="op">+</span> <span class="ident">InputLength</span>,
   <span class="ident">F</span>: <span class="ident">Parser</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">O</span>, <span class="ident">E</span><span class="op">&gt;</span>,
@@ -1406,9 +1405,9 @@
       <span class="kw">let</span> <span class="ident">input_</span> <span class="op">=</span> <span class="ident">input</span>.<span class="ident">clone</span>();
       <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">input</span>.<span class="ident">input_len</span>();
       <span class="kw">match</span> <span class="ident">f</span>.<span class="ident">parse</span>(<span class="ident">input_</span>) {
-        <span class="prelude-val">Ok</span>((<span class="ident">i</span>, <span class="kw">_</span>)) <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="prelude-val">Ok</span>((<span class="ident">i</span>, <span class="kw">_</span>)) =&gt; {
           <span class="comment">// infinite loop check: the parser must always consume</span>
-          <span class="kw">if</span> <span class="ident">i</span>.<span class="ident">input_len</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">len</span> {
+          <span class="kw">if</span> <span class="ident">i</span>.<span class="ident">input_len</span>() <span class="op">==</span> <span class="ident">len</span> {
             <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>(<span class="ident">E::from_error_kind</span>(<span class="ident">input</span>, <span class="ident">ErrorKind::Many0Count</span>)));
           }
 
@@ -1416,9 +1415,9 @@
           <span class="ident">count</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
         }
 
-        <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>(<span class="kw">_</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Ok</span>((<span class="ident">input</span>, <span class="ident">count</span>)),
+        <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>(<span class="kw">_</span>)) =&gt; <span class="kw">return</span> <span class="prelude-val">Ok</span>((<span class="ident">input</span>, <span class="ident">count</span>)),
 
-        <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>),
+        <span class="prelude-val">Err</span>(<span class="ident">e</span>) =&gt; <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>),
       }
     }
   }
@@ -1444,7 +1443,7 @@
 <span class="doccomment">/// assert_eq!(parser(&quot;123123&quot;), Err(Err::Error(Error::new(&quot;123123&quot;, ErrorKind::Many1Count))));</span>
 <span class="doccomment">/// assert_eq!(parser(&quot;&quot;), Err(Err::Error(Error::new(&quot;&quot;, ErrorKind::Many1Count))));</span>
 <span class="doccomment">/// ```</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">many1_count</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">O</span>, <span class="ident">E</span>, <span class="ident">F</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="ident">f</span>: <span class="ident">F</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">impl</span> <span class="ident">FnMut</span>(<span class="ident">I</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">IResult</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">usize</span>, <span class="ident">E</span><span class="op">&gt;</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">many1_count</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">O</span>, <span class="ident">E</span>, <span class="ident">F</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="ident">f</span>: <span class="ident">F</span>) -&gt; <span class="kw">impl</span> <span class="ident">FnMut</span>(<span class="ident">I</span>) -&gt; <span class="ident">IResult</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">usize</span>, <span class="ident">E</span><span class="op">&gt;</span>
 <span class="kw">where</span>
   <span class="ident">I</span>: <span class="ident">Clone</span> <span class="op">+</span> <span class="ident">InputLength</span>,
   <span class="ident">F</span>: <span class="ident">Parser</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">O</span>, <span class="ident">E</span><span class="op">&gt;</span>,
@@ -1453,9 +1452,9 @@
   <span class="kw">move</span> <span class="op">|</span><span class="ident">i</span>: <span class="ident">I</span><span class="op">|</span> {
     <span class="kw">let</span> <span class="ident">i_</span> <span class="op">=</span> <span class="ident">i</span>.<span class="ident">clone</span>();
     <span class="kw">match</span> <span class="ident">f</span>.<span class="ident">parse</span>(<span class="ident">i_</span>) {
-      <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>(<span class="kw">_</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>(<span class="ident">E::from_error_kind</span>(<span class="ident">i</span>, <span class="ident">ErrorKind::Many1Count</span>))),
-      <span class="prelude-val">Err</span>(<span class="ident">i</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">i</span>),
-      <span class="prelude-val">Ok</span>((<span class="ident">i1</span>, <span class="kw">_</span>)) <span class="op">=</span><span class="op">&gt;</span> {
+      <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>(<span class="kw">_</span>)) =&gt; <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>(<span class="ident">E::from_error_kind</span>(<span class="ident">i</span>, <span class="ident">ErrorKind::Many1Count</span>))),
+      <span class="prelude-val">Err</span>(<span class="ident">i</span>) =&gt; <span class="prelude-val">Err</span>(<span class="ident">i</span>),
+      <span class="prelude-val">Ok</span>((<span class="ident">i1</span>, <span class="kw">_</span>)) =&gt; {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">count</span> <span class="op">=</span> <span class="number">1</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">input</span> <span class="op">=</span> <span class="ident">i1</span>;
 
@@ -1463,11 +1462,11 @@
           <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">input</span>.<span class="ident">input_len</span>();
           <span class="kw">let</span> <span class="ident">input_</span> <span class="op">=</span> <span class="ident">input</span>.<span class="ident">clone</span>();
           <span class="kw">match</span> <span class="ident">f</span>.<span class="ident">parse</span>(<span class="ident">input_</span>) {
-            <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>(<span class="kw">_</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Ok</span>((<span class="ident">input</span>, <span class="ident">count</span>)),
-            <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>),
-            <span class="prelude-val">Ok</span>((<span class="ident">i</span>, <span class="kw">_</span>)) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>(<span class="kw">_</span>)) =&gt; <span class="kw">return</span> <span class="prelude-val">Ok</span>((<span class="ident">input</span>, <span class="ident">count</span>)),
+            <span class="prelude-val">Err</span>(<span class="ident">e</span>) =&gt; <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>),
+            <span class="prelude-val">Ok</span>((<span class="ident">i</span>, <span class="kw">_</span>)) =&gt; {
               <span class="comment">// infinite loop check: the parser must always consume</span>
-              <span class="kw">if</span> <span class="ident">i</span>.<span class="ident">input_len</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">len</span> {
+              <span class="kw">if</span> <span class="ident">i</span>.<span class="ident">input_len</span>() <span class="op">==</span> <span class="ident">len</span> {
                 <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>(<span class="ident">E::from_error_kind</span>(<span class="ident">i</span>, <span class="ident">ErrorKind::Many1Count</span>)));
               }
 
@@ -1503,7 +1502,7 @@
 <span class="doccomment">/// ```</span>
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;alloc&quot;</span>)]</span>
 <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;docsrs&quot;</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;alloc&quot;</span>)))]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">count</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">O</span>, <span class="ident">E</span>, <span class="ident">F</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="ident">f</span>: <span class="ident">F</span>, <span class="ident">count</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">impl</span> <span class="ident">FnMut</span>(<span class="ident">I</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">IResult</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">O</span><span class="op">&gt;</span>, <span class="ident">E</span><span class="op">&gt;</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">count</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">O</span>, <span class="ident">E</span>, <span class="ident">F</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="ident">f</span>: <span class="ident">F</span>, <span class="ident">count</span>: <span class="ident">usize</span>) -&gt; <span class="kw">impl</span> <span class="ident">FnMut</span>(<span class="ident">I</span>) -&gt; <span class="ident">IResult</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">O</span><span class="op">&gt;</span>, <span class="ident">E</span><span class="op">&gt;</span>
 <span class="kw">where</span>
   <span class="ident">I</span>: <span class="ident">Clone</span> <span class="op">+</span> <span class="ident">PartialEq</span>,
   <span class="ident">F</span>: <span class="ident">Parser</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">O</span>, <span class="ident">E</span><span class="op">&gt;</span>,
@@ -1511,19 +1510,19 @@
 {
   <span class="kw">move</span> <span class="op">|</span><span class="ident">i</span>: <span class="ident">I</span><span class="op">|</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">input</span> <span class="op">=</span> <span class="ident">i</span>.<span class="ident">clone</span>();
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">res</span> <span class="op">=</span> <span class="kw">crate</span><span class="ident">::lib::std::vec::Vec::with_capacity</span>(<span class="ident">count</span>);
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::lib::std::vec::Vec::with_capacity</span>(<span class="ident">count</span>);
 
     <span class="kw">for</span> <span class="kw">_</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">count</span> {
       <span class="kw">let</span> <span class="ident">input_</span> <span class="op">=</span> <span class="ident">input</span>.<span class="ident">clone</span>();
       <span class="kw">match</span> <span class="ident">f</span>.<span class="ident">parse</span>(<span class="ident">input_</span>) {
-        <span class="prelude-val">Ok</span>((<span class="ident">i</span>, <span class="ident">o</span>)) <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="prelude-val">Ok</span>((<span class="ident">i</span>, <span class="ident">o</span>)) =&gt; {
           <span class="ident">res</span>.<span class="ident">push</span>(<span class="ident">o</span>);
           <span class="ident">input</span> <span class="op">=</span> <span class="ident">i</span>;
         }
-        <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>(<span class="ident">e</span>)) <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>(<span class="ident">e</span>)) =&gt; {
           <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>(<span class="ident">E::append</span>(<span class="ident">i</span>, <span class="ident">ErrorKind::Count</span>, <span class="ident">e</span>)));
         }
-        <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="prelude-val">Err</span>(<span class="ident">e</span>) =&gt; {
           <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>);
         }
       }
@@ -1555,10 +1554,10 @@
 <span class="doccomment">/// assert_eq!(parser(&quot;&quot;), Err(Err::Error(Error::new(&quot;&quot;, ErrorKind::Tag))));</span>
 <span class="doccomment">/// assert_eq!(parser(&quot;abcabcabc&quot;), Ok((&quot;abc&quot;, [&quot;abc&quot;, &quot;abc&quot;])));</span>
 <span class="doccomment">/// ```</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">fill</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">I</span>, <span class="ident">O</span>, <span class="ident">E</span>, <span class="ident">F</span><span class="op">&gt;</span>(<span class="ident">f</span>: <span class="ident">F</span>, <span class="ident">buf</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> [<span class="ident">O</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">impl</span> <span class="ident">FnMut</span>(<span class="ident">I</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">IResult</span><span class="op">&lt;</span><span class="ident">I</span>, (), <span class="ident">E</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;a</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">fill</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">I</span>, <span class="ident">O</span>, <span class="ident">E</span>, <span class="ident">F</span><span class="op">&gt;</span>(<span class="ident">f</span>: <span class="ident">F</span>, <span class="ident">buf</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> [<span class="ident">O</span>]) -&gt; <span class="kw">impl</span> <span class="ident">FnMut</span>(<span class="ident">I</span>) -&gt; <span class="ident">IResult</span><span class="op">&lt;</span><span class="ident">I</span>, (), <span class="ident">E</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;a</span>
 <span class="kw">where</span>
   <span class="ident">I</span>: <span class="ident">Clone</span> <span class="op">+</span> <span class="ident">PartialEq</span>,
-  <span class="ident">F</span>: <span class="ident">Fn</span>(<span class="ident">I</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">IResult</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">O</span>, <span class="ident">E</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;a</span>,
+  <span class="ident">F</span>: <span class="ident">Fn</span>(<span class="ident">I</span>) -&gt; <span class="ident">IResult</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">O</span>, <span class="ident">E</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;a</span>,
   <span class="ident">E</span>: <span class="ident">ParseError</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span>,
 {
   <span class="kw">move</span> <span class="op">|</span><span class="ident">i</span>: <span class="ident">I</span><span class="op">|</span> {
@@ -1567,14 +1566,14 @@
     <span class="kw">for</span> <span class="ident">elem</span> <span class="kw">in</span> <span class="ident">buf</span>.<span class="ident">iter_mut</span>() {
       <span class="kw">let</span> <span class="ident">input_</span> <span class="op">=</span> <span class="ident">input</span>.<span class="ident">clone</span>();
       <span class="kw">match</span> <span class="ident">f</span>(<span class="ident">input_</span>) {
-        <span class="prelude-val">Ok</span>((<span class="ident">i</span>, <span class="ident">o</span>)) <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="prelude-val">Ok</span>((<span class="ident">i</span>, <span class="ident">o</span>)) =&gt; {
           <span class="kw-2">*</span><span class="ident">elem</span> <span class="op">=</span> <span class="ident">o</span>;
           <span class="ident">input</span> <span class="op">=</span> <span class="ident">i</span>;
         }
-        <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>(<span class="ident">e</span>)) <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>(<span class="ident">e</span>)) =&gt; {
           <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>(<span class="ident">E::append</span>(<span class="ident">i</span>, <span class="ident">ErrorKind::Count</span>, <span class="ident">e</span>)));
         }
-        <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="prelude-val">Err</span>(<span class="ident">e</span>) =&gt; {
           <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>);
         }
       }
@@ -1616,12 +1615,12 @@
   <span class="kw-2">mut</span> <span class="ident">f</span>: <span class="ident">F</span>,
   <span class="kw-2">mut</span> <span class="ident">init</span>: <span class="ident">H</span>,
   <span class="kw-2">mut</span> <span class="ident">g</span>: <span class="ident">G</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">impl</span> <span class="ident">FnMut</span>(<span class="ident">I</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">IResult</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">R</span>, <span class="ident">E</span><span class="op">&gt;</span>
+) -&gt; <span class="kw">impl</span> <span class="ident">FnMut</span>(<span class="ident">I</span>) -&gt; <span class="ident">IResult</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">R</span>, <span class="ident">E</span><span class="op">&gt;</span>
 <span class="kw">where</span>
   <span class="ident">I</span>: <span class="ident">Clone</span> <span class="op">+</span> <span class="ident">InputLength</span>,
   <span class="ident">F</span>: <span class="ident">Parser</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">O</span>, <span class="ident">E</span><span class="op">&gt;</span>,
-  <span class="ident">G</span>: <span class="ident">FnMut</span>(<span class="ident">R</span>, <span class="ident">O</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">R</span>,
-  <span class="ident">H</span>: <span class="ident">FnMut</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">R</span>,
+  <span class="ident">G</span>: <span class="ident">FnMut</span>(<span class="ident">R</span>, <span class="ident">O</span>) -&gt; <span class="ident">R</span>,
+  <span class="ident">H</span>: <span class="ident">FnMut</span>() -&gt; <span class="ident">R</span>,
   <span class="ident">E</span>: <span class="ident">ParseError</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span>,
 {
   <span class="kw">move</span> <span class="op">|</span><span class="ident">i</span>: <span class="ident">I</span><span class="op">|</span> {
@@ -1632,19 +1631,19 @@
       <span class="kw">let</span> <span class="ident">i_</span> <span class="op">=</span> <span class="ident">input</span>.<span class="ident">clone</span>();
       <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">input</span>.<span class="ident">input_len</span>();
       <span class="kw">match</span> <span class="ident">f</span>.<span class="ident">parse</span>(<span class="ident">i_</span>) {
-        <span class="prelude-val">Ok</span>((<span class="ident">i</span>, <span class="ident">o</span>)) <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="prelude-val">Ok</span>((<span class="ident">i</span>, <span class="ident">o</span>)) =&gt; {
           <span class="comment">// infinite loop check: the parser must always consume</span>
-          <span class="kw">if</span> <span class="ident">i</span>.<span class="ident">input_len</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">len</span> {
+          <span class="kw">if</span> <span class="ident">i</span>.<span class="ident">input_len</span>() <span class="op">==</span> <span class="ident">len</span> {
             <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>(<span class="ident">E::from_error_kind</span>(<span class="ident">input</span>, <span class="ident">ErrorKind::Many0</span>)));
           }
 
           <span class="ident">res</span> <span class="op">=</span> <span class="ident">g</span>(<span class="ident">res</span>, <span class="ident">o</span>);
           <span class="ident">input</span> <span class="op">=</span> <span class="ident">i</span>;
         }
-        <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>(<span class="kw">_</span>)) <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>(<span class="kw">_</span>)) =&gt; {
           <span class="kw">return</span> <span class="prelude-val">Ok</span>((<span class="ident">input</span>, <span class="ident">res</span>));
         }
-        <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="prelude-val">Err</span>(<span class="ident">e</span>) =&gt; {
           <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>);
         }
       }
@@ -1686,21 +1685,21 @@
   <span class="kw-2">mut</span> <span class="ident">f</span>: <span class="ident">F</span>,
   <span class="kw-2">mut</span> <span class="ident">init</span>: <span class="ident">H</span>,
   <span class="kw-2">mut</span> <span class="ident">g</span>: <span class="ident">G</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">impl</span> <span class="ident">FnMut</span>(<span class="ident">I</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">IResult</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">R</span>, <span class="ident">E</span><span class="op">&gt;</span>
+) -&gt; <span class="kw">impl</span> <span class="ident">FnMut</span>(<span class="ident">I</span>) -&gt; <span class="ident">IResult</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">R</span>, <span class="ident">E</span><span class="op">&gt;</span>
 <span class="kw">where</span>
   <span class="ident">I</span>: <span class="ident">Clone</span> <span class="op">+</span> <span class="ident">InputLength</span>,
   <span class="ident">F</span>: <span class="ident">Parser</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">O</span>, <span class="ident">E</span><span class="op">&gt;</span>,
-  <span class="ident">G</span>: <span class="ident">FnMut</span>(<span class="ident">R</span>, <span class="ident">O</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">R</span>,
-  <span class="ident">H</span>: <span class="ident">FnMut</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">R</span>,
+  <span class="ident">G</span>: <span class="ident">FnMut</span>(<span class="ident">R</span>, <span class="ident">O</span>) -&gt; <span class="ident">R</span>,
+  <span class="ident">H</span>: <span class="ident">FnMut</span>() -&gt; <span class="ident">R</span>,
   <span class="ident">E</span>: <span class="ident">ParseError</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span>,
 {
   <span class="kw">move</span> <span class="op">|</span><span class="ident">i</span>: <span class="ident">I</span><span class="op">|</span> {
     <span class="kw">let</span> <span class="ident">_i</span> <span class="op">=</span> <span class="ident">i</span>.<span class="ident">clone</span>();
     <span class="kw">let</span> <span class="ident">init</span> <span class="op">=</span> <span class="ident">init</span>();
     <span class="kw">match</span> <span class="ident">f</span>.<span class="ident">parse</span>(<span class="ident">_i</span>) {
-      <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>(<span class="kw">_</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>(<span class="ident">E::from_error_kind</span>(<span class="ident">i</span>, <span class="ident">ErrorKind::Many1</span>))),
-      <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>),
-      <span class="prelude-val">Ok</span>((<span class="ident">i1</span>, <span class="ident">o1</span>)) <span class="op">=</span><span class="op">&gt;</span> {
+      <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>(<span class="kw">_</span>)) =&gt; <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>(<span class="ident">E::from_error_kind</span>(<span class="ident">i</span>, <span class="ident">ErrorKind::Many1</span>))),
+      <span class="prelude-val">Err</span>(<span class="ident">e</span>) =&gt; <span class="prelude-val">Err</span>(<span class="ident">e</span>),
+      <span class="prelude-val">Ok</span>((<span class="ident">i1</span>, <span class="ident">o1</span>)) =&gt; {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">acc</span> <span class="op">=</span> <span class="ident">g</span>(<span class="ident">init</span>, <span class="ident">o1</span>);
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">input</span> <span class="op">=</span> <span class="ident">i1</span>;
 
@@ -1708,13 +1707,13 @@
           <span class="kw">let</span> <span class="ident">_input</span> <span class="op">=</span> <span class="ident">input</span>.<span class="ident">clone</span>();
           <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">input</span>.<span class="ident">input_len</span>();
           <span class="kw">match</span> <span class="ident">f</span>.<span class="ident">parse</span>(<span class="ident">_input</span>) {
-            <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>(<span class="kw">_</span>)) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>(<span class="kw">_</span>)) =&gt; {
               <span class="kw">break</span>;
             }
-            <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>),
-            <span class="prelude-val">Ok</span>((<span class="ident">i</span>, <span class="ident">o</span>)) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="prelude-val">Err</span>(<span class="ident">e</span>) =&gt; <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>),
+            <span class="prelude-val">Ok</span>((<span class="ident">i</span>, <span class="ident">o</span>)) =&gt; {
               <span class="comment">// infinite loop check: the parser must always consume</span>
-              <span class="kw">if</span> <span class="ident">i</span>.<span class="ident">input_len</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">len</span> {
+              <span class="kw">if</span> <span class="ident">i</span>.<span class="ident">input_len</span>() <span class="op">==</span> <span class="ident">len</span> {
                 <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Err::Failure</span>(<span class="ident">E::from_error_kind</span>(<span class="ident">i</span>, <span class="ident">ErrorKind::Many1</span>)));
               }
 
@@ -1771,12 +1770,12 @@
   <span class="kw-2">mut</span> <span class="ident">parse</span>: <span class="ident">F</span>,
   <span class="kw-2">mut</span> <span class="ident">init</span>: <span class="ident">H</span>,
   <span class="kw-2">mut</span> <span class="ident">fold</span>: <span class="ident">G</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">impl</span> <span class="ident">FnMut</span>(<span class="ident">I</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">IResult</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">R</span>, <span class="ident">E</span><span class="op">&gt;</span>
+) -&gt; <span class="kw">impl</span> <span class="ident">FnMut</span>(<span class="ident">I</span>) -&gt; <span class="ident">IResult</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">R</span>, <span class="ident">E</span><span class="op">&gt;</span>
 <span class="kw">where</span>
   <span class="ident">I</span>: <span class="ident">Clone</span> <span class="op">+</span> <span class="ident">InputLength</span>,
   <span class="ident">F</span>: <span class="ident">Parser</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">O</span>, <span class="ident">E</span><span class="op">&gt;</span>,
-  <span class="ident">G</span>: <span class="ident">FnMut</span>(<span class="ident">R</span>, <span class="ident">O</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">R</span>,
-  <span class="ident">H</span>: <span class="ident">FnMut</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">R</span>,
+  <span class="ident">G</span>: <span class="ident">FnMut</span>(<span class="ident">R</span>, <span class="ident">O</span>) -&gt; <span class="ident">R</span>,
+  <span class="ident">H</span>: <span class="ident">FnMut</span>() -&gt; <span class="ident">R</span>,
   <span class="ident">E</span>: <span class="ident">ParseError</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span>,
 {
   <span class="kw">move</span> <span class="op">|</span><span class="kw-2">mut</span> <span class="ident">input</span>: <span class="ident">I</span><span class="op">|</span> {
@@ -1788,9 +1787,9 @@
     <span class="kw">for</span> <span class="ident">count</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">max</span> {
       <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">input</span>.<span class="ident">input_len</span>();
       <span class="kw">match</span> <span class="ident">parse</span>.<span class="ident">parse</span>(<span class="ident">input</span>.<span class="ident">clone</span>()) {
-        <span class="prelude-val">Ok</span>((<span class="ident">tail</span>, <span class="ident">value</span>)) <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="prelude-val">Ok</span>((<span class="ident">tail</span>, <span class="ident">value</span>)) =&gt; {
           <span class="comment">// infinite loop check: the parser must always consume</span>
-          <span class="kw">if</span> <span class="ident">tail</span>.<span class="ident">input_len</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">len</span> {
+          <span class="kw">if</span> <span class="ident">tail</span>.<span class="ident">input_len</span>() <span class="op">==</span> <span class="ident">len</span> {
             <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>(<span class="ident">E::from_error_kind</span>(<span class="ident">tail</span>, <span class="ident">ErrorKind::ManyMN</span>)));
           }
 
@@ -1798,14 +1797,14 @@
           <span class="ident">input</span> <span class="op">=</span> <span class="ident">tail</span>;
         }
         <span class="comment">//FInputXMError: handle failure properly</span>
-        <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>(<span class="ident">err</span>)) <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>(<span class="ident">err</span>)) =&gt; {
           <span class="kw">if</span> <span class="ident">count</span> <span class="op">&lt;</span> <span class="ident">min</span> {
             <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>(<span class="ident">E::append</span>(<span class="ident">input</span>, <span class="ident">ErrorKind::ManyMN</span>, <span class="ident">err</span>)));
           } <span class="kw">else</span> {
             <span class="kw">break</span>;
           }
         }
-        <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>),
+        <span class="prelude-val">Err</span>(<span class="ident">e</span>) =&gt; <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>),
       }
     }
 
@@ -1832,7 +1831,7 @@
 <span class="doccomment">/// assert_eq!(parser(b&quot;\x00\x03abcefg&quot;), Ok((&amp;b&quot;efg&quot;[..], &amp;b&quot;abc&quot;[..])));</span>
 <span class="doccomment">/// assert_eq!(parser(b&quot;\x00\x03a&quot;), Err(Err::Incomplete(Needed::new(2))));</span>
 <span class="doccomment">/// ```</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">length_data</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">N</span>, <span class="ident">E</span>, <span class="ident">F</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="ident">f</span>: <span class="ident">F</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">impl</span> <span class="ident">FnMut</span>(<span class="ident">I</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">IResult</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">I</span>, <span class="ident">E</span><span class="op">&gt;</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">length_data</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">N</span>, <span class="ident">E</span>, <span class="ident">F</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="ident">f</span>: <span class="ident">F</span>) -&gt; <span class="kw">impl</span> <span class="ident">FnMut</span>(<span class="ident">I</span>) -&gt; <span class="ident">IResult</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">I</span>, <span class="ident">E</span><span class="op">&gt;</span>
 <span class="kw">where</span>
   <span class="ident">I</span>: <span class="ident">InputLength</span> <span class="op">+</span> <span class="ident">InputTake</span>,
   <span class="ident">N</span>: <span class="ident">ToUsize</span>,
@@ -1877,7 +1876,7 @@
 <span class="doccomment">/// assert_eq!(parser(b&quot;\x00\x03123123&quot;), Err(Err::Error(Error::new(&amp;b&quot;123&quot;[..], ErrorKind::Tag))));</span>
 <span class="doccomment">/// assert_eq!(parser(b&quot;\x00\x03a&quot;), Err(Err::Incomplete(Needed::new(2))));</span>
 <span class="doccomment">/// ```</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">length_value</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">O</span>, <span class="ident">N</span>, <span class="ident">E</span>, <span class="ident">F</span>, <span class="ident">G</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="ident">f</span>: <span class="ident">F</span>, <span class="kw-2">mut</span> <span class="ident">g</span>: <span class="ident">G</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">impl</span> <span class="ident">FnMut</span>(<span class="ident">I</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">IResult</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">O</span>, <span class="ident">E</span><span class="op">&gt;</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">length_value</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">O</span>, <span class="ident">N</span>, <span class="ident">E</span>, <span class="ident">F</span>, <span class="ident">G</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="ident">f</span>: <span class="ident">F</span>, <span class="kw-2">mut</span> <span class="ident">g</span>: <span class="ident">G</span>) -&gt; <span class="kw">impl</span> <span class="ident">FnMut</span>(<span class="ident">I</span>) -&gt; <span class="ident">IResult</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">O</span>, <span class="ident">E</span><span class="op">&gt;</span>
 <span class="kw">where</span>
   <span class="ident">I</span>: <span class="ident">Clone</span> <span class="op">+</span> <span class="ident">InputLength</span> <span class="op">+</span> <span class="ident">InputTake</span>,
   <span class="ident">N</span>: <span class="ident">ToUsize</span>,
@@ -1898,9 +1897,9 @@
     } <span class="kw">else</span> {
       <span class="kw">let</span> (<span class="ident">rest</span>, <span class="ident">i</span>) <span class="op">=</span> <span class="ident">i</span>.<span class="ident">take_split</span>(<span class="ident">length</span>);
       <span class="kw">match</span> <span class="ident">g</span>.<span class="ident">parse</span>(<span class="ident">i</span>.<span class="ident">clone</span>()) {
-        <span class="prelude-val">Err</span>(<span class="ident">Err::Incomplete</span>(<span class="kw">_</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>(<span class="ident">E::from_error_kind</span>(<span class="ident">i</span>, <span class="ident">ErrorKind::Complete</span>))),
-        <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>),
-        <span class="prelude-val">Ok</span>((<span class="kw">_</span>, <span class="ident">o</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>((<span class="ident">rest</span>, <span class="ident">o</span>)),
+        <span class="prelude-val">Err</span>(<span class="ident">Err::Incomplete</span>(<span class="kw">_</span>)) =&gt; <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>(<span class="ident">E::from_error_kind</span>(<span class="ident">i</span>, <span class="ident">ErrorKind::Complete</span>))),
+        <span class="prelude-val">Err</span>(<span class="ident">e</span>) =&gt; <span class="prelude-val">Err</span>(<span class="ident">e</span>),
+        <span class="prelude-val">Ok</span>((<span class="kw">_</span>, <span class="ident">o</span>)) =&gt; <span class="prelude-val">Ok</span>((<span class="ident">rest</span>, <span class="ident">o</span>)),
       }
     }
   }
@@ -1929,7 +1928,7 @@
 <span class="doccomment">/// assert_eq!(parser(b&quot;\x03123123123&quot;), Err(Err::Error(Error::new(&amp;b&quot;123123123&quot;[..], ErrorKind::Tag))));</span>
 <span class="doccomment">/// ```</span>
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;alloc&quot;</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">length_count</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">O</span>, <span class="ident">N</span>, <span class="ident">E</span>, <span class="ident">F</span>, <span class="ident">G</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="ident">f</span>: <span class="ident">F</span>, <span class="kw-2">mut</span> <span class="ident">g</span>: <span class="ident">G</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">impl</span> <span class="ident">FnMut</span>(<span class="ident">I</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">IResult</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">O</span><span class="op">&gt;</span>, <span class="ident">E</span><span class="op">&gt;</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">length_count</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">O</span>, <span class="ident">N</span>, <span class="ident">E</span>, <span class="ident">F</span>, <span class="ident">G</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="ident">f</span>: <span class="ident">F</span>, <span class="kw-2">mut</span> <span class="ident">g</span>: <span class="ident">G</span>) -&gt; <span class="kw">impl</span> <span class="ident">FnMut</span>(<span class="ident">I</span>) -&gt; <span class="ident">IResult</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">O</span><span class="op">&gt;</span>, <span class="ident">E</span><span class="op">&gt;</span>
 <span class="kw">where</span>
   <span class="ident">I</span>: <span class="ident">Clone</span>,
   <span class="ident">N</span>: <span class="ident">ToUsize</span>,
@@ -1945,14 +1944,14 @@
     <span class="kw">for</span> <span class="kw">_</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">count</span>.<span class="ident">to_usize</span>() {
       <span class="kw">let</span> <span class="ident">input_</span> <span class="op">=</span> <span class="ident">input</span>.<span class="ident">clone</span>();
       <span class="kw">match</span> <span class="ident">g</span>.<span class="ident">parse</span>(<span class="ident">input_</span>) {
-        <span class="prelude-val">Ok</span>((<span class="ident">i</span>, <span class="ident">o</span>)) <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="prelude-val">Ok</span>((<span class="ident">i</span>, <span class="ident">o</span>)) =&gt; {
           <span class="ident">res</span>.<span class="ident">push</span>(<span class="ident">o</span>);
           <span class="ident">input</span> <span class="op">=</span> <span class="ident">i</span>;
         }
-        <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>(<span class="ident">e</span>)) <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>(<span class="ident">e</span>)) =&gt; {
           <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Err::Error</span>(<span class="ident">E::append</span>(<span class="ident">i</span>, <span class="ident">ErrorKind::Count</span>, <span class="ident">e</span>)));
         }
-        <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="prelude-val">Err</span>(<span class="ident">e</span>) =&gt; {
           <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>);
         }
       }
@@ -1961,7 +1960,7 @@
     <span class="prelude-val">Ok</span>((<span class="ident">input</span>, <span class="ident">res</span>))
   }
 }
-</pre></div>
+</code></pre></div>
 </section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="nom" data-search-index-js="../../../search-index.js" data-search-js="../../../search.js"></div>
     <script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script>
 </body></html>

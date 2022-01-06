@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["Proportion","Represents a value from 0.0 to 1.0, inclusive. That is: a portion of something that cannot be negative or exceed 100%."]],"trait":[["CacheInputs","Gathers inputs to be hashed to determine a cache key."]]});
+initSidebarItems({"macro":[["impl_for_float","Implement traits for a float type."]],"struct":[["Proportion","Represents a value from 0.0 to 1.0, inclusive. That is: a portion of something that cannot be negative or exceed 100%."]],"trait":[["CacheInputs","Gathers inputs to be hashed to determine a cache key."]]});

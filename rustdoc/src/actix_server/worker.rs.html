@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;usr&#x2F;local&#x2F;cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;actix-server-2.0.0-beta.5&#x2F;src&#x2F;worker.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>worker.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="shortcut icon" href="https:&#x2F;&#x2F;actix.rs&#x2F;favicon.ico"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../actix_server/index.html'><div class='logo-container rust-logo'><img src='https:&#x2F;&#x2F;actix.rs&#x2F;img&#x2F;logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;usr&#x2F;local&#x2F;cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;actix-server-2.0.0-beta.5&#x2F;src&#x2F;worker.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>worker.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="shortcut icon" href="https:&#x2F;&#x2F;actix.rs&#x2F;favicon.ico"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../actix_server/index.html'><div class='logo-container rust-logo'><img src='https:&#x2F;&#x2F;actix.rs&#x2F;img&#x2F;logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -516,8 +516,7 @@
 <span id="516">516</span>
 <span id="517">517</span>
 <span id="518">518</span>
-</pre><pre class="rust">
-<span class="kw">use</span> <span class="ident">std</span>::{
+</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std</span>::{
     <span class="ident">future::Future</span>,
     <span class="ident">mem</span>,
     <span class="ident">pin::Pin</span>,
@@ -542,9 +541,9 @@
     <span class="ident">oneshot</span>,
 };
 
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::service</span>::{<span class="ident">BoxedServerService</span>, <span class="ident">InternalServiceFactory</span>};
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::socket::MioStream</span>;
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::waker_queue</span>::{<span class="ident">WakerInterest</span>, <span class="ident">WakerQueue</span>};
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::service</span>::{<span class="ident">BoxedServerService</span>, <span class="ident">InternalServiceFactory</span>};
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::socket::MioStream</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::waker_queue</span>::{<span class="ident">WakerInterest</span>, <span class="ident">WakerQueue</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">join_all</span>, <span class="ident">Token</span>};
 
 <span class="doccomment">/// Stop worker message. Returns `true` on successful graceful shutdown.</span>
@@ -565,7 +564,7 @@
     <span class="ident">tx1</span>: <span class="ident">UnboundedSender</span><span class="op">&lt;</span><span class="ident">Conn</span><span class="op">&gt;</span>,
     <span class="ident">tx2</span>: <span class="ident">UnboundedSender</span><span class="op">&lt;</span><span class="ident">Stop</span><span class="op">&gt;</span>,
     <span class="ident">avail</span>: <span class="ident">WorkerAvailability</span>,
-) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">WorkerHandleAccept</span>, <span class="ident">WorkerHandleServer</span>) {
+) -&gt; (<span class="ident">WorkerHandleAccept</span>, <span class="ident">WorkerHandleServer</span>) {
     <span class="kw">let</span> <span class="ident">accept</span> <span class="op">=</span> <span class="ident">WorkerHandleAccept</span> { <span class="ident">tx</span>: <span class="ident">tx1</span>, <span class="ident">avail</span> };
 
     <span class="kw">let</span> <span class="ident">server</span> <span class="op">=</span> <span class="ident">WorkerHandleServer</span> { <span class="ident">idx</span>, <span class="ident">tx</span>: <span class="ident">tx2</span> };
@@ -584,17 +583,17 @@
 
 <span class="kw">impl</span> <span class="ident">WorkerHandleAccept</span> {
     <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">idx</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">idx</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span> {
         <span class="self">self</span>.<span class="ident">avail</span>.<span class="ident">idx</span>
     }
 
     <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">send</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">msg</span>: <span class="ident">Conn</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Conn</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">send</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">msg</span>: <span class="ident">Conn</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Conn</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">tx</span>.<span class="ident">send</span>(<span class="ident">msg</span>).<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">msg</span><span class="op">|</span> <span class="ident">msg</span>.<span class="number">0</span>)
     }
 
     <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">available</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">available</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="self">self</span>.<span class="ident">avail</span>.<span class="ident">available</span>()
     }
 }
@@ -608,7 +607,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">WorkerHandleServer</span> {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">stop</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">graceful</span>: <span class="ident">bool</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">oneshot::Receiver</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">stop</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">graceful</span>: <span class="ident">bool</span>) -&gt; <span class="ident">oneshot::Receiver</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span> {
         <span class="kw">let</span> (<span class="ident">tx</span>, <span class="ident">rx</span>) <span class="op">=</span> <span class="ident">oneshot::channel</span>();
         <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">tx</span>.<span class="ident">send</span>(<span class="ident">Stop</span> { <span class="ident">graceful</span>, <span class="ident">tx</span> });
         <span class="ident">rx</span>
@@ -623,7 +622,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">WorkerAvailability</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">idx</span>: <span class="ident">usize</span>, <span class="ident">waker</span>: <span class="ident">WakerQueue</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">idx</span>: <span class="ident">usize</span>, <span class="ident">waker</span>: <span class="ident">WakerQueue</span>) -&gt; <span class="self">Self</span> {
         <span class="ident">WorkerAvailability</span> {
             <span class="ident">idx</span>,
             <span class="ident">waker</span>,
@@ -632,7 +631,7 @@
     }
 
     <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">available</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">available</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="self">self</span>.<span class="ident">available</span>.<span class="ident">load</span>(<span class="ident">Ordering::Acquire</span>)
     }
 
@@ -697,7 +696,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">ServerWorkerConfig</span> {
-    <span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="self">Self</span> {
         <span class="comment">// 512 is the default max blocking thread count of tokio runtime.</span>
         <span class="kw">let</span> <span class="ident">max_blocking_threads</span> <span class="op">=</span> <span class="ident">std::cmp::max</span>(<span class="number">512</span> <span class="op">/</span> <span class="ident">num_cpus::get</span>(), <span class="number">1</span>);
         <span class="self">Self</span> {
@@ -728,7 +727,7 @@
         <span class="ident">factories</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">InternalServiceFactory</span><span class="op">&gt;</span><span class="op">&gt;</span>,
         <span class="ident">availability</span>: <span class="ident">WorkerAvailability</span>,
         <span class="ident">config</span>: <span class="ident">ServerWorkerConfig</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">WorkerHandleAccept</span>, <span class="ident">WorkerHandleServer</span>) {
+    ) -&gt; (<span class="ident">WorkerHandleAccept</span>, <span class="ident">WorkerHandleServer</span>) {
         <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">availability</span>.<span class="ident">available</span>());
 
         <span class="kw">let</span> (<span class="ident">tx1</span>, <span class="ident">rx</span>) <span class="op">=</span> <span class="ident">unbounded_channel</span>();
@@ -765,7 +764,7 @@
                     .<span class="ident">into_iter</span>()
                     .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span>, <span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
                 <span class="kw">let</span> <span class="ident">services</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">res</span> {
-                    <span class="prelude-val">Ok</span>(<span class="ident">res</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">res</span>
+                    <span class="prelude-val">Ok</span>(<span class="ident">res</span>) =&gt; <span class="ident">res</span>
                         .<span class="ident">into_iter</span>()
                         .<span class="ident">flatten</span>()
                         .<span class="ident">fold</span>(<span class="ident">Vec::new</span>(), <span class="op">|</span><span class="kw-2">mut</span> <span class="ident">services</span>, (<span class="ident">factory</span>, <span class="ident">token</span>, <span class="ident">service</span>)<span class="op">|</span> {
@@ -778,7 +777,7 @@
                             <span class="ident">services</span>
                         })
                         .<span class="ident">into_boxed_slice</span>(),
-                    <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="prelude-val">Err</span>(<span class="ident">e</span>) =&gt; {
                         <span class="macro">error!</span>(<span class="string">&quot;Can not start worker: {:?}&quot;</span>, <span class="ident">e</span>);
                         <span class="ident">Arbiter::current</span>().<span class="ident">stop</span>();
                         <span class="kw">return</span>;
@@ -816,7 +815,7 @@
     <span class="kw">fn</span> <span class="ident">shutdown</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">force</span>: <span class="ident">bool</span>) {
         <span class="self">self</span>.<span class="ident">services</span>
             .<span class="ident">iter_mut</span>()
-            .<span class="ident">filter</span>(<span class="op">|</span><span class="ident">srv</span><span class="op">|</span> <span class="ident">srv</span>.<span class="ident">status</span> <span class="op">=</span><span class="op">=</span> <span class="ident">WorkerServiceStatus::Available</span>)
+            .<span class="ident">filter</span>(<span class="op">|</span><span class="ident">srv</span><span class="op">|</span> <span class="ident">srv</span>.<span class="ident">status</span> <span class="op">==</span> <span class="ident">WorkerServiceStatus::Available</span>)
             .<span class="ident">for_each</span>(<span class="op">|</span><span class="ident">srv</span><span class="op">|</span> {
                 <span class="ident">srv</span>.<span class="ident">status</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">force</span> {
                     <span class="ident">WorkerServiceStatus::Stopped</span>
@@ -826,15 +825,15 @@
             });
     }
 
-    <span class="kw">fn</span> <span class="ident">check_readiness</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">bool</span>, (<span class="ident">Token</span>, <span class="ident">usize</span>)<span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">check_readiness</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">bool</span>, (<span class="ident">Token</span>, <span class="ident">usize</span>)<span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ready</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">conns</span>.<span class="ident">available</span>(<span class="ident">cx</span>);
         <span class="kw">for</span> (<span class="ident">idx</span>, <span class="ident">srv</span>) <span class="kw">in</span> <span class="self">self</span>.<span class="ident">services</span>.<span class="ident">iter_mut</span>().<span class="ident">enumerate</span>() {
-            <span class="kw">if</span> <span class="ident">srv</span>.<span class="ident">status</span> <span class="op">=</span><span class="op">=</span> <span class="ident">WorkerServiceStatus::Available</span>
-                <span class="op">|</span><span class="op">|</span> <span class="ident">srv</span>.<span class="ident">status</span> <span class="op">=</span><span class="op">=</span> <span class="ident">WorkerServiceStatus::Unavailable</span>
+            <span class="kw">if</span> <span class="ident">srv</span>.<span class="ident">status</span> <span class="op">==</span> <span class="ident">WorkerServiceStatus::Available</span>
+                <span class="op">|</span><span class="op">|</span> <span class="ident">srv</span>.<span class="ident">status</span> <span class="op">==</span> <span class="ident">WorkerServiceStatus::Unavailable</span>
             {
                 <span class="kw">match</span> <span class="ident">srv</span>.<span class="ident">service</span>.<span class="ident">poll_ready</span>(<span class="ident">cx</span>) {
-                    <span class="ident">Poll::Ready</span>(<span class="prelude-val">Ok</span>(<span class="kw">_</span>)) <span class="op">=</span><span class="op">&gt;</span> {
-                        <span class="kw">if</span> <span class="ident">srv</span>.<span class="ident">status</span> <span class="op">=</span><span class="op">=</span> <span class="ident">WorkerServiceStatus::Unavailable</span> {
+                    <span class="ident">Poll::Ready</span>(<span class="prelude-val">Ok</span>(<span class="kw">_</span>)) =&gt; {
+                        <span class="kw">if</span> <span class="ident">srv</span>.<span class="ident">status</span> <span class="op">==</span> <span class="ident">WorkerServiceStatus::Unavailable</span> {
                             <span class="macro">trace!</span>(
                                 <span class="string">&quot;Service {:?} is available&quot;</span>,
                                 <span class="self">self</span>.<span class="ident">factories</span>[<span class="ident">srv</span>.<span class="ident">factory</span>].<span class="ident">name</span>(<span class="ident">Token</span>(<span class="ident">idx</span>))
@@ -842,10 +841,10 @@
                             <span class="ident">srv</span>.<span class="ident">status</span> <span class="op">=</span> <span class="ident">WorkerServiceStatus::Available</span>;
                         }
                     }
-                    <span class="ident">Poll::Pending</span> <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="ident">Poll::Pending</span> =&gt; {
                         <span class="ident">ready</span> <span class="op">=</span> <span class="bool-val">false</span>;
 
-                        <span class="kw">if</span> <span class="ident">srv</span>.<span class="ident">status</span> <span class="op">=</span><span class="op">=</span> <span class="ident">WorkerServiceStatus::Available</span> {
+                        <span class="kw">if</span> <span class="ident">srv</span>.<span class="ident">status</span> <span class="op">==</span> <span class="ident">WorkerServiceStatus::Available</span> {
                             <span class="macro">trace!</span>(
                                 <span class="string">&quot;Service {:?} is unavailable&quot;</span>,
                                 <span class="self">self</span>.<span class="ident">factories</span>[<span class="ident">srv</span>.<span class="ident">factory</span>].<span class="ident">name</span>(<span class="ident">Token</span>(<span class="ident">idx</span>))
@@ -853,7 +852,7 @@
                             <span class="ident">srv</span>.<span class="ident">status</span> <span class="op">=</span> <span class="ident">WorkerServiceStatus::Unavailable</span>;
                         }
                     }
-                    <span class="ident">Poll::Ready</span>(<span class="prelude-val">Err</span>(<span class="kw">_</span>)) <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="ident">Poll::Ready</span>(<span class="prelude-val">Err</span>(<span class="kw">_</span>)) =&gt; {
                         <span class="macro">error!</span>(
                             <span class="string">&quot;Service {:?} readiness check returned error, restarting&quot;</span>,
                             <span class="self">self</span>.<span class="ident">factories</span>[<span class="ident">srv</span>.<span class="ident">factory</span>].<span class="ident">name</span>(<span class="ident">Token</span>(<span class="ident">idx</span>))
@@ -893,8 +892,8 @@
 }
 
 <span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">WorkerState</span> {
-    <span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="self">Self</span><span class="ident">::Unavailable</span>
+    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="self">Self</span> {
+        <span class="ident"><span class="self">Self</span>::Unavailable</span>
     }
 }
 
@@ -912,7 +911,7 @@
 <span class="kw">impl</span> <span class="ident">Future</span> <span class="kw">for</span> <span class="ident">ServerWorker</span> {
     <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> ();
 
-    <span class="kw">fn</span> <span class="ident">poll</span>(<span class="kw-2">mut</span> <span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Poll</span><span class="op">&lt;</span><span class="self">Self</span><span class="ident">::Output</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">poll</span>(<span class="kw-2">mut</span> <span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Output</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">this</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">as_mut</span>().<span class="ident">get_mut</span>();
 
         <span class="comment">// `StopWorker` message handler</span>
@@ -920,7 +919,7 @@
         {
             <span class="ident">this</span>.<span class="ident">availability</span>.<span class="ident">set</span>(<span class="bool-val">false</span>);
             <span class="kw">let</span> <span class="ident">num</span> <span class="op">=</span> <span class="ident">this</span>.<span class="ident">conns</span>.<span class="ident">total</span>();
-            <span class="kw">if</span> <span class="ident">num</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
+            <span class="kw">if</span> <span class="ident">num</span> <span class="op">==</span> <span class="number">0</span> {
                 <span class="macro">info!</span>(<span class="string">&quot;Shutting down worker, 0 connections&quot;</span>);
                 <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">tx</span>.<span class="ident">send</span>(<span class="bool-val">true</span>);
                 <span class="kw">return</span> <span class="ident">Poll::Ready</span>(());
@@ -943,19 +942,19 @@
         }
 
         <span class="kw">match</span> <span class="ident">this</span>.<span class="ident">state</span> {
-            <span class="ident">WorkerState::Unavailable</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">this</span>.<span class="ident">check_readiness</span>(<span class="ident">cx</span>) {
-                <span class="prelude-val">Ok</span>(<span class="bool-val">true</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">WorkerState::Unavailable</span> =&gt; <span class="kw">match</span> <span class="ident">this</span>.<span class="ident">check_readiness</span>(<span class="ident">cx</span>) {
+                <span class="prelude-val">Ok</span>(<span class="bool-val">true</span>) =&gt; {
                     <span class="ident">this</span>.<span class="ident">state</span> <span class="op">=</span> <span class="ident">WorkerState::Available</span>;
                     <span class="ident">this</span>.<span class="ident">availability</span>.<span class="ident">set</span>(<span class="bool-val">true</span>);
                     <span class="self">self</span>.<span class="ident">poll</span>(<span class="ident">cx</span>)
                 }
-                <span class="prelude-val">Ok</span>(<span class="bool-val">false</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Poll::Pending</span>,
-                <span class="prelude-val">Err</span>((<span class="ident">token</span>, <span class="ident">idx</span>)) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="prelude-val">Ok</span>(<span class="bool-val">false</span>) =&gt; <span class="ident">Poll::Pending</span>,
+                <span class="prelude-val">Err</span>((<span class="ident">token</span>, <span class="ident">idx</span>)) =&gt; {
                     <span class="ident">this</span>.<span class="ident">restart_service</span>(<span class="ident">token</span>, <span class="ident">idx</span>);
                     <span class="self">self</span>.<span class="ident">poll</span>(<span class="ident">cx</span>)
                 }
             },
-            <span class="ident">WorkerState::Restarting</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">restart</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">WorkerState::Restarting</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">restart</span>) =&gt; {
                 <span class="kw">let</span> <span class="ident">factory_id</span> <span class="op">=</span> <span class="ident">restart</span>.<span class="ident">factory_id</span>;
                 <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="ident">restart</span>.<span class="ident">token</span>;
 
@@ -969,7 +968,7 @@
                     .<span class="ident">into_iter</span>()
                     <span class="comment">// Find the same token from vector. There should be only one</span>
                     <span class="comment">// So the first match would be enough.</span>
-                    .<span class="ident">find</span>(<span class="op">|</span>(<span class="ident">t</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="kw-2">*</span><span class="ident">t</span> <span class="op">=</span><span class="op">=</span> <span class="ident">token</span>)
+                    .<span class="ident">find</span>(<span class="op">|</span>(<span class="ident">t</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="kw-2">*</span><span class="ident">t</span> <span class="op">==</span> <span class="ident">token</span>)
                     .<span class="ident">map</span>(<span class="op">|</span>(<span class="kw">_</span>, <span class="ident">service</span>)<span class="op">|</span> <span class="ident">service</span>)
                     .<span class="ident">expect</span>(<span class="string">&quot;No BoxedServerService found&quot;</span>);
 
@@ -983,11 +982,11 @@
 
                 <span class="self">self</span>.<span class="ident">poll</span>(<span class="ident">cx</span>)
             }
-            <span class="ident">WorkerState::Shutdown</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">shutdown</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">WorkerState::Shutdown</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">shutdown</span>) =&gt; {
                 <span class="comment">// Wait for 1 second.</span>
                 <span class="macro">ready!</span>(<span class="ident">shutdown</span>.<span class="ident">timer</span>.<span class="ident">as_mut</span>().<span class="ident">poll</span>(<span class="ident">cx</span>));
 
-                <span class="kw">if</span> <span class="ident">this</span>.<span class="ident">conns</span>.<span class="ident">total</span>() <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
+                <span class="kw">if</span> <span class="ident">this</span>.<span class="ident">conns</span>.<span class="ident">total</span>() <span class="op">==</span> <span class="number">0</span> {
                     <span class="comment">// Graceful shutdown.</span>
                     <span class="kw">if</span> <span class="kw">let</span> <span class="ident">WorkerState::Shutdown</span>(<span class="ident">shutdown</span>) <span class="op">=</span> <span class="ident">mem::take</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">this</span>.<span class="ident">state</span>) {
                         <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">shutdown</span>.<span class="ident">tx</span>.<span class="ident">send</span>(<span class="bool-val">true</span>);
@@ -1007,16 +1006,16 @@
                 }
             }
             <span class="comment">// actively poll stream and handle worker command</span>
-            <span class="ident">WorkerState::Available</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">loop</span> {
+            <span class="ident">WorkerState::Available</span> =&gt; <span class="kw">loop</span> {
                 <span class="kw">match</span> <span class="ident">this</span>.<span class="ident">check_readiness</span>(<span class="ident">cx</span>) {
-                    <span class="prelude-val">Ok</span>(<span class="bool-val">true</span>) <span class="op">=</span><span class="op">&gt;</span> {}
-                    <span class="prelude-val">Ok</span>(<span class="bool-val">false</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="prelude-val">Ok</span>(<span class="bool-val">true</span>) =&gt; {}
+                    <span class="prelude-val">Ok</span>(<span class="bool-val">false</span>) =&gt; {
                         <span class="macro">trace!</span>(<span class="string">&quot;Worker is unavailable&quot;</span>);
                         <span class="ident">this</span>.<span class="ident">availability</span>.<span class="ident">set</span>(<span class="bool-val">false</span>);
                         <span class="ident">this</span>.<span class="ident">state</span> <span class="op">=</span> <span class="ident">WorkerState::Unavailable</span>;
                         <span class="kw">return</span> <span class="self">self</span>.<span class="ident">poll</span>(<span class="ident">cx</span>);
                     }
-                    <span class="prelude-val">Err</span>((<span class="ident">token</span>, <span class="ident">idx</span>)) <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="prelude-val">Err</span>((<span class="ident">token</span>, <span class="ident">idx</span>)) =&gt; {
                         <span class="ident">this</span>.<span class="ident">restart_service</span>(<span class="ident">token</span>, <span class="ident">idx</span>);
                         <span class="ident">this</span>.<span class="ident">availability</span>.<span class="ident">set</span>(<span class="bool-val">false</span>);
                         <span class="kw">return</span> <span class="self">self</span>.<span class="ident">poll</span>(<span class="ident">cx</span>);
@@ -1025,17 +1024,17 @@
 
                 <span class="kw">match</span> <span class="macro">ready!</span>(<span class="ident">Pin::new</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">this</span>.<span class="ident">rx</span>).<span class="ident">poll_recv</span>(<span class="ident">cx</span>)) {
                     <span class="comment">// handle incoming io stream</span>
-                    <span class="prelude-val">Some</span>(<span class="ident">msg</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="prelude-val">Some</span>(<span class="ident">msg</span>) =&gt; {
                         <span class="kw">let</span> <span class="ident">guard</span> <span class="op">=</span> <span class="ident">this</span>.<span class="ident">conns</span>.<span class="ident">get</span>();
                         <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">this</span>.<span class="ident">services</span>[<span class="ident">msg</span>.<span class="ident">token</span>.<span class="number">0</span>].<span class="ident">service</span>.<span class="ident">call</span>((<span class="ident">guard</span>, <span class="ident">msg</span>.<span class="ident">io</span>));
                     }
-                    <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="ident">Poll::Ready</span>(()),
+                    <span class="prelude-val">None</span> =&gt; <span class="kw">return</span> <span class="ident">Poll::Ready</span>(()),
                 };
             },
         }
     }
 }
-</pre></div>
+</code></pre></div>
 </section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="actix_server" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
     <script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script>
 </body></html>

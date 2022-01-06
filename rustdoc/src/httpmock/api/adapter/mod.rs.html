@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;usr&#x2F;local&#x2F;cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;httpmock-0.5.8&#x2F;src&#x2F;api&#x2F;adapter&#x2F;mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../../../storage.js"></script><script src="../../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../../httpmock/index.html'><div class='logo-container rust-logo'><img src='../../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;usr&#x2F;local&#x2F;cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;httpmock-0.5.8&#x2F;src&#x2F;api&#x2F;adapter&#x2F;mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../../../storage.js"></script><script src="../../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"><style type="text/css">#crate-search{background-image:url("../../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../../httpmock/index.html'><div class='logo-container rust-logo'><img src='../../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -136,8 +136,7 @@
 <span id="136">136</span>
 <span id="137">137</span>
 <span id="138">138</span>
-</pre><pre class="rust">
-<span class="kw">use</span> <span class="ident">std::net::SocketAddr</span>;
+</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::net::SocketAddr</span>;
 <span class="kw">use</span> <span class="ident">std::str::FromStr</span>;
 <span class="kw">use</span> <span class="ident">std::sync::Arc</span>;
 <span class="kw">use</span> <span class="ident">std::time::Duration</span>;
@@ -148,13 +147,13 @@
 <span class="kw">use</span> <span class="ident">isahc</span>::{<span class="ident">AsyncReadResponseExt</span>, <span class="ident">ResponseExt</span>};
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::data</span>::{
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::data</span>::{
     <span class="ident">ActiveMock</span>, <span class="ident">ClosestMatch</span>, <span class="ident">MockDefinition</span>, <span class="ident">MockIdentification</span>, <span class="ident">RequestRequirements</span>,
 };
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::server::web::handlers</span>::{
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::server::web::handlers</span>::{
     <span class="ident">add_new_mock</span>, <span class="ident">delete_all_mocks</span>, <span class="ident">delete_history</span>, <span class="ident">delete_one_mock</span>, <span class="ident">read_one_mock</span>, <span class="ident">verify</span>,
 };
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::server</span>::{<span class="ident">Mismatch</span>, <span class="ident">MockServerState</span>};
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::server</span>::{<span class="ident">Mismatch</span>, <span class="ident">MockServerState</span>};
 
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">local</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">standalone</span>;
@@ -181,52 +180,52 @@
 <span class="kw">impl</span> <span class="ident">FromStr</span> <span class="kw">for</span> <span class="ident">Method</span> {
     <span class="kw">type</span> <span class="prelude-val">Err</span> <span class="op">=</span> <span class="ident">String</span>;
 
-    <span class="kw">fn</span> <span class="ident">from_str</span>(<span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="self">Self</span><span class="ident">::Err</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">from_str</span>(<span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident"><span class="self">Self</span>::Err</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="ident">input</span> {
-            <span class="string">&quot;GET&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">Method::GET</span>),
-            <span class="string">&quot;HEAD&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">Method::HEAD</span>),
-            <span class="string">&quot;POST&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">Method::POST</span>),
-            <span class="string">&quot;PUT&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">Method::PUT</span>),
-            <span class="string">&quot;DELETE&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">Method::DELETE</span>),
-            <span class="string">&quot;CONNECT&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">Method::CONNECT</span>),
-            <span class="string">&quot;OPTIONS&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">Method::OPTIONS</span>),
-            <span class="string">&quot;TRACE&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">Method::TRACE</span>),
-            <span class="string">&quot;PATCH&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">Method::PATCH</span>),
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="macro">format!</span>(<span class="string">&quot;Invalid HTTP method {}&quot;</span>, <span class="ident">input</span>)),
+            <span class="string">&quot;GET&quot;</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">Method::GET</span>),
+            <span class="string">&quot;HEAD&quot;</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">Method::HEAD</span>),
+            <span class="string">&quot;POST&quot;</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">Method::POST</span>),
+            <span class="string">&quot;PUT&quot;</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">Method::PUT</span>),
+            <span class="string">&quot;DELETE&quot;</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">Method::DELETE</span>),
+            <span class="string">&quot;CONNECT&quot;</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">Method::CONNECT</span>),
+            <span class="string">&quot;OPTIONS&quot;</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">Method::OPTIONS</span>),
+            <span class="string">&quot;TRACE&quot;</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">Method::TRACE</span>),
+            <span class="string">&quot;PATCH&quot;</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">Method::PATCH</span>),
+            <span class="kw">_</span> =&gt; <span class="prelude-val">Err</span>(<span class="macro">format!</span>(<span class="string">&quot;Invalid HTTP method {}&quot;</span>, <span class="ident">input</span>)),
         }
     }
 }
 
 <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Method</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">value</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">value</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="self">Self</span> {
         <span class="ident">value</span>.<span class="ident">parse</span>().<span class="ident">expect</span>(<span class="string">&quot;Cannot parse HTTP method&quot;</span>)
     }
 }
 
 <span class="kw">impl</span> <span class="ident">std::fmt::Display</span> <span class="kw">for</span> <span class="ident">Method</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">std::fmt::Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">std::fmt::Result</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">std::fmt::Formatter</span>) -&gt; <span class="ident">std::fmt::Result</span> {
         <span class="ident">std::fmt::Debug::fmt</span>(<span class="self">self</span>, <span class="ident">f</span>)
     }
 }
 
 <span class="attribute">#[<span class="ident">async_trait</span>]</span>
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">MockServerAdapter</span> {
-    <span class="kw">fn</span> <span class="ident">host</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span>;
-    <span class="kw">fn</span> <span class="ident">port</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u16</span>;
-    <span class="kw">fn</span> <span class="ident">address</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">SocketAddr</span>;
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">create_mock</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">mock</span>: <span class="kw-2">&amp;</span><span class="ident">MockDefinition</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">MockIdentification</span>, <span class="ident">String</span><span class="op">&gt;</span>;
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">fetch_mock</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">mock_id</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ActiveMock</span>, <span class="ident">String</span><span class="op">&gt;</span>;
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">delete_mock</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">mock_id</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">String</span><span class="op">&gt;</span>;
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">delete_all_mocks</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">String</span><span class="op">&gt;</span>;
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">verify</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">rr</span>: <span class="kw-2">&amp;</span><span class="ident">RequestRequirements</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ClosestMatch</span><span class="op">&gt;</span>, <span class="ident">String</span><span class="op">&gt;</span>;
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">delete_history</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">String</span><span class="op">&gt;</span>;
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">ping</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">String</span><span class="op">&gt;</span>;
+    <span class="kw">fn</span> <span class="ident">host</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">String</span>;
+    <span class="kw">fn</span> <span class="ident">port</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">u16</span>;
+    <span class="kw">fn</span> <span class="ident">address</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">SocketAddr</span>;
+    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">create_mock</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">mock</span>: <span class="kw-2">&amp;</span><span class="ident">MockDefinition</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">MockIdentification</span>, <span class="ident">String</span><span class="op">&gt;</span>;
+    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">fetch_mock</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">mock_id</span>: <span class="ident">usize</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ActiveMock</span>, <span class="ident">String</span><span class="op">&gt;</span>;
+    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">delete_mock</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">mock_id</span>: <span class="ident">usize</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">String</span><span class="op">&gt;</span>;
+    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">delete_all_mocks</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">String</span><span class="op">&gt;</span>;
+    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">verify</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">rr</span>: <span class="kw-2">&amp;</span><span class="ident">RequestRequirements</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ClosestMatch</span><span class="op">&gt;</span>, <span class="ident">String</span><span class="op">&gt;</span>;
+    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">delete_history</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">String</span><span class="op">&gt;</span>;
+    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">ping</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">String</span><span class="op">&gt;</span>;
 }
 
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">http_ping</span>(
     <span class="ident">server_addr</span>: <span class="kw-2">&amp;</span><span class="ident">SocketAddr</span>,
     <span class="ident">http_client</span>: <span class="kw-2">&amp;</span><span class="ident">InternalHttpClient</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">String</span><span class="op">&gt;</span> {
+) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">String</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">request_url</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;http://{}/__httpmock__/ping&quot;</span>, <span class="ident">server_addr</span>);
     <span class="kw">let</span> <span class="ident">request</span> <span class="op">=</span> <span class="ident">Request::builder</span>()
         .<span class="ident">method</span>(<span class="string">&quot;GET&quot;</span>)
@@ -235,8 +234,8 @@
         .<span class="ident">unwrap</span>();
 
     <span class="kw">let</span> (<span class="ident">status</span>, <span class="ident">_body</span>) <span class="op">=</span> <span class="kw">match</span> <span class="ident">execute_request</span>(<span class="ident">request</span>, <span class="ident">http_client</span>).<span class="kw">await</span> {
-        <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format!</span>(<span class="string">&quot;cannot send request to mock server: {}&quot;</span>, <span class="ident">err</span>)),
-        <span class="prelude-val">Ok</span>(<span class="ident">sb</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">sb</span>,
+        <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format!</span>(<span class="string">&quot;cannot send request to mock server: {}&quot;</span>, <span class="ident">err</span>)),
+        <span class="prelude-val">Ok</span>(<span class="ident">sb</span>) =&gt; <span class="ident">sb</span>,
     };
 
     <span class="kw">if</span> <span class="ident">status</span> <span class="op">!</span><span class="op">=</span> <span class="number">200</span> {
@@ -252,22 +251,22 @@
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">execute_request</span>(
     <span class="ident">req</span>: <span class="ident">Request</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
     <span class="ident">http_client</span>: <span class="kw-2">&amp;</span><span class="ident">InternalHttpClient</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">u16</span>, <span class="ident">String</span>), <span class="ident">String</span><span class="op">&gt;</span> {
+) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">u16</span>, <span class="ident">String</span>), <span class="ident">String</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">response</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">http_client</span>.<span class="ident">send_async</span>(<span class="ident">req</span>).<span class="kw">await</span> {
-        <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format!</span>(<span class="string">&quot;cannot send request to mock server: {}&quot;</span>, <span class="ident">err</span>)),
-        <span class="prelude-val">Ok</span>(<span class="ident">r</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">r</span>,
+        <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format!</span>(<span class="string">&quot;cannot send request to mock server: {}&quot;</span>, <span class="ident">err</span>)),
+        <span class="prelude-val">Ok</span>(<span class="ident">r</span>) =&gt; <span class="ident">r</span>,
     };
 
     <span class="comment">// Evaluate the response status</span>
     <span class="kw">let</span> <span class="ident">body</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">response</span>.<span class="ident">text</span>().<span class="kw">await</span> {
-        <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format!</span>(<span class="string">&quot;cannot send request to mock server: {}&quot;</span>, <span class="ident">err</span>)),
-        <span class="prelude-val">Ok</span>(<span class="ident">b</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">b</span>,
+        <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format!</span>(<span class="string">&quot;cannot send request to mock server: {}&quot;</span>, <span class="ident">err</span>)),
+        <span class="prelude-val">Ok</span>(<span class="ident">b</span>) =&gt; <span class="ident">b</span>,
     };
 
     <span class="prelude-val">Ok</span>((<span class="ident">response</span>.<span class="ident">status</span>().<span class="ident">as_u16</span>(), <span class="ident">body</span>))
 }
 
-<span class="kw">fn</span> <span class="ident">build_http_client</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">InternalHttpClient</span><span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">build_http_client</span>() -&gt; <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">InternalHttpClient</span><span class="op">&gt;</span> {
     <span class="ident">Arc::new</span>(
         <span class="ident">InternalHttpClient::builder</span>()
             .<span class="ident">tcp_keepalive</span>(<span class="ident">Duration::from_secs</span>(<span class="number">60</span> <span class="op">*</span> <span class="number">60</span> <span class="op">*</span> <span class="number">24</span>))
@@ -275,7 +274,7 @@
             .<span class="ident">expect</span>(<span class="string">&quot;Cannot build HTTP client&quot;</span>),
     )
 }
-</pre></div>
+</code></pre></div>
 </section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="httpmock" data-search-index-js="../../../../search-index.js" data-search-js="../../../../search.js"></div>
     <script src="../../../../main.js"></script><script src="../../../../source-script.js"></script><script src="../../../../source-files.js"></script>
 </body></html>

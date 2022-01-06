@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;usr&#x2F;local&#x2F;cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;tracing-actix-web-0.4.0-beta.9&#x2F;src&#x2F;root_span_macro.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>root_span_macro.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg"><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../tracing_actix_web/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;usr&#x2F;local&#x2F;cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;tracing-actix-web-0.4.0-beta.9&#x2F;src&#x2F;root_span_macro.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>root_span_macro.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../tracing_actix_web/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -194,8 +194,7 @@
 <span id="194">194</span>
 <span id="195">195</span>
 <span id="196">196</span>
-</pre><pre class="rust">
-<span class="attribute">#[<span class="ident">macro_export</span>]</span>
+</pre><pre class="rust"><code><span class="attribute">#[<span class="ident">macro_export</span>]</span>
 <span class="doccomment">/// [`root_span!`] creates a new [`tracing::Span`].</span>
 <span class="doccomment">/// It empowers you to add custom properties to the root span on top of the HTTP properties tracked</span>
 <span class="doccomment">/// by [`DefaultRootSpanBuilder`].</span>
@@ -254,11 +253,11 @@
 <span class="doccomment">/// [`DefaultRootSpanBuilder`]: crate::DefaultRootSpanBuilder</span>
 <span class="macro">macro_rules!</span> <span class="ident">root_span</span> {
     <span class="comment">// Vanilla root span, with no additional fields</span>
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">request</span>:<span class="ident">ident</span>) <span class="op">=</span><span class="op">&gt;</span> {
+    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">request</span>:<span class="ident">ident</span>) =&gt; {
         <span class="macro">root_span!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">request</span>,)
     };
     <span class="comment">// One or more additional fields, comma separated</span>
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">request</span>:<span class="ident">ident</span>, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">field</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) <span class="op">=</span><span class="op">&gt;</span> {
+    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">request</span>:<span class="ident">ident</span>, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">field</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) =&gt; {
         {
             <span class="kw">let</span> <span class="ident">user_agent</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">request</span>
                 .<span class="ident">headers</span>()
@@ -269,39 +268,39 @@
                 .<span class="ident">match_pattern</span>()
                 .<span class="ident">map</span>(<span class="ident">Into::into</span>)
                 .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="string">&quot;default&quot;</span>.<span class="ident">into</span>());
-            <span class="kw">let</span> <span class="ident">http_method</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="kw">crate</span><span class="macro-nonterminal">::root_span_macro::private::http_method_str</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">request</span>.<span class="ident">method</span>());
+            <span class="kw">let</span> <span class="ident">http_method</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::root_span_macro::private::http_method_str</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">request</span>.<span class="ident">method</span>());
             <span class="kw">let</span> <span class="ident">connection_info</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">request</span>.<span class="ident">connection_info</span>();
-            <span class="kw">let</span> <span class="ident">request_id</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="kw">crate</span><span class="macro-nonterminal">::root_span_macro::private::get_request_id</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">request</span>);
-            <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="kw">crate</span><span class="macro">::root_span_macro::private::tracing::info_span!</span>(
+            <span class="kw">let</span> <span class="ident">request_id</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::root_span_macro::private::get_request_id</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">request</span>);
+            <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro">crate::root_span_macro::private::tracing::info_span!</span>(
                 <span class="string">&quot;HTTP request&quot;</span>,
                 <span class="macro-nonterminal">http</span>.<span class="ident">method</span> <span class="op">=</span> <span class="op">%</span><span class="ident">http_method</span>,
                 <span class="ident">http</span>.<span class="ident">route</span> <span class="op">=</span> <span class="op">%</span><span class="ident">http_route</span>,
-                <span class="ident">http</span>.<span class="ident">flavor</span> <span class="op">=</span> <span class="op">%</span><span class="macro-nonterminal">$</span><span class="kw">crate</span><span class="macro-nonterminal">::root_span_macro::private::http_flavor</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">request</span>.<span class="ident">version</span>()),
-                <span class="ident">http</span>.<span class="ident">scheme</span> <span class="op">=</span> <span class="op">%</span><span class="macro-nonterminal">$</span><span class="kw">crate</span><span class="macro-nonterminal">::root_span_macro::private::http_scheme</span>(<span class="ident">connection_info</span>.<span class="ident">scheme</span>()),
+                <span class="ident">http</span>.<span class="ident">flavor</span> <span class="op">=</span> <span class="op">%</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::root_span_macro::private::http_flavor</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">request</span>.<span class="ident">version</span>()),
+                <span class="ident">http</span>.<span class="ident">scheme</span> <span class="op">=</span> <span class="op">%</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::root_span_macro::private::http_scheme</span>(<span class="ident">connection_info</span>.<span class="ident">scheme</span>()),
                 <span class="ident">http</span>.<span class="ident">host</span> <span class="op">=</span> <span class="op">%</span><span class="ident">connection_info</span>.<span class="ident">host</span>(),
                 <span class="ident">http</span>.<span class="ident">client_ip</span> <span class="op">=</span> <span class="op">%</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">request</span>.<span class="ident">connection_info</span>().<span class="ident">realip_remote_addr</span>().<span class="ident">unwrap_or</span>(<span class="string">&quot;&quot;</span>),
                 <span class="ident">http</span>.<span class="ident">user_agent</span> <span class="op">=</span> <span class="op">%</span><span class="ident">user_agent</span>,
                 <span class="ident">http</span>.<span class="ident">target</span> <span class="op">=</span> <span class="op">%</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">request</span>.<span class="ident">uri</span>().<span class="ident">path_and_query</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">p</span><span class="op">|</span> <span class="ident">p</span>.<span class="ident">as_str</span>()).<span class="ident">unwrap_or</span>(<span class="string">&quot;&quot;</span>),
-                <span class="ident">http</span>.<span class="ident">status_code</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="kw">crate</span><span class="macro-nonterminal">::root_span_macro::private::tracing::field::Empty</span>,
+                <span class="ident">http</span>.<span class="ident">status_code</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::root_span_macro::private::tracing::field::Empty</span>,
                 <span class="ident">otel</span>.<span class="ident">kind</span> <span class="op">=</span> <span class="string">&quot;server&quot;</span>,
-                <span class="ident">otel</span>.<span class="ident">status_code</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="kw">crate</span><span class="macro-nonterminal">::root_span_macro::private::tracing::field::Empty</span>,
-                <span class="ident">trace_id</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="kw">crate</span><span class="macro-nonterminal">::root_span_macro::private::tracing::field::Empty</span>,
+                <span class="ident">otel</span>.<span class="ident">status_code</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::root_span_macro::private::tracing::field::Empty</span>,
+                <span class="ident">trace_id</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::root_span_macro::private::tracing::field::Empty</span>,
                 <span class="ident">request_id</span> <span class="op">=</span> <span class="op">%</span><span class="ident">request_id</span>,
-                <span class="ident">exception</span>.<span class="ident">message</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="kw">crate</span><span class="macro-nonterminal">::root_span_macro::private::tracing::field::Empty</span>,
+                <span class="ident">exception</span>.<span class="ident">message</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::root_span_macro::private::tracing::field::Empty</span>,
                 <span class="comment">// Not proper OpenTelemetry, but their terminology is fairly exception-centric</span>
-                <span class="ident">exception</span>.<span class="ident">details</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="kw">crate</span><span class="macro-nonterminal">::root_span_macro::private::tracing::field::Empty</span>,
+                <span class="ident">exception</span>.<span class="ident">details</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::root_span_macro::private::tracing::field::Empty</span>,
                 $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">field</span>)<span class="op">*</span>
             );
             <span class="ident">std::mem::drop</span>(<span class="ident">connection_info</span>);
 
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;opentelemetry_0_13&quot;</span>)]</span>
-            <span class="macro-nonterminal">$</span><span class="kw">crate</span><span class="macro-nonterminal">::root_span_macro::private::set_otel_parent_0_13</span>(<span class="kw-2">&amp;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">request</span>, <span class="kw-2">&amp;</span><span class="ident">span</span>);
+            <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::root_span_macro::private::set_otel_parent_0_13</span>(<span class="kw-2">&amp;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">request</span>, <span class="kw-2">&amp;</span><span class="ident">span</span>);
 
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;opentelemetry_0_14&quot;</span>)]</span>
-            <span class="macro-nonterminal">$</span><span class="kw">crate</span><span class="macro-nonterminal">::root_span_macro::private::set_otel_parent_0_14</span>(<span class="kw-2">&amp;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">request</span>, <span class="kw-2">&amp;</span><span class="ident">span</span>);
+            <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::root_span_macro::private::set_otel_parent_0_14</span>(<span class="kw-2">&amp;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">request</span>, <span class="kw-2">&amp;</span><span class="ident">span</span>);
 
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;opentelemetry_0_15&quot;</span>)]</span>
-            <span class="macro-nonterminal">$</span><span class="kw">crate</span><span class="macro-nonterminal">::root_span_macro::private::set_otel_parent_0_15</span>(<span class="kw-2">&amp;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">request</span>, <span class="kw-2">&amp;</span><span class="ident">span</span>);
+            <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::root_span_macro::private::set_otel_parent_0_15</span>(<span class="kw-2">&amp;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">request</span>, <span class="kw-2">&amp;</span><span class="ident">span</span>);
 
             <span class="ident">span</span>
         }
@@ -314,7 +313,7 @@
     <span class="doccomment">//! in the code generated by the `root_span` macro.</span>
     <span class="doccomment">//! Items in this module are not part of the public interface of `tracing-actix-web` - they are considered</span>
     <span class="doccomment">//! implementation details and will change without notice in patch, minor and major releases.</span>
-    <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::RequestId</span>;
+    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::RequestId</span>;
     <span class="kw">use</span> <span class="ident">actix_web::dev::ServiceRequest</span>;
     <span class="kw">use</span> <span class="ident">actix_web::http</span>::{<span class="ident">Method</span>, <span class="ident">Version</span>};
     <span class="kw">use</span> <span class="ident">std::borrow::Cow</span>;
@@ -324,74 +323,74 @@
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;opentelemetry_0_13&quot;</span>)]</span>
     <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_otel_parent_0_13</span>(<span class="ident">req</span>: <span class="kw-2">&amp;</span><span class="ident">ServiceRequest</span>, <span class="ident">span</span>: <span class="kw-2">&amp;</span><span class="ident">tracing::Span</span>) {
-        <span class="kw">crate</span><span class="ident">::otel_0_13::set_otel_parent</span>(<span class="ident">req</span>, <span class="ident">span</span>);
+        <span class="ident"><span class="kw">crate</span>::otel_0_13::set_otel_parent</span>(<span class="ident">req</span>, <span class="ident">span</span>);
     }
 
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;opentelemetry_0_14&quot;</span>)]</span>
     <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_otel_parent_0_14</span>(<span class="ident">req</span>: <span class="kw-2">&amp;</span><span class="ident">ServiceRequest</span>, <span class="ident">span</span>: <span class="kw-2">&amp;</span><span class="ident">tracing::Span</span>) {
-        <span class="kw">crate</span><span class="ident">::otel_0_14::set_otel_parent</span>(<span class="ident">req</span>, <span class="ident">span</span>);
+        <span class="ident"><span class="kw">crate</span>::otel_0_14::set_otel_parent</span>(<span class="ident">req</span>, <span class="ident">span</span>);
     }
 
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;opentelemetry_0_15&quot;</span>)]</span>
     <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_otel_parent_0_15</span>(<span class="ident">req</span>: <span class="kw-2">&amp;</span><span class="ident">ServiceRequest</span>, <span class="ident">span</span>: <span class="kw-2">&amp;</span><span class="ident">tracing::Span</span>) {
-        <span class="kw">crate</span><span class="ident">::otel_0_15::set_otel_parent</span>(<span class="ident">req</span>, <span class="ident">span</span>);
+        <span class="ident"><span class="kw">crate</span>::otel_0_15::set_otel_parent</span>(<span class="ident">req</span>, <span class="ident">span</span>);
     }
 
     <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">http_method_str</span>(<span class="ident">method</span>: <span class="kw-2">&amp;</span><span class="ident">Method</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span>, <span class="ident">str</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">http_method_str</span>(<span class="ident">method</span>: <span class="kw-2">&amp;</span><span class="ident">Method</span>) -&gt; <span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span>, <span class="ident">str</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="ident">method</span> {
-            <span class="kw-2">&amp;</span><span class="ident">Method::OPTIONS</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;OPTIONS&quot;</span>.<span class="ident">into</span>(),
-            <span class="kw-2">&amp;</span><span class="ident">Method::GET</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;GET&quot;</span>.<span class="ident">into</span>(),
-            <span class="kw-2">&amp;</span><span class="ident">Method::POST</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;POST&quot;</span>.<span class="ident">into</span>(),
-            <span class="kw-2">&amp;</span><span class="ident">Method::PUT</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;PUT&quot;</span>.<span class="ident">into</span>(),
-            <span class="kw-2">&amp;</span><span class="ident">Method::DELETE</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;DELETE&quot;</span>.<span class="ident">into</span>(),
-            <span class="kw-2">&amp;</span><span class="ident">Method::HEAD</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;HEAD&quot;</span>.<span class="ident">into</span>(),
-            <span class="kw-2">&amp;</span><span class="ident">Method::TRACE</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;TRACE&quot;</span>.<span class="ident">into</span>(),
-            <span class="kw-2">&amp;</span><span class="ident">Method::CONNECT</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;CONNECT&quot;</span>.<span class="ident">into</span>(),
-            <span class="kw-2">&amp;</span><span class="ident">Method::PATCH</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;PATCH&quot;</span>.<span class="ident">into</span>(),
-            <span class="ident">other</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">other</span>.<span class="ident">to_string</span>().<span class="ident">into</span>(),
+            <span class="kw-2">&amp;</span><span class="ident">Method::OPTIONS</span> =&gt; <span class="string">&quot;OPTIONS&quot;</span>.<span class="ident">into</span>(),
+            <span class="kw-2">&amp;</span><span class="ident">Method::GET</span> =&gt; <span class="string">&quot;GET&quot;</span>.<span class="ident">into</span>(),
+            <span class="kw-2">&amp;</span><span class="ident">Method::POST</span> =&gt; <span class="string">&quot;POST&quot;</span>.<span class="ident">into</span>(),
+            <span class="kw-2">&amp;</span><span class="ident">Method::PUT</span> =&gt; <span class="string">&quot;PUT&quot;</span>.<span class="ident">into</span>(),
+            <span class="kw-2">&amp;</span><span class="ident">Method::DELETE</span> =&gt; <span class="string">&quot;DELETE&quot;</span>.<span class="ident">into</span>(),
+            <span class="kw-2">&amp;</span><span class="ident">Method::HEAD</span> =&gt; <span class="string">&quot;HEAD&quot;</span>.<span class="ident">into</span>(),
+            <span class="kw-2">&amp;</span><span class="ident">Method::TRACE</span> =&gt; <span class="string">&quot;TRACE&quot;</span>.<span class="ident">into</span>(),
+            <span class="kw-2">&amp;</span><span class="ident">Method::CONNECT</span> =&gt; <span class="string">&quot;CONNECT&quot;</span>.<span class="ident">into</span>(),
+            <span class="kw-2">&amp;</span><span class="ident">Method::PATCH</span> =&gt; <span class="string">&quot;PATCH&quot;</span>.<span class="ident">into</span>(),
+            <span class="ident">other</span> =&gt; <span class="ident">other</span>.<span class="ident">to_string</span>().<span class="ident">into</span>(),
         }
     }
 
     <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">http_flavor</span>(<span class="ident">version</span>: <span class="ident">Version</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span>, <span class="ident">str</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">http_flavor</span>(<span class="ident">version</span>: <span class="ident">Version</span>) -&gt; <span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span>, <span class="ident">str</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="ident">version</span> {
-            <span class="ident">Version::HTTP_09</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;0.9&quot;</span>.<span class="ident">into</span>(),
-            <span class="ident">Version::HTTP_10</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;1.0&quot;</span>.<span class="ident">into</span>(),
-            <span class="ident">Version::HTTP_11</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;1.1&quot;</span>.<span class="ident">into</span>(),
-            <span class="ident">Version::HTTP_2</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;2.0&quot;</span>.<span class="ident">into</span>(),
-            <span class="ident">Version::HTTP_3</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;3.0&quot;</span>.<span class="ident">into</span>(),
-            <span class="ident">other</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">format!</span>(<span class="string">&quot;{:?}&quot;</span>, <span class="ident">other</span>).<span class="ident">into</span>(),
+            <span class="ident">Version::HTTP_09</span> =&gt; <span class="string">&quot;0.9&quot;</span>.<span class="ident">into</span>(),
+            <span class="ident">Version::HTTP_10</span> =&gt; <span class="string">&quot;1.0&quot;</span>.<span class="ident">into</span>(),
+            <span class="ident">Version::HTTP_11</span> =&gt; <span class="string">&quot;1.1&quot;</span>.<span class="ident">into</span>(),
+            <span class="ident">Version::HTTP_2</span> =&gt; <span class="string">&quot;2.0&quot;</span>.<span class="ident">into</span>(),
+            <span class="ident">Version::HTTP_3</span> =&gt; <span class="string">&quot;3.0&quot;</span>.<span class="ident">into</span>(),
+            <span class="ident">other</span> =&gt; <span class="macro">format!</span>(<span class="string">&quot;{:?}&quot;</span>, <span class="ident">other</span>).<span class="ident">into</span>(),
         }
     }
 
     <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">http_scheme</span>(<span class="ident">scheme</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span>, <span class="ident">str</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">http_scheme</span>(<span class="ident">scheme</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span>, <span class="ident">str</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="ident">scheme</span> {
-            <span class="string">&quot;http&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;http&quot;</span>.<span class="ident">into</span>(),
-            <span class="string">&quot;https&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;https&quot;</span>.<span class="ident">into</span>(),
-            <span class="ident">other</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">other</span>.<span class="ident">to_string</span>().<span class="ident">into</span>(),
+            <span class="string">&quot;http&quot;</span> =&gt; <span class="string">&quot;http&quot;</span>.<span class="ident">into</span>(),
+            <span class="string">&quot;https&quot;</span> =&gt; <span class="string">&quot;https&quot;</span>.<span class="ident">into</span>(),
+            <span class="ident">other</span> =&gt; <span class="ident">other</span>.<span class="ident">to_string</span>().<span class="ident">into</span>(),
         }
     }
 
     <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">generate_request_id</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">RequestId</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">generate_request_id</span>() -&gt; <span class="ident">RequestId</span> {
         <span class="ident">RequestId::generate</span>()
     }
 
     <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_request_id</span>(<span class="ident">request</span>: <span class="kw-2">&amp;</span><span class="ident">ServiceRequest</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">RequestId</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_request_id</span>(<span class="ident">request</span>: <span class="kw-2">&amp;</span><span class="ident">ServiceRequest</span>) -&gt; <span class="ident">RequestId</span> {
         <span class="kw">use</span> <span class="ident">actix_web::HttpMessage</span>;
 
         <span class="ident">request</span>.<span class="ident">extensions</span>().<span class="ident">get</span>::<span class="op">&lt;</span><span class="ident">RequestId</span><span class="op">&gt;</span>().<span class="ident">cloned</span>().<span class="ident">unwrap</span>()
     }
 }
-</pre></div>
+</code></pre></div>
 </section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="tracing_actix_web" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
     <script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script>
 </body></html>
