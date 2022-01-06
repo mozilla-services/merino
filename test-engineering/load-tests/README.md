@@ -101,7 +101,7 @@ cat merino_stats.csv | grep -Ev "^GET," > merino_stats.csv.tmp
 mv merino_stats.csv.tmp merino_stats.csv
 ```
 
-Thereafter, copy these 3 files(merino_exceptions.csv, merino_failures.csv, merino_summary.csv) to [gist](https://gist.github.com/) and provide a link to it in the [Merino load test history doc](https://docs.google.com/document/d/1BGNhKuclUH40Bit9KxYWLiv_N_VnE66uxi9pBFbRWbg/edit)
+Thereafter, copy these 3 files (merino_stats.csv, merino_exceptions.csv, merino_failures.csv) to [gist](https://gist.github.com/new) and provide a link to it in the [Merino load test history doc](https://docs.google.com/document/d/1BGNhKuclUH40Bit9KxYWLiv_N_VnE66uxi9pBFbRWbg/edit)
 
 # Deleting the cluster
 
