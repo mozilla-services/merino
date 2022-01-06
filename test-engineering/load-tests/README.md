@@ -97,7 +97,8 @@ kubectl cp <master-pod-name>:/home/locust/merino_failures.csv merino_failures.cs
 To remove all the GET requests and retain only the aggregate summary use:
 
 ```text
-cat merino_stats.csv | grep -Ev "^GET," > merino_summary.csv
+cat merino_stats.csv | grep -Ev "^GET," > merino_stats.csv.tmp
+mv merino_stats.csv.tmp merino_stats.csv
 ```
 
 Thereafter, copy these 3 files(merino_exceptions.csv, merino_failures.csv, merino_summary.csv) to [gist](https://gist.github.com/) and provide a link to it in the [Merino load test history doc](https://docs.google.com/document/d/1BGNhKuclUH40Bit9KxYWLiv_N_VnE66uxi9pBFbRWbg/edit)
