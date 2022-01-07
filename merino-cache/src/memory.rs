@@ -134,9 +134,12 @@ impl Suggester {
                     // runtime. This prevents the expiry task, which is inherently
                     // blocking, from blocking the other tasks running on the
                     // core threads of the runtime.
-                    tokio::task::spawn_blocking(move || {
+                    //
+                    // Wait for the task to finish so that only one expiry task
+                    // is allowed to run.
+                    let _ = tokio::task::spawn_blocking(move || {
                         cache.remove_expired_entries();
-                    });
+                    }).await;
                 }
             });
         }
