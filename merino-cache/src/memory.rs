@@ -139,7 +139,8 @@ impl Suggester {
                     // is allowed to run.
                     let _ = tokio::task::spawn_blocking(move || {
                         cache.remove_expired_entries();
-                    }).await;
+                    })
+                    .await;
                 }
             });
         }
