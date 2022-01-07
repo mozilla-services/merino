@@ -13,7 +13,7 @@ use std::ops::Range;
 use std::time::Duration;
 
 use crate::device_info::DeviceInfo;
-use actix_web::http::header::{AcceptLanguage, LanguageTag, Preference};
+use actix_web::http::header::{AcceptLanguage, LanguageTag, Preference, QualityItem};
 use async_trait::async_trait;
 use fake::{
     faker::{
@@ -340,25 +340,15 @@ pub enum SuggestError {
 pub struct SupportedLanguages(pub AcceptLanguage);
 
 impl SupportedLanguages {
+    /// Returns an instance of [`SupportedLanguages`] that includes every language.
+    pub fn wildcard() -> Self {
+        Self(AcceptLanguage(vec![QualityItem::max(Preference::Any)]))
+    }
+
     /// Specify whether `self` includes the language specified by the given language and region.
-    pub fn includes(&self, language_query: &str, region_query: Option<&str>) -> bool {
-        let language_tag_to_match = {
-            let language_tag = LanguageTag::parse(
-                match region_query {
-                    Some(region) => format!("{}-{}", language_query, region),
-                    None => language_query.to_owned(),
-                }
-                .as_str(),
-            );
-
-            match language_tag {
-                Ok(tag) => tag,
-                Err(_) => return false,
-            }
-        };
-
+    pub fn includes(&self, language_tag: LanguageTag) -> bool {
         self.0.iter().any(|quality_item| {
-            language_tag_to_match.matches(&match &quality_item.item {
+            language_tag.matches(&match &quality_item.item {
                 Preference::Any => return true,
                 Preference::Specific(item) => item.to_owned(),
             })
@@ -379,31 +369,31 @@ mod tests {
         ]));
 
         // Includes en-CA
-        assert!(supported_languages.includes("en", Some("ca")));
+        assert!(supported_languages.includes(LanguageTag::parse("en-CA").unwrap()));
 
         // Includes en
-        assert!(supported_languages.includes("en", None));
+        assert!(supported_languages.includes(LanguageTag::parse("en").unwrap()));
 
         // Does not include en-GB
-        assert!(!supported_languages.includes("en", Some("gb")));
+        assert!(!supported_languages.includes(LanguageTag::parse("en-GB").unwrap()));
 
         // Includes fr
-        assert!(supported_languages.includes("fr", None));
+        assert!(supported_languages.includes(LanguageTag::parse("fr").unwrap()));
 
         // Does not include fr-CH
-        assert!(!supported_languages.includes("fr", Some("ch")));
+        assert!(!supported_languages.includes(LanguageTag::parse("fr-CH").unwrap()));
 
         let supported_languages =
             SupportedLanguages(AcceptLanguage(vec![QualityItem::max("*".parse().unwrap())]));
 
         // Includes en-CA
-        assert!(supported_languages.includes("en", Some("ca")));
+        assert!(supported_languages.includes(LanguageTag::parse("en-CA").unwrap()));
 
         // Includes en
-        assert!(supported_languages.includes("en", None));
+        assert!(supported_languages.includes(LanguageTag::parse("en").unwrap()));
 
         // Includes fr-CH
-        assert!(supported_languages.includes("fr", Some("ch")));
+        assert!(supported_languages.includes(LanguageTag::parse("fr-CH").unwrap()));
     }
 
     /// A test provider that only considers the request query for caching.
