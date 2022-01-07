@@ -128,14 +128,14 @@ impl Suggester {
                 timer.tick().await;
                 loop {
                     timer.tick().await;
-                    let mut suggester = cloned_suggester.clone();
+                    let mut cache = cloned_suggester.clone();
 
                     // Dispatch the expiry task to the blocking threads of the
                     // runtime. This prevents the expiry task, which is inherently
                     // blocking, from blocking the other tasks running on the
                     // core threads of the runtime.
                     tokio::task::spawn_blocking(move || {
-                        suggester.remove_expired_entries();
+                        cache.remove_expired_entries();
                     });
                 }
             });
