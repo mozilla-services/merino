@@ -2,10 +2,9 @@
 
 use std::str::FromStr;
 
-use crate::errors::HandlerErrorKind;
 use actix_web::{
     dev::Payload,
-    http::header::{self, AcceptLanguage, Header, HeaderValue, Preference, QualityItem},
+    http::header::{self, AcceptLanguage, Header, HeaderValue, LanguageTag},
     web::Query,
     Error as ActixError, FromRequest, HttpRequest,
 };
@@ -60,7 +59,7 @@ impl FromRequest for SuggestionRequestWrapper {
 
             Ok(Self(SuggestionRequest {
                 query,
-                accepts_english: supported_languages.includes("en", None),
+                accepts_english: supported_languages.includes(LanguageTag::parse("en").unwrap()),
                 country: location.country,
                 region: location.region,
                 dma: location.dma,
@@ -91,20 +90,21 @@ impl FromRequest for SupportedLanguagesWrapper {
         future::ready({
             if req.headers().contains_key("Accept-Language") {
                 match AcceptLanguage::parse(req) {
+                    // AcceptLanguage::parse() returns an empty Vec for certain types of
+                    // errors in the header. In these cases, we assume that the client will accept
+                    // any language.
                     Ok(languages) if languages.is_empty() => {
-                        // AcceptLanguage::parse() returns an empty Vec for certain types of
-                        // errors in the header. In these cases, we want to return an error.
-                        Err(HandlerErrorKind::MalformedHeader("Accept-Language").into())
+                        Ok(Self(SupportedLanguages::wildcard()))
                     }
-                    Err(_) => Err(HandlerErrorKind::MalformedHeader("Accept-Language").into()),
+                    // If an error occurs while parsing the header, we assume that the client will
+                    // accept any language.
+                    Err(_) => Ok(Self(SupportedLanguages::wildcard())),
                     Ok(languages) => Ok(Self(SupportedLanguages(languages))),
                 }
             } else {
                 // If the request does not have an Accept-Language header at all, we assume that
                 // the client will accept any language.
-                Ok(Self(SupportedLanguages(AcceptLanguage(vec![
-                    QualityItem::max(Preference::Any),
-                ]))))
+                Ok(Self(SupportedLanguages::wildcard()))
             }
         })
     }
@@ -262,33 +262,32 @@ mod tests {
     #[actix_rt::test]
     async fn test_invalid_accept_language_headers() {
         let mut payload = Payload::None;
+        let expected_supported_languages_wrapper =
+            SupportedLanguagesWrapper(SupportedLanguages::wildcard());
 
         // Malformed quality value
         let req = test_request_with_header(("Accept-Language", "en-US;3"));
-        let result = SupportedLanguagesWrapper::from_request(&req, &mut payload).await;
+        let result = SupportedLanguagesWrapper::from_request(&req, &mut payload)
+            .await
+            .expect("Could not get result in test_invalid_accept_language_headers");
 
-        assert_eq!(
-            "Malformed header: Accept-Language",
-            result.unwrap_err().to_string()
-        );
+        assert_eq!(expected_supported_languages_wrapper, result);
 
         // Header with non-visible ASCII characters (\u{200B} is the zero-width space character)
         let req = test_request_with_header(("Accept-Language", "\u{200B}"));
-        let result = SupportedLanguagesWrapper::from_request(&req, &mut payload).await;
+        let result = SupportedLanguagesWrapper::from_request(&req, &mut payload)
+            .await
+            .expect("Could not get result in test_invalid_accept_language_headers");
 
-        assert_eq!(
-            "Malformed header: Accept-Language",
-            result.unwrap_err().to_string()
-        );
+        assert_eq!(expected_supported_languages_wrapper, result);
 
         // Non-numeric quality value
         let req = test_request_with_header(("Accept-Language", "en-US;q=one"));
-        let result = SupportedLanguagesWrapper::from_request(&req, &mut payload).await;
+        let result = SupportedLanguagesWrapper::from_request(&req, &mut payload)
+            .await
+            .expect("Could not get result in test_invalid_accept_language_headers");
 
-        assert_eq!(
-            "Malformed header: Accept-Language",
-            result.unwrap_err().to_string()
-        );
+        assert_eq!(expected_supported_languages_wrapper, result);
     }
 
     #[actix_rt::test]
@@ -313,7 +312,7 @@ mod tests {
         ]));
 
         assert_eq!(supported_languages, expected_supported_languages);
-        assert!(!supported_languages.includes("en", None));
+        assert!(!supported_languages.includes(LanguageTag::parse("en").unwrap()));
     }
 
     #[actix_rt::test]
