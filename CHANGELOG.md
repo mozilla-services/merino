@@ -1,3 +1,14 @@
+<a name="0.5.1"></a>
+## 0.5.1 (2022-01-10)
+
+
+#### Bug Fixes
+
+* **cache:**  Respect the max_removed_entry configuration (#286) ([896e37d4](896e37d4))
+* **deduped-map:**  Correctly remove pointer and storage entries when calling DedupedMap::remove ([819c1040](819c1040))
+
+
+
 <a name="v0.5.0"></a>
 
 ## v0.5.0 (2021-12-14)
