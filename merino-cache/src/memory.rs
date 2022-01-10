@@ -118,7 +118,7 @@ impl Suggester {
         };
 
         {
-            let mut cloned_suggester = suggester.clone();
+            let cloned_suggester = suggester.clone();
             let task_interval = config.cleanup_interval;
             tokio::spawn(async move {
                 let mut timer = tokio::time::interval(task_interval);
@@ -128,7 +128,19 @@ impl Suggester {
                 timer.tick().await;
                 loop {
                     timer.tick().await;
-                    cloned_suggester.remove_expired_entries();
+                    let mut cache = cloned_suggester.clone();
+
+                    // Dispatch the expiry task to the blocking threads of the
+                    // runtime. This prevents the expiry task, which is inherently
+                    // blocking, from blocking the other tasks running on the
+                    // core threads of the runtime.
+                    //
+                    // Wait for the task to finish so that only one expiry task
+                    // is allowed to run.
+                    let _ = tokio::task::spawn_blocking(move || {
+                        cache.remove_expired_entries();
+                    })
+                    .await;
                 }
             });
         }
