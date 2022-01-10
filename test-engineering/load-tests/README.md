@@ -90,27 +90,22 @@ then run:
 
 ```text
 kubectl cp <master-pod-name>:/home/locust/merino_stats.csv merino_stats.csv
-```
-
-```text
 kubectl cp <master-pod-name>:/home/locust/merino_exceptions.csv merino_exceptions.csv
-```
-
-```text
 kubectl cp <master-pod-name>:/home/locust/merino_failures.csv merino_failures.csv
 ```
 
 To remove all the GET requests and retain only the aggregate summary use:
 
 ```text
-cat merino_stats.csv | grep -Ev "^GET," > merino_summary.csv
+cat merino_stats.csv | grep -Ev "^GET," > merino_stats.csv.tmp
+mv merino_stats.csv.tmp merino_stats.csv
 ```
 
-Thereafter, copy these 3 files(merino_exceptions.csv, merino_failures.csv, merino_summary.csv) to [gist](https://gist.github.com/) and provide a link to it in the [Merino load test history doc](https://docs.google.com/document/d/1BGNhKuclUH40Bit9KxYWLiv_N_VnE66uxi9pBFbRWbg/edit)
+Thereafter, copy these 3 files (merino_stats.csv, merino_exceptions.csv, merino_failures.csv) to [gist](https://gist.github.com/new) and provide a link to it in the [Merino load test history doc](https://docs.google.com/document/d/1BGNhKuclUH40Bit9KxYWLiv_N_VnE66uxi9pBFbRWbg/edit)
 
 # Deleting the cluster
 
-After you are done with load testing delet the cluster by running the same bash script and choosing `delete` option
+After you are done with load testing delete the cluster by running the same bash script and choosing the `delete` option
 
 ```text
 ./setup_k8.sh
