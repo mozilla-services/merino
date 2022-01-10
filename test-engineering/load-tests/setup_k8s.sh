@@ -24,7 +24,7 @@ SERVICE_FILE=locust-master-service.yml
 LOCUST_IMAGE_TAG=$(git log -1 --pretty=format:%h)
 echo "Docker image tag for locust is set to: ${LOCUST_IMAGE_TAG}"
 
-##Kubernetes Manifests variables
+##Setting env variables
 KINTO__SERVER_URL='https://firefox.settings.services.mozilla.com'
 KINTO__COLLECTION=quicksuggest
 KINTO__BUCKET=main
@@ -88,8 +88,6 @@ do
             echo -e "==================== Creating the GKE cluster "
             $GCLOUD container clusters create $CLUSTER --region $REGION --scopes $SCOPE --enable-autoscaling --min-nodes "10" --max-nodes "15" --scopes=logging-write,storage-ro --addons HorizontalPodAutoscaling,HttpLoadBalancing  --machine-type $MACHINE_TYPE
             SetupGksCluster
-            #CREDS=$($GCLOUD container clusters get-credentials $CLUSTER --region $REGION --project $GOOGLE_CLOUD_PROJECT)
-            #echo -e "==================== To Connect to the GKE cluster use: $CREDS "
             break
             ;;
         delete)

@@ -8,18 +8,18 @@ Please set the following environment variables when running these load tests.
 
 ### For locust master and worker nodes
 
-* `LOAD_TESTS__LOGGING_LEVEL`: Level for the logger in the load tests as an int (`10` for `DEBUG`, `20` for `INFO` etc.)
-* `KINTO__SERVER_URL`: Server URL of the Kinto instance to download suggestions from
-* `KINTO__BUCKET`: Kinto bucket with the suggestions
-* `KINTO__COLLECTION`: Kinto collection with the suggestions
+- `LOAD_TESTS__LOGGING_LEVEL`: Level for the logger in the load tests as an int (`10` for `DEBUG`, `20` for `INFO` etc.)
+- `KINTO__SERVER_URL`: Server URL of the Kinto instance to download suggestions from
+- `KINTO__BUCKET`: Kinto bucket with the suggestions
+- `KINTO__COLLECTION`: Kinto collection with the suggestions
 
 ### For the locust master node
 
-* `LOCUST_HOST`: Server URL of the Merino deployment to load test
+- `LOCUST_HOST`: Server URL of the Merino deployment to load test
 
 ### For locust worker nodes
 
-* `LOCUST_MASTER_NODE_HOST`: Server URL of locust master for distributed load testing
+- `LOCUST_MASTER_NODE_HOST`: Server URL of locust master for distributed load testing
 
 ## Run tests locally
 
@@ -32,19 +32,20 @@ docker-compose -f test-engineering/load-tests/docker-compose.yml up --scale locu
 ## Run distributed load tests on GCP
 
 You can run the distributed load tests on Cloud Shell from the `load-tests`
-directory using the bash script `load_test_setup.sh`.
+directory using the bash script `setup_k8s.sh`.
 
 Make the file executable by:
 
 ```text
-chmod +x setup_k8.sh
+chmod +x setup_k8s.sh
 ```
 
 Then, run the file:
 
 ```text
-./setup_k8.sh
+./setup_k8s.sh
 ```
+
 Select the option `create`, it goes through the process of creating a cluster, setting up the env variables
 and building the docker image.
 
@@ -76,7 +77,6 @@ kubectl scale deployment/locust-worker --replicas=20
 
 Currently, it's set to run `10` workers but it can be changed by running above command.
 
-
 # How to grab the logs
 
 Get the master pod name by running:
@@ -107,7 +107,7 @@ Thereafter, copy these 3 files (`merino_stats.csv`, `merino_exceptions.csv`, `me
 After you are done with load testing delete the cluster by running the same bash script and choosing the `delete` option
 
 ```text
-./setup_k8.sh
+./setup_k8s.sh
 ```
-Select `delete`
 
+Select `delete`
