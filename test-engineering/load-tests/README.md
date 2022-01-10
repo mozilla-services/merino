@@ -29,7 +29,6 @@ You can run the load tests locally from the repository root directory using:
 docker-compose -f test-engineering/load-tests/docker-compose.yml up --scale locust_worker=4
 ```
 
-
 ## Run distributed load tests on GCP
 
 You can run the distributed load tests on Cloud Shell from the `load-tests`
