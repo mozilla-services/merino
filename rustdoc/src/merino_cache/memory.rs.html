@@ -367,6 +367,18 @@
 <span id="367">367</span>
 <span id="368">368</span>
 <span id="369">369</span>
+<span id="370">370</span>
+<span id="371">371</span>
+<span id="372">372</span>
+<span id="373">373</span>
+<span id="374">374</span>
+<span id="375">375</span>
+<span id="376">376</span>
+<span id="377">377</span>
+<span id="378">378</span>
+<span id="379">379</span>
+<span id="380">380</span>
+<span id="381">381</span>
 </pre><pre class="rust"><code><span class="doccomment">//! A cache system that uses local in-memory storage to store a limited number of items.</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! The cache system here is actually two tiered. The first tier maps from</span>
@@ -487,7 +499,7 @@
         };
 
         {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cloned_suggester</span> <span class="op">=</span> <span class="ident">suggester</span>.<span class="ident">clone</span>();
+            <span class="kw">let</span> <span class="ident">cloned_suggester</span> <span class="op">=</span> <span class="ident">suggester</span>.<span class="ident">clone</span>();
             <span class="kw">let</span> <span class="ident">task_interval</span> <span class="op">=</span> <span class="ident">config</span>.<span class="ident">cleanup_interval</span>;
             <span class="ident">tokio::spawn</span>(<span class="kw">async</span> <span class="kw">move</span> {
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">timer</span> <span class="op">=</span> <span class="ident">tokio::time::interval</span>(<span class="ident">task_interval</span>);
@@ -497,7 +509,19 @@
                 <span class="ident">timer</span>.<span class="ident">tick</span>().<span class="kw">await</span>;
                 <span class="kw">loop</span> {
                     <span class="ident">timer</span>.<span class="ident">tick</span>().<span class="kw">await</span>;
-                    <span class="ident">cloned_suggester</span>.<span class="ident">remove_expired_entries</span>();
+                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cache</span> <span class="op">=</span> <span class="ident">cloned_suggester</span>.<span class="ident">clone</span>();
+
+                    <span class="comment">// Dispatch the expiry task to the blocking threads of the</span>
+                    <span class="comment">// runtime. This prevents the expiry task, which is inherently</span>
+                    <span class="comment">// blocking, from blocking the other tasks running on the</span>
+                    <span class="comment">// core threads of the runtime.</span>
+                    <span class="comment">//</span>
+                    <span class="comment">// Wait for the task to finish so that only one expiry task</span>
+                    <span class="comment">// is allowed to run.</span>
+                    <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">tokio::task::spawn_blocking</span>(<span class="kw">move</span> <span class="op">|</span><span class="op">|</span> {
+                        <span class="ident">cache</span>.<span class="ident">remove_expired_entries</span>();
+                    })
+                    .<span class="kw">await</span>;
                 }
             });
         }
