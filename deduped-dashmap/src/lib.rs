@@ -40,6 +40,15 @@ struct MapPointer<M: Debug> {
     hash: u64,
 }
 
+impl<M: Clone + Debug> Clone for MapPointer<M> {
+    fn clone(&self) -> Self {
+        Self {
+            meta: self.meta.clone(),
+            hash: self.hash,
+        }
+    }
+}
+
 /// The second layer of the map, a reference counted value.
 #[derive(Debug)]
 struct MapValue<V> {
@@ -47,6 +56,21 @@ struct MapValue<V> {
     value: V,
     /// The number of pointers that are referring to this storage item.
     refcount: usize,
+}
+
+impl<V: PartialEq> PartialEq for MapValue<V> {
+    fn eq(&self, other: &Self) -> bool {
+        self.value == other.value && self.refcount == other.refcount
+    }
+}
+
+impl<V: Clone> Clone for MapValue<V> {
+    fn clone(&self) -> Self {
+        Self {
+            value: self.value.clone(),
+            refcount: self.refcount,
+        }
+    }
 }
 
 impl<K, M, V> DedupedMap<K, M, V>
@@ -98,15 +122,15 @@ where
     /// keys refer to the storage item, it will also be removed.
     pub fn remove(&self, key: K) {
         let key_desc = format!("{:?}", key);
-        if let Entry::Occupied(mut occupied_pointer_entry) = self.pointers.entry(key) {
-            let pointer = occupied_pointer_entry.get_mut();
+        if let Entry::Occupied(occupied_pointer_entry) = self.pointers.entry(key) {
+            let pointer = occupied_pointer_entry.remove();
             match self.storage.entry(pointer.hash) {
                 Entry::Occupied(mut occupied_storage_entry) => {
                     let item = occupied_storage_entry.get_mut();
                     if item.refcount > 1 {
                         item.refcount -= 1;
                     } else {
-                        occupied_pointer_entry.remove();
+                        occupied_storage_entry.remove();
                     }
                 }
                 Entry::Vacant(_) => {
@@ -264,9 +288,98 @@ pub enum ControlFlow<C> {
 
 #[cfg(test)]
 mod tests {
-    use std::collections::HashSet;
+    use crate::MapValue;
 
     use super::{ControlFlow, DedupedMap};
+    use std::collections::{HashMap, HashSet};
+
+    #[test]
+    fn test_simple() {
+        // Set up a map with some values related to days of the week
+        let map = DedupedMap::<&str, usize, &str>::new();
+        map.insert("monday", 0, "week day");
+        map.insert("tuesday", 1, "week day");
+        map.insert("wednesday", 2, "week day");
+        map.insert("thursday", 3, "week day");
+        map.insert("friday", 4, "week day");
+        map.insert("saturday", 5, "week end");
+        map.insert("sunday", 6, "week end");
+
+        // Make some assertions about the initial state
+        assert_eq!(map.len_pointers(), 7);
+        assert_eq!(map.len_storage(), 2);
+
+        let mut pointers = map.pointers.clone().into_iter().collect::<Vec<_>>();
+        pointers.sort_by_key(|v| v.0);
+        let storage = map.storage.clone().into_iter().collect::<HashMap<_, _>>();
+
+        let cases = vec![
+            ("friday", 4, "week day", 5),
+            ("monday", 0, "week day", 5),
+            ("saturday", 5, "week end", 2),
+            ("sunday", 6, "week end", 2),
+            ("thursday", 3, "week day", 5),
+            ("tuesday", 1, "week day", 5),
+            ("wednesday", 2, "week day", 5),
+        ];
+        for (idx, (day, day_num, day_type, refcount)) in cases.into_iter().enumerate() {
+            assert_eq!(pointers[idx].0, day);
+            assert_eq!(pointers[idx].1.meta, day_num);
+            assert_eq!(
+                storage[&pointers[idx].1.hash],
+                MapValue {
+                    value: day_type,
+                    refcount,
+                }
+            );
+        }
+
+        // Remove some items from the map
+        map.remove("sunday");
+        assert_eq!(map.len_pointers(), 6);
+        assert_eq!(map.len_storage(), 2);
+        map.remove("saturday");
+        assert_eq!(map.len_pointers(), 5);
+        assert_eq!(map.len_storage(), 1);
+        map.remove("monday");
+        assert_eq!(map.len_pointers(), 4);
+        assert_eq!(map.len_storage(), 1);
+
+        // Make sure the internal structure changed as expected
+        let mut pointers = map.pointers.clone().into_iter().collect::<Vec<_>>();
+        pointers.sort_by_key(|v| v.0);
+        let storage = map.storage.clone().into_iter().collect::<HashMap<_, _>>();
+
+        let cases = vec![
+            ("friday", 4, "week day", 4),
+            ("thursday", 3, "week day", 4),
+            ("tuesday", 1, "week day", 4),
+            ("wednesday", 2, "week day", 4),
+        ];
+        for (idx, (day, day_num, day_type, refcount)) in cases.into_iter().enumerate() {
+            assert_eq!(pointers[idx].0, day);
+            assert_eq!(pointers[idx].1.meta, day_num);
+            assert_eq!(
+                storage[&pointers[idx].1.hash],
+                MapValue {
+                    value: day_type,
+                    refcount,
+                }
+            );
+        }
+
+        // Remove the rest of the items
+        map.remove("tuesday");
+        map.remove("wednesday");
+        map.remove("thursday");
+        map.remove("friday");
+
+        // Make sure the internal structure changed as expected
+        assert_eq!(map.len_pointers(), 0);
+        assert_eq!(map.len_storage(), 0);
+        assert!(map.pointers.iter().next().is_none());
+        assert!(map.storage.iter().next().is_none());
+    }
 
     #[test]
     fn test_retain() {
@@ -323,5 +436,21 @@ mod tests {
                 assert!(map.contains_key(&i));
             }
         }
+    }
+
+    #[test]
+    fn test_remove_everything() {
+        let map = DedupedMap::<char, (), usize>::new();
+        for (idx, letter) in ('a'..='z').enumerate() {
+            map.insert(letter, (), idx / 2);
+        }
+
+        assert_eq!(map.len_pointers(), 26);
+        assert_eq!(map.len_storage(), 13);
+
+        map.retain(|_, _, _| ControlFlow::Continue(false));
+
+        assert_eq!(map.len_pointers(), 0);
+        assert_eq!(map.len_storage(), 0);
     }
 }

@@ -17,8 +17,6 @@ use merino_suggest::{
 };
 use std::{
     collections::HashMap,
-    fmt::Debug,
-    hash::Hash,
     sync::Arc,
     time::{Duration, Instant},
 };
@@ -81,9 +79,10 @@ impl LOCK_TABLE {
 }
 
 /// A in-memory cache for suggestions.
+#[derive(Clone)]
 pub struct Suggester {
     /// The suggester to query on cache-miss.
-    inner: Box<dyn SuggestionProvider>,
+    inner: Arc<Box<dyn SuggestionProvider>>,
 
     /// The Statsd client used to record statistics.
     metrics_client: StatsdClient,
@@ -96,6 +95,9 @@ pub struct Suggester {
 
     /// TTL for locks on cache refresh updates
     default_lock_timeout: Duration,
+
+    /// Maximum number of entries to remove in a single background expiration iteration.
+    max_background_removals: usize,
 }
 
 impl Suggester {
@@ -106,11 +108,17 @@ impl Suggester {
         provider: Box<dyn SuggestionProvider>,
         metrics_client: StatsdClient,
     ) -> Box<Self> {
-        let items = Arc::new(DedupedMap::new());
+        let suggester = Self {
+            inner: Arc::new(provider),
+            metrics_client,
+            items: Arc::new(DedupedMap::new()),
+            default_ttl: config.default_ttl,
+            default_lock_timeout: config.default_lock_timeout,
+            max_background_removals: config.max_removed_entries,
+        };
 
         {
-            let metrics = metrics_client.clone();
-            let task_items = items.clone();
+            let mut cloned_suggester = suggester.clone();
             let task_interval = config.cleanup_interval;
             tokio::spawn(async move {
                 let mut timer = tokio::time::interval(task_interval);
@@ -120,40 +128,28 @@ impl Suggester {
                 timer.tick().await;
                 loop {
                     timer.tick().await;
-                    Self::remove_expired_entries(&task_items, &metrics);
+                    cloned_suggester.remove_expired_entries();
                 }
             });
         }
 
-        Box::new(Self {
-            inner: provider,
-            metrics_client,
-            items,
-            default_ttl: config.default_ttl,
-            default_lock_timeout: config.default_lock_timeout,
-        })
+        Box::new(suggester)
     }
 
     /// Remove expired entries from `items`
-    ///
-    /// This is a selfless method so that it can be called from a spawned Tokio task.
-    #[tracing::instrument(level = "debug", skip(items))]
-    fn remove_expired_entries<K: Eq + Hash + Debug>(
-        items: &Arc<DedupedMap<K, Instant, Vec<Suggestion>>>,
-        metrics_client: &StatsdClient,
-    ) {
+    #[tracing::instrument(level = "debug", skip(self))]
+    fn remove_expired_entries(&mut self) {
         let start = Instant::now();
-        let count_before_storage = items.len_storage();
-        let count_before_pointers = items.len_pointers();
+        let count_before_storage = self.items.len_storage();
+        let count_before_pointers = self.items.len_pointers();
 
         // Retain all cache entries that have not yet expired.
-        let max_removals = 10_000;
         let mut num_removals = 0;
-        items.retain(|_key, expiration, _suggestions| {
-            if num_removals > max_removals {
+        self.items.retain(|_key, expiration, _suggestions| {
+            if num_removals > self.max_background_removals {
                 tracing::warn!(
                     r#type = "cache.memory.max-removals",
-                    ?max_removals,
+                    ?self.max_background_removals,
                     "memory-cache cleanup reached max number of removed entries"
                 );
                 return ControlFlow::Break;
@@ -170,8 +166,8 @@ impl Suggester {
 
         // Report finishing.
         let duration = Instant::now() - start;
-        let removed_storage = count_before_storage - items.len_storage();
-        let removed_pointers = count_before_pointers - items.len_pointers();
+        let removed_storage = count_before_storage - self.items.len_storage();
+        let removed_pointers = count_before_pointers - self.items.len_pointers();
         tracing::info!(
             r#type = "cache.memory.remove-expired",
             ?duration,
@@ -180,11 +176,14 @@ impl Suggester {
             "finished removing expired entries from cache"
         );
 
-        metrics_client
-            .gauge("cache.memory.storage-len", items.len_storage() as u64)
+        self.metrics_client
+            .gauge("cache.memory.storage-len", self.items.len_storage() as u64)
             .ok();
-        metrics_client
-            .gauge("cache.memory.pointers-len", items.len_pointers() as u64)
+        self.metrics_client
+            .gauge(
+                "cache.memory.pointers-len",
+                self.items.len_pointers() as u64,
+            )
             .ok();
     }
 }
@@ -285,7 +284,7 @@ mod tests {
     use cadence::{SpyMetricSink, StatsdClient};
     use deduped_dashmap::DedupedMap;
     use fake::{Fake, Faker};
-    use merino_suggest::Suggestion;
+    use merino_suggest::{NullProvider, Suggestion};
     use std::{
         sync::Arc,
         time::{Duration, Instant},
@@ -315,7 +314,16 @@ mod tests {
         let (rx, sink) = SpyMetricSink::new();
         let metrics_client = StatsdClient::from_sink("merino-test", sink);
 
-        Suggester::remove_expired_entries(&cache, &metrics_client);
+        let mut suggester = Suggester {
+            inner: Arc::new(Box::new(NullProvider)),
+            metrics_client,
+            items: cache.clone(),
+            default_ttl: Duration::from_secs(30),
+            default_lock_timeout: Duration::from_secs(1),
+            max_background_removals: usize::MAX,
+        };
+
+        suggester.remove_expired_entries();
 
         assert_eq!(cache.len_storage(), 1);
         assert_eq!(cache.len_pointers(), 1);

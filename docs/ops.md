@@ -149,12 +149,6 @@ provider below.
   Remote Settings providers if not specified in the provider config. Example:
   "quicksuggest".
 
-- `remote_settings.server` (`MERINO_REMOTE_SETTINGS__SERVER`) - The server to
-  sync from. Example: `https://firefox.settings.services.mozilla.com`.
-
-- `remote_settings.sync_interval_sec` - The time between re-syncs of Remote
-  Settings data, in seconds. Defaults to 3 hours.
-
 ### Location
 
 Configuration for determining the location of users.
@@ -189,6 +183,8 @@ These are production providers that generate suggestions.
     suggestions from. If not specified, the global default will be used.
   - `collection` - Optional. The name of the Remote Settings collection to pull
     suggestions from. If not specifeid, the global default will be used.
+  - `resync_interval_sec` - Optional. The time between re-syncs of Remote
+    Settings data, in seconds. Defaults to 3 hours.
 
 #### Combinators
 
@@ -219,7 +215,7 @@ These are providers that extend, combine, or otherwise modify other providers.
   - `type=timeout`
   - `inner` - Another provider configuration to generate suggestions with.
 
-- KeywordFilter - Filter the suggestions coming from the wrapped provider with the given blocklist.
+- KeywordFilter - Filters the suggestions coming from the wrapped provider with the given blocklist.
 
   - `type=keyword_filter`
   - `suggestion_blocklist` - The map used to define the blocklist rules. Each entry contains a rule id and an associated regular expression that reccommended titles are matched against.
@@ -264,7 +260,7 @@ use.
     a matching request is processed.
   - `max_removed_entries` - While running the cleanup task, at most this many
     entries will be removed before cancelling the task. This should be used to
-    limit the maximum amount of time the cleanup task takes.
+    limit the maximum amount of time the cleanup task takes. Defaults to 100_000.
   - `default_lock_timeout_sec` - The amount of time a cache entry can be locked
     for writing.
   - `inner` - Another provider configuration to generate suggestions with.
@@ -290,7 +286,7 @@ testing.
 - WikiFruit - A very basic provider that suggests Wikipedia articles for the
   exact phrases "apple", "banana", and "cherry".
 
-  - `type=debug`
+  - `type=wiki_fruit`
 
 - Null - A provider that never suggests anything. Useful to fill in combinators
   and caches for testing.
