@@ -48,7 +48,7 @@ Then, run the file:
 Select the option `create`, it goes through the process of creating a cluster, setting up the env variables
 and building the docker image.
 
-*Note*: Be sure to delete the cluster(steps mentioned at the end of this doc) after you are done running load tests and copying the logs.
+**Note:** Be sure to delete the cluster (steps mentioned at the end of this doc) after you are done running load tests and copying the logs.
 
 Run a watch loop while an external IP address is assigned to the `locust-master` service, which should take a few seconds:
 
