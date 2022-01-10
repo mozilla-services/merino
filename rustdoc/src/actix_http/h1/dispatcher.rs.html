@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;usr&#x2F;local&#x2F;cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;actix-http-3.0.0-beta.9&#x2F;src&#x2F;h1&#x2F;dispatcher.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>dispatcher.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="shortcut icon" href="https:&#x2F;&#x2F;actix.rs&#x2F;favicon.ico"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../actix_http/index.html'><div class='logo-container rust-logo'><img src='https:&#x2F;&#x2F;actix.rs&#x2F;img&#x2F;logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">   1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;usr&#x2F;local&#x2F;cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;actix-http-3.0.0-beta.16&#x2F;src&#x2F;h1&#x2F;dispatcher.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>dispatcher.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="shortcut icon" href="https:&#x2F;&#x2F;actix.rs&#x2F;favicon.ico"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../actix_http/index.html'><div class='logo-container rust-logo'><img src='https:&#x2F;&#x2F;actix.rs&#x2F;img&#x2F;logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">   1</span>
 <span id="2">   2</span>
 <span id="3">   3</span>
 <span id="4">   4</span>
@@ -1427,9 +1427,13 @@
 <span id="1427">1427</span>
 <span id="1428">1428</span>
 <span id="1429">1429</span>
+<span id="1430">1430</span>
+<span id="1431">1431</span>
+<span id="1432">1432</span>
+<span id="1433">1433</span>
+<span id="1434">1434</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std</span>::{
     <span class="ident">collections::VecDeque</span>,
-    <span class="ident">error::Error</span> <span class="kw">as</span> <span class="ident">StdError</span>,
     <span class="ident">fmt</span>,
     <span class="ident">future::Future</span>,
     <span class="ident">io</span>, <span class="ident">mem</span>, <span class="ident">net</span>,
@@ -1445,18 +1449,19 @@
 <span class="kw">use</span> <span class="ident">bytes</span>::{<span class="ident">Buf</span>, <span class="ident">BytesMut</span>};
 <span class="kw">use</span> <span class="ident">futures_core::ready</span>;
 <span class="kw">use</span> <span class="ident">log</span>::{<span class="ident">error</span>, <span class="ident">trace</span>};
-<span class="kw">use</span> <span class="ident">pin_project::pin_project</span>;
+<span class="kw">use</span> <span class="ident">pin_project_lite::pin_project</span>;
 
 <span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">body</span>::{<span class="ident">AnyBody</span>, <span class="ident">BodySize</span>, <span class="ident">MessageBody</span>},
+    <span class="ident">body</span>::{<span class="ident">BodySize</span>, <span class="ident">BoxBody</span>, <span class="ident">MessageBody</span>},
     <span class="ident">config::ServiceConfig</span>,
     <span class="ident">error</span>::{<span class="ident">DispatchError</span>, <span class="ident">ParseError</span>, <span class="ident">PayloadError</span>},
     <span class="ident">service::HttpFlow</span>,
-    <span class="ident">OnConnectData</span>, <span class="ident">Request</span>, <span class="ident">Response</span>, <span class="ident">StatusCode</span>,
+    <span class="ident">Error</span>, <span class="ident">Extensions</span>, <span class="ident">OnConnectData</span>, <span class="ident">Request</span>, <span class="ident">Response</span>, <span class="ident">StatusCode</span>,
 };
 
 <span class="kw">use</span> <span class="kw">super</span>::{
     <span class="ident">codec::Codec</span>,
+    <span class="ident">decoder::MAX_BUFFER_SIZE</span>,
     <span class="ident">payload</span>::{<span class="ident">Payload</span>, <span class="ident">PayloadSender</span>, <span class="ident">PayloadStatus</span>},
     <span class="ident">Message</span>, <span class="ident">MessageType</span>,
 };
@@ -1475,82 +1480,111 @@
     }
 }
 
-<span class="attribute">#[<span class="ident">pin_project</span>]</span>
-<span class="doccomment">/// Dispatcher for HTTP/1.1 protocol</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Dispatcher</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">S</span>, <span class="ident">B</span>, <span class="ident">X</span>, <span class="ident">U</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">S</span>: <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Request</span><span class="op">&gt;</span>,
-    <span class="ident">S::Error</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Response</span><span class="op">&lt;</span><span class="ident">AnyBody</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+<span class="comment">// there&#39;s 2 versions of Dispatcher state because of:</span>
+<span class="comment">// https://github.com/taiki-e/pin-project-lite/issues/3</span>
+<span class="comment">//</span>
+<span class="comment">// tl;dr: pin-project-lite doesn&#39;t play well with other attribute macros</span>
 
-    <span class="ident">B</span>: <span class="ident">MessageBody</span>,
-    <span class="ident">B::Error</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">StdError</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">test</span>))]</span>
+<span class="macro">pin_project!</span> {
+    <span class="doccomment">/// Dispatcher for HTTP/1.1 protocol</span>
+    <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Dispatcher</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">S</span>, <span class="ident">B</span>, <span class="ident">X</span>, <span class="ident">U</span><span class="op">&gt;</span>
+    <span class="kw">where</span>
+        <span class="ident">S</span>: <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Request</span><span class="op">&gt;</span>,
+        <span class="ident">S::Error</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Response</span><span class="op">&lt;</span><span class="ident">BoxBody</span><span class="op">&gt;</span><span class="op">&gt;</span>,
 
-    <span class="ident">X</span>: <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Request</span>, <span class="ident">Response</span> <span class="op">=</span> <span class="ident">Request</span><span class="op">&gt;</span>,
-    <span class="ident">X::Error</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Response</span><span class="op">&lt;</span><span class="ident">AnyBody</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+        <span class="ident">B</span>: <span class="ident">MessageBody</span>,
 
-    <span class="ident">U</span>: <span class="ident">Service</span><span class="op">&lt;</span>(<span class="ident">Request</span>, <span class="ident">Framed</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">Codec</span><span class="op">&gt;</span>), <span class="ident">Response</span> <span class="op">=</span> ()<span class="op">&gt;</span>,
-    <span class="ident">U::Error</span>: <span class="ident">fmt::Display</span>,
-{
-    <span class="attribute">#[<span class="ident">pin</span>]</span>
-    <span class="ident">inner</span>: <span class="ident">DispatcherState</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">S</span>, <span class="ident">B</span>, <span class="ident">X</span>, <span class="ident">U</span><span class="op">&gt;</span>,
+        <span class="ident">X</span>: <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Request</span>, <span class="ident">Response</span> <span class="op">=</span> <span class="ident">Request</span><span class="op">&gt;</span>,
+        <span class="ident">X::Error</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Response</span><span class="op">&lt;</span><span class="ident">BoxBody</span><span class="op">&gt;</span><span class="op">&gt;</span>,
 
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-    <span class="ident">poll_count</span>: <span class="ident">u64</span>,
+        <span class="ident">U</span>: <span class="ident">Service</span><span class="op">&lt;</span>(<span class="ident">Request</span>, <span class="ident">Framed</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">Codec</span><span class="op">&gt;</span>), <span class="ident">Response</span> <span class="op">=</span> ()<span class="op">&gt;</span>,
+        <span class="ident">U::Error</span>: <span class="ident">fmt::Display</span>,
+    {
+        <span class="attribute">#[<span class="ident">pin</span>]</span>
+        <span class="ident">inner</span>: <span class="ident">DispatcherState</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">S</span>, <span class="ident">B</span>, <span class="ident">X</span>, <span class="ident">U</span><span class="op">&gt;</span>,
+    }
 }
 
-<span class="attribute">#[<span class="ident">pin_project</span>(<span class="ident">project</span> <span class="op">=</span> <span class="ident">DispatcherStateProj</span>)]</span>
-<span class="kw">enum</span> <span class="ident">DispatcherState</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">S</span>, <span class="ident">B</span>, <span class="ident">X</span>, <span class="ident">U</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">S</span>: <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Request</span><span class="op">&gt;</span>,
-    <span class="ident">S::Error</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Response</span><span class="op">&lt;</span><span class="ident">AnyBody</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
+<span class="macro">pin_project!</span> {
+    <span class="doccomment">/// Dispatcher for HTTP/1.1 protocol</span>
+    <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Dispatcher</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">S</span>, <span class="ident">B</span>, <span class="ident">X</span>, <span class="ident">U</span><span class="op">&gt;</span>
+    <span class="kw">where</span>
+        <span class="ident">S</span>: <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Request</span><span class="op">&gt;</span>,
+        <span class="ident">S::Error</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Response</span><span class="op">&lt;</span><span class="ident">BoxBody</span><span class="op">&gt;</span><span class="op">&gt;</span>,
 
-    <span class="ident">B</span>: <span class="ident">MessageBody</span>,
-    <span class="ident">B::Error</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">StdError</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+        <span class="ident">B</span>: <span class="ident">MessageBody</span>,
 
-    <span class="ident">X</span>: <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Request</span>, <span class="ident">Response</span> <span class="op">=</span> <span class="ident">Request</span><span class="op">&gt;</span>,
-    <span class="ident">X::Error</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Response</span><span class="op">&lt;</span><span class="ident">AnyBody</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+        <span class="ident">X</span>: <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Request</span>, <span class="ident">Response</span> <span class="op">=</span> <span class="ident">Request</span><span class="op">&gt;</span>,
+        <span class="ident">X::Error</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Response</span><span class="op">&lt;</span><span class="ident">BoxBody</span><span class="op">&gt;</span><span class="op">&gt;</span>,
 
-    <span class="ident">U</span>: <span class="ident">Service</span><span class="op">&lt;</span>(<span class="ident">Request</span>, <span class="ident">Framed</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">Codec</span><span class="op">&gt;</span>), <span class="ident">Response</span> <span class="op">=</span> ()<span class="op">&gt;</span>,
-    <span class="ident">U::Error</span>: <span class="ident">fmt::Display</span>,
-{
-    <span class="ident">Normal</span>(<span class="attribute">#[<span class="ident">pin</span>]</span> <span class="ident">InnerDispatcher</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">S</span>, <span class="ident">B</span>, <span class="ident">X</span>, <span class="ident">U</span><span class="op">&gt;</span>),
-    <span class="ident">Upgrade</span>(<span class="attribute">#[<span class="ident">pin</span>]</span> <span class="ident">U::Future</span>),
+        <span class="ident">U</span>: <span class="ident">Service</span><span class="op">&lt;</span>(<span class="ident">Request</span>, <span class="ident">Framed</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">Codec</span><span class="op">&gt;</span>), <span class="ident">Response</span> <span class="op">=</span> ()<span class="op">&gt;</span>,
+        <span class="ident">U::Error</span>: <span class="ident">fmt::Display</span>,
+    {
+        <span class="attribute">#[<span class="ident">pin</span>]</span>
+        <span class="ident">inner</span>: <span class="ident">DispatcherState</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">S</span>, <span class="ident">B</span>, <span class="ident">X</span>, <span class="ident">U</span><span class="op">&gt;</span>,
+
+        <span class="comment">// used in tests</span>
+        <span class="ident">poll_count</span>: <span class="ident">u64</span>,
+    }
 }
 
-<span class="attribute">#[<span class="ident">pin_project</span>(<span class="ident">project</span> <span class="op">=</span> <span class="ident">InnerDispatcherProj</span>)]</span>
-<span class="kw">struct</span> <span class="ident">InnerDispatcher</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">S</span>, <span class="ident">B</span>, <span class="ident">X</span>, <span class="ident">U</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">S</span>: <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Request</span><span class="op">&gt;</span>,
-    <span class="ident">S::Error</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Response</span><span class="op">&lt;</span><span class="ident">AnyBody</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+<span class="macro">pin_project!</span> {
+    <span class="attribute">#[<span class="ident">project</span> <span class="op">=</span> <span class="ident">DispatcherStateProj</span>]</span>
+    <span class="kw">enum</span> <span class="ident">DispatcherState</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">S</span>, <span class="ident">B</span>, <span class="ident">X</span>, <span class="ident">U</span><span class="op">&gt;</span>
+    <span class="kw">where</span>
+        <span class="ident">S</span>: <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Request</span><span class="op">&gt;</span>,
+        <span class="ident">S::Error</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Response</span><span class="op">&lt;</span><span class="ident">BoxBody</span><span class="op">&gt;</span><span class="op">&gt;</span>,
 
-    <span class="ident">B</span>: <span class="ident">MessageBody</span>,
-    <span class="ident">B::Error</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">StdError</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+        <span class="ident">B</span>: <span class="ident">MessageBody</span>,
 
-    <span class="ident">X</span>: <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Request</span>, <span class="ident">Response</span> <span class="op">=</span> <span class="ident">Request</span><span class="op">&gt;</span>,
-    <span class="ident">X::Error</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Response</span><span class="op">&lt;</span><span class="ident">AnyBody</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+        <span class="ident">X</span>: <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Request</span>, <span class="ident">Response</span> <span class="op">=</span> <span class="ident">Request</span><span class="op">&gt;</span>,
+        <span class="ident">X::Error</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Response</span><span class="op">&lt;</span><span class="ident">BoxBody</span><span class="op">&gt;</span><span class="op">&gt;</span>,
 
-    <span class="ident">U</span>: <span class="ident">Service</span><span class="op">&lt;</span>(<span class="ident">Request</span>, <span class="ident">Framed</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">Codec</span><span class="op">&gt;</span>), <span class="ident">Response</span> <span class="op">=</span> ()<span class="op">&gt;</span>,
-    <span class="ident">U::Error</span>: <span class="ident">fmt::Display</span>,
-{
-    <span class="ident">flow</span>: <span class="ident">Rc</span><span class="op">&lt;</span><span class="ident">HttpFlow</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">X</span>, <span class="ident">U</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="ident">on_connect_data</span>: <span class="ident">OnConnectData</span>,
-    <span class="ident">flags</span>: <span class="ident">Flags</span>,
-    <span class="ident">peer_addr</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">net::SocketAddr</span><span class="op">&gt;</span>,
-    <span class="ident">error</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">DispatchError</span><span class="op">&gt;</span>,
+        <span class="ident">U</span>: <span class="ident">Service</span><span class="op">&lt;</span>(<span class="ident">Request</span>, <span class="ident">Framed</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">Codec</span><span class="op">&gt;</span>), <span class="ident">Response</span> <span class="op">=</span> ()<span class="op">&gt;</span>,
+        <span class="ident">U::Error</span>: <span class="ident">fmt::Display</span>,
+    {
+        <span class="ident">Normal</span> { <span class="attribute">#[<span class="ident">pin</span>]</span> <span class="ident">inner</span>: <span class="ident">InnerDispatcher</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">S</span>, <span class="ident">B</span>, <span class="ident">X</span>, <span class="ident">U</span><span class="op">&gt;</span> },
+        <span class="ident">Upgrade</span> { <span class="attribute">#[<span class="ident">pin</span>]</span> <span class="ident">fut</span>: <span class="ident">U::Future</span> },
+    }
+}
 
-    <span class="attribute">#[<span class="ident">pin</span>]</span>
-    <span class="ident">state</span>: <span class="ident">State</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">B</span>, <span class="ident">X</span><span class="op">&gt;</span>,
-    <span class="ident">payload</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PayloadSender</span><span class="op">&gt;</span>,
-    <span class="ident">messages</span>: <span class="ident">VecDeque</span><span class="op">&lt;</span><span class="ident">DispatcherMessage</span><span class="op">&gt;</span>,
+<span class="macro">pin_project!</span> {
+    <span class="attribute">#[<span class="ident">project</span> <span class="op">=</span> <span class="ident">InnerDispatcherProj</span>]</span>
+    <span class="kw">struct</span> <span class="ident">InnerDispatcher</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">S</span>, <span class="ident">B</span>, <span class="ident">X</span>, <span class="ident">U</span><span class="op">&gt;</span>
+    <span class="kw">where</span>
+        <span class="ident">S</span>: <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Request</span><span class="op">&gt;</span>,
+        <span class="ident">S::Error</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Response</span><span class="op">&lt;</span><span class="ident">BoxBody</span><span class="op">&gt;</span><span class="op">&gt;</span>,
 
-    <span class="ident">ka_expire</span>: <span class="ident">Instant</span>,
-    <span class="attribute">#[<span class="ident">pin</span>]</span>
-    <span class="ident">ka_timer</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Sleep</span><span class="op">&gt;</span>,
+        <span class="ident">B</span>: <span class="ident">MessageBody</span>,
 
-    <span class="ident">io</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
-    <span class="ident">read_buf</span>: <span class="ident">BytesMut</span>,
-    <span class="ident">write_buf</span>: <span class="ident">BytesMut</span>,
-    <span class="ident">codec</span>: <span class="ident">Codec</span>,
+        <span class="ident">X</span>: <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Request</span>, <span class="ident">Response</span> <span class="op">=</span> <span class="ident">Request</span><span class="op">&gt;</span>,
+        <span class="ident">X::Error</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Response</span><span class="op">&lt;</span><span class="ident">BoxBody</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+
+        <span class="ident">U</span>: <span class="ident">Service</span><span class="op">&lt;</span>(<span class="ident">Request</span>, <span class="ident">Framed</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">Codec</span><span class="op">&gt;</span>), <span class="ident">Response</span> <span class="op">=</span> ()<span class="op">&gt;</span>,
+        <span class="ident">U::Error</span>: <span class="ident">fmt::Display</span>,
+    {
+        <span class="ident">flow</span>: <span class="ident">Rc</span><span class="op">&lt;</span><span class="ident">HttpFlow</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">X</span>, <span class="ident">U</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+        <span class="ident">flags</span>: <span class="ident">Flags</span>,
+        <span class="ident">peer_addr</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">net::SocketAddr</span><span class="op">&gt;</span>,
+        <span class="ident">conn_data</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Rc</span><span class="op">&lt;</span><span class="ident">Extensions</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+        <span class="ident">error</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">DispatchError</span><span class="op">&gt;</span>,
+
+        <span class="attribute">#[<span class="ident">pin</span>]</span>
+        <span class="ident">state</span>: <span class="ident">State</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">B</span>, <span class="ident">X</span><span class="op">&gt;</span>,
+        <span class="ident">payload</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PayloadSender</span><span class="op">&gt;</span>,
+        <span class="ident">messages</span>: <span class="ident">VecDeque</span><span class="op">&lt;</span><span class="ident">DispatcherMessage</span><span class="op">&gt;</span>,
+
+        <span class="ident">ka_expire</span>: <span class="ident">Instant</span>,
+        <span class="attribute">#[<span class="ident">pin</span>]</span>
+        <span class="ident">ka_timer</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Sleep</span><span class="op">&gt;</span>,
+
+        <span class="ident">io</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
+        <span class="ident">read_buf</span>: <span class="ident">BytesMut</span>,
+        <span class="ident">write_buf</span>: <span class="ident">BytesMut</span>,
+        <span class="ident">codec</span>: <span class="ident">Codec</span>,
+    }
 }
 
 <span class="kw">enum</span> <span class="ident">DispatcherMessage</span> {
@@ -1559,20 +1593,21 @@
     <span class="ident">Error</span>(<span class="ident">Response</span><span class="op">&lt;</span>()<span class="op">&gt;</span>),
 }
 
-<span class="attribute">#[<span class="ident">pin_project</span>(<span class="ident">project</span> <span class="op">=</span> <span class="ident">StateProj</span>)]</span>
-<span class="kw">enum</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">B</span>, <span class="ident">X</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">S</span>: <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Request</span><span class="op">&gt;</span>,
-    <span class="ident">X</span>: <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Request</span>, <span class="ident">Response</span> <span class="op">=</span> <span class="ident">Request</span><span class="op">&gt;</span>,
+<span class="macro">pin_project!</span> {
+    <span class="attribute">#[<span class="ident">project</span> <span class="op">=</span> <span class="ident">StateProj</span>]</span>
+    <span class="kw">enum</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">B</span>, <span class="ident">X</span><span class="op">&gt;</span>
+    <span class="kw">where</span>
+        <span class="ident">S</span>: <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Request</span><span class="op">&gt;</span>,
+        <span class="ident">X</span>: <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Request</span>, <span class="ident">Response</span> <span class="op">=</span> <span class="ident">Request</span><span class="op">&gt;</span>,
 
-    <span class="ident">B</span>: <span class="ident">MessageBody</span>,
-    <span class="ident">B::Error</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">StdError</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-{
-    <span class="prelude-val">None</span>,
-    <span class="ident">ExpectCall</span>(<span class="attribute">#[<span class="ident">pin</span>]</span> <span class="ident">X::Future</span>),
-    <span class="ident">ServiceCall</span>(<span class="attribute">#[<span class="ident">pin</span>]</span> <span class="ident">S::Future</span>),
-    <span class="ident">SendPayload</span>(<span class="attribute">#[<span class="ident">pin</span>]</span> <span class="ident">B</span>),
-    <span class="ident">SendErrorPayload</span>(<span class="attribute">#[<span class="ident">pin</span>]</span> <span class="ident">AnyBody</span>),
+        <span class="ident">B</span>: <span class="ident">MessageBody</span>,
+    {
+        <span class="prelude-val">None</span>,
+        <span class="ident">ExpectCall</span> { <span class="attribute">#[<span class="ident">pin</span>]</span> <span class="ident">fut</span>: <span class="ident">X::Future</span> },
+        <span class="ident">ServiceCall</span> { <span class="attribute">#[<span class="ident">pin</span>]</span> <span class="ident">fut</span>: <span class="ident">S::Future</span> },
+        <span class="ident">SendPayload</span> { <span class="attribute">#[<span class="ident">pin</span>]</span> <span class="ident">body</span>: <span class="ident">B</span> },
+        <span class="ident">SendErrorPayload</span> { <span class="attribute">#[<span class="ident">pin</span>]</span> <span class="ident">body</span>: <span class="ident">BoxBody</span> },
+    }
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">B</span>, <span class="ident">X</span><span class="op">&gt;</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">B</span>, <span class="ident">X</span><span class="op">&gt;</span>
@@ -1582,7 +1617,6 @@
     <span class="ident">X</span>: <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Request</span>, <span class="ident">Response</span> <span class="op">=</span> <span class="ident">Request</span><span class="op">&gt;</span>,
 
     <span class="ident">B</span>: <span class="ident">MessageBody</span>,
-    <span class="ident">B::Error</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">StdError</span><span class="op">&gt;</span><span class="op">&gt;</span>,
 {
     <span class="kw">fn</span> <span class="ident">is_empty</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="macro">matches!</span>(<span class="self">self</span>, <span class="ident">State::None</span>)
@@ -1600,14 +1634,13 @@
     <span class="ident">T</span>: <span class="ident">AsyncRead</span> <span class="op">+</span> <span class="ident">AsyncWrite</span> <span class="op">+</span> <span class="ident">Unpin</span>,
 
     <span class="ident">S</span>: <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Request</span><span class="op">&gt;</span>,
-    <span class="ident">S::Error</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Response</span><span class="op">&lt;</span><span class="ident">AnyBody</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    <span class="ident">S::Error</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Response</span><span class="op">&lt;</span><span class="ident">BoxBody</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     <span class="ident">S::Response</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Response</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span><span class="op">&gt;</span>,
 
     <span class="ident">B</span>: <span class="ident">MessageBody</span>,
-    <span class="ident">B::Error</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">StdError</span><span class="op">&gt;</span><span class="op">&gt;</span>,
 
     <span class="ident">X</span>: <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Request</span>, <span class="ident">Response</span> <span class="op">=</span> <span class="ident">Request</span><span class="op">&gt;</span>,
-    <span class="ident">X::Error</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Response</span><span class="op">&lt;</span><span class="ident">AnyBody</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    <span class="ident">X::Error</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Response</span><span class="op">&lt;</span><span class="ident">BoxBody</span><span class="op">&gt;</span><span class="op">&gt;</span>,
 
     <span class="ident">U</span>: <span class="ident">Service</span><span class="op">&lt;</span>(<span class="ident">Request</span>, <span class="ident">Framed</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">Codec</span><span class="op">&gt;</span>), <span class="ident">Response</span> <span class="op">=</span> ()<span class="op">&gt;</span>,
     <span class="ident">U::Error</span>: <span class="ident">fmt::Display</span>,
@@ -1615,10 +1648,10 @@
     <span class="doccomment">/// Create HTTP/1 dispatcher.</span>
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new</span>(
         <span class="ident">io</span>: <span class="ident">T</span>,
-        <span class="ident">config</span>: <span class="ident">ServiceConfig</span>,
         <span class="ident">flow</span>: <span class="ident">Rc</span><span class="op">&lt;</span><span class="ident">HttpFlow</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">X</span>, <span class="ident">U</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-        <span class="ident">on_connect_data</span>: <span class="ident">OnConnectData</span>,
+        <span class="ident">config</span>: <span class="ident">ServiceConfig</span>,
         <span class="ident">peer_addr</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">net::SocketAddr</span><span class="op">&gt;</span>,
+        <span class="ident">conn_data</span>: <span class="ident">OnConnectData</span>,
     ) -&gt; <span class="self">Self</span> {
         <span class="kw">let</span> <span class="ident">flags</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">config</span>.<span class="ident">keep_alive_enabled</span>() {
             <span class="ident">Flags::KEEPALIVE</span>
@@ -1633,22 +1666,27 @@
         };
 
         <span class="ident">Dispatcher</span> {
-            <span class="ident">inner</span>: <span class="ident">DispatcherState::Normal</span>(<span class="ident">InnerDispatcher</span> {
-                <span class="ident">read_buf</span>: <span class="ident">BytesMut::with_capacity</span>(<span class="ident">HW_BUFFER_SIZE</span>),
-                <span class="ident">write_buf</span>: <span class="ident">BytesMut::with_capacity</span>(<span class="ident">HW_BUFFER_SIZE</span>),
-                <span class="ident">payload</span>: <span class="prelude-val">None</span>,
-                <span class="ident">state</span>: <span class="ident">State::None</span>,
-                <span class="ident">error</span>: <span class="prelude-val">None</span>,
-                <span class="ident">messages</span>: <span class="ident">VecDeque::new</span>(),
-                <span class="ident">io</span>: <span class="prelude-val">Some</span>(<span class="ident">io</span>),
-                <span class="ident">codec</span>: <span class="ident">Codec::new</span>(<span class="ident">config</span>),
-                <span class="ident">flow</span>,
-                <span class="ident">on_connect_data</span>,
-                <span class="ident">flags</span>,
-                <span class="ident">peer_addr</span>,
-                <span class="ident">ka_expire</span>,
-                <span class="ident">ka_timer</span>,
-            }),
+            <span class="ident">inner</span>: <span class="ident">DispatcherState::Normal</span> {
+                <span class="ident">inner</span>: <span class="ident">InnerDispatcher</span> {
+                    <span class="ident">flow</span>,
+                    <span class="ident">flags</span>,
+                    <span class="ident">peer_addr</span>,
+                    <span class="ident">conn_data</span>: <span class="ident">conn_data</span>.<span class="number">0</span>.<span class="ident">map</span>(<span class="ident">Rc::new</span>),
+                    <span class="ident">error</span>: <span class="prelude-val">None</span>,
+
+                    <span class="ident">state</span>: <span class="ident">State::None</span>,
+                    <span class="ident">payload</span>: <span class="prelude-val">None</span>,
+                    <span class="ident">messages</span>: <span class="ident">VecDeque::new</span>(),
+
+                    <span class="ident">ka_expire</span>,
+                    <span class="ident">ka_timer</span>,
+
+                    <span class="ident">io</span>: <span class="prelude-val">Some</span>(<span class="ident">io</span>),
+                    <span class="ident">read_buf</span>: <span class="ident">BytesMut::with_capacity</span>(<span class="ident">HW_BUFFER_SIZE</span>),
+                    <span class="ident">write_buf</span>: <span class="ident">BytesMut::with_capacity</span>(<span class="ident">HW_BUFFER_SIZE</span>),
+                    <span class="ident">codec</span>: <span class="ident">Codec::new</span>(<span class="ident">config</span>),
+                },
+            },
 
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
             <span class="ident">poll_count</span>: <span class="number">0</span>,
@@ -1661,14 +1699,13 @@
     <span class="ident">T</span>: <span class="ident">AsyncRead</span> <span class="op">+</span> <span class="ident">AsyncWrite</span> <span class="op">+</span> <span class="ident">Unpin</span>,
 
     <span class="ident">S</span>: <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Request</span><span class="op">&gt;</span>,
-    <span class="ident">S::Error</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Response</span><span class="op">&lt;</span><span class="ident">AnyBody</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    <span class="ident">S::Error</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Response</span><span class="op">&lt;</span><span class="ident">BoxBody</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     <span class="ident">S::Response</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Response</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span><span class="op">&gt;</span>,
 
     <span class="ident">B</span>: <span class="ident">MessageBody</span>,
-    <span class="ident">B::Error</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">StdError</span><span class="op">&gt;</span><span class="op">&gt;</span>,
 
     <span class="ident">X</span>: <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Request</span>, <span class="ident">Response</span> <span class="op">=</span> <span class="ident">Request</span><span class="op">&gt;</span>,
-    <span class="ident">X::Error</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Response</span><span class="op">&lt;</span><span class="ident">AnyBody</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    <span class="ident">X::Error</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Response</span><span class="op">&lt;</span><span class="ident">BoxBody</span><span class="op">&gt;</span><span class="op">&gt;</span>,
 
     <span class="ident">U</span>: <span class="ident">Service</span><span class="op">&lt;</span>(<span class="ident">Request</span>, <span class="ident">Framed</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">Codec</span><span class="op">&gt;</span>), <span class="ident">Response</span> <span class="op">=</span> ()<span class="op">&gt;</span>,
     <span class="ident">U::Error</span>: <span class="ident">fmt::Display</span>,
@@ -1693,10 +1730,7 @@
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">poll_flush</span>(
-        <span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span><span class="op">&gt;</span>,
-        <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
-    ) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">io::Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">poll_flush</span>(<span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">io::Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">InnerDispatcherProj</span> { <span class="ident">io</span>, <span class="ident">write_buf</span>, .. } <span class="op">=</span> <span class="self">self</span>.<span class="ident">project</span>();
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">io</span> <span class="op">=</span> <span class="ident">Pin::new</span>(<span class="ident">io</span>.<span class="ident">as_mut</span>().<span class="ident">unwrap</span>());
 
@@ -1706,10 +1740,7 @@
         <span class="kw">while</span> <span class="ident">written</span> <span class="op">&lt;</span> <span class="ident">len</span> {
             <span class="kw">match</span> <span class="ident">io</span>.<span class="ident">as_mut</span>().<span class="ident">poll_write</span>(<span class="ident">cx</span>, <span class="kw-2">&amp;</span><span class="ident">write_buf</span>[<span class="ident">written</span>..])<span class="question-mark">?</span> {
                 <span class="ident">Poll::Ready</span>(<span class="number">0</span>) =&gt; {
-                    <span class="kw">return</span> <span class="ident">Poll::Ready</span>(<span class="prelude-val">Err</span>(<span class="ident">io::Error::new</span>(
-                        <span class="ident">io::ErrorKind::WriteZero</span>,
-                        <span class="string">&quot;&quot;</span>,
-                    )))
+                    <span class="kw">return</span> <span class="ident">Poll::Ready</span>(<span class="prelude-val">Err</span>(<span class="ident">io::Error::new</span>(<span class="ident">io::ErrorKind::WriteZero</span>, <span class="string">&quot;&quot;</span>)))
                 }
                 <span class="ident">Poll::Ready</span>(<span class="ident">n</span>) =&gt; <span class="ident">written</span> <span class="op">+</span><span class="op">=</span> <span class="ident">n</span>,
                 <span class="ident">Poll::Pending</span> =&gt; {
@@ -1732,9 +1763,9 @@
         <span class="ident">body</span>: <span class="kw-2">&amp;</span><span class="kw">impl</span> <span class="ident">MessageBody</span>,
     ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">BodySize</span>, <span class="ident">DispatchError</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">size</span> <span class="op">=</span> <span class="ident">body</span>.<span class="ident">size</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">this</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">project</span>();
+        <span class="kw">let</span> <span class="ident">this</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">project</span>();
         <span class="ident">this</span>.<span class="ident">codec</span>
-            .<span class="ident">encode</span>(<span class="ident">Message::Item</span>((<span class="ident">message</span>, <span class="ident">size</span>)), <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">this</span>.<span class="ident">write_buf</span>)
+            .<span class="ident">encode</span>(<span class="ident">Message::Item</span>((<span class="ident">message</span>, <span class="ident">size</span>)), <span class="ident">this</span>.<span class="ident">write_buf</span>)
             .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> {
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">mut</span> <span class="ident">payload</span>) <span class="op">=</span> <span class="ident">this</span>.<span class="ident">payload</span>.<span class="ident">take</span>() {
                     <span class="ident">payload</span>.<span class="ident">set_error</span>(<span class="ident">PayloadError::Incomplete</span>(<span class="prelude-val">None</span>));
@@ -1754,8 +1785,8 @@
     ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">DispatchError</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">size</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">as_mut</span>().<span class="ident">send_response_inner</span>(<span class="ident">message</span>, <span class="kw-2">&amp;</span><span class="ident">body</span>)<span class="question-mark">?</span>;
         <span class="kw">let</span> <span class="ident">state</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">size</span> {
-            <span class="ident">BodySize::None</span> <span class="op">|</span> <span class="ident">BodySize::Empty</span> =&gt; <span class="ident">State::None</span>,
-            <span class="kw">_</span> =&gt; <span class="ident">State::SendPayload</span>(<span class="ident">body</span>),
+            <span class="ident">BodySize::None</span> <span class="op">|</span> <span class="ident">BodySize::Sized</span>(<span class="number">0</span>) =&gt; <span class="ident">State::None</span>,
+            <span class="kw">_</span> =&gt; <span class="ident">State::SendPayload</span> { <span class="ident">body</span> },
         };
         <span class="self">self</span>.<span class="ident">project</span>().<span class="ident">state</span>.<span class="ident">set</span>(<span class="ident">state</span>);
         <span class="prelude-val">Ok</span>(())
@@ -1764,12 +1795,12 @@
     <span class="kw">fn</span> <span class="ident">send_error_response</span>(
         <span class="kw-2">mut</span> <span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span><span class="op">&gt;</span>,
         <span class="ident">message</span>: <span class="ident">Response</span><span class="op">&lt;</span>()<span class="op">&gt;</span>,
-        <span class="ident">body</span>: <span class="ident">AnyBody</span>,
+        <span class="ident">body</span>: <span class="ident">BoxBody</span>,
     ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">DispatchError</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">size</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">as_mut</span>().<span class="ident">send_response_inner</span>(<span class="ident">message</span>, <span class="kw-2">&amp;</span><span class="ident">body</span>)<span class="question-mark">?</span>;
         <span class="kw">let</span> <span class="ident">state</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">size</span> {
-            <span class="ident">BodySize::None</span> <span class="op">|</span> <span class="ident">BodySize::Empty</span> =&gt; <span class="ident">State::None</span>,
-            <span class="kw">_</span> =&gt; <span class="ident">State::SendErrorPayload</span>(<span class="ident">body</span>),
+            <span class="ident">BodySize::None</span> <span class="op">|</span> <span class="ident">BodySize::Sized</span>(<span class="number">0</span>) =&gt; <span class="ident">State::None</span>,
+            <span class="kw">_</span> =&gt; <span class="ident">State::SendErrorPayload</span> { <span class="ident">body</span> },
         };
         <span class="self">self</span>.<span class="ident">project</span>().<span class="ident">state</span>.<span class="ident">set</span>(<span class="ident">state</span>);
         <span class="prelude-val">Ok</span>(())
@@ -1795,12 +1826,12 @@
                         <span class="comment">// Handle `EXPECT: 100-Continue` header</span>
                         <span class="kw">if</span> <span class="ident">req</span>.<span class="ident">head</span>().<span class="ident">expect</span>() {
                             <span class="comment">// set InnerDispatcher state and continue loop to poll it.</span>
-                            <span class="kw">let</span> <span class="ident">task</span> <span class="op">=</span> <span class="ident">this</span>.<span class="ident">flow</span>.<span class="ident">expect</span>.<span class="ident">call</span>(<span class="ident">req</span>);
-                            <span class="ident">this</span>.<span class="ident">state</span>.<span class="ident">set</span>(<span class="ident">State::ExpectCall</span>(<span class="ident">task</span>));
+                            <span class="kw">let</span> <span class="ident">fut</span> <span class="op">=</span> <span class="ident">this</span>.<span class="ident">flow</span>.<span class="ident">expect</span>.<span class="ident">call</span>(<span class="ident">req</span>);
+                            <span class="ident">this</span>.<span class="ident">state</span>.<span class="ident">set</span>(<span class="ident">State::ExpectCall</span> { <span class="ident">fut</span> });
                         } <span class="kw">else</span> {
                             <span class="comment">// the same as expect call.</span>
-                            <span class="kw">let</span> <span class="ident">task</span> <span class="op">=</span> <span class="ident">this</span>.<span class="ident">flow</span>.<span class="ident">service</span>.<span class="ident">call</span>(<span class="ident">req</span>);
-                            <span class="ident">this</span>.<span class="ident">state</span>.<span class="ident">set</span>(<span class="ident">State::ServiceCall</span>(<span class="ident">task</span>));
+                            <span class="kw">let</span> <span class="ident">fut</span> <span class="op">=</span> <span class="ident">this</span>.<span class="ident">flow</span>.<span class="ident">service</span>.<span class="ident">call</span>(<span class="ident">req</span>);
+                            <span class="ident">this</span>.<span class="ident">state</span>.<span class="ident">set</span>(<span class="ident">State::ServiceCall</span> { <span class="ident">fut</span> });
                         };
                     }
 
@@ -1809,7 +1840,7 @@
                         <span class="comment">// send_response would update InnerDispatcher state to SendPayload or</span>
                         <span class="comment">// None(If response body is empty).</span>
                         <span class="comment">// continue loop to poll it.</span>
-                        <span class="self">self</span>.<span class="ident">as_mut</span>().<span class="ident">send_error_response</span>(<span class="ident">res</span>, <span class="ident">AnyBody::Empty</span>)<span class="question-mark">?</span>;
+                        <span class="self">self</span>.<span class="ident">as_mut</span>().<span class="ident">send_error_response</span>(<span class="ident">res</span>, <span class="ident">BoxBody::new</span>(()))<span class="question-mark">?</span>;
                     }
 
                     <span class="comment">// return with upgrade request and poll it exclusively.</span>
@@ -1820,7 +1851,7 @@
                     <span class="comment">// all messages are dealt with.</span>
                     <span class="prelude-val">None</span> =&gt; <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">PollResponse::DoNothing</span>),
                 },
-                <span class="ident">StateProj::ServiceCall</span>(<span class="ident">fut</span>) =&gt; <span class="kw">match</span> <span class="ident">fut</span>.<span class="ident">poll</span>(<span class="ident">cx</span>) {
+                <span class="ident">StateProj::ServiceCall</span> { <span class="ident">fut</span> } =&gt; <span class="kw">match</span> <span class="ident">fut</span>.<span class="ident">poll</span>(<span class="ident">cx</span>) {
                     <span class="comment">// service call resolved. send response.</span>
                     <span class="ident">Poll::Ready</span>(<span class="prelude-val">Ok</span>(<span class="ident">res</span>)) =&gt; {
                         <span class="kw">let</span> (<span class="ident">res</span>, <span class="ident">body</span>) <span class="op">=</span> <span class="ident">res</span>.<span class="ident">into</span>().<span class="ident">replace_body</span>(());
@@ -1829,7 +1860,7 @@
 
                     <span class="comment">// send service call error as response</span>
                     <span class="ident">Poll::Ready</span>(<span class="prelude-val">Err</span>(<span class="ident">err</span>)) =&gt; {
-                        <span class="kw">let</span> <span class="ident">res</span>: <span class="ident">Response</span><span class="op">&lt;</span><span class="ident">AnyBody</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">err</span>.<span class="ident">into</span>();
+                        <span class="kw">let</span> <span class="ident">res</span>: <span class="ident">Response</span><span class="op">&lt;</span><span class="ident">BoxBody</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">err</span>.<span class="ident">into</span>();
                         <span class="kw">let</span> (<span class="ident">res</span>, <span class="ident">body</span>) <span class="op">=</span> <span class="ident">res</span>.<span class="ident">replace_body</span>(());
                         <span class="self">self</span>.<span class="ident">as_mut</span>().<span class="ident">send_error_response</span>(<span class="ident">res</span>, <span class="ident">body</span>)<span class="question-mark">?</span>;
                     }
@@ -1846,21 +1877,18 @@
                     }
                 },
 
-                <span class="ident">StateProj::SendPayload</span>(<span class="kw-2">mut</span> <span class="ident">stream</span>) =&gt; {
+                <span class="ident">StateProj::SendPayload</span> { <span class="kw-2">mut</span> <span class="ident">body</span> } =&gt; {
                     <span class="comment">// keep populate writer buffer until buffer size limit hit,</span>
                     <span class="comment">// get blocked or finished.</span>
                     <span class="kw">while</span> <span class="ident">this</span>.<span class="ident">write_buf</span>.<span class="ident">len</span>() <span class="op">&lt;</span> <span class="ident"><span class="kw">super</span>::payload::MAX_BUFFER_SIZE</span> {
-                        <span class="kw">match</span> <span class="ident">stream</span>.<span class="ident">as_mut</span>().<span class="ident">poll_next</span>(<span class="ident">cx</span>) {
+                        <span class="kw">match</span> <span class="ident">body</span>.<span class="ident">as_mut</span>().<span class="ident">poll_next</span>(<span class="ident">cx</span>) {
                             <span class="ident">Poll::Ready</span>(<span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(<span class="ident">item</span>))) =&gt; {
-                                <span class="ident">this</span>.<span class="ident">codec</span>.<span class="ident">encode</span>(
-                                    <span class="ident">Message::Chunk</span>(<span class="prelude-val">Some</span>(<span class="ident">item</span>)),
-                                    <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">this</span>.<span class="ident">write_buf</span>,
-                                )<span class="question-mark">?</span>;
+                                <span class="ident">this</span>.<span class="ident">codec</span>
+                                    .<span class="ident">encode</span>(<span class="ident">Message::Chunk</span>(<span class="prelude-val">Some</span>(<span class="ident">item</span>)), <span class="ident">this</span>.<span class="ident">write_buf</span>)<span class="question-mark">?</span>;
                             }
 
                             <span class="ident">Poll::Ready</span>(<span class="prelude-val">None</span>) =&gt; {
-                                <span class="ident">this</span>.<span class="ident">codec</span>
-                                    .<span class="ident">encode</span>(<span class="ident">Message::Chunk</span>(<span class="prelude-val">None</span>), <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">this</span>.<span class="ident">write_buf</span>)<span class="question-mark">?</span>;
+                                <span class="ident">this</span>.<span class="ident">codec</span>.<span class="ident">encode</span>(<span class="ident">Message::Chunk</span>(<span class="prelude-val">None</span>), <span class="ident">this</span>.<span class="ident">write_buf</span>)<span class="question-mark">?</span>;
                                 <span class="comment">// payload stream finished.</span>
                                 <span class="comment">// set state to None and handle next message</span>
                                 <span class="ident">this</span>.<span class="ident">state</span>.<span class="ident">set</span>(<span class="ident">State::None</span>);
@@ -1879,23 +1907,20 @@
                     <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">PollResponse::DrainWriteBuf</span>);
                 }
 
-                <span class="ident">StateProj::SendErrorPayload</span>(<span class="kw-2">mut</span> <span class="ident">stream</span>) =&gt; {
+                <span class="ident">StateProj::SendErrorPayload</span> { <span class="kw-2">mut</span> <span class="ident">body</span> } =&gt; {
                     <span class="comment">// TODO: de-dupe impl with SendPayload</span>
 
                     <span class="comment">// keep populate writer buffer until buffer size limit hit,</span>
                     <span class="comment">// get blocked or finished.</span>
                     <span class="kw">while</span> <span class="ident">this</span>.<span class="ident">write_buf</span>.<span class="ident">len</span>() <span class="op">&lt;</span> <span class="ident"><span class="kw">super</span>::payload::MAX_BUFFER_SIZE</span> {
-                        <span class="kw">match</span> <span class="ident">stream</span>.<span class="ident">as_mut</span>().<span class="ident">poll_next</span>(<span class="ident">cx</span>) {
+                        <span class="kw">match</span> <span class="ident">body</span>.<span class="ident">as_mut</span>().<span class="ident">poll_next</span>(<span class="ident">cx</span>) {
                             <span class="ident">Poll::Ready</span>(<span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(<span class="ident">item</span>))) =&gt; {
-                                <span class="ident">this</span>.<span class="ident">codec</span>.<span class="ident">encode</span>(
-                                    <span class="ident">Message::Chunk</span>(<span class="prelude-val">Some</span>(<span class="ident">item</span>)),
-                                    <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">this</span>.<span class="ident">write_buf</span>,
-                                )<span class="question-mark">?</span>;
+                                <span class="ident">this</span>.<span class="ident">codec</span>
+                                    .<span class="ident">encode</span>(<span class="ident">Message::Chunk</span>(<span class="prelude-val">Some</span>(<span class="ident">item</span>)), <span class="ident">this</span>.<span class="ident">write_buf</span>)<span class="question-mark">?</span>;
                             }
 
                             <span class="ident">Poll::Ready</span>(<span class="prelude-val">None</span>) =&gt; {
-                                <span class="ident">this</span>.<span class="ident">codec</span>
-                                    .<span class="ident">encode</span>(<span class="ident">Message::Chunk</span>(<span class="prelude-val">None</span>), <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">this</span>.<span class="ident">write_buf</span>)<span class="question-mark">?</span>;
+                                <span class="ident">this</span>.<span class="ident">codec</span>.<span class="ident">encode</span>(<span class="ident">Message::Chunk</span>(<span class="prelude-val">None</span>), <span class="ident">this</span>.<span class="ident">write_buf</span>)<span class="question-mark">?</span>;
                                 <span class="comment">// payload stream finished.</span>
                                 <span class="comment">// set state to None and handle next message</span>
                                 <span class="ident">this</span>.<span class="ident">state</span>.<span class="ident">set</span>(<span class="ident">State::None</span>);
@@ -1903,7 +1928,9 @@
                             }
 
                             <span class="ident">Poll::Ready</span>(<span class="prelude-val">Some</span>(<span class="prelude-val">Err</span>(<span class="ident">err</span>))) =&gt; {
-                                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">DispatchError::Service</span>(<span class="ident">err</span>.<span class="ident">into</span>()))
+                                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">DispatchError::Body</span>(
+                                    <span class="ident">Error::new_body</span>().<span class="ident">with_cause</span>(<span class="ident">err</span>).<span class="ident">into</span>(),
+                                ))
                             }
 
                             <span class="ident">Poll::Pending</span> =&gt; <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">PollResponse::DoNothing</span>),
@@ -1914,19 +1941,19 @@
                     <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">PollResponse::DrainWriteBuf</span>);
                 }
 
-                <span class="ident">StateProj::ExpectCall</span>(<span class="ident">fut</span>) =&gt; <span class="kw">match</span> <span class="ident">fut</span>.<span class="ident">poll</span>(<span class="ident">cx</span>) {
+                <span class="ident">StateProj::ExpectCall</span> { <span class="ident">fut</span> } =&gt; <span class="kw">match</span> <span class="ident">fut</span>.<span class="ident">poll</span>(<span class="ident">cx</span>) {
                     <span class="comment">// expect resolved. write continue to buffer and set InnerDispatcher state</span>
                     <span class="comment">// to service call.</span>
                     <span class="ident">Poll::Ready</span>(<span class="prelude-val">Ok</span>(<span class="ident">req</span>)) =&gt; {
                         <span class="ident">this</span>.<span class="ident">write_buf</span>
                             .<span class="ident">extend_from_slice</span>(<span class="string">b&quot;HTTP/1.1 100 Continue\r\n\r\n&quot;</span>);
                         <span class="kw">let</span> <span class="ident">fut</span> <span class="op">=</span> <span class="ident">this</span>.<span class="ident">flow</span>.<span class="ident">service</span>.<span class="ident">call</span>(<span class="ident">req</span>);
-                        <span class="ident">this</span>.<span class="ident">state</span>.<span class="ident">set</span>(<span class="ident">State::ServiceCall</span>(<span class="ident">fut</span>));
+                        <span class="ident">this</span>.<span class="ident">state</span>.<span class="ident">set</span>(<span class="ident">State::ServiceCall</span> { <span class="ident">fut</span> });
                     }
 
                     <span class="comment">// send expect error as response</span>
                     <span class="ident">Poll::Ready</span>(<span class="prelude-val">Err</span>(<span class="ident">err</span>)) =&gt; {
-                        <span class="kw">let</span> <span class="ident">res</span>: <span class="ident">Response</span><span class="op">&lt;</span><span class="ident">AnyBody</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">err</span>.<span class="ident">into</span>();
+                        <span class="kw">let</span> <span class="ident">res</span>: <span class="ident">Response</span><span class="op">&lt;</span><span class="ident">BoxBody</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">err</span>.<span class="ident">into</span>();
                         <span class="kw">let</span> (<span class="ident">res</span>, <span class="ident">body</span>) <span class="op">=</span> <span class="ident">res</span>.<span class="ident">replace_body</span>(());
                         <span class="self">self</span>.<span class="ident">as_mut</span>().<span class="ident">send_error_response</span>(<span class="ident">res</span>, <span class="ident">body</span>)<span class="question-mark">?</span>;
                     }
@@ -1947,25 +1974,25 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">this</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">as_mut</span>().<span class="ident">project</span>();
         <span class="kw">if</span> <span class="ident">req</span>.<span class="ident">head</span>().<span class="ident">expect</span>() {
             <span class="comment">// set dispatcher state so the future is pinned.</span>
-            <span class="kw">let</span> <span class="ident">task</span> <span class="op">=</span> <span class="ident">this</span>.<span class="ident">flow</span>.<span class="ident">expect</span>.<span class="ident">call</span>(<span class="ident">req</span>);
-            <span class="ident">this</span>.<span class="ident">state</span>.<span class="ident">set</span>(<span class="ident">State::ExpectCall</span>(<span class="ident">task</span>));
+            <span class="kw">let</span> <span class="ident">fut</span> <span class="op">=</span> <span class="ident">this</span>.<span class="ident">flow</span>.<span class="ident">expect</span>.<span class="ident">call</span>(<span class="ident">req</span>);
+            <span class="ident">this</span>.<span class="ident">state</span>.<span class="ident">set</span>(<span class="ident">State::ExpectCall</span> { <span class="ident">fut</span> });
         } <span class="kw">else</span> {
             <span class="comment">// the same as above.</span>
-            <span class="kw">let</span> <span class="ident">task</span> <span class="op">=</span> <span class="ident">this</span>.<span class="ident">flow</span>.<span class="ident">service</span>.<span class="ident">call</span>(<span class="ident">req</span>);
-            <span class="ident">this</span>.<span class="ident">state</span>.<span class="ident">set</span>(<span class="ident">State::ServiceCall</span>(<span class="ident">task</span>));
+            <span class="kw">let</span> <span class="ident">fut</span> <span class="op">=</span> <span class="ident">this</span>.<span class="ident">flow</span>.<span class="ident">service</span>.<span class="ident">call</span>(<span class="ident">req</span>);
+            <span class="ident">this</span>.<span class="ident">state</span>.<span class="ident">set</span>(<span class="ident">State::ServiceCall</span> { <span class="ident">fut</span> });
         };
 
         <span class="comment">// eagerly poll the future for once(or twice if expect is resolved immediately).</span>
         <span class="kw">loop</span> {
             <span class="kw">match</span> <span class="self">self</span>.<span class="ident">as_mut</span>().<span class="ident">project</span>().<span class="ident">state</span>.<span class="ident">project</span>() {
-                <span class="ident">StateProj::ExpectCall</span>(<span class="ident">fut</span>) =&gt; {
+                <span class="ident">StateProj::ExpectCall</span> { <span class="ident">fut</span> } =&gt; {
                     <span class="kw">match</span> <span class="ident">fut</span>.<span class="ident">poll</span>(<span class="ident">cx</span>) {
                         <span class="comment">// expect is resolved. continue loop and poll the service call branch.</span>
                         <span class="ident">Poll::Ready</span>(<span class="prelude-val">Ok</span>(<span class="ident">req</span>)) =&gt; {
                             <span class="self">self</span>.<span class="ident">as_mut</span>().<span class="ident">send_continue</span>();
                             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">this</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">as_mut</span>().<span class="ident">project</span>();
-                            <span class="kw">let</span> <span class="ident">task</span> <span class="op">=</span> <span class="ident">this</span>.<span class="ident">flow</span>.<span class="ident">service</span>.<span class="ident">call</span>(<span class="ident">req</span>);
-                            <span class="ident">this</span>.<span class="ident">state</span>.<span class="ident">set</span>(<span class="ident">State::ServiceCall</span>(<span class="ident">task</span>));
+                            <span class="kw">let</span> <span class="ident">fut</span> <span class="op">=</span> <span class="ident">this</span>.<span class="ident">flow</span>.<span class="ident">service</span>.<span class="ident">call</span>(<span class="ident">req</span>);
+                            <span class="ident">this</span>.<span class="ident">state</span>.<span class="ident">set</span>(<span class="ident">State::ServiceCall</span> { <span class="ident">fut</span> });
                             <span class="kw">continue</span>;
                         }
                         <span class="comment">// future is pending. return Ok(()) to notify that a new state is</span>
@@ -1975,13 +2002,13 @@
                         <span class="comment">// to notify the dispatcher a new state is set and the outer loop</span>
                         <span class="comment">// should be continue.</span>
                         <span class="ident">Poll::Ready</span>(<span class="prelude-val">Err</span>(<span class="ident">err</span>)) =&gt; {
-                            <span class="kw">let</span> <span class="ident">res</span>: <span class="ident">Response</span><span class="op">&lt;</span><span class="ident">AnyBody</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">err</span>.<span class="ident">into</span>();
+                            <span class="kw">let</span> <span class="ident">res</span>: <span class="ident">Response</span><span class="op">&lt;</span><span class="ident">BoxBody</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">err</span>.<span class="ident">into</span>();
                             <span class="kw">let</span> (<span class="ident">res</span>, <span class="ident">body</span>) <span class="op">=</span> <span class="ident">res</span>.<span class="ident">replace_body</span>(());
                             <span class="kw">return</span> <span class="self">self</span>.<span class="ident">send_error_response</span>(<span class="ident">res</span>, <span class="ident">body</span>);
                         }
                     }
                 }
-                <span class="ident">StateProj::ServiceCall</span>(<span class="ident">fut</span>) =&gt; {
+                <span class="ident">StateProj::ServiceCall</span> { <span class="ident">fut</span> } =&gt; {
                     <span class="comment">// return no matter the service call future&#39;s result.</span>
                     <span class="kw">return</span> <span class="kw">match</span> <span class="ident">fut</span>.<span class="ident">poll</span>(<span class="ident">cx</span>) {
                         <span class="comment">// future is resolved. send response and return a result. On success</span>
@@ -1995,15 +2022,17 @@
                         <span class="ident">Poll::Pending</span> =&gt; <span class="prelude-val">Ok</span>(()),
                         <span class="comment">// see the comment on ExpectCall state branch&#39;s Ready(Err(err)).</span>
                         <span class="ident">Poll::Ready</span>(<span class="prelude-val">Err</span>(<span class="ident">err</span>)) =&gt; {
-                            <span class="kw">let</span> <span class="ident">res</span>: <span class="ident">Response</span><span class="op">&lt;</span><span class="ident">AnyBody</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">err</span>.<span class="ident">into</span>();
+                            <span class="kw">let</span> <span class="ident">res</span>: <span class="ident">Response</span><span class="op">&lt;</span><span class="ident">BoxBody</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">err</span>.<span class="ident">into</span>();
                             <span class="kw">let</span> (<span class="ident">res</span>, <span class="ident">body</span>) <span class="op">=</span> <span class="ident">res</span>.<span class="ident">replace_body</span>(());
                             <span class="self">self</span>.<span class="ident">send_error_response</span>(<span class="ident">res</span>, <span class="ident">body</span>)
                         }
                     };
                 }
-                <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(
-                    <span class="string">&quot;State must be set to ServiceCall or ExceptCall in handle_request&quot;</span>
-                ),
+                <span class="kw">_</span> =&gt; {
+                    <span class="macro">unreachable!</span>(
+                        <span class="string">&quot;State must be set to ServiceCall or ExceptCall in handle_request&quot;</span>
+                    )
+                }
             }
         }
     }
@@ -2021,7 +2050,7 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">updated</span> <span class="op">=</span> <span class="bool-val">false</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">this</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">as_mut</span>().<span class="ident">project</span>();
         <span class="kw">loop</span> {
-            <span class="kw">match</span> <span class="ident">this</span>.<span class="ident">codec</span>.<span class="ident">decode</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">this</span>.<span class="ident">read_buf</span>) {
+            <span class="kw">match</span> <span class="ident">this</span>.<span class="ident">codec</span>.<span class="ident">decode</span>(<span class="ident">this</span>.<span class="ident">read_buf</span>) {
                 <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="ident">msg</span>)) =&gt; {
                     <span class="ident">updated</span> <span class="op">=</span> <span class="bool-val">true</span>;
                     <span class="ident">this</span>.<span class="ident">flags</span>.<span class="ident">insert</span>(<span class="ident">Flags::STARTED</span>);
@@ -2030,16 +2059,14 @@
                         <span class="ident">Message::Item</span>(<span class="kw-2">mut</span> <span class="ident">req</span>) =&gt; {
                             <span class="ident">req</span>.<span class="ident">head_mut</span>().<span class="ident">peer_addr</span> <span class="op">=</span> <span class="kw-2">*</span><span class="ident">this</span>.<span class="ident">peer_addr</span>;
 
-                            <span class="comment">// merge on_connect_ext data into request extensions</span>
-                            <span class="ident">this</span>.<span class="ident">on_connect_data</span>.<span class="ident">merge_into</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">req</span>);
+                            <span class="ident">req</span>.<span class="ident">conn_data</span> <span class="op">=</span> <span class="ident">this</span>.<span class="ident">conn_data</span>.<span class="ident">as_ref</span>().<span class="ident">map</span>(<span class="ident">Rc::clone</span>);
 
                             <span class="kw">match</span> <span class="ident">this</span>.<span class="ident">codec</span>.<span class="ident">message_type</span>() {
                                 <span class="comment">// Request is upgradable. add upgrade message and break.</span>
                                 <span class="comment">// everything remain in read buffer would be handed to</span>
                                 <span class="comment">// upgraded Request.</span>
                                 <span class="ident">MessageType::Stream</span> <span class="kw">if</span> <span class="ident">this</span>.<span class="ident">flow</span>.<span class="ident">upgrade</span>.<span class="ident">is_some</span>() =&gt; {
-                                    <span class="ident">this</span>.<span class="ident">messages</span>
-                                        .<span class="ident">push_back</span>(<span class="ident">DispatcherMessage::Upgrade</span>(<span class="ident">req</span>));
+                                    <span class="ident">this</span>.<span class="ident">messages</span>.<span class="ident">push_back</span>(<span class="ident">DispatcherMessage::Upgrade</span>(<span class="ident">req</span>));
                                     <span class="kw">break</span>;
                                 }
 
@@ -2054,8 +2081,7 @@
                                     where the state can be collected and consumed.
                                     */</span>
                                     <span class="kw">let</span> (<span class="ident">ps</span>, <span class="ident">pl</span>) <span class="op">=</span> <span class="ident">Payload::create</span>(<span class="bool-val">false</span>);
-                                    <span class="kw">let</span> (<span class="ident">req1</span>, <span class="kw">_</span>) <span class="op">=</span>
-                                        <span class="ident">req</span>.<span class="ident">replace_payload</span>(<span class="ident"><span class="kw">crate</span>::Payload::H1</span>(<span class="ident">pl</span>));
+                                    <span class="kw">let</span> (<span class="ident">req1</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="ident">req</span>.<span class="ident">replace_payload</span>(<span class="ident"><span class="kw">crate</span>::Payload::H1</span>(<span class="ident">pl</span>));
                                     <span class="ident">req</span> <span class="op">=</span> <span class="ident">req1</span>;
                                     <span class="kw-2">*</span><span class="ident">this</span>.<span class="ident">payload</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">ps</span>);
                                 }
@@ -2076,9 +2102,7 @@
                             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">payload</span>) <span class="op">=</span> <span class="ident">this</span>.<span class="ident">payload</span> {
                                 <span class="ident">payload</span>.<span class="ident">feed_data</span>(<span class="ident">chunk</span>);
                             } <span class="kw">else</span> {
-                                <span class="macro">error!</span>(
-                                    <span class="string">&quot;Internal server error: unexpected payload chunk&quot;</span>
-                                );
+                                <span class="macro">error!</span>(<span class="string">&quot;Internal server error: unexpected payload chunk&quot;</span>);
                                 <span class="ident">this</span>.<span class="ident">flags</span>.<span class="ident">insert</span>(<span class="ident">Flags::READ_DISCONNECT</span>);
                                 <span class="ident">this</span>.<span class="ident">messages</span>.<span class="ident">push_back</span>(<span class="ident">DispatcherMessage::Error</span>(
                                     <span class="ident">Response::internal_server_error</span>().<span class="ident">drop_body</span>(),
@@ -2116,12 +2140,11 @@
                         <span class="ident">payload</span>.<span class="ident">set_error</span>(<span class="ident">PayloadError::Overflow</span>);
                     }
                     <span class="comment">// Requests overflow buffer size should be responded with 431</span>
-                    <span class="ident">this</span>.<span class="ident">messages</span>.<span class="ident">push_back</span>(<span class="ident">DispatcherMessage::Error</span>(
-                        <span class="ident">Response::with_body</span>(
+                    <span class="ident">this</span>.<span class="ident">messages</span>
+                        .<span class="ident">push_back</span>(<span class="ident">DispatcherMessage::Error</span>(<span class="ident">Response::with_body</span>(
                             <span class="ident">StatusCode::REQUEST_HEADER_FIELDS_TOO_LARGE</span>,
                             (),
-                        ),
-                    ));
+                        )));
                     <span class="ident">this</span>.<span class="ident">flags</span>.<span class="ident">insert</span>(<span class="ident">Flags::READ_DISCONNECT</span>);
                     <span class="kw-2">*</span><span class="ident">this</span>.<span class="ident">error</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">ParseError::TooLarge</span>.<span class="ident">into</span>());
                     <span class="kw">break</span>;
@@ -2163,8 +2186,7 @@
             <span class="prelude-val">None</span> =&gt; {
                 <span class="comment">// conditionally go into shutdown timeout</span>
                 <span class="kw">if</span> <span class="ident">this</span>.<span class="ident">flags</span>.<span class="ident">contains</span>(<span class="ident">Flags::SHUTDOWN</span>) {
-                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">deadline</span>) <span class="op">=</span> <span class="ident">this</span>.<span class="ident">codec</span>.<span class="ident">config</span>().<span class="ident">client_disconnect_timer</span>()
-                    {
+                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">deadline</span>) <span class="op">=</span> <span class="ident">this</span>.<span class="ident">codec</span>.<span class="ident">config</span>().<span class="ident">client_disconnect_timer</span>() {
                         <span class="comment">// write client disconnect time out and poll again to</span>
                         <span class="comment">// go into Some&lt;Pin&lt;&amp;mut Sleep&gt;&gt; branch</span>
                         <span class="ident">this</span>.<span class="ident">ka_timer</span>.<span class="ident">set</span>(<span class="prelude-val">Some</span>(<span class="ident">sleep_until</span>(<span class="ident">deadline</span>)));
@@ -2201,15 +2223,13 @@
                                 <span class="macro">trace!</span>(<span class="string">&quot;Slow request timeout&quot;</span>);
                                 <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">as_mut</span>().<span class="ident">send_error_response</span>(
                                     <span class="ident">Response::with_body</span>(<span class="ident">StatusCode::REQUEST_TIMEOUT</span>, ()),
-                                    <span class="ident">AnyBody::Empty</span>,
+                                    <span class="ident">BoxBody::new</span>(()),
                                 );
                                 <span class="ident">this</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">project</span>();
                                 <span class="ident">this</span>.<span class="ident">flags</span>.<span class="ident">insert</span>(<span class="ident">Flags::STARTED</span> <span class="op">|</span> <span class="ident">Flags::SHUTDOWN</span>);
                             }
                             <span class="comment">// still have unfinished task. try to reset and register keep-alive.</span>
-                        } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">deadline</span>) <span class="op">=</span>
-                            <span class="ident">this</span>.<span class="ident">codec</span>.<span class="ident">config</span>().<span class="ident">keep_alive_expire</span>()
-                        {
+                        } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">deadline</span>) <span class="op">=</span> <span class="ident">this</span>.<span class="ident">codec</span>.<span class="ident">config</span>().<span class="ident">keep_alive_expire</span>() {
                             <span class="ident">timer</span>.<span class="ident">as_mut</span>().<span class="ident">reset</span>(<span class="ident">deadline</span>);
                             <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">timer</span>.<span class="ident">poll</span>(<span class="ident">cx</span>);
                         }
@@ -2228,7 +2248,6 @@
     <span class="doccomment">/// Returns true when io stream can be disconnected after write to it.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// It covers these conditions:</span>
-    <span class="doccomment">///</span>
     <span class="doccomment">/// - `std::io::ErrorKind::ConnectionReset` after partial read.</span>
     <span class="doccomment">/// - all data read done.</span>
     <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
@@ -2248,46 +2267,39 @@
 
         <span class="kw">loop</span> {
             <span class="comment">// Return early when read buf exceed decoder&#39;s max buffer size.</span>
-            <span class="kw">if</span> <span class="ident">this</span>.<span class="ident">read_buf</span>.<span class="ident">len</span>() <span class="op">&gt;</span><span class="op">=</span> <span class="ident"><span class="kw">super</span>::decoder::MAX_BUFFER_SIZE</span> {
-                <span class="comment">/*
-                 At this point it&#39;s not known IO stream is still scheduled
-                 to be waked up. so force wake up dispatcher just in case.
+            <span class="kw">if</span> <span class="ident">this</span>.<span class="ident">read_buf</span>.<span class="ident">len</span>() <span class="op">&gt;</span><span class="op">=</span> <span class="ident">MAX_BUFFER_SIZE</span> {
+                <span class="comment">// At this point it&#39;s not known IO stream is still scheduled to be waked up so</span>
+                <span class="comment">// force wake up dispatcher just in case.</span>
+                <span class="comment">//</span>
+                <span class="comment">// Reason:</span>
+                <span class="comment">// AsyncRead mostly would only have guarantee wake up when the poll_read</span>
+                <span class="comment">// return Poll::Pending.</span>
+                <span class="comment">//</span>
+                <span class="comment">// Case:</span>
+                <span class="comment">// When read_buf is beyond max buffer size the early return could be successfully</span>
+                <span class="comment">// be parsed as a new Request. This case would not generate ParseError::TooLarge and</span>
+                <span class="comment">// at this point IO stream is not fully read to Pending and would result in</span>
+                <span class="comment">// dispatcher stuck until timeout (KA)</span>
+                <span class="comment">//</span>
+                <span class="comment">// Note:</span>
+                <span class="comment">// This is a perf choice to reduce branch on &lt;Request as MessageType&gt;::decode.</span>
+                <span class="comment">//</span>
+                <span class="comment">// A Request head too large to parse is only checked on</span>
+                <span class="comment">// `httparse::Status::Partial` condition.</span>
 
-                 Reason:
-                 AsyncRead mostly would only have guarantee wake up
-                 when the poll_read return Poll::Pending.
-
-                 Case:
-                 When read_buf is beyond max buffer size the early return
-                 could be successfully be parsed as a new Request.
-                 This case would not generate ParseError::TooLarge
-                 and at this point IO stream is not fully read to Pending
-                 and would result in dispatcher stuck until timeout (KA)
-
-                 Note:
-                 This is a perf choice to reduce branch on
-                 &lt;Request as MessageType&gt;::decode.
-
-                 A Request head too large to parse is only checked on
-                 httparse::Status::Partial condition.
-                */</span>
                 <span class="kw">if</span> <span class="ident">this</span>.<span class="ident">payload</span>.<span class="ident">is_none</span>() {
-                    <span class="comment">/*
-                    When dispatcher has a payload the responsibility of
-                    wake up it would be shift to h1::payload::Payload.
-
-                    Reason:
-                    Self wake up when there is payload would waste poll
-                    and/or result in over read.
-
-                    Case:
-                    When payload is (partial) dropped by user there is
-                    no need to do read anymore.
-                    At this case read_buf could always remain beyond
-                    MAX_BUFFER_SIZE and self wake up would be busy poll
-                    dispatcher and waste resource.
-
-                    */</span>
+                    <span class="comment">// When dispatcher has a payload the responsibility of wake up it would be shift</span>
+                    <span class="comment">// to h1::payload::Payload.</span>
+                    <span class="comment">//</span>
+                    <span class="comment">// Reason:</span>
+                    <span class="comment">// Self wake up when there is payload would waste poll and/or result in</span>
+                    <span class="comment">// over read.</span>
+                    <span class="comment">//</span>
+                    <span class="comment">// Case:</span>
+                    <span class="comment">// When payload is (partial) dropped by user there is no need to do</span>
+                    <span class="comment">// read anymore. At this case read_buf could always remain beyond</span>
+                    <span class="comment">// MAX_BUFFER_SIZE and self wake up would be busy poll dispatcher and</span>
+                    <span class="comment">// waste resources.</span>
                     <span class="ident">cx</span>.<span class="ident">waker</span>().<span class="ident">wake_by_ref</span>();
                 }
 
@@ -2338,14 +2350,13 @@
     <span class="ident">T</span>: <span class="ident">AsyncRead</span> <span class="op">+</span> <span class="ident">AsyncWrite</span> <span class="op">+</span> <span class="ident">Unpin</span>,
 
     <span class="ident">S</span>: <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Request</span><span class="op">&gt;</span>,
-    <span class="ident">S::Error</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Response</span><span class="op">&lt;</span><span class="ident">AnyBody</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    <span class="ident">S::Error</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Response</span><span class="op">&lt;</span><span class="ident">BoxBody</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     <span class="ident">S::Response</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Response</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span><span class="op">&gt;</span>,
 
     <span class="ident">B</span>: <span class="ident">MessageBody</span>,
-    <span class="ident">B::Error</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">StdError</span><span class="op">&gt;</span><span class="op">&gt;</span>,
 
     <span class="ident">X</span>: <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Request</span>, <span class="ident">Response</span> <span class="op">=</span> <span class="ident">Request</span><span class="op">&gt;</span>,
-    <span class="ident">X::Error</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Response</span><span class="op">&lt;</span><span class="ident">AnyBody</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    <span class="ident">X::Error</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Response</span><span class="op">&lt;</span><span class="ident">BoxBody</span><span class="op">&gt;</span><span class="op">&gt;</span>,
 
     <span class="ident">U</span>: <span class="ident">Service</span><span class="op">&lt;</span>(<span class="ident">Request</span>, <span class="ident">Framed</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">Codec</span><span class="op">&gt;</span>), <span class="ident">Response</span> <span class="op">=</span> ()<span class="op">&gt;</span>,
     <span class="ident">U::Error</span>: <span class="ident">fmt::Display</span>,
@@ -2362,7 +2373,7 @@
         }
 
         <span class="kw">match</span> <span class="ident">this</span>.<span class="ident">inner</span>.<span class="ident">project</span>() {
-            <span class="ident">DispatcherStateProj::Normal</span>(<span class="kw-2">mut</span> <span class="ident">inner</span>) =&gt; {
+            <span class="ident">DispatcherStateProj::Normal</span> { <span class="kw-2">mut</span> <span class="ident">inner</span> } =&gt; {
                 <span class="ident">inner</span>.<span class="ident">as_mut</span>().<span class="ident">poll_keepalive</span>(<span class="ident">cx</span>)<span class="question-mark">?</span>;
 
                 <span class="kw">if</span> <span class="ident">inner</span>.<span class="ident">flags</span>.<span class="ident">contains</span>(<span class="ident">Flags::SHUTDOWN</span>) {
@@ -2402,7 +2413,7 @@
                                 <span class="self">self</span>.<span class="ident">as_mut</span>()
                                     .<span class="ident">project</span>()
                                     .<span class="ident">inner</span>
-                                    .<span class="ident">set</span>(<span class="ident">DispatcherState::Upgrade</span>(<span class="ident">upgrade</span>));
+                                    .<span class="ident">set</span>(<span class="ident">DispatcherState::Upgrade</span> { <span class="ident">fut</span>: <span class="ident">upgrade</span> });
                                 <span class="kw">return</span> <span class="self">self</span>.<span class="ident">poll</span>(<span class="ident">cx</span>);
                             }
                         };
@@ -2454,8 +2465,8 @@
                     }
                 }
             }
-            <span class="ident">DispatcherStateProj::Upgrade</span>(<span class="ident">fut</span>) =&gt; <span class="ident">fut</span>.<span class="ident">poll</span>(<span class="ident">cx</span>).<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> {
-                <span class="macro">error!</span>(<span class="string">&quot;Upgrade handler error: {}&quot;</span>, <span class="ident">e</span>);
+            <span class="ident">DispatcherStateProj::Upgrade</span> { <span class="ident">fut</span>: <span class="ident">upgrade</span> } =&gt; <span class="ident">upgrade</span>.<span class="ident">poll</span>(<span class="ident">cx</span>).<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> {
+                <span class="macro">error!</span>(<span class="string">&quot;Upgrade handler error: {}&quot;</span>, <span class="ident">err</span>);
                 <span class="ident">DispatchError::Upgrade</span>
             }),
         }
@@ -2475,9 +2486,8 @@
     <span class="kw">use</span> <span class="kw">crate</span>::{
         <span class="ident">error::Error</span>,
         <span class="ident">h1</span>::{<span class="ident">ExpectHandler</span>, <span class="ident">UpgradeHandler</span>},
-        <span class="ident">http::Method</span>,
         <span class="ident">test</span>::{<span class="ident">TestBuffer</span>, <span class="ident">TestSeqBuffer</span>},
-        <span class="ident">HttpMessage</span>, <span class="ident">KeepAlive</span>,
+        <span class="ident">HttpMessage</span>, <span class="ident">KeepAlive</span>, <span class="ident">Method</span>,
     };
 
     <span class="kw">fn</span> <span class="ident">find_slice</span>(<span class="ident">haystack</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">needle</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">from</span>: <span class="ident">usize</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
@@ -2489,30 +2499,30 @@
     <span class="kw">fn</span> <span class="ident">stabilize_date_header</span>(<span class="ident">payload</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u8</span>]) {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">from</span> <span class="op">=</span> <span class="number">0</span>;
 
-        <span class="kw">while</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">pos</span>) <span class="op">=</span> <span class="ident">find_slice</span>(<span class="kw-2">&amp;</span><span class="ident">payload</span>, <span class="string">b&quot;date&quot;</span>, <span class="ident">from</span>) {
+        <span class="kw">while</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">pos</span>) <span class="op">=</span> <span class="ident">find_slice</span>(<span class="ident">payload</span>, <span class="string">b&quot;date&quot;</span>, <span class="ident">from</span>) {
             <span class="ident">payload</span>[(<span class="ident">from</span> <span class="op">+</span> <span class="ident">pos</span>)..(<span class="ident">from</span> <span class="op">+</span> <span class="ident">pos</span> <span class="op">+</span> <span class="number">35</span>)]
                 .<span class="ident">copy_from_slice</span>(<span class="string">b&quot;date: Thu, 01 Jan 1970 12:34:56 UTC&quot;</span>);
             <span class="ident">from</span> <span class="op">+</span><span class="op">=</span> <span class="number">35</span>;
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">ok_service</span>() -&gt; <span class="kw">impl</span> <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Request</span>, <span class="ident">Response</span> <span class="op">=</span> <span class="ident">Response</span><span class="op">&lt;</span><span class="ident">AnyBody</span><span class="op">&gt;</span>, <span class="ident">Error</span> <span class="op">=</span> <span class="ident">Error</span><span class="op">&gt;</span>
-    {
+    <span class="kw">fn</span> <span class="ident">ok_service</span>(
+    ) -&gt; <span class="kw">impl</span> <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Request</span>, <span class="ident">Response</span> <span class="op">=</span> <span class="ident">Response</span><span class="op">&lt;</span><span class="kw">impl</span> <span class="ident">MessageBody</span><span class="op">&gt;</span>, <span class="ident">Error</span> <span class="op">=</span> <span class="ident">Error</span><span class="op">&gt;</span> {
         <span class="ident">fn_service</span>(<span class="op">|</span><span class="ident">_req</span>: <span class="ident">Request</span><span class="op">|</span> <span class="ident">ready</span>(<span class="prelude-val">Ok</span>::<span class="op">&lt;</span><span class="kw">_</span>, <span class="ident">Error</span><span class="op">&gt;</span>(<span class="ident">Response::ok</span>())))
     }
 
     <span class="kw">fn</span> <span class="ident">echo_path_service</span>(
-    ) -&gt; <span class="kw">impl</span> <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Request</span>, <span class="ident">Response</span> <span class="op">=</span> <span class="ident">Response</span><span class="op">&lt;</span><span class="ident">AnyBody</span><span class="op">&gt;</span>, <span class="ident">Error</span> <span class="op">=</span> <span class="ident">Error</span><span class="op">&gt;</span> {
+    ) -&gt; <span class="kw">impl</span> <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Request</span>, <span class="ident">Response</span> <span class="op">=</span> <span class="ident">Response</span><span class="op">&lt;</span><span class="kw">impl</span> <span class="ident">MessageBody</span><span class="op">&gt;</span>, <span class="ident">Error</span> <span class="op">=</span> <span class="ident">Error</span><span class="op">&gt;</span> {
         <span class="ident">fn_service</span>(<span class="op">|</span><span class="ident">req</span>: <span class="ident">Request</span><span class="op">|</span> {
             <span class="kw">let</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident">req</span>.<span class="ident">path</span>().<span class="ident">as_bytes</span>();
             <span class="ident">ready</span>(<span class="prelude-val">Ok</span>::<span class="op">&lt;</span><span class="kw">_</span>, <span class="ident">Error</span><span class="op">&gt;</span>(
-                <span class="ident">Response::ok</span>().<span class="ident">set_body</span>(<span class="ident">AnyBody::from_slice</span>(<span class="ident">path</span>)),
+                <span class="ident">Response::ok</span>().<span class="ident">set_body</span>(<span class="ident">Bytes::copy_from_slice</span>(<span class="ident">path</span>)),
             ))
         })
     }
 
-    <span class="kw">fn</span> <span class="ident">echo_payload_service</span>(
-    ) -&gt; <span class="kw">impl</span> <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Request</span>, <span class="ident">Response</span> <span class="op">=</span> <span class="ident">Response</span><span class="op">&lt;</span><span class="ident">Bytes</span><span class="op">&gt;</span>, <span class="ident">Error</span> <span class="op">=</span> <span class="ident">Error</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">echo_payload_service</span>() -&gt; <span class="kw">impl</span> <span class="ident">Service</span><span class="op">&lt;</span><span class="ident">Request</span>, <span class="ident">Response</span> <span class="op">=</span> <span class="ident">Response</span><span class="op">&lt;</span><span class="ident">Bytes</span><span class="op">&gt;</span>, <span class="ident">Error</span> <span class="op">=</span> <span class="ident">Error</span><span class="op">&gt;</span>
+    {
         <span class="ident">fn_service</span>(<span class="op">|</span><span class="kw-2">mut</span> <span class="ident">req</span>: <span class="ident">Request</span><span class="op">|</span> {
             <span class="ident">Box::pin</span>(<span class="kw">async</span> <span class="kw">move</span> {
                 <span class="kw">use</span> <span class="ident">futures_util::stream::StreamExt</span> <span class="kw">as</span> <span class="kw">_</span>;
@@ -2537,10 +2547,10 @@
 
             <span class="kw">let</span> <span class="ident">h1</span> <span class="op">=</span> <span class="ident">Dispatcher</span>::<span class="op">&lt;</span><span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>, <span class="ident">UpgradeHandler</span><span class="op">&gt;</span><span class="ident">::new</span>(
                 <span class="ident">buf</span>,
-                <span class="ident">ServiceConfig::default</span>(),
                 <span class="ident">services</span>,
-                <span class="ident">OnConnectData::default</span>(),
+                <span class="ident">ServiceConfig::default</span>(),
                 <span class="prelude-val">None</span>,
+                <span class="ident">OnConnectData::default</span>(),
             );
 
             <span class="macro">actix_rt::pin!</span>(<span class="ident">h1</span>);
@@ -2550,7 +2560,7 @@
                 <span class="ident">Poll::Ready</span>(<span class="ident">res</span>) =&gt; <span class="macro">assert!</span>(<span class="ident">res</span>.<span class="ident">is_err</span>()),
             }
 
-            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">DispatcherStateProj::Normal</span>(<span class="ident">inner</span>) <span class="op">=</span> <span class="ident">h1</span>.<span class="ident">project</span>().<span class="ident">inner</span>.<span class="ident">project</span>() {
+            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">DispatcherStateProj::Normal</span> { <span class="ident">inner</span> } <span class="op">=</span> <span class="ident">h1</span>.<span class="ident">project</span>().<span class="ident">inner</span>.<span class="ident">project</span>() {
                 <span class="macro">assert!</span>(<span class="ident">inner</span>.<span class="ident">flags</span>.<span class="ident">contains</span>(<span class="ident">Flags::READ_DISCONNECT</span>));
                 <span class="macro">assert_eq!</span>(
                     <span class="kw-2">&amp;</span><span class="ident">inner</span>.<span class="ident">project</span>().<span class="ident">io</span>.<span class="ident">take</span>().<span class="ident">unwrap</span>().<span class="ident">write_buf</span>[..<span class="number">26</span>],
@@ -2577,15 +2587,15 @@
 
             <span class="kw">let</span> <span class="ident">h1</span> <span class="op">=</span> <span class="ident">Dispatcher</span>::<span class="op">&lt;</span><span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>, <span class="ident">UpgradeHandler</span><span class="op">&gt;</span><span class="ident">::new</span>(
                 <span class="ident">buf</span>,
-                <span class="ident">cfg</span>,
                 <span class="ident">services</span>,
-                <span class="ident">OnConnectData::default</span>(),
+                <span class="ident">cfg</span>,
                 <span class="prelude-val">None</span>,
+                <span class="ident">OnConnectData::default</span>(),
             );
 
             <span class="macro">actix_rt::pin!</span>(<span class="ident">h1</span>);
 
-            <span class="macro">assert!</span>(<span class="macro">matches!</span>(<span class="kw-2">&amp;</span><span class="ident">h1</span>.<span class="ident">inner</span>, <span class="ident">DispatcherState::Normal</span>(<span class="kw">_</span>)));
+            <span class="macro">assert!</span>(<span class="macro">matches!</span>(<span class="kw-2">&amp;</span><span class="ident">h1</span>.<span class="ident">inner</span>, <span class="ident">DispatcherState::Normal</span> { .. }));
 
             <span class="kw">match</span> <span class="ident">h1</span>.<span class="ident">as_mut</span>().<span class="ident">poll</span>(<span class="ident">cx</span>) {
                 <span class="ident">Poll::Pending</span> =&gt; <span class="macro">panic!</span>(<span class="string">&quot;first poll should not be pending&quot;</span>),
@@ -2595,7 +2605,7 @@
             <span class="comment">// polls: initial =&gt; shutdown</span>
             <span class="macro">assert_eq!</span>(<span class="ident">h1</span>.<span class="ident">poll_count</span>, <span class="number">2</span>);
 
-            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">DispatcherStateProj::Normal</span>(<span class="ident">inner</span>) <span class="op">=</span> <span class="ident">h1</span>.<span class="ident">project</span>().<span class="ident">inner</span>.<span class="ident">project</span>() {
+            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">DispatcherStateProj::Normal</span> { <span class="ident">inner</span> } <span class="op">=</span> <span class="ident">h1</span>.<span class="ident">project</span>().<span class="ident">inner</span>.<span class="ident">project</span>() {
                 <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">inner</span>.<span class="ident">project</span>().<span class="ident">io</span>.<span class="ident">take</span>().<span class="ident">unwrap</span>().<span class="ident">write_buf</span>[..];
                 <span class="ident">stabilize_date_header</span>(<span class="ident">res</span>);
 
@@ -2631,15 +2641,15 @@
 
             <span class="kw">let</span> <span class="ident">h1</span> <span class="op">=</span> <span class="ident">Dispatcher</span>::<span class="op">&lt;</span><span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>, <span class="ident">UpgradeHandler</span><span class="op">&gt;</span><span class="ident">::new</span>(
                 <span class="ident">buf</span>,
-                <span class="ident">cfg</span>,
                 <span class="ident">services</span>,
-                <span class="ident">OnConnectData::default</span>(),
+                <span class="ident">cfg</span>,
                 <span class="prelude-val">None</span>,
+                <span class="ident">OnConnectData::default</span>(),
             );
 
             <span class="macro">actix_rt::pin!</span>(<span class="ident">h1</span>);
 
-            <span class="macro">assert!</span>(<span class="macro">matches!</span>(<span class="kw-2">&amp;</span><span class="ident">h1</span>.<span class="ident">inner</span>, <span class="ident">DispatcherState::Normal</span>(<span class="kw">_</span>)));
+            <span class="macro">assert!</span>(<span class="macro">matches!</span>(<span class="kw-2">&amp;</span><span class="ident">h1</span>.<span class="ident">inner</span>, <span class="ident">DispatcherState::Normal</span> { .. }));
 
             <span class="kw">match</span> <span class="ident">h1</span>.<span class="ident">as_mut</span>().<span class="ident">poll</span>(<span class="ident">cx</span>) {
                 <span class="ident">Poll::Pending</span> =&gt; <span class="macro">panic!</span>(<span class="string">&quot;first poll should not be pending&quot;</span>),
@@ -2649,7 +2659,7 @@
             <span class="comment">// polls: initial =&gt; shutdown</span>
             <span class="macro">assert_eq!</span>(<span class="ident">h1</span>.<span class="ident">poll_count</span>, <span class="number">1</span>);
 
-            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">DispatcherStateProj::Normal</span>(<span class="ident">inner</span>) <span class="op">=</span> <span class="ident">h1</span>.<span class="ident">project</span>().<span class="ident">inner</span>.<span class="ident">project</span>() {
+            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">DispatcherStateProj::Normal</span> { <span class="ident">inner</span> } <span class="op">=</span> <span class="ident">h1</span>.<span class="ident">project</span>().<span class="ident">inner</span>.<span class="ident">project</span>() {
                 <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">inner</span>.<span class="ident">project</span>().<span class="ident">io</span>.<span class="ident">take</span>().<span class="ident">unwrap</span>().<span class="ident">write_buf</span>[..];
                 <span class="ident">stabilize_date_header</span>(<span class="ident">res</span>);
 
@@ -2681,10 +2691,10 @@
 
             <span class="kw">let</span> <span class="ident">h1</span> <span class="op">=</span> <span class="ident">Dispatcher</span>::<span class="op">&lt;</span><span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>, <span class="ident">UpgradeHandler</span><span class="op">&gt;</span><span class="ident">::new</span>(
                 <span class="ident">buf</span>.<span class="ident">clone</span>(),
-                <span class="ident">cfg</span>,
                 <span class="ident">services</span>,
-                <span class="ident">OnConnectData::default</span>(),
+                <span class="ident">cfg</span>,
                 <span class="prelude-val">None</span>,
+                <span class="ident">OnConnectData::default</span>(),
             );
 
             <span class="ident">buf</span>.<span class="ident">extend_read_buf</span>(
@@ -2699,13 +2709,13 @@
             <span class="macro">actix_rt::pin!</span>(<span class="ident">h1</span>);
 
             <span class="macro">assert!</span>(<span class="ident">h1</span>.<span class="ident">as_mut</span>().<span class="ident">poll</span>(<span class="ident">cx</span>).<span class="ident">is_pending</span>());
-            <span class="macro">assert!</span>(<span class="macro">matches!</span>(<span class="kw-2">&amp;</span><span class="ident">h1</span>.<span class="ident">inner</span>, <span class="ident">DispatcherState::Normal</span>(<span class="kw">_</span>)));
+            <span class="macro">assert!</span>(<span class="macro">matches!</span>(<span class="kw-2">&amp;</span><span class="ident">h1</span>.<span class="ident">inner</span>, <span class="ident">DispatcherState::Normal</span> { .. }));
 
             <span class="comment">// polls: manual</span>
             <span class="macro">assert_eq!</span>(<span class="ident">h1</span>.<span class="ident">poll_count</span>, <span class="number">1</span>);
             <span class="macro">eprintln!</span>(<span class="string">&quot;poll count: {}&quot;</span>, <span class="ident">h1</span>.<span class="ident">poll_count</span>);
 
-            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">DispatcherState::Normal</span>(<span class="kw-2">ref</span> <span class="ident">inner</span>) <span class="op">=</span> <span class="ident">h1</span>.<span class="ident">inner</span> {
+            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">DispatcherState::Normal</span> { <span class="kw-2">ref</span> <span class="ident">inner</span> } <span class="op">=</span> <span class="ident">h1</span>.<span class="ident">inner</span> {
                 <span class="kw">let</span> <span class="ident">io</span> <span class="op">=</span> <span class="ident">inner</span>.<span class="ident">io</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>();
                 <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">io</span>.<span class="ident">write_buf</span>()[..];
                 <span class="macro">assert_eq!</span>(
@@ -2720,7 +2730,7 @@
             <span class="comment">// polls: manual manual shutdown</span>
             <span class="macro">assert_eq!</span>(<span class="ident">h1</span>.<span class="ident">poll_count</span>, <span class="number">3</span>);
 
-            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">DispatcherState::Normal</span>(<span class="kw-2">ref</span> <span class="ident">inner</span>) <span class="op">=</span> <span class="ident">h1</span>.<span class="ident">inner</span> {
+            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">DispatcherState::Normal</span> { <span class="kw-2">ref</span> <span class="ident">inner</span> } <span class="op">=</span> <span class="ident">h1</span>.<span class="ident">inner</span> {
                 <span class="kw">let</span> <span class="ident">io</span> <span class="op">=</span> <span class="ident">inner</span>.<span class="ident">io</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>();
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">res</span> <span class="op">=</span> (<span class="kw-2">&amp;</span><span class="ident">io</span>.<span class="ident">write_buf</span>()[..]).<span class="ident">to_owned</span>();
                 <span class="ident">stabilize_date_header</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">res</span>);
@@ -2753,10 +2763,10 @@
 
             <span class="kw">let</span> <span class="ident">h1</span> <span class="op">=</span> <span class="ident">Dispatcher</span>::<span class="op">&lt;</span><span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>, <span class="ident">UpgradeHandler</span><span class="op">&gt;</span><span class="ident">::new</span>(
                 <span class="ident">buf</span>.<span class="ident">clone</span>(),
-                <span class="ident">cfg</span>,
                 <span class="ident">services</span>,
-                <span class="ident">OnConnectData::default</span>(),
+                <span class="ident">cfg</span>,
                 <span class="prelude-val">None</span>,
+                <span class="ident">OnConnectData::default</span>(),
             );
 
             <span class="ident">buf</span>.<span class="ident">extend_read_buf</span>(
@@ -2771,12 +2781,12 @@
             <span class="macro">actix_rt::pin!</span>(<span class="ident">h1</span>);
 
             <span class="macro">assert!</span>(<span class="ident">h1</span>.<span class="ident">as_mut</span>().<span class="ident">poll</span>(<span class="ident">cx</span>).<span class="ident">is_ready</span>());
-            <span class="macro">assert!</span>(<span class="macro">matches!</span>(<span class="kw-2">&amp;</span><span class="ident">h1</span>.<span class="ident">inner</span>, <span class="ident">DispatcherState::Normal</span>(<span class="kw">_</span>)));
+            <span class="macro">assert!</span>(<span class="macro">matches!</span>(<span class="kw-2">&amp;</span><span class="ident">h1</span>.<span class="ident">inner</span>, <span class="ident">DispatcherState::Normal</span> { .. }));
 
             <span class="comment">// polls: manual shutdown</span>
             <span class="macro">assert_eq!</span>(<span class="ident">h1</span>.<span class="ident">poll_count</span>, <span class="number">2</span>);
 
-            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">DispatcherState::Normal</span>(<span class="kw-2">ref</span> <span class="ident">inner</span>) <span class="op">=</span> <span class="ident">h1</span>.<span class="ident">inner</span> {
+            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">DispatcherState::Normal</span> { <span class="kw-2">ref</span> <span class="ident">inner</span> } <span class="op">=</span> <span class="ident">h1</span>.<span class="ident">inner</span> {
                 <span class="kw">let</span> <span class="ident">io</span> <span class="op">=</span> <span class="ident">inner</span>.<span class="ident">io</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>();
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">res</span> <span class="op">=</span> (<span class="kw-2">&amp;</span><span class="ident">io</span>.<span class="ident">write_buf</span>()[..]).<span class="ident">to_owned</span>();
                 <span class="ident">stabilize_date_header</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">res</span>);
@@ -2830,10 +2840,10 @@
 
             <span class="kw">let</span> <span class="ident">h1</span> <span class="op">=</span> <span class="ident">Dispatcher</span>::<span class="op">&lt;</span><span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>, <span class="ident">TestUpgrade</span><span class="op">&gt;</span><span class="ident">::new</span>(
                 <span class="ident">buf</span>.<span class="ident">clone</span>(),
-                <span class="ident">cfg</span>,
                 <span class="ident">services</span>,
-                <span class="ident">OnConnectData::default</span>(),
+                <span class="ident">cfg</span>,
                 <span class="prelude-val">None</span>,
+                <span class="ident">OnConnectData::default</span>(),
             );
 
             <span class="ident">buf</span>.<span class="ident">extend_read_buf</span>(
@@ -2848,7 +2858,7 @@
             <span class="macro">actix_rt::pin!</span>(<span class="ident">h1</span>);
 
             <span class="macro">assert!</span>(<span class="ident">h1</span>.<span class="ident">as_mut</span>().<span class="ident">poll</span>(<span class="ident">cx</span>).<span class="ident">is_ready</span>());
-            <span class="macro">assert!</span>(<span class="macro">matches!</span>(<span class="kw-2">&amp;</span><span class="ident">h1</span>.<span class="ident">inner</span>, <span class="ident">DispatcherState::Upgrade</span>(<span class="kw">_</span>)));
+            <span class="macro">assert!</span>(<span class="macro">matches!</span>(<span class="kw-2">&amp;</span><span class="ident">h1</span>.<span class="ident">inner</span>, <span class="ident">DispatcherState::Upgrade</span> { .. }));
 
             <span class="comment">// polls: manual shutdown</span>
             <span class="macro">assert_eq!</span>(<span class="ident">h1</span>.<span class="ident">poll_count</span>, <span class="number">2</span>);

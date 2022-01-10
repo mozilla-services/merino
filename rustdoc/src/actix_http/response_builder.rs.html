@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;usr&#x2F;local&#x2F;cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;actix-http-3.0.0-beta.9&#x2F;src&#x2F;response_builder.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>response_builder.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="shortcut icon" href="https:&#x2F;&#x2F;actix.rs&#x2F;favicon.ico"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../actix_http/index.html'><div class='logo-container rust-logo'><img src='https:&#x2F;&#x2F;actix.rs&#x2F;img&#x2F;logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;usr&#x2F;local&#x2F;cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;actix-http-3.0.0-beta.16&#x2F;src&#x2F;response_builder.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>response_builder.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="shortcut icon" href="https:&#x2F;&#x2F;actix.rs&#x2F;favicon.ico"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../actix_http/index.html'><div class='logo-container rust-logo'><img src='https:&#x2F;&#x2F;actix.rs&#x2F;img&#x2F;logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -439,48 +439,17 @@
 <span id="439">439</span>
 <span id="440">440</span>
 <span id="441">441</span>
-<span id="442">442</span>
-<span id="443">443</span>
-<span id="444">444</span>
-<span id="445">445</span>
-<span id="446">446</span>
-<span id="447">447</span>
-<span id="448">448</span>
-<span id="449">449</span>
-<span id="450">450</span>
-<span id="451">451</span>
-<span id="452">452</span>
-<span id="453">453</span>
-<span id="454">454</span>
-<span id="455">455</span>
-<span id="456">456</span>
-<span id="457">457</span>
-<span id="458">458</span>
-<span id="459">459</span>
-<span id="460">460</span>
-<span id="461">461</span>
-<span id="462">462</span>
-<span id="463">463</span>
-<span id="464">464</span>
 </pre><pre class="rust"><code><span class="doccomment">//! HTTP response builder.</span>
 
 <span class="kw">use</span> <span class="ident">std</span>::{
     <span class="ident">cell</span>::{<span class="ident">Ref</span>, <span class="ident">RefMut</span>},
-    <span class="ident">error::Error</span> <span class="kw">as</span> <span class="ident">StdError</span>,
-    <span class="ident">fmt</span>,
-    <span class="ident">future::Future</span>,
-    <span class="ident">pin::Pin</span>,
-    <span class="ident">str</span>,
-    <span class="ident">task</span>::{<span class="ident">Context</span>, <span class="ident">Poll</span>},
+    <span class="ident">fmt</span>, <span class="ident">str</span>,
 };
 
-<span class="kw">use</span> <span class="ident">bytes::Bytes</span>;
-<span class="kw">use</span> <span class="ident">futures_core::Stream</span>;
-
 <span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">body</span>::{<span class="ident">AnyBody</span>, <span class="ident">BodyStream</span>},
+    <span class="ident">body</span>::{<span class="ident">EitherBody</span>, <span class="ident">MessageBody</span>},
     <span class="ident">error</span>::{<span class="ident">Error</span>, <span class="ident">HttpError</span>},
-    <span class="ident">header</span>::{<span class="self">self</span>, <span class="ident">IntoHeaderPair</span>, <span class="ident">IntoHeaderValue</span>},
+    <span class="ident">header</span>::{<span class="self">self</span>, <span class="ident">TryIntoHeaderPair</span>, <span class="ident">TryIntoHeaderValue</span>},
     <span class="ident">message</span>::{<span class="ident">BoxedResponseHead</span>, <span class="ident">ConnectionType</span>, <span class="ident">ResponseHead</span>},
     <span class="ident">Extensions</span>, <span class="ident">Response</span>, <span class="ident">StatusCode</span>,
 };
@@ -492,7 +461,7 @@
 <span class="doccomment">///</span>
 <span class="doccomment">/// # Examples</span>
 <span class="doccomment">/// ```</span>
-<span class="doccomment">/// use actix_http::{Response, ResponseBuilder, body, http::StatusCode, http::header};</span>
+<span class="doccomment">/// use actix_http::{Response, ResponseBuilder, StatusCode, body, header};</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// # actix_rt::System::new().block_on(async {</span>
 <span class="doccomment">/// let mut res: Response&lt;_&gt; = Response::build(StatusCode::OK)</span>
@@ -520,8 +489,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// # Examples</span>
     <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// use actix_http::{Response, ResponseBuilder, http::StatusCode};</span>
-    <span class="doccomment">///</span>
+    <span class="doccomment">/// use actix_http::{Response, ResponseBuilder, StatusCode};</span>
     <span class="doccomment">/// let res: Response&lt;_&gt; = ResponseBuilder::default().finish();</span>
     <span class="doccomment">/// assert_eq!(res.status(), StatusCode::OK);</span>
     <span class="doccomment">/// ```</span>
@@ -537,8 +505,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// # Examples</span>
     <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// use actix_http::{ResponseBuilder, http::StatusCode};</span>
-    <span class="doccomment">///</span>
+    <span class="doccomment">/// use actix_http::{ResponseBuilder, StatusCode};</span>
     <span class="doccomment">/// let res = ResponseBuilder::default().status(StatusCode::NOT_FOUND).finish();</span>
     <span class="doccomment">/// assert_eq!(res.status(), StatusCode::NOT_FOUND);</span>
     <span class="doccomment">/// ```</span>
@@ -554,7 +521,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// # Examples</span>
     <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// use actix_http::{ResponseBuilder, http::header};</span>
+    <span class="doccomment">/// use actix_http::{ResponseBuilder, header};</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// let res = ResponseBuilder::default()</span>
     <span class="doccomment">///     .insert_header((header::CONTENT_TYPE, mime::APPLICATION_JSON))</span>
@@ -564,12 +531,9 @@
     <span class="doccomment">/// assert!(res.headers().contains_key(&quot;content-type&quot;));</span>
     <span class="doccomment">/// assert!(res.headers().contains_key(&quot;x-test&quot;));</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">insert_header</span><span class="op">&lt;</span><span class="ident">H</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">header</span>: <span class="ident">H</span>) -&gt; <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span>
-    <span class="kw">where</span>
-        <span class="ident">H</span>: <span class="ident">IntoHeaderPair</span>,
-    {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">insert_header</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">header</span>: <span class="kw">impl</span> <span class="ident">TryIntoHeaderPair</span>) -&gt; <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span> {
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">parts</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">inner</span>() {
-            <span class="kw">match</span> <span class="ident">header</span>.<span class="ident">try_into_header_pair</span>() {
+            <span class="kw">match</span> <span class="ident">header</span>.<span class="ident">try_into_pair</span>() {
                 <span class="prelude-val">Ok</span>((<span class="ident">key</span>, <span class="ident">value</span>)) =&gt; {
                     <span class="ident">parts</span>.<span class="ident">headers</span>.<span class="ident">insert</span>(<span class="ident">key</span>, <span class="ident">value</span>);
                 }
@@ -584,7 +548,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// # Examples</span>
     <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// use actix_http::{ResponseBuilder, http::header};</span>
+    <span class="doccomment">/// use actix_http::{ResponseBuilder, header};</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// let res = ResponseBuilder::default()</span>
     <span class="doccomment">///     .append_header((header::CONTENT_TYPE, mime::APPLICATION_JSON))</span>
@@ -595,12 +559,9 @@
     <span class="doccomment">/// assert_eq!(res.headers().get_all(&quot;content-type&quot;).count(), 1);</span>
     <span class="doccomment">/// assert_eq!(res.headers().get_all(&quot;x-test&quot;).count(), 2);</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">append_header</span><span class="op">&lt;</span><span class="ident">H</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">header</span>: <span class="ident">H</span>) -&gt; <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span>
-    <span class="kw">where</span>
-        <span class="ident">H</span>: <span class="ident">IntoHeaderPair</span>,
-    {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">append_header</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">header</span>: <span class="kw">impl</span> <span class="ident">TryIntoHeaderPair</span>) -&gt; <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span> {
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">parts</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">inner</span>() {
-            <span class="kw">match</span> <span class="ident">header</span>.<span class="ident">try_into_header_pair</span>() {
+            <span class="kw">match</span> <span class="ident">header</span>.<span class="ident">try_into_pair</span>() {
                 <span class="prelude-val">Ok</span>((<span class="ident">key</span>, <span class="ident">value</span>)) =&gt; <span class="ident">parts</span>.<span class="ident">headers</span>.<span class="ident">append</span>(<span class="ident">key</span>, <span class="ident">value</span>),
                 <span class="prelude-val">Err</span>(<span class="ident">e</span>) =&gt; <span class="self">self</span>.<span class="ident">err</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">e</span>.<span class="ident">into</span>()),
             };
@@ -631,7 +592,7 @@
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">upgrade</span><span class="op">&lt;</span><span class="ident">V</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="ident">V</span>) -&gt; <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span>
     <span class="kw">where</span>
-        <span class="ident">V</span>: <span class="ident">IntoHeaderValue</span>,
+        <span class="ident">V</span>: <span class="ident">TryIntoHeaderValue</span>,
     {
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">parts</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">inner</span>() {
             <span class="ident">parts</span>.<span class="ident">set_connection_type</span>(<span class="ident">ConnectionType::Upgrade</span>);
@@ -669,7 +630,7 @@
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">content_type</span><span class="op">&lt;</span><span class="ident">V</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="ident">V</span>) -&gt; <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span>
     <span class="kw">where</span>
-        <span class="ident">V</span>: <span class="ident">IntoHeaderValue</span>,
+        <span class="ident">V</span>: <span class="ident">TryIntoHeaderValue</span>,
     {
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">parts</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">inner</span>() {
             <span class="kw">match</span> <span class="ident">value</span>.<span class="ident">try_into_value</span>() {
@@ -699,10 +660,14 @@
     <span class="doccomment">/// Generate response with a wrapped body.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// This `ResponseBuilder` will be left in a useless state.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">body</span><span class="op">&lt;</span><span class="ident">B</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">AnyBody</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">body</span>: <span class="ident">B</span>) -&gt; <span class="ident">Response</span><span class="op">&lt;</span><span class="ident">AnyBody</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">message_body</span>(<span class="ident">body</span>.<span class="ident">into</span>())
-            .<span class="ident">unwrap_or_else</span>(<span class="ident">Response::from</span>)
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">body</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">body</span>: <span class="ident">B</span>) -&gt; <span class="ident">Response</span><span class="op">&lt;</span><span class="ident">EitherBody</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span><span class="op">&gt;</span>
+    <span class="kw">where</span>
+        <span class="ident">B</span>: <span class="ident">MessageBody</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
+    {
+        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">message_body</span>(<span class="ident">body</span>) {
+            <span class="prelude-val">Ok</span>(<span class="ident">res</span>) =&gt; <span class="ident">res</span>.<span class="ident">map_body</span>(<span class="op">|</span><span class="kw">_</span>, <span class="ident">body</span><span class="op">|</span> <span class="ident">EitherBody::left</span>(<span class="ident">body</span>)),
+            <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; <span class="ident">Response::from</span>(<span class="ident">err</span>).<span class="ident">map_body</span>(<span class="op">|</span><span class="kw">_</span>, <span class="ident">body</span><span class="op">|</span> <span class="ident">EitherBody::right</span>(<span class="ident">body</span>)),
+        }
     }
 
     <span class="doccomment">/// Generate response with a body.</span>
@@ -717,24 +682,12 @@
         <span class="prelude-val">Ok</span>(<span class="ident">Response</span> { <span class="ident">head</span>, <span class="ident">body</span> })
     }
 
-    <span class="doccomment">/// Generate response with a streaming body.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This `ResponseBuilder` will be left in a useless state.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">streaming</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">E</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">stream</span>: <span class="ident">S</span>) -&gt; <span class="ident">Response</span><span class="op">&lt;</span><span class="ident">AnyBody</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">S</span>: <span class="ident">Stream</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Bytes</span>, <span class="ident">E</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
-        <span class="ident">E</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">StdError</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
-    {
-        <span class="self">self</span>.<span class="ident">body</span>(<span class="ident">AnyBody::from_message</span>(<span class="ident">BodyStream::new</span>(<span class="ident">stream</span>)))
-    }
-
     <span class="doccomment">/// Generate response with an empty body.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// This `ResponseBuilder` will be left in a useless state.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">finish</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">Response</span><span class="op">&lt;</span><span class="ident">AnyBody</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">body</span>(<span class="ident">AnyBody::Empty</span>)
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">finish</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">Response</span><span class="op">&lt;</span><span class="ident">EitherBody</span><span class="op">&lt;</span>()<span class="op">&gt;</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">body</span>(())
     }
 
     <span class="doccomment">/// Create an owned `ResponseBuilder`, leaving the original in a useless state.</span>
@@ -791,14 +744,6 @@
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Future</span> <span class="kw">for</span> <span class="ident">ResponseBuilder</span> {
-    <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Response</span><span class="op">&lt;</span><span class="ident">AnyBody</span><span class="op">&gt;</span>, <span class="ident">Error</span><span class="op">&gt;</span>;
-
-    <span class="kw">fn</span> <span class="ident">poll</span>(<span class="kw-2">mut</span> <span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span><span class="op">&gt;</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Output</span><span class="op">&gt;</span> {
-        <span class="ident">Poll::Ready</span>(<span class="prelude-val">Ok</span>(<span class="self">self</span>.<span class="ident">finish</span>()))
-    }
-}
-
 <span class="kw">impl</span> <span class="ident">fmt::Debug</span> <span class="kw">for</span> <span class="ident">ResponseBuilder</span> {
     <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">fmt::Result</span> {
         <span class="kw">let</span> <span class="ident">head</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">head</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>();
@@ -820,9 +765,10 @@
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
 <span class="kw">mod</span> <span class="ident">tests</span> {
+    <span class="kw">use</span> <span class="ident">bytes::Bytes</span>;
+
     <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
-    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::body::Body</span>;
-    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::http::header</span>::{<span class="ident">HeaderName</span>, <span class="ident">HeaderValue</span>, <span class="ident">CONTENT_TYPE</span>};
+    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::header</span>::{<span class="ident">HeaderName</span>, <span class="ident">HeaderValue</span>, <span class="ident">CONTENT_TYPE</span>};
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_basic_builder</span>() {
@@ -847,20 +793,28 @@
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_force_close</span>() {
         <span class="kw">let</span> <span class="ident">resp</span> <span class="op">=</span> <span class="ident">Response::build</span>(<span class="ident">StatusCode::OK</span>).<span class="ident">force_close</span>().<span class="ident">finish</span>();
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">resp</span>.<span class="ident">keep_alive</span>())
+        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">resp</span>.<span class="ident">keep_alive</span>());
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_content_type</span>() {
         <span class="kw">let</span> <span class="ident">resp</span> <span class="op">=</span> <span class="ident">Response::build</span>(<span class="ident">StatusCode::OK</span>)
             .<span class="ident">content_type</span>(<span class="string">&quot;text/plain&quot;</span>)
-            .<span class="ident">body</span>(<span class="ident">Body::Empty</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">resp</span>.<span class="ident">headers</span>().<span class="ident">get</span>(<span class="ident">CONTENT_TYPE</span>).<span class="ident">unwrap</span>(), <span class="string">&quot;text/plain&quot;</span>)
+            .<span class="ident">body</span>(<span class="ident">Bytes::new</span>());
+        <span class="macro">assert_eq!</span>(<span class="ident">resp</span>.<span class="ident">headers</span>().<span class="ident">get</span>(<span class="ident">CONTENT_TYPE</span>).<span class="ident">unwrap</span>(), <span class="string">&quot;text/plain&quot;</span>);
+
+        <span class="kw">let</span> <span class="ident">resp</span> <span class="op">=</span> <span class="ident">Response::build</span>(<span class="ident">StatusCode::OK</span>)
+            .<span class="ident">content_type</span>(<span class="ident">mime::APPLICATION_JAVASCRIPT_UTF_8</span>)
+            .<span class="ident">body</span>(<span class="ident">Bytes::new</span>());
+        <span class="macro">assert_eq!</span>(
+            <span class="ident">resp</span>.<span class="ident">headers</span>().<span class="ident">get</span>(<span class="ident">CONTENT_TYPE</span>).<span class="ident">unwrap</span>(),
+            <span class="string">&quot;application/javascript; charset=utf-8&quot;</span>
+        );
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_into_builder</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">resp</span>: <span class="ident">Response</span><span class="op">&lt;</span><span class="ident">Body</span><span class="op">&gt;</span> <span class="op">=</span> <span class="string">&quot;test&quot;</span>.<span class="ident">into</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">resp</span>: <span class="ident">Response</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span> <span class="op">=</span> <span class="string">&quot;test&quot;</span>.<span class="ident">into</span>();
         <span class="macro">assert_eq!</span>(<span class="ident">resp</span>.<span class="ident">status</span>(), <span class="ident">StatusCode::OK</span>);
 
         <span class="ident">resp</span>.<span class="ident">headers_mut</span>().<span class="ident">insert</span>(
