@@ -93,7 +93,7 @@ kubectl cp <master-pod-name>:/home/locust/merino_exceptions.csv merino_exception
 kubectl cp <master-pod-name>:/home/locust/merino_failures.csv merino_failures.csv
 ```
 
-To remove all the GET requests and retain only the aggregate summary use:
+To remove all the `GET` requests and retain only the aggregate summary use:
 
 ```text
 cat merino_stats.csv | grep -Ev "^GET," > merino_stats.csv.tmp
