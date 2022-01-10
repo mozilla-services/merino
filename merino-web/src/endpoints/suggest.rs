@@ -8,7 +8,7 @@ use crate::{
 use actix_web::{
     get,
     web::{self, Data, ServiceConfig},
-    HttpRequest, HttpResponse,
+    HttpMessage, HttpRequest, HttpResponse,
 };
 use anyhow::Result;
 use cadence::{CountedExt, Histogrammed, StatsdClient};

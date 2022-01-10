@@ -2,8 +2,10 @@
 
 use crate::errors::HandlerError;
 use actix_web::{
+    body::MessageBody,
     dev::{Service, ServiceRequest, ServiceResponse, Transform},
     error::Error as ActixError,
+    ResponseError,
 };
 use futures_util::future::LocalBoxFuture;
 use sentry::protocol::Event;
@@ -20,13 +22,15 @@ use std::{
 #[derive(Debug, Default)]
 pub struct Sentry;
 
-impl<S> Transform<S, ServiceRequest> for Sentry
+impl<S, B> Transform<S, ServiceRequest> for Sentry
 where
-    S: Service<ServiceRequest, Response = ServiceResponse> + 'static,
+    S: Service<ServiceRequest, Response = ServiceResponse<B>, Error = ActixError> + 'static,
+    B: 'static + MessageBody,
+    B::Error: ResponseError,
     S::Future: 'static,
     S::Error: fmt::Debug,
 {
-    type Response = ServiceResponse;
+    type Response = S::Response;
     type Error = ActixError;
     type InitError = ();
     type Transform = SentryMiddleware<S>;
@@ -94,13 +98,15 @@ impl<S> SentryMiddleware<S> {
     }
 }
 
-impl<S> Service<ServiceRequest> for SentryMiddleware<S>
+impl<S, B> Service<ServiceRequest> for SentryMiddleware<S>
 where
-    S: Service<ServiceRequest, Response = ServiceResponse>,
+    S: Service<ServiceRequest, Response = ServiceResponse<B>, Error = ActixError>,
+    B: 'static + MessageBody,
     S::Future: 'static,
+    B::Error: ResponseError,
     S::Error: fmt::Debug,
 {
-    type Response = ServiceResponse;
+    type Response = S::Response;
     type Error = ActixError;
     type Future = LocalBoxFuture<'static, Result<Self::Response, Self::Error>>;
 

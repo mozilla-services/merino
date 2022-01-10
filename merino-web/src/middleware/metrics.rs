@@ -2,6 +2,7 @@
 
 use crate::errors::HandlerError;
 use actix_web::{
+    body::MessageBody,
     dev::{Service, ServiceRequest, ServiceResponse, Transform},
     Error as ActixError,
 };
@@ -23,13 +24,14 @@ pub struct MetricsMiddleware<S> {
     service: S,
 }
 
-impl<S> Transform<S, ServiceRequest> for Metrics
+impl<S, B> Transform<S, ServiceRequest> for Metrics
 where
-    S: Service<ServiceRequest, Response = ServiceResponse>,
+    S: Service<ServiceRequest, Response = ServiceResponse<B>>,
+    B: 'static + MessageBody,
     S::Future: 'static,
     S::Error: fmt::Debug,
 {
-    type Response = ServiceResponse;
+    type Response = S::Response;
 
     type Error = ActixError;
 
@@ -44,13 +46,14 @@ where
     }
 }
 
-impl<S> Service<ServiceRequest> for MetricsMiddleware<S>
+impl<S, B> Service<ServiceRequest> for MetricsMiddleware<S>
 where
-    S: Service<ServiceRequest, Response = ServiceResponse>,
+    S: Service<ServiceRequest, Response = ServiceResponse<B>>,
+    B: 'static + MessageBody,
     S::Future: 'static,
     S::Error: fmt::Debug,
 {
-    type Response = ServiceResponse;
+    type Response = S::Response;
 
     type Error = ActixError;
 
