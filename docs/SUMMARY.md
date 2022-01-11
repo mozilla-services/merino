@@ -9,10 +9,11 @@
 - [Configuring Merino (Operations)](./ops.md)
 - [Data collection](./data.md)
 - [Working on the code](./dev/index.md)
-  - [Merino Showroom](./dev/showroom.md)
+  - [Development Dependencies](./dev/dependencies.md)
   - [Logging and Metrics](./dev/logging-and-metrics.md)
   - [Testing Strategies](./dev/testing.md)
-  - [Development Dependencies](./dev/dependencies.md)
+  - [Merino Admin](./dev/admin.md)
+  - [Merino Showroom](./dev/showroom.md)
 
 # Architecture Decision Records
 
