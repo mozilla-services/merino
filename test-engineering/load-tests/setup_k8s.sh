@@ -6,12 +6,12 @@ GCLOUD=$(which gcloud)
 SED=$(which sed)
 KUBECTL=$(which kubectl)
 GOOGLE_CLOUD_PROJECT=$(gcloud config get-value project)
-CLUSTER=merino-locust-load-test
+CLUSTER='merino-locust-load-test'
 TARGET='https://stage.merino.nonprod.cloudops.mozgcp.net'
 SCOPE='https://www.googleapis.com/auth/cloud-platform'
-REGION=us-central1
+REGION='us-central1'
 WORKER_COUNT=10
-MACHINE_TYPE=n1-standard-2
+MACHINE_TYPE='n1-standard-2'
 BOLD=$(tput bold)
 NORM=$(tput sgr0)
 DIRECTORY=$(pwd)
@@ -24,7 +24,7 @@ SERVICE_FILE=locust-master-service.yml
 LOCUST_IMAGE_TAG=$(git log -1 --pretty=format:%h)
 echo "Docker image tag for locust is set to: ${LOCUST_IMAGE_TAG}"
 
-##Setting env variables
+##Declare variables to be replaced later in the YAML file using the sed commands
 KINTO__SERVER_URL='https://firefox.settings.services.mozilla.com'
 KINTO__COLLECTION=quicksuggest
 KINTO__BUCKET=main
