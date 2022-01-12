@@ -2,8 +2,6 @@
 
 This directory contains source code for load tests for Merino.
 
-**Please note that this is work in progress.** 🚧
-
 ## Environment variables
 
 Please set the following environment variables when running these load tests.
@@ -34,19 +32,24 @@ docker-compose -f test-engineering/load-tests/docker-compose.yml up --scale locu
 ## Run distributed load tests on GCP
 
 You can run the distributed load tests on Cloud Shell from the `load-tests`
-directory using the bash script `load_test_setup.sh`.
+directory using the bash script `setup_k8s.sh`.
 
 Make the file executable by:
 
 ```text
-chmod +x load_test_setup.sh
+chmod +x setup_k8s.sh
 ```
 
 Then, run the file:
 
 ```text
-./load_test_setup.sh
+./setup_k8s.sh
 ```
+
+Select the option `create`, it goes through the process of creating a cluster, setting up the env variables
+and building the docker image.
+
+**Note:** Be sure to delete the cluster (steps mentioned at the end of this doc) after you are done running load tests and copying the logs.
 
 Run a watch loop while an external IP address is assigned to the `locust-master` service, which should take a few seconds:
 
@@ -74,4 +77,37 @@ kubectl scale deployment/locust-worker --replicas=20
 
 Currently, it's set to run `10` workers but it can be changed by running above command.
 
+# How to grab the logs
 
+Get the master pod name by running:
+
+```text
+kubectl get pods -o wide
+```
+
+then run:
+
+```text
+kubectl cp <master-pod-name>:/home/locust/merino_stats.csv merino_stats.csv
+kubectl cp <master-pod-name>:/home/locust/merino_exceptions.csv merino_exceptions.csv
+kubectl cp <master-pod-name>:/home/locust/merino_failures.csv merino_failures.csv
+```
+
+To remove all the `GET` requests and retain only the aggregate summary use:
+
+```text
+cat merino_stats.csv | grep -Ev "^GET," > merino_stats.csv.tmp
+mv merino_stats.csv.tmp merino_stats.csv
+```
+
+Thereafter, copy these 3 files (`merino_stats.csv`, `merino_exceptions.csv`, `merino_failures.csv`) to [gist](https://gist.github.com/new) and provide a link to it in the [Merino load test history doc](https://docs.google.com/document/d/1BGNhKuclUH40Bit9KxYWLiv_N_VnE66uxi9pBFbRWbg/edit)
+
+# Deleting the cluster
+
+After you are done with load testing delete the cluster by running the same bash script and choosing the `delete` option
+
+```text
+./setup_k8s.sh
+```
+
+Select `delete`
