@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;usr&#x2F;local&#x2F;cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;curl-0.4.38&#x2F;src&#x2F;easy&#x2F;form.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>form.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../curl/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;usr&#x2F;local&#x2F;cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;curl-0.4.38&#x2F;src&#x2F;easy&#x2F;form.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>form.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><script defer src="../../../main.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script>
+    <noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../curl/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -388,8 +389,8 @@
 <span class="doccomment">/// This structure is built up and then passed to the `Easy::httppost` method to</span>
 <span class="doccomment">/// be sent off with a request.</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Form</span> {
-    <span class="ident">head</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">curl_sys::curl_httppost</span>,
-    <span class="ident">tail</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">curl_sys::curl_httppost</span>,
+    <span class="ident">head</span>: <span class="kw-2">*mut</span> <span class="ident">curl_sys::curl_httppost</span>,
+    <span class="ident">tail</span>: <span class="kw-2">*mut</span> <span class="ident">curl_sys::curl_httppost</span>,
     <span class="ident">headers</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">List</span><span class="op">&gt;</span>,
     <span class="ident">buffers</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     <span class="ident">strings</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">CString</span><span class="op">&gt;</span>,
@@ -403,7 +404,7 @@
     <span class="ident">error</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">FormError</span><span class="op">&gt;</span>,
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">raw</span>(<span class="ident">form</span>: <span class="kw-2">&amp;</span><span class="ident">Form</span>) -&gt; <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">curl_sys::curl_httppost</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">raw</span>(<span class="ident">form</span>: <span class="kw-2">&amp;</span><span class="ident">Form</span>) -&gt; <span class="kw-2">*mut</span> <span class="ident">curl_sys::curl_httppost</span> {
     <span class="ident">form</span>.<span class="ident">head</span>
 }
 
@@ -437,14 +438,14 @@
 }
 
 <span class="kw">impl</span> <span class="ident">fmt::Debug</span> <span class="kw">for</span> <span class="ident">Form</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span>) -&gt; <span class="ident">fmt::Result</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span>) -&gt; <span class="ident">fmt::Result</span> {
         <span class="comment">// TODO: fill this out more</span>
         <span class="ident">f</span>.<span class="ident">debug_struct</span>(<span class="string">&quot;Form&quot;</span>).<span class="ident">field</span>(<span class="string">&quot;fields&quot;</span>, <span class="kw-2">&amp;</span><span class="string">&quot;...&quot;</span>).<span class="ident">finish</span>()
     }
 }
 
 <span class="kw">impl</span> <span class="ident">Drop</span> <span class="kw">for</span> <span class="ident">Form</span> {
-    <span class="kw">fn</span> <span class="ident">drop</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
+    <span class="kw">fn</span> <span class="ident">drop</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
         <span class="kw">unsafe</span> {
             <span class="ident">curl_sys::curl_formfree</span>(<span class="self">self</span>.<span class="ident">head</span>);
         }
@@ -453,7 +454,7 @@
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;form</span>, <span class="lifetime">&#39;data</span><span class="op">&gt;</span> <span class="ident">Part</span><span class="op">&lt;</span><span class="lifetime">&#39;form</span>, <span class="lifetime">&#39;data</span><span class="op">&gt;</span> {
     <span class="doccomment">/// A pointer to the contents of this part, the actual data to send away.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">contents</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">contents</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;data</span> [<span class="ident">u8</span>]) -&gt; <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">contents</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">contents</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;data</span> [<span class="ident">u8</span>]) -&gt; <span class="kw-2">&amp;mut</span> <span class="self">Self</span> {
         <span class="kw">let</span> <span class="ident">pos</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">array</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span>;
 
         <span class="comment">// curl has an oddity where if the length if 0 it will call strlen</span>
@@ -470,14 +471,14 @@
             <span class="ident">pos</span>,
             <span class="ident">curl_sys::curl_forms</span> {
                 <span class="ident">option</span>: <span class="ident">curl_sys::CURLFORM_COPYCONTENTS</span>,
-                <span class="ident">value</span>: <span class="ident">ptr</span> <span class="kw">as</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="kw">_</span>,
+                <span class="ident">value</span>: <span class="ident">ptr</span> <span class="kw">as</span> <span class="kw-2">*mut</span> <span class="kw">_</span>,
             },
         );
         <span class="self">self</span>.<span class="ident">array</span>.<span class="ident">insert</span>(
             <span class="ident">pos</span> <span class="op">+</span> <span class="number">1</span>,
             <span class="ident">curl_sys::curl_forms</span> {
                 <span class="ident">option</span>: <span class="ident">curl_sys::CURLFORM_CONTENTSLENGTH</span>,
-                <span class="ident">value</span>: <span class="ident">contents</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="kw">_</span>,
+                <span class="ident">value</span>: <span class="ident">contents</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="kw-2">*mut</span> <span class="kw">_</span>,
             },
         );
         <span class="self">self</span>
@@ -493,21 +494,21 @@
     <span class="doccomment">/// If the filename has any internal nul bytes or if on Windows it does not</span>
     <span class="doccomment">/// contain a unicode filename then the `add` function will eventually</span>
     <span class="doccomment">/// return an error.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">file_content</span><span class="op">&lt;</span><span class="ident">P</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">file</span>: <span class="ident">P</span>) -&gt; <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">file_content</span><span class="op">&lt;</span><span class="ident">P</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">file</span>: <span class="ident">P</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="self">Self</span>
     <span class="kw">where</span>
         <span class="ident">P</span>: <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">Path</span><span class="op">&gt;</span>,
     {
         <span class="self">self</span>.<span class="ident">_file_content</span>(<span class="ident">file</span>.<span class="ident">as_ref</span>())
     }
 
-    <span class="kw">fn</span> <span class="ident">_file_content</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">file</span>: <span class="kw-2">&amp;</span><span class="ident">Path</span>) -&gt; <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">_file_content</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">file</span>: <span class="kw-2">&amp;</span><span class="ident">Path</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="self">Self</span> {
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">bytes</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">path2cstr</span>(<span class="ident">file</span>) {
             <span class="kw">let</span> <span class="ident">pos</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">array</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span>;
             <span class="self">self</span>.<span class="ident">array</span>.<span class="ident">insert</span>(
                 <span class="ident">pos</span>,
                 <span class="ident">curl_sys::curl_forms</span> {
                     <span class="ident">option</span>: <span class="ident">curl_sys::CURLFORM_FILECONTENT</span>,
-                    <span class="ident">value</span>: <span class="ident">bytes</span>.<span class="ident">as_ptr</span>() <span class="kw">as</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="kw">_</span>,
+                    <span class="ident">value</span>: <span class="ident">bytes</span>.<span class="ident">as_ptr</span>() <span class="kw">as</span> <span class="kw-2">*mut</span> <span class="kw">_</span>,
                 },
             );
             <span class="self">self</span>.<span class="ident">form</span>.<span class="ident">strings</span>.<span class="ident">push</span>(<span class="ident">bytes</span>);
@@ -535,21 +536,21 @@
     <span class="doccomment">/// If the filename has any internal nul bytes or if on Windows it does not</span>
     <span class="doccomment">/// contain a unicode filename then this function will cause `add` to return</span>
     <span class="doccomment">/// an error when called.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">file</span><span class="op">&lt;</span><span class="ident">P</span>: <span class="question-mark">?</span><span class="ident">Sized</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">file</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;data</span> <span class="ident">P</span>) -&gt; <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">file</span><span class="op">&lt;</span><span class="ident">P</span>: <span class="question-mark">?</span><span class="ident">Sized</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">file</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;data</span> <span class="ident">P</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="self">Self</span>
     <span class="kw">where</span>
         <span class="ident">P</span>: <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">Path</span><span class="op">&gt;</span>,
     {
         <span class="self">self</span>.<span class="ident">_file</span>(<span class="ident">file</span>.<span class="ident">as_ref</span>())
     }
 
-    <span class="kw">fn</span> <span class="ident">_file</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">file</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;data</span> <span class="ident">Path</span>) -&gt; <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">_file</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">file</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;data</span> <span class="ident">Path</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="self">Self</span> {
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">bytes</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">path2cstr</span>(<span class="ident">file</span>) {
             <span class="kw">let</span> <span class="ident">pos</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">array</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span>;
             <span class="self">self</span>.<span class="ident">array</span>.<span class="ident">insert</span>(
                 <span class="ident">pos</span>,
                 <span class="ident">curl_sys::curl_forms</span> {
                     <span class="ident">option</span>: <span class="ident">curl_sys::CURLFORM_FILE</span>,
-                    <span class="ident">value</span>: <span class="ident">bytes</span>.<span class="ident">as_ptr</span>() <span class="kw">as</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="kw">_</span>,
+                    <span class="ident">value</span>: <span class="ident">bytes</span>.<span class="ident">as_ptr</span>() <span class="kw">as</span> <span class="kw-2">*mut</span> <span class="kw">_</span>,
                 },
             );
             <span class="self">self</span>.<span class="ident">form</span>.<span class="ident">strings</span>.<span class="ident">push</span>(<span class="ident">bytes</span>);
@@ -564,14 +565,14 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// This function will panic if `content_type` contains an internal nul</span>
     <span class="doccomment">/// byte.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">content_type</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">content_type</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;data</span> <span class="ident">str</span>) -&gt; <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">content_type</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">content_type</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;data</span> <span class="ident">str</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="self">Self</span> {
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">bytes</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">bytes2cstr</span>(<span class="ident">content_type</span>.<span class="ident">as_bytes</span>()) {
             <span class="kw">let</span> <span class="ident">pos</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">array</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span>;
             <span class="self">self</span>.<span class="ident">array</span>.<span class="ident">insert</span>(
                 <span class="ident">pos</span>,
                 <span class="ident">curl_sys::curl_forms</span> {
                     <span class="ident">option</span>: <span class="ident">curl_sys::CURLFORM_CONTENTTYPE</span>,
-                    <span class="ident">value</span>: <span class="ident">bytes</span>.<span class="ident">as_ptr</span>() <span class="kw">as</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="kw">_</span>,
+                    <span class="ident">value</span>: <span class="ident">bytes</span>.<span class="ident">as_ptr</span>() <span class="kw">as</span> <span class="kw-2">*mut</span> <span class="kw">_</span>,
                 },
             );
             <span class="self">self</span>.<span class="ident">form</span>.<span class="ident">strings</span>.<span class="ident">push</span>(<span class="ident">bytes</span>);
@@ -587,21 +588,21 @@
     <span class="doccomment">/// If `name` contains an internal nul byte, or if on Windows the path is</span>
     <span class="doccomment">/// not valid unicode then this function will return an error when `add` is</span>
     <span class="doccomment">/// called.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">filename</span><span class="op">&lt;</span><span class="ident">P</span>: <span class="question-mark">?</span><span class="ident">Sized</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;data</span> <span class="ident">P</span>) -&gt; <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">filename</span><span class="op">&lt;</span><span class="ident">P</span>: <span class="question-mark">?</span><span class="ident">Sized</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;data</span> <span class="ident">P</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="self">Self</span>
     <span class="kw">where</span>
         <span class="ident">P</span>: <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">Path</span><span class="op">&gt;</span>,
     {
         <span class="self">self</span>.<span class="ident">_filename</span>(<span class="ident">name</span>.<span class="ident">as_ref</span>())
     }
 
-    <span class="kw">fn</span> <span class="ident">_filename</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;data</span> <span class="ident">Path</span>) -&gt; <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">_filename</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;data</span> <span class="ident">Path</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="self">Self</span> {
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">bytes</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">path2cstr</span>(<span class="ident">name</span>) {
             <span class="kw">let</span> <span class="ident">pos</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">array</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span>;
             <span class="self">self</span>.<span class="ident">array</span>.<span class="ident">insert</span>(
                 <span class="ident">pos</span>,
                 <span class="ident">curl_sys::curl_forms</span> {
                     <span class="ident">option</span>: <span class="ident">curl_sys::CURLFORM_FILENAME</span>,
-                    <span class="ident">value</span>: <span class="ident">bytes</span>.<span class="ident">as_ptr</span>() <span class="kw">as</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="kw">_</span>,
+                    <span class="ident">value</span>: <span class="ident">bytes</span>.<span class="ident">as_ptr</span>() <span class="kw">as</span> <span class="kw-2">*mut</span> <span class="kw">_</span>,
                 },
             );
             <span class="self">self</span>.<span class="ident">form</span>.<span class="ident">strings</span>.<span class="ident">push</span>(<span class="ident">bytes</span>);
@@ -620,14 +621,14 @@
     <span class="doccomment">/// If `name` contains an internal nul byte, or if on Windows the path is</span>
     <span class="doccomment">/// not valid unicode then this function will return an error when `add` is</span>
     <span class="doccomment">/// called.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">buffer</span><span class="op">&lt;</span><span class="ident">P</span>: <span class="question-mark">?</span><span class="ident">Sized</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;data</span> <span class="ident">P</span>, <span class="ident">data</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>) -&gt; <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">buffer</span><span class="op">&lt;</span><span class="ident">P</span>: <span class="question-mark">?</span><span class="ident">Sized</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;data</span> <span class="ident">P</span>, <span class="ident">data</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="self">Self</span>
     <span class="kw">where</span>
         <span class="ident">P</span>: <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">Path</span><span class="op">&gt;</span>,
     {
         <span class="self">self</span>.<span class="ident">_buffer</span>(<span class="ident">name</span>.<span class="ident">as_ref</span>(), <span class="ident">data</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">_buffer</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;data</span> <span class="ident">Path</span>, <span class="kw-2">mut</span> <span class="ident">data</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>) -&gt; <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">_buffer</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;data</span> <span class="ident">Path</span>, <span class="kw-2">mut</span> <span class="ident">data</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="self">Self</span> {
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">bytes</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">path2cstr</span>(<span class="ident">name</span>) {
             <span class="comment">// If `CURLFORM_BUFFERLENGTH` is set to `0`, libcurl will instead do a strlen() on the</span>
             <span class="comment">// contents to figure out the size so we need to make sure the buffer is actually</span>
@@ -642,7 +643,7 @@
                 <span class="ident">pos</span>,
                 <span class="ident">curl_sys::curl_forms</span> {
                     <span class="ident">option</span>: <span class="ident">curl_sys::CURLFORM_BUFFER</span>,
-                    <span class="ident">value</span>: <span class="ident">bytes</span>.<span class="ident">as_ptr</span>() <span class="kw">as</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="kw">_</span>,
+                    <span class="ident">value</span>: <span class="ident">bytes</span>.<span class="ident">as_ptr</span>() <span class="kw">as</span> <span class="kw-2">*mut</span> <span class="kw">_</span>,
                 },
             );
             <span class="self">self</span>.<span class="ident">form</span>.<span class="ident">strings</span>.<span class="ident">push</span>(<span class="ident">bytes</span>);
@@ -650,14 +651,14 @@
                 <span class="ident">pos</span> <span class="op">+</span> <span class="number">1</span>,
                 <span class="ident">curl_sys::curl_forms</span> {
                     <span class="ident">option</span>: <span class="ident">curl_sys::CURLFORM_BUFFERPTR</span>,
-                    <span class="ident">value</span>: <span class="ident">data</span>.<span class="ident">as_ptr</span>() <span class="kw">as</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="kw">_</span>,
+                    <span class="ident">value</span>: <span class="ident">data</span>.<span class="ident">as_ptr</span>() <span class="kw">as</span> <span class="kw-2">*mut</span> <span class="kw">_</span>,
                 },
             );
             <span class="self">self</span>.<span class="ident">array</span>.<span class="ident">insert</span>(
                 <span class="ident">pos</span> <span class="op">+</span> <span class="number">2</span>,
                 <span class="ident">curl_sys::curl_forms</span> {
                     <span class="ident">option</span>: <span class="ident">curl_sys::CURLFORM_BUFFERLENGTH</span>,
-                    <span class="ident">value</span>: <span class="ident">length</span> <span class="kw">as</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="kw">_</span>,
+                    <span class="ident">value</span>: <span class="ident">length</span> <span class="kw">as</span> <span class="kw-2">*mut</span> <span class="kw">_</span>,
                 },
             );
             <span class="self">self</span>.<span class="ident">form</span>.<span class="ident">buffers</span>.<span class="ident">push</span>(<span class="ident">data</span>);
@@ -668,13 +669,13 @@
     <span class="doccomment">/// Specifies extra headers for the form POST section.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// Appends the list of headers to those libcurl automatically generates.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">content_header</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">headers</span>: <span class="ident">List</span>) -&gt; <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">content_header</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">headers</span>: <span class="ident">List</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="self">Self</span> {
         <span class="kw">let</span> <span class="ident">pos</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">array</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span>;
         <span class="self">self</span>.<span class="ident">array</span>.<span class="ident">insert</span>(
             <span class="ident">pos</span>,
             <span class="ident">curl_sys::curl_forms</span> {
                 <span class="ident">option</span>: <span class="ident">curl_sys::CURLFORM_CONTENTHEADER</span>,
-                <span class="ident">value</span>: <span class="ident">list::raw</span>(<span class="kw-2">&amp;</span><span class="ident">headers</span>) <span class="kw">as</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="kw">_</span>,
+                <span class="ident">value</span>: <span class="ident">list::raw</span>(<span class="kw-2">&amp;</span><span class="ident">headers</span>) <span class="kw">as</span> <span class="kw-2">*mut</span> <span class="kw">_</span>,
             },
         );
         <span class="self">self</span>.<span class="ident">form</span>.<span class="ident">headers</span>.<span class="ident">push</span>(<span class="ident">headers</span>);
@@ -685,14 +686,14 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// If any error happens while adding, that error is returned, otherwise</span>
     <span class="doccomment">/// `Ok(())` is returned.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">add</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">FormError</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">add</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">FormError</span><span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">err</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">error</span>.<span class="ident">clone</span>() {
             <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">err</span>);
         }
         <span class="kw">let</span> <span class="ident">rc</span> <span class="op">=</span> <span class="kw">unsafe</span> {
             <span class="ident">curl_sys::curl_formadd</span>(
-                <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">form</span>.<span class="ident">head</span>,
-                <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">form</span>.<span class="ident">tail</span>,
+                <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">form</span>.<span class="ident">head</span>,
+                <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">form</span>.<span class="ident">tail</span>,
                 <span class="ident">curl_sys::CURLFORM_COPYNAME</span>,
                 <span class="self">self</span>.<span class="ident">name</span>.<span class="ident">as_ptr</span>(),
                 <span class="ident">curl_sys::CURLFORM_NAMELENGTH</span>,
@@ -710,13 +711,13 @@
     }
 
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">unix</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">path2cstr</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">p</span>: <span class="kw-2">&amp;</span><span class="ident">Path</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">CString</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">path2cstr</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">p</span>: <span class="kw-2">&amp;</span><span class="ident">Path</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">CString</span><span class="op">&gt;</span> {
         <span class="kw">use</span> <span class="ident">std::os::unix::prelude</span>::<span class="kw-2">*</span>;
         <span class="self">self</span>.<span class="ident">bytes2cstr</span>(<span class="ident">p</span>.<span class="ident">as_os_str</span>().<span class="ident">as_bytes</span>())
     }
 
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">windows</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">path2cstr</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">p</span>: <span class="kw-2">&amp;</span><span class="ident">Path</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">CString</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">path2cstr</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">p</span>: <span class="kw-2">&amp;</span><span class="ident">Path</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">CString</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="ident">p</span>.<span class="ident">to_str</span>() {
             <span class="prelude-val">Some</span>(<span class="ident">bytes</span>) =&gt; <span class="self">self</span>.<span class="ident">bytes2cstr</span>(<span class="ident">bytes</span>.<span class="ident">as_bytes</span>()),
             <span class="prelude-val">None</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">error</span>.<span class="ident">is_none</span>() =&gt; {
@@ -728,7 +729,7 @@
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">bytes2cstr</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">bytes</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">CString</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">bytes2cstr</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">bytes</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">CString</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="ident">CString::new</span>(<span class="ident">bytes</span>) {
             <span class="prelude-val">Ok</span>(<span class="ident">c</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">c</span>),
             <span class="prelude-val">Err</span>(..) <span class="kw">if</span> <span class="self">self</span>.<span class="ident">error</span>.<span class="ident">is_none</span>() =&gt; {
@@ -742,7 +743,7 @@
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;form</span>, <span class="lifetime">&#39;data</span><span class="op">&gt;</span> <span class="ident">fmt::Debug</span> <span class="kw">for</span> <span class="ident">Part</span><span class="op">&lt;</span><span class="lifetime">&#39;form</span>, <span class="lifetime">&#39;data</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span>) -&gt; <span class="ident">fmt::Result</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span>) -&gt; <span class="ident">fmt::Result</span> {
         <span class="comment">// TODO: fill this out more</span>
         <span class="ident">f</span>.<span class="ident">debug_struct</span>(<span class="string">&quot;Part&quot;</span>)
             .<span class="ident">field</span>(<span class="string">&quot;name&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">name</span>)
@@ -752,5 +753,4 @@
 }
 </code></pre></div>
 </section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="curl" data-search-index-js="../../../search-index.js" data-search-js="../../../search.js"></div>
-    <script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script>
 </body></html>

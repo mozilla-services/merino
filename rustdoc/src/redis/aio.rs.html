@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;usr&#x2F;local&#x2F;cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;redis-0.20.2&#x2F;src&#x2F;aio.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>aio.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../redis/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">   1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;usr&#x2F;local&#x2F;cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;redis-0.20.2&#x2F;src&#x2F;aio.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>aio.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><script defer src="../../main.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script>
+    <noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../redis/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">   1</span>
 <span id="2">   2</span>
 <span id="3">   3</span>
 <span id="4">   4</span>
@@ -1244,34 +1245,34 @@
     }
 
     <span class="doccomment">/// Subscribes to a new channel.</span>
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">subscribe</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">ToRedisArgs</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">channel</span>: <span class="ident">T</span>) -&gt; <span class="ident">RedisResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">subscribe</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">ToRedisArgs</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">channel</span>: <span class="ident">T</span>) -&gt; <span class="ident">RedisResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="prelude-val">Ok</span>(<span class="ident">cmd</span>(<span class="string">&quot;SUBSCRIBE&quot;</span>)
             .<span class="ident">arg</span>(<span class="ident">channel</span>)
-            .<span class="ident">query_async</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="number">0</span>)
+            .<span class="ident">query_async</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="number">0</span>)
             .<span class="kw">await</span><span class="question-mark">?</span>)
     }
 
     <span class="doccomment">/// Subscribes to a new channel with a pattern.</span>
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">psubscribe</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">ToRedisArgs</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">pchannel</span>: <span class="ident">T</span>) -&gt; <span class="ident">RedisResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">psubscribe</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">ToRedisArgs</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">pchannel</span>: <span class="ident">T</span>) -&gt; <span class="ident">RedisResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="prelude-val">Ok</span>(<span class="ident">cmd</span>(<span class="string">&quot;PSUBSCRIBE&quot;</span>)
             .<span class="ident">arg</span>(<span class="ident">pchannel</span>)
-            .<span class="ident">query_async</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="number">0</span>)
+            .<span class="ident">query_async</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="number">0</span>)
             .<span class="kw">await</span><span class="question-mark">?</span>)
     }
 
     <span class="doccomment">/// Unsubscribes from a channel.</span>
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">unsubscribe</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">ToRedisArgs</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">channel</span>: <span class="ident">T</span>) -&gt; <span class="ident">RedisResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">unsubscribe</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">ToRedisArgs</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">channel</span>: <span class="ident">T</span>) -&gt; <span class="ident">RedisResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="prelude-val">Ok</span>(<span class="ident">cmd</span>(<span class="string">&quot;UNSUBSCRIBE&quot;</span>)
             .<span class="ident">arg</span>(<span class="ident">channel</span>)
-            .<span class="ident">query_async</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="number">0</span>)
+            .<span class="ident">query_async</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="number">0</span>)
             .<span class="kw">await</span><span class="question-mark">?</span>)
     }
 
     <span class="doccomment">/// Unsubscribes from a channel with a pattern.</span>
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">punsubscribe</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">ToRedisArgs</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">pchannel</span>: <span class="ident">T</span>) -&gt; <span class="ident">RedisResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">punsubscribe</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">ToRedisArgs</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">pchannel</span>: <span class="ident">T</span>) -&gt; <span class="ident">RedisResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="prelude-val">Ok</span>(<span class="ident">cmd</span>(<span class="string">&quot;PUNSUBSCRIBE&quot;</span>)
             .<span class="ident">arg</span>(<span class="ident">pchannel</span>)
-            .<span class="ident">query_async</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="number">0</span>)
+            .<span class="ident">query_async</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="number">0</span>)
             .<span class="kw">await</span><span class="question-mark">?</span>)
     }
 
@@ -1281,7 +1282,7 @@
     <span class="doccomment">/// the helper methods on it.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">on_message</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="kw">impl</span> <span class="ident">Stream</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="ident">Msg</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;a</span> {
         <span class="ident">ValueCodec::default</span>()
-            .<span class="ident">framed</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="number">0</span>.<span class="ident">con</span>)
+            .<span class="ident">framed</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="number">0</span>.<span class="ident">con</span>)
             .<span class="ident">into_stream</span>()
             .<span class="ident">filter_map</span>(<span class="op">|</span><span class="ident">msg</span><span class="op">|</span> <span class="ident">Box::pin</span>(<span class="kw">async</span> <span class="kw">move</span> { <span class="ident">Msg::from_value</span>(<span class="kw-2">&amp;</span><span class="ident">msg</span>.<span class="ident">ok</span>()<span class="question-mark">?</span>) }))
     }
@@ -1317,14 +1318,14 @@
     }
 
     <span class="doccomment">/// Deliver the MONITOR command to this [`Monitor`]ing wrapper.</span>
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">monitor</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">RedisResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="prelude-val">Ok</span>(<span class="ident">cmd</span>(<span class="string">&quot;MONITOR&quot;</span>).<span class="ident">query_async</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="number">0</span>).<span class="kw">await</span><span class="question-mark">?</span>)
+    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">monitor</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">RedisResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+        <span class="prelude-val">Ok</span>(<span class="ident">cmd</span>(<span class="string">&quot;MONITOR&quot;</span>).<span class="ident">query_async</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="number">0</span>).<span class="kw">await</span><span class="question-mark">?</span>)
     }
 
     <span class="doccomment">/// Returns [`Stream`] of [`FromRedisValue`] values from this [`Monitor`]ing connection</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">on_message</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span>: <span class="ident">FromRedisValue</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="kw">impl</span> <span class="ident">Stream</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="ident">T</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;a</span> {
         <span class="ident">ValueCodec::default</span>()
-            .<span class="ident">framed</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="number">0</span>.<span class="ident">con</span>)
+            .<span class="ident">framed</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="number">0</span>.<span class="ident">con</span>)
             .<span class="ident">into_stream</span>()
             .<span class="ident">filter_map</span>(<span class="op">|</span><span class="ident">value</span><span class="op">|</span> <span class="ident">Box::pin</span>(<span class="kw">async</span> <span class="kw">move</span> { <span class="ident">T::from_redis_value</span>(<span class="kw-2">&amp;</span><span class="ident">value</span>.<span class="ident">ok</span>()<span class="question-mark">?</span>).<span class="ident">ok</span>() }))
     }
@@ -1392,7 +1393,7 @@
             <span class="ident">db</span>: <span class="ident">connection_info</span>.<span class="ident">db</span>,
             <span class="ident">pubsub</span>: <span class="bool-val">false</span>,
         };
-        <span class="ident">authenticate</span>(<span class="ident">connection_info</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">rv</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="ident">authenticate</span>(<span class="ident">connection_info</span>, <span class="kw-2">&amp;mut</span> <span class="ident">rv</span>).<span class="kw">await</span><span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(<span class="ident">rv</span>)
     }
 
@@ -1407,8 +1408,8 @@
     }
 
     <span class="doccomment">/// Fetches a single response from the connection.</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">read_response</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">RedisResult</span><span class="op">&lt;</span><span class="ident">Value</span><span class="op">&gt;</span> {
-        <span class="ident"><span class="kw">crate</span>::parser::parse_redis_value_async</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">decoder</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">con</span>).<span class="kw">await</span>
+    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">read_response</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">RedisResult</span><span class="op">&lt;</span><span class="ident">Value</span><span class="op">&gt;</span> {
+        <span class="ident"><span class="kw">crate</span>::parser::parse_redis_value_async</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">decoder</span>, <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">con</span>).<span class="kw">await</span>
     }
 
     <span class="doccomment">/// Brings [`Connection`] out of `PubSub` mode.</span>
@@ -1417,7 +1418,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// If this function returns error then on all command send tries will be performed attempt</span>
     <span class="doccomment">/// to exit from `PubSub` mode until it will be successful.</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">exit_pubsub</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">RedisResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">exit_pubsub</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">RedisResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">clear_active_subscriptions</span>().<span class="kw">await</span>;
         <span class="kw">if</span> <span class="ident">res</span>.<span class="ident">is_ok</span>() {
             <span class="self">self</span>.<span class="ident">pubsub</span> <span class="op">=</span> <span class="bool-val">false</span>;
@@ -1433,7 +1434,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// Any active subscriptions are unsubscribed. In the event of an error, the connection is</span>
     <span class="doccomment">/// dropped.</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">clear_active_subscriptions</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">RedisResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">clear_active_subscriptions</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">RedisResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="comment">// Responses to unsubscribe commands return in a 3-tuple with values</span>
         <span class="comment">// (&quot;unsubscribe&quot; or &quot;punsubscribe&quot;, name of subscription removed, count of remaining subs).</span>
         <span class="comment">// The &quot;count of remaining subs&quot; includes both pattern subscriptions and non pattern</span>
@@ -1485,7 +1486,7 @@
     <span class="ident">Connection::new</span>(<span class="ident">connection_info</span>, <span class="ident">con</span>).<span class="kw">await</span>
 }
 
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">authenticate</span><span class="op">&lt;</span><span class="ident">C</span><span class="op">&gt;</span>(<span class="ident">connection_info</span>: <span class="kw-2">&amp;</span><span class="ident">ConnectionInfo</span>, <span class="ident">con</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">C</span>) -&gt; <span class="ident">RedisResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
+<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">authenticate</span><span class="op">&lt;</span><span class="ident">C</span><span class="op">&gt;</span>(<span class="ident">connection_info</span>: <span class="kw-2">&amp;</span><span class="ident">ConnectionInfo</span>, <span class="ident">con</span>: <span class="kw-2">&amp;mut</span> <span class="ident">C</span>) -&gt; <span class="ident">RedisResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
 <span class="kw">where</span>
     <span class="ident">C</span>: <span class="ident">ConnectionLike</span>,
 {
@@ -1627,7 +1628,7 @@
                 <span class="self">self</span>.<span class="ident">exit_pubsub</span>().<span class="kw">await</span><span class="question-mark">?</span>;
             }
             <span class="self">self</span>.<span class="ident">buf</span>.<span class="ident">clear</span>();
-            <span class="ident">cmd</span>.<span class="ident">write_packed_command</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">buf</span>);
+            <span class="ident">cmd</span>.<span class="ident">write_packed_command</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">buf</span>);
             <span class="self">self</span>.<span class="ident">con</span>.<span class="ident">write_all</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">buf</span>).<span class="kw">await</span><span class="question-mark">?</span>;
             <span class="self">self</span>.<span class="ident">read_response</span>().<span class="kw">await</span>
         })
@@ -1646,7 +1647,7 @@
             }
 
             <span class="self">self</span>.<span class="ident">buf</span>.<span class="ident">clear</span>();
-            <span class="ident">cmd</span>.<span class="ident">write_packed_pipeline</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">buf</span>);
+            <span class="ident">cmd</span>.<span class="ident">write_packed_pipeline</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">buf</span>);
             <span class="self">self</span>.<span class="ident">con</span>.<span class="ident">write_all</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">buf</span>).<span class="kw">await</span><span class="question-mark">?</span>;
 
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">first_err</span> <span class="op">=</span> <span class="prelude-val">None</span>;
@@ -1742,7 +1743,7 @@
     }
 
     <span class="comment">// Read messages from the stream and send them back to the caller</span>
-    <span class="kw">fn</span> <span class="ident">poll_read</span>(<span class="kw-2">mut</span> <span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">task::Context</span>) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span>(), ()<span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">poll_read</span>(<span class="kw-2">mut</span> <span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;mut</span> <span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">task::Context</span>) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span>(), ()<span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">loop</span> {
             <span class="comment">// No need to try reading a message if there is no message in flight</span>
             <span class="kw">if</span> <span class="self">self</span>.<span class="ident">in_flight</span>.<span class="ident">is_empty</span>() {
@@ -1759,7 +1760,7 @@
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">send_result</span>(<span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">result</span>: <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">E</span><span class="op">&gt;</span>) {
+    <span class="kw">fn</span> <span class="ident">send_result</span>(<span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;mut</span> <span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">result</span>: <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">E</span><span class="op">&gt;</span>) {
         <span class="kw">let</span> <span class="ident">self_</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">project</span>();
         <span class="kw">let</span> <span class="ident">response</span> <span class="op">=</span> {
             <span class="kw">let</span> <span class="ident">entry</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">self_</span>.<span class="ident">in_flight</span>.<span class="ident">front_mut</span>() {
@@ -1773,7 +1774,7 @@
                         <span class="comment">// Need to gather more response values</span>
                         <span class="kw">return</span>;
                     }
-                    <span class="prelude-val">Ok</span>(<span class="ident">mem::replace</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">entry</span>.<span class="ident">buffer</span>, <span class="ident">Vec::new</span>()))
+                    <span class="prelude-val">Ok</span>(<span class="ident">mem::replace</span>(<span class="kw-2">&amp;mut</span> <span class="ident">entry</span>.<span class="ident">buffer</span>, <span class="ident">Vec::new</span>()))
                 }
                 <span class="comment">// If we fail we must respond immediately</span>
                 <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; <span class="prelude-val">Err</span>(<span class="ident">err</span>),
@@ -1796,8 +1797,8 @@
 
     <span class="comment">// Retrieve incoming messages and write them to the sink</span>
     <span class="kw">fn</span> <span class="ident">poll_ready</span>(
-        <span class="kw-2">mut</span> <span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span><span class="op">&gt;</span>,
-        <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">task::Context</span>,
+        <span class="kw-2">mut</span> <span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;mut</span> <span class="self">Self</span><span class="op">&gt;</span>,
+        <span class="ident">cx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">task::Context</span>,
     ) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="macro">ready!</span>(<span class="self">self</span>.<span class="ident">as_mut</span>().<span class="ident">project</span>().<span class="ident">sink_stream</span>.<span class="ident">poll_ready</span>(<span class="ident">cx</span>)) {
             <span class="prelude-val">Ok</span>(()) =&gt; <span class="prelude-val">Ok</span>(()).<span class="ident">into</span>(),
@@ -1809,7 +1810,7 @@
     }
 
     <span class="kw">fn</span> <span class="ident">start_send</span>(
-        <span class="kw-2">mut</span> <span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span><span class="op">&gt;</span>,
+        <span class="kw-2">mut</span> <span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;mut</span> <span class="self">Self</span><span class="op">&gt;</span>,
         <span class="ident">PipelineMessage</span> {
             <span class="ident">input</span>,
             <span class="ident">output</span>,
@@ -1838,8 +1839,8 @@
     }
 
     <span class="kw">fn</span> <span class="ident">poll_flush</span>(
-        <span class="kw-2">mut</span> <span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span><span class="op">&gt;</span>,
-        <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">task::Context</span>,
+        <span class="kw-2">mut</span> <span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;mut</span> <span class="self">Self</span><span class="op">&gt;</span>,
+        <span class="ident">cx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">task::Context</span>,
     ) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="macro">ready!</span>(<span class="self">self</span>
             .<span class="ident">as_mut</span>()
@@ -1853,8 +1854,8 @@
     }
 
     <span class="kw">fn</span> <span class="ident">poll_close</span>(
-        <span class="kw-2">mut</span> <span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span><span class="op">&gt;</span>,
-        <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">task::Context</span>,
+        <span class="kw-2">mut</span> <span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;mut</span> <span class="self">Self</span><span class="op">&gt;</span>,
+        <span class="ident">cx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">task::Context</span>,
     ) -&gt; <span class="ident">Poll</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="comment">// No new requests will come in after the first call to `close` but we need to complete any</span>
         <span class="comment">// in progress requests before closing</span>
@@ -1892,7 +1893,7 @@
     }
 
     <span class="comment">// `None` means that the stream was out of items causing that poll loop to shut down.</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">send</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">item</span>: <span class="ident">SinkItem</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">send</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">item</span>: <span class="ident">SinkItem</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">send_recv_multiple</span>(<span class="ident">item</span>, <span class="number">1</span>)
             <span class="comment">// We can unwrap since we do a request for `1` item</span>
             .<span class="ident">map_ok</span>(<span class="op">|</span><span class="kw-2">mut</span> <span class="ident">item</span><span class="op">|</span> <span class="ident">item</span>.<span class="ident">pop</span>().<span class="ident">unwrap</span>())
@@ -1900,7 +1901,7 @@
     }
 
     <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">send_recv_multiple</span>(
-        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
+        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
         <span class="ident">input</span>: <span class="ident">SinkItem</span>,
         <span class="ident">count</span>: <span class="ident">usize</span>,
     ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span><span class="op">&gt;</span> {
@@ -1964,7 +1965,7 @@
             <span class="ident">db</span>: <span class="ident">connection_info</span>.<span class="ident">db</span>,
         };
         <span class="kw">let</span> <span class="ident">driver</span> <span class="op">=</span> {
-            <span class="kw">let</span> <span class="ident">auth</span> <span class="op">=</span> <span class="ident">authenticate</span>(<span class="ident">connection_info</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">con</span>);
+            <span class="kw">let</span> <span class="ident">auth</span> <span class="op">=</span> <span class="ident">authenticate</span>(<span class="ident">connection_info</span>, <span class="kw-2">&amp;mut</span> <span class="ident">con</span>);
             <span class="macro">futures_util::pin_mut!</span>(<span class="ident">auth</span>);
 
             <span class="kw">match</span> <span class="ident">futures_util::future::select</span>(<span class="ident">auth</span>, <span class="ident">driver</span>).<span class="kw">await</span> {
@@ -2206,5 +2207,4 @@
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">connection_manager::ConnectionManager</span>;
 </code></pre></div>
 </section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="redis" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
-    <script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script>
 </body></html>

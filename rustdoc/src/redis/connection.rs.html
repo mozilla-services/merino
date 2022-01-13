@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;usr&#x2F;local&#x2F;cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;redis-0.20.2&#x2F;src&#x2F;connection.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>connection.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../redis/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">   1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;usr&#x2F;local&#x2F;cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;redis-0.20.2&#x2F;src&#x2F;connection.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>connection.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><script defer src="../../main.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script>
+    <noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../redis/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">   1</span>
 <span id="2">   2</span>
 <span id="3">   3</span>
 <span id="4">   4</span>
@@ -1332,7 +1333,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">fmt::Display</span> <span class="kw">for</span> <span class="ident">ConnectionAddr</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span>) -&gt; <span class="ident">fmt::Result</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span>) -&gt; <span class="ident">fmt::Result</span> {
         <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span> {
             <span class="ident">ConnectionAddr::Tcp</span>(<span class="kw-2">ref</span> <span class="ident">host</span>, <span class="ident">port</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}:{}&quot;</span>, <span class="ident">host</span>, <span class="ident">port</span>),
             <span class="ident">ConnectionAddr::TcpTls</span> { <span class="kw-2">ref</span> <span class="ident">host</span>, <span class="ident">port</span>, .. } =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}:{}&quot;</span>, <span class="ident">host</span>, <span class="ident">port</span>),
@@ -1685,7 +1686,7 @@
         })
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">send_bytes</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">bytes</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="ident">RedisResult</span><span class="op">&lt;</span><span class="ident">Value</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">send_bytes</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">bytes</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="ident">RedisResult</span><span class="op">&lt;</span><span class="ident">Value</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span> {
             <span class="ident">ActualConnection::Tcp</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">connection</span>) =&gt; {
                 <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">connection</span>.<span class="ident">reader</span>.<span class="ident">write_all</span>(<span class="ident">bytes</span>).<span class="ident">map_err</span>(<span class="ident">RedisError::from</span>);
@@ -1773,7 +1774,7 @@
     }
 }
 
-<span class="kw">fn</span> <span class="ident">connect_auth</span>(<span class="ident">con</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Connection</span>, <span class="ident">connection_info</span>: <span class="kw-2">&amp;</span><span class="ident">ConnectionInfo</span>) -&gt; <span class="ident">RedisResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">connect_auth</span>(<span class="ident">con</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Connection</span>, <span class="ident">connection_info</span>: <span class="kw-2">&amp;</span><span class="ident">ConnectionInfo</span>) -&gt; <span class="ident">RedisResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">command</span> <span class="op">=</span> <span class="ident">cmd</span>(<span class="string">&quot;AUTH&quot;</span>);
     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">username</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">connection_info</span>.<span class="ident">username</span> {
         <span class="ident">command</span>.<span class="ident">arg</span>(<span class="ident">username</span>);
@@ -1824,13 +1825,13 @@
     };
 
     <span class="kw">if</span> <span class="ident">connection_info</span>.<span class="ident">passwd</span>.<span class="ident">is_some</span>() {
-        <span class="ident">connect_auth</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">rv</span>, <span class="ident">connection_info</span>)<span class="question-mark">?</span>;
+        <span class="ident">connect_auth</span>(<span class="kw-2">&amp;mut</span> <span class="ident">rv</span>, <span class="ident">connection_info</span>)<span class="question-mark">?</span>;
     }
 
     <span class="kw">if</span> <span class="ident">connection_info</span>.<span class="ident">db</span> <span class="op">!</span><span class="op">=</span> <span class="number">0</span> {
         <span class="kw">match</span> <span class="ident">cmd</span>(<span class="string">&quot;SELECT&quot;</span>)
             .<span class="ident">arg</span>(<span class="ident">connection_info</span>.<span class="ident">db</span>)
-            .<span class="ident">query</span>::<span class="op">&lt;</span><span class="ident">Value</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">rv</span>)
+            .<span class="ident">query</span>::<span class="op">&lt;</span><span class="ident">Value</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="ident">rv</span>)
         {
             <span class="prelude-val">Ok</span>(<span class="ident">Value::Okay</span>) =&gt; {}
             <span class="kw">_</span> =&gt; <span class="macro">fail!</span>((
@@ -1856,20 +1857,20 @@
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">ConnectionLike</span> {
     <span class="doccomment">/// Sends an already encoded (packed) command into the TCP socket and</span>
     <span class="doccomment">/// reads the single response from it.</span>
-    <span class="kw">fn</span> <span class="ident">req_packed_command</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">cmd</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="ident">RedisResult</span><span class="op">&lt;</span><span class="ident">Value</span><span class="op">&gt;</span>;
+    <span class="kw">fn</span> <span class="ident">req_packed_command</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">cmd</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="ident">RedisResult</span><span class="op">&lt;</span><span class="ident">Value</span><span class="op">&gt;</span>;
 
     <span class="doccomment">/// Sends multiple already encoded (packed) command into the TCP socket</span>
     <span class="doccomment">/// and reads `count` responses from it.  This is used to implement</span>
     <span class="doccomment">/// pipelining.</span>
     <span class="kw">fn</span> <span class="ident">req_packed_commands</span>(
-        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
+        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
         <span class="ident">cmd</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
         <span class="ident">offset</span>: <span class="ident">usize</span>,
         <span class="ident">count</span>: <span class="ident">usize</span>,
     ) -&gt; <span class="ident">RedisResult</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Value</span><span class="op">&gt;</span><span class="op">&gt;</span>;
 
     <span class="doccomment">/// Sends a [Cmd](Cmd) into the TCP socket and reads a single response from it.</span>
-    <span class="kw">fn</span> <span class="ident">req_command</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">cmd</span>: <span class="kw-2">&amp;</span><span class="ident">Cmd</span>) -&gt; <span class="ident">RedisResult</span><span class="op">&lt;</span><span class="ident">Value</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">req_command</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">cmd</span>: <span class="kw-2">&amp;</span><span class="ident">Cmd</span>) -&gt; <span class="ident">RedisResult</span><span class="op">&lt;</span><span class="ident">Value</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">pcmd</span> <span class="op">=</span> <span class="ident">cmd</span>.<span class="ident">get_packed_command</span>();
         <span class="self">self</span>.<span class="ident">req_packed_command</span>(<span class="kw-2">&amp;</span><span class="ident">pcmd</span>)
     }
@@ -1887,7 +1888,7 @@
     }
 
     <span class="doccomment">/// Check that all connections it has are available (`PING` internally).</span>
-    <span class="kw">fn</span> <span class="ident">check_connection</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">bool</span>;
+    <span class="kw">fn</span> <span class="ident">check_connection</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">bool</span>;
 
     <span class="doccomment">/// Returns the connection status.</span>
     <span class="doccomment">///</span>
@@ -1911,14 +1912,14 @@
     <span class="doccomment">/// does not read a response.  This is useful for commands like</span>
     <span class="doccomment">/// `MONITOR` which yield multiple items.  This needs to be used with</span>
     <span class="doccomment">/// care because it changes the state of the connection.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">send_packed_command</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">cmd</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="ident">RedisResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">send_packed_command</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">cmd</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="ident">RedisResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">con</span>.<span class="ident">send_bytes</span>(<span class="ident">cmd</span>)<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(())
     }
 
     <span class="doccomment">/// Fetches a single response from the connection.  This is useful</span>
     <span class="doccomment">/// if used in combination with `send_packed_command`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">recv_response</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">RedisResult</span><span class="op">&lt;</span><span class="ident">Value</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">recv_response</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">RedisResult</span><span class="op">&lt;</span><span class="ident">Value</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">read_response</span>()
     }
 
@@ -1941,14 +1942,14 @@
     }
 
     <span class="doccomment">/// Creates a [`PubSub`] instance for this connection.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">as_pubsub</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">PubSub</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">as_pubsub</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">PubSub</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span> {
         <span class="comment">// NOTE: The pubsub flag is intentionally not raised at this time since</span>
         <span class="comment">// running commands within the pubsub state should not try and exit from</span>
         <span class="comment">// the pubsub state.</span>
         <span class="ident">PubSub::new</span>(<span class="self">self</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">exit_pubsub</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">RedisResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">exit_pubsub</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">RedisResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">clear_active_subscriptions</span>();
         <span class="kw">if</span> <span class="ident">res</span>.<span class="ident">is_ok</span>() {
             <span class="self">self</span>.<span class="ident">pubsub</span> <span class="op">=</span> <span class="bool-val">false</span>;
@@ -1964,7 +1965,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// Any active subscriptions are unsubscribed. In the event of an error, the connection is</span>
     <span class="doccomment">/// dropped.</span>
-    <span class="kw">fn</span> <span class="ident">clear_active_subscriptions</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">RedisResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">clear_active_subscriptions</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">RedisResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="comment">// Responses to unsubscribe commands return in a 3-tuple with values</span>
         <span class="comment">// (&quot;unsubscribe&quot; or &quot;punsubscribe&quot;, name of subscription removed, count of remaining subs).</span>
         <span class="comment">// The &quot;count of remaining subs&quot; includes both pattern subscriptions and non pattern</span>
@@ -1977,7 +1978,7 @@
 
             <span class="comment">// Grab a reference to the underlying connection so that we may send</span>
             <span class="comment">// the commands without immediately blocking for a response.</span>
-            <span class="kw">let</span> <span class="ident">con</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">con</span>;
+            <span class="kw">let</span> <span class="ident">con</span> <span class="op">=</span> <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">con</span>;
 
             <span class="comment">// Execute commands</span>
             <span class="ident">con</span>.<span class="ident">send_bytes</span>(<span class="kw-2">&amp;</span><span class="ident">unsubscribe</span>)<span class="question-mark">?</span>;
@@ -2011,7 +2012,7 @@
     }
 
     <span class="doccomment">/// Fetches a single response from the connection.</span>
-    <span class="kw">fn</span> <span class="ident">read_response</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">RedisResult</span><span class="op">&lt;</span><span class="ident">Value</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">read_response</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">RedisResult</span><span class="op">&lt;</span><span class="ident">Value</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">con</span> {
             <span class="ident">ActualConnection::Tcp</span>(<span class="ident">TcpConnection</span> { <span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">reader</span>, .. }) =&gt; {
                 <span class="self">self</span>.<span class="ident">parser</span>.<span class="ident">parse_value</span>(<span class="ident">reader</span>)
@@ -2055,7 +2056,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">ConnectionLike</span> <span class="kw">for</span> <span class="ident">Connection</span> {
-    <span class="kw">fn</span> <span class="ident">req_packed_command</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">cmd</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="ident">RedisResult</span><span class="op">&lt;</span><span class="ident">Value</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">req_packed_command</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">cmd</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="ident">RedisResult</span><span class="op">&lt;</span><span class="ident">Value</span><span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">pubsub</span> {
             <span class="self">self</span>.<span class="ident">exit_pubsub</span>()<span class="question-mark">?</span>;
         }
@@ -2065,7 +2066,7 @@
     }
 
     <span class="kw">fn</span> <span class="ident">req_packed_commands</span>(
-        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
+        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
         <span class="ident">cmd</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
         <span class="ident">offset</span>: <span class="ident">usize</span>,
         <span class="ident">count</span>: <span class="ident">usize</span>,
@@ -2111,7 +2112,7 @@
         <span class="self">self</span>.<span class="ident">con</span>.<span class="ident">is_open</span>()
     }
 
-    <span class="kw">fn</span> <span class="ident">check_connection</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">bool</span> {
+    <span class="kw">fn</span> <span class="ident">check_connection</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="ident">cmd</span>(<span class="string">&quot;PING&quot;</span>).<span class="ident">query</span>::<span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>(<span class="self">self</span>).<span class="ident">is_ok</span>()
     }
 }
@@ -2143,22 +2144,22 @@
     }
 
     <span class="doccomment">/// Subscribes to a new channel.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">subscribe</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">ToRedisArgs</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">channel</span>: <span class="ident">T</span>) -&gt; <span class="ident">RedisResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">subscribe</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">ToRedisArgs</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">channel</span>: <span class="ident">T</span>) -&gt; <span class="ident">RedisResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="prelude-val">Ok</span>(<span class="ident">cmd</span>(<span class="string">&quot;SUBSCRIBE&quot;</span>).<span class="ident">arg</span>(<span class="ident">channel</span>).<span class="ident">query</span>(<span class="self">self</span>.<span class="ident">con</span>)<span class="question-mark">?</span>)
     }
 
     <span class="doccomment">/// Subscribes to a new channel with a pattern.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">psubscribe</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">ToRedisArgs</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">pchannel</span>: <span class="ident">T</span>) -&gt; <span class="ident">RedisResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">psubscribe</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">ToRedisArgs</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">pchannel</span>: <span class="ident">T</span>) -&gt; <span class="ident">RedisResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="prelude-val">Ok</span>(<span class="ident">cmd</span>(<span class="string">&quot;PSUBSCRIBE&quot;</span>).<span class="ident">arg</span>(<span class="ident">pchannel</span>).<span class="ident">query</span>(<span class="self">self</span>.<span class="ident">con</span>)<span class="question-mark">?</span>)
     }
 
     <span class="doccomment">/// Unsubscribes from a channel.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">unsubscribe</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">ToRedisArgs</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">channel</span>: <span class="ident">T</span>) -&gt; <span class="ident">RedisResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">unsubscribe</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">ToRedisArgs</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">channel</span>: <span class="ident">T</span>) -&gt; <span class="ident">RedisResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="prelude-val">Ok</span>(<span class="ident">cmd</span>(<span class="string">&quot;UNSUBSCRIBE&quot;</span>).<span class="ident">arg</span>(<span class="ident">channel</span>).<span class="ident">query</span>(<span class="self">self</span>.<span class="ident">con</span>)<span class="question-mark">?</span>)
     }
 
     <span class="doccomment">/// Unsubscribes from a channel with a pattern.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">punsubscribe</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">ToRedisArgs</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">pchannel</span>: <span class="ident">T</span>) -&gt; <span class="ident">RedisResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">punsubscribe</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">ToRedisArgs</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">pchannel</span>: <span class="ident">T</span>) -&gt; <span class="ident">RedisResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="prelude-val">Ok</span>(<span class="ident">cmd</span>(<span class="string">&quot;PUNSUBSCRIBE&quot;</span>).<span class="ident">arg</span>(<span class="ident">pchannel</span>).<span class="ident">query</span>(<span class="self">self</span>.<span class="ident">con</span>)<span class="question-mark">?</span>)
     }
 
@@ -2168,7 +2169,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// The message itself is still generic and can be converted into an</span>
     <span class="doccomment">/// appropriate type through the helper methods on it.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_message</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">RedisResult</span><span class="op">&lt;</span><span class="ident">Msg</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_message</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">RedisResult</span><span class="op">&lt;</span><span class="ident">Msg</span><span class="op">&gt;</span> {
         <span class="kw">loop</span> {
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">msg</span>) <span class="op">=</span> <span class="ident">Msg::from_value</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">con</span>.<span class="ident">recv_response</span>()<span class="question-mark">?</span>) {
                 <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">msg</span>);
@@ -2189,7 +2190,7 @@
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">Drop</span> <span class="kw">for</span> <span class="ident">PubSub</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">drop</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
+    <span class="kw">fn</span> <span class="ident">drop</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
         <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">con</span>.<span class="ident">exit_pubsub</span>();
     }
 }
@@ -2310,9 +2311,9 @@
     <span class="ident">C</span>: <span class="ident">ConnectionLike</span>,
     <span class="ident">K</span>: <span class="ident">ToRedisArgs</span>,
     <span class="ident">T</span>,
-    <span class="ident">F</span>: <span class="ident">FnMut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">C</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Pipeline</span>) -&gt; <span class="ident">RedisResult</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    <span class="ident">F</span>: <span class="ident">FnMut</span>(<span class="kw-2">&amp;mut</span> <span class="ident">C</span>, <span class="kw-2">&amp;mut</span> <span class="ident">Pipeline</span>) -&gt; <span class="ident">RedisResult</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>,
 <span class="op">&gt;</span>(
-    <span class="ident">con</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">C</span>,
+    <span class="ident">con</span>: <span class="kw-2">&amp;mut</span> <span class="ident">C</span>,
     <span class="ident">keys</span>: <span class="kw-2">&amp;</span>[<span class="ident">K</span>],
     <span class="ident">func</span>: <span class="ident">F</span>,
 ) -&gt; <span class="ident">RedisResult</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
@@ -2504,5 +2505,4 @@
 }
 </code></pre></div>
 </section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="redis" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
-    <script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script>
 </body></html>

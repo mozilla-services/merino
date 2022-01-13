@@ -1,3 +1,3 @@
 (function() {var implementors = {};
-implementors["merino_suggest"] = [{"text":"impl <a class=\"trait\" href=\"https://doc.rust-lang.org/1.57.0/alloc/string/trait.ToString.html\" title=\"trait alloc::string::ToString\">ToString</a> for <a class=\"enum\" href=\"merino_suggest/enum.CacheStatus.html\" title=\"enum merino_suggest::CacheStatus\">CacheStatus</a>","synthetic":false,"types":["merino_suggest::CacheStatus"]}];
+implementors["merino_suggest"] = [{"text":"impl <a class=\"trait\" href=\"https://doc.rust-lang.org/1.58.0/alloc/string/trait.ToString.html\" title=\"trait alloc::string::ToString\">ToString</a> for <a class=\"enum\" href=\"merino_suggest/enum.CacheStatus.html\" title=\"enum merino_suggest::CacheStatus\">CacheStatus</a>","synthetic":false,"types":["merino_suggest::CacheStatus"]}];
 if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()

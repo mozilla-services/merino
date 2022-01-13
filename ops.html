@@ -81,7 +81,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded affix "><a href="intro.html">Intro</a></li><li class="chapter-item expanded affix "><li class="part-title">General Documentation</li><li class="chapter-item expanded "><a href="api.html"><strong aria-hidden="true">1.</strong> Using the HTTP API</a></li><li class="chapter-item expanded "><a href="firefox.html"><strong aria-hidden="true">2.</strong> Configuring Firefox and Merino Environments</a></li><li class="chapter-item expanded "><a href="ops.html" class="active"><strong aria-hidden="true">3.</strong> Configuring Merino (Operations)</a></li><li class="chapter-item expanded "><a href="data.html"><strong aria-hidden="true">4.</strong> Data collection</a></li><li class="chapter-item expanded "><a href="dev/index.html"><strong aria-hidden="true">5.</strong> Working on the code</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="dev/showroom.html"><strong aria-hidden="true">5.1.</strong> Merino Showroom</a></li><li class="chapter-item expanded "><a href="dev/logging-and-metrics.html"><strong aria-hidden="true">5.2.</strong> Logging and Metrics</a></li><li class="chapter-item expanded "><a href="dev/testing.html"><strong aria-hidden="true">5.3.</strong> Testing Strategies</a></li><li class="chapter-item expanded "><a href="dev/dependencies.html"><strong aria-hidden="true">5.4.</strong> Development Dependencies</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Architecture Decision Records</li><li class="chapter-item expanded affix "><a href="adrs/adr_0001_logging.html">ADR 0001 - Logging</a></li><li class="chapter-item expanded affix "><a href="adrs/adr_0002_hashing.html">ADR 0002 - Hashing</a></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="intro.html">Intro</a></li><li class="chapter-item expanded affix "><li class="part-title">General Documentation</li><li class="chapter-item expanded "><a href="api.html"><strong aria-hidden="true">1.</strong> Using the HTTP API</a></li><li class="chapter-item expanded "><a href="firefox.html"><strong aria-hidden="true">2.</strong> Configuring Firefox and Merino Environments</a></li><li class="chapter-item expanded "><a href="ops.html" class="active"><strong aria-hidden="true">3.</strong> Configuring Merino (Operations)</a></li><li class="chapter-item expanded "><a href="data.html"><strong aria-hidden="true">4.</strong> Data collection</a></li><li class="chapter-item expanded "><a href="dev/index.html"><strong aria-hidden="true">5.</strong> Working on the code</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="dev/dependencies.html"><strong aria-hidden="true">5.1.</strong> Development Dependencies</a></li><li class="chapter-item expanded "><a href="dev/logging-and-metrics.html"><strong aria-hidden="true">5.2.</strong> Logging and Metrics</a></li><li class="chapter-item expanded "><a href="dev/testing.html"><strong aria-hidden="true">5.3.</strong> Testing Strategies</a></li><li class="chapter-item expanded "><a href="dev/admin.html"><strong aria-hidden="true">5.4.</strong> Merino Admin</a></li><li class="chapter-item expanded "><a href="dev/showroom.html"><strong aria-hidden="true">5.5.</strong> Merino Showroom</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Architecture Decision Records</li><li class="chapter-item expanded affix "><a href="adrs/adr_0001_logging.html">ADR 0001 - Logging</a></li><li class="chapter-item expanded affix "><a href="adrs/adr_0002_hashing.html">ADR 0002 - Hashing</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -190,7 +190,11 @@ root of the server, they will be redirected to this URL. Preferable a public
 wiki page that explains what the server is and does.</p>
 </li>
 <li>
-<p><code>log_full_request</code> (<code>MERINO_LOG_FULL_REQUEST</code>) - Boolean that enables logging the entire suggestion request object as a part of the tracing log, including the search query. When the setting is false (default), the suggest request object should be logged, but the search query should be blank. Note that access to the collected query logs is restricted.</p>
+<p><code>log_full_request</code> (<code>MERINO_LOG_FULL_REQUEST</code>) - Boolean that enables logging
+the entire suggestion request object as a part of the tracing log, including
+the search query. When the setting is false (default), the suggest request
+object should be logged, but the search query should be blank. Note that
+access to the collected query logs is restricted.</p>
 </li>
 </ul>
 <h3 id="http"><a class="header" href="#http">HTTP</a></h3>
@@ -363,13 +367,18 @@ respond.</p>
 <ul>
 <li><code>type=timeout</code></li>
 <li><code>inner</code> - Another provider configuration to generate suggestions with.</li>
+<li><code>max_time_ms</code> - The time, in milliseconds, that a provider has to respond
+before an empty result is returned.</li>
 </ul>
 </li>
 <li>
-<p>KeywordFilter - Filters the suggestions coming from the wrapped provider with the given blocklist.</p>
+<p>KeywordFilter - Filters the suggestions coming from the wrapped provider with
+the given blocklist.</p>
 <ul>
 <li><code>type=keyword_filter</code></li>
-<li><code>suggestion_blocklist</code> - The map used to define the blocklist rules. Each entry contains a rule id and an associated regular expression that reccommended titles are matched against.</li>
+<li><code>suggestion_blocklist</code> - The map used to define the blocklist rules. Each
+entry contains a rule id and an associated regular expression that
+recommended titles are matched against.</li>
 <li><code>inner</code> - The wrapped provider to draw suggestions from.</li>
 </ul>
 <p><em>Example</em>:</p>
@@ -377,7 +386,7 @@ respond.</p>
   filtered:
     type: keyword_filter
     suggestion_blocklist:
-      no_banana: '(Banana|banana|plant)'
+      no_banana: &quot;(Banana|banana|plant)&quot;
     inner:
       type: multiplexer
       providers:
@@ -412,7 +421,8 @@ with this period. Note that expired entries are also removed dynamically if
 a matching request is processed.</li>
 <li><code>max_removed_entries</code> - While running the cleanup task, at most this many
 entries will be removed before cancelling the task. This should be used to
-limit the maximum amount of time the cleanup task takes. Defaults to 100_000.</li>
+limit the maximum amount of time the cleanup task takes. Defaults to
+100_000.</li>
 <li><code>default_lock_timeout_sec</code> - The amount of time a cache entry can be locked
 for writing.</li>
 <li><code>inner</code> - Another provider configuration to generate suggestions with.</li>
