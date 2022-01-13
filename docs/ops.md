@@ -41,7 +41,11 @@ The names given below are of the form "`yaml.path` (`ENVIRONMENT_VAR`)"
   root of the server, they will be redirected to this URL. Preferable a public
   wiki page that explains what the server is and does.
 
-- `log_full_request` (`MERINO_LOG_FULL_REQUEST`) - Boolean that enables logging the entire suggestion request object as a part of the tracing log, including the search query. When the setting is false (default), the suggest request object should be logged, but the search query should be blank. Note that access to the collected query logs is restricted.
+- `log_full_request` (`MERINO_LOG_FULL_REQUEST`) - Boolean that enables logging
+  the entire suggestion request object as a part of the tracing log, including
+  the search query. When the setting is false (default), the suggest request
+  object should be logged, but the search query should be blank. Note that
+  access to the collected query logs is restricted.
 
 ### HTTP
 
@@ -214,11 +218,16 @@ These are providers that extend, combine, or otherwise modify other providers.
 
   - `type=timeout`
   - `inner` - Another provider configuration to generate suggestions with.
+  - `max_time_ms` - The time, in milliseconds, that a provider has to respond
+    before an empty result is returned.
 
-- KeywordFilter - Filters the suggestions coming from the wrapped provider with the given blocklist.
+- KeywordFilter - Filters the suggestions coming from the wrapped provider with
+  the given blocklist.
 
   - `type=keyword_filter`
-  - `suggestion_blocklist` - The map used to define the blocklist rules. Each entry contains a rule id and an associated regular expression that reccommended titles are matched against.
+  - `suggestion_blocklist` - The map used to define the blocklist rules. Each
+    entry contains a rule id and an associated regular expression that
+    recommended titles are matched against.
   - `inner` - The wrapped provider to draw suggestions from.
 
   _Example_:
@@ -228,7 +237,7 @@ These are providers that extend, combine, or otherwise modify other providers.
     filtered:
       type: keyword_filter
       suggestion_blocklist:
-        no_banana: '(Banana|banana|plant)'
+        no_banana: "(Banana|banana|plant)"
       inner:
         type: multiplexer
         providers:
@@ -260,7 +269,8 @@ use.
     a matching request is processed.
   - `max_removed_entries` - While running the cleanup task, at most this many
     entries will be removed before cancelling the task. This should be used to
-    limit the maximum amount of time the cleanup task takes. Defaults to 100_000.
+    limit the maximum amount of time the cleanup task takes. Defaults to
+    100_000.
   - `default_lock_timeout_sec` - The amount of time a cache entry can be locked
     for writing.
   - `inner` - Another provider configuration to generate suggestions with.
