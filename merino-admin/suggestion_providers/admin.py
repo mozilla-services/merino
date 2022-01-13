@@ -4,18 +4,19 @@ from polymorphic.admin import (
     PolymorphicChildModelAdmin,
 )
 from .models import (
-    ProviderConfig,
-    RemoteSettingsConfig,
-    MemoryCacheConfig,
-    RedisCacheConfig,
-    MultiplexerConfig,
-    TimeoutConfig,
-    FixedConfig,
-    KeywordFilterConfig,
-    StealthConfig,
     DebugConfig,
-    WikiFruitConfig,
+    FixedConfig,
+    Keyword,
+    KeywordFilterConfig,
+    MemoryCacheConfig,
+    MultiplexerConfig,
     NullProviderConfig,
+    ProviderConfig,
+    RedisCacheConfig,
+    RemoteSettingsConfig,
+    StealthConfig,
+    TimeoutConfig,
+    WikiFruitConfig,
 )
 
 
@@ -23,14 +24,22 @@ from .models import (
 class ProviderConfigAdmin(PolymorphicParentModelAdmin):
     base_model = ProviderConfig
 
-    list_display = ('id', 'provider_type', 'exported_name')
+    list_display = ("id", "provider_type", "exported_name")
 
     def get_child_models(self):
         return ProviderConfig.__subclasses__()
 
 
 class BaseConcreteProviderConfigAdmin(PolymorphicChildModelAdmin):
-    list_display = ('id', 'provider_type', 'exported_name')
+    list_display = ("id", "provider_type", "exported_name")
+
+    def get_fieldsets(self, request, obj=None):
+        return [
+            (None, {
+                'fields': self.get_fields(request, obj=obj),
+                'description': self.base_model.help_text
+            })
+        ]
 
 
 @admin.register(RemoteSettingsConfig)
@@ -63,9 +72,30 @@ class FixedConfigAdmin(BaseConcreteProviderConfigAdmin):
     base_model = FixedConfig
 
 
+@admin.register(Keyword)
+class KeywordAdmin(admin.ModelAdmin):
+    base_model = Keyword
+    list_display = ['id', 'pattern']
+
+    def get_fieldsets(self, request, obj=None):
+        return [
+            (None, {
+                'fields': self.get_fields(request, obj=obj),
+                'description': self.base_model.help_text
+            })
+        ]
+
+
+class KeywordInlineAdmin(admin.TabularInline):
+    model = KeywordFilterConfig.suggestion_blocklist.through
+    extra = 0
+
+
 @admin.register(KeywordFilterConfig)
 class KeywordFilterConfigAdmin(BaseConcreteProviderConfigAdmin):
     base_model = KeywordFilterConfig
+    inlines = [KeywordInlineAdmin]
+    exclude = ['suggestion_blocklist']
 
 
 @admin.register(StealthConfig)

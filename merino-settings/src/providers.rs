@@ -160,7 +160,7 @@ impl Default for RemoteSettingsConfig {
 #[serde(default)]
 pub struct TimeoutConfig {
     #[serde_as(as = "DurationSeconds")]
-    #[serde(rename = "default_lock_timeout_sec")]
+    #[serde(rename = "max_time")]
     pub max_time: Duration,
 
     pub inner: Box<SuggestionProviderConfig>,
