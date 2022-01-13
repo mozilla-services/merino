@@ -1,5 +1,5 @@
 use serde::{Deserialize, Serialize};
-use serde_with::{serde_as, DurationSeconds};
+use serde_with::{serde_as, DurationMilliSeconds, DurationSeconds};
 use std::collections::HashMap;
 use std::time::Duration;
 
@@ -159,8 +159,8 @@ impl Default for RemoteSettingsConfig {
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(default)]
 pub struct TimeoutConfig {
-    #[serde_as(as = "DurationSeconds")]
-    #[serde(rename = "max_time")]
+    #[serde_as(as = "DurationMilliSeconds")]
+    #[serde(rename = "max_time_ms")]
     pub max_time: Duration,
 
     pub inner: Box<SuggestionProviderConfig>,
