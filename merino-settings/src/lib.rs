@@ -42,7 +42,7 @@ use serde::{Deserialize, Serialize};
 use serde_with::{serde_as, DisplayFromStr};
 use std::{collections::HashMap, net::SocketAddr, path::PathBuf, str::FromStr};
 
-use crate::providers::SuggestionProviderConfig;
+use crate::providers::{SuggestionProviderConfig, SuggestionProviderSettings};
 
 /// Top level settings object for Merino.
 #[serde_as]
@@ -60,6 +60,7 @@ pub struct Settings {
     pub http: HttpSettings,
 
     /// Providers to use to generate suggestions
+    #[serde(default)]
     pub suggestion_providers: HashMap<String, SuggestionProviderConfig>,
 
     /// Logging settings.
@@ -303,7 +304,12 @@ impl Settings {
         s.merge(Environment::default().prefix("MERINO").separator("__"))
             .context("merging config")?;
 
-        serde_path_to_error::deserialize(s).context("Deserializing settings")
+        let mut settings: Settings =
+            serde_path_to_error::deserialize(s).context("Deserializing settings")?;
+        let provider_settings = SuggestionProviderSettings::load()?;
+        settings.suggestion_providers = provider_settings.suggestion_providers;
+
+        Ok(settings)
     }
 
     /// Load settings from configuration files for tests.
@@ -323,7 +329,11 @@ impl Settings {
         s.merge(File::with_name("../config/local_test").required(false))
             .expect("Could not load local settings for tests");
 
-        s.try_into().expect("Could not convert settings")
+        let mut settings: Settings = s.try_into().expect("Could not convert settings");
+        let provider_settings = SuggestionProviderSettings::load_for_tests();
+        settings.suggestion_providers = provider_settings.suggestion_providers;
+
+        settings
     }
 }
 

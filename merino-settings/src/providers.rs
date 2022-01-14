@@ -1,3 +1,5 @@
+use anyhow::{Context, Result};
+use config::{Config, File};
 use serde::{Deserialize, Serialize};
 use serde_with::{serde_as, DurationMilliSeconds, DurationSeconds};
 use std::collections::HashMap;
@@ -212,6 +214,60 @@ impl Default for StealthConfig {
         Self {
             inner: Box::new(SuggestionProviderConfig::Null),
         }
+    }
+}
+
+/// Settings for Merino suggestion providers.
+#[derive(Serialize, Deserialize)]
+pub struct SuggestionProviderSettings {
+    pub suggestion_providers: HashMap<String, SuggestionProviderConfig>,
+}
+
+impl SuggestionProviderSettings {
+    /// Load settings for suggestions providers.
+    ///
+    /// The organization of the provider configuration files is identical to the
+    /// top level settings.
+    ///
+    /// Note that settings for suggestion providers cannot be configured via
+    /// environment variables.
+    ///
+    /// # Errors
+    /// If any of the configured values are invalid, or if any of the required
+    /// configuration files are missing.
+    pub fn load() -> Result<Self> {
+        let mut s = Config::new();
+
+        // Start off with the base config.
+        s.merge(File::with_name("./config/providers/base"))
+            .context("loading base config for suggestion providers")?;
+
+        // Merge in an environment specific config.
+        let merino_env = std::env::var("MERINO_ENV").unwrap_or_else(|_| "development".to_string());
+        s.merge(File::with_name(&format!("./config/providers/{}", merino_env)).required(false))
+            .context("loading environment config for suggestion providers")?;
+
+        // Add a local configuration file that is `.gitignore`ed.
+        s.merge(File::with_name("./config/providers/local").required(false))
+            .context("loading local config for suggestion providers")?;
+
+        serde_path_to_error::deserialize(s)
+            .context("Deserializing settings for suggestion providers")
+    }
+
+    /// Load settings for suggestion providers from configuration files for tests.
+    pub fn load_for_tests() -> Self {
+        let mut s = Config::new();
+
+        s.merge(File::with_name("../config/providers/test"))
+            .expect("Could not load test settings for suggestion providers");
+
+        // Add a local configuration file that is `.gitignore`ed.
+        s.merge(File::with_name("../config/providers/local_test").required(false))
+            .expect("Could not load local test settings for suggestion providers");
+
+        s.try_into()
+            .expect("Could not convert settings for suggestion providers")
     }
 }
 

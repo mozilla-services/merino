@@ -5,7 +5,9 @@
 Merino's settings can be specified in two ways: a YAML file placed in a specific
 location, or via environment variables. Not all settings can be set with
 environment variables, however. Notably, provider configuration must be done
-with YAML.
+with its own YAML file.
+
+### [File organization](#file-organization)
 
 These are the settings sources, with later sources overriding earlier ones.
 
@@ -163,8 +165,14 @@ Configuration for determining the location of users.
 
 ### Provider Configuration
 
-The configuration for suggestion providers. These settings cannot be configured
-via environment variable.
+The configuration for suggestion providers.
+
+Note that the provider settings are configured by separate YAML files located in
+`config/providers`. These settings cannot be configured via environment variables.
+The file organization is identical to the [top level settings](#file-organization)
+with the same source overriding rule.
+
+Each configuration file follows the structure:
 
 - `suggestion_providers` - Providers to use to generate suggestions. This should
   be a map where the keys are provider IDs will be used in the API to enable and
