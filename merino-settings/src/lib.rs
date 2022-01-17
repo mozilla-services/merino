@@ -307,7 +307,7 @@ impl Settings {
         let mut settings: Settings =
             serde_path_to_error::deserialize(s).context("Deserializing settings")?;
         let provider_settings = SuggestionProviderSettings::load()?;
-        settings.suggestion_providers = provider_settings.suggestion_providers;
+        settings.suggestion_providers = provider_settings.0;
 
         Ok(settings)
     }
@@ -331,7 +331,7 @@ impl Settings {
 
         let mut settings: Settings = s.try_into().expect("Could not convert settings");
         let provider_settings = SuggestionProviderSettings::load_for_tests();
-        settings.suggestion_providers = provider_settings.suggestion_providers;
+        settings.suggestion_providers = provider_settings.0;
 
         settings
     }

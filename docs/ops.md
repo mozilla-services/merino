@@ -172,16 +172,39 @@ Note that the provider settings are configured by separate YAML files located in
 The file organization is identical to the [top level settings](#file-organization)
 with the same source overriding rule.
 
-Each configuration file follows the structure:
-
-- `suggestion_providers` - Providers to use to generate suggestions. This should
-  be a map where the keys are provider IDs will be used in the API to enable and
-  disable providers per request. The values are provider configuration objects,
-  detailed below. Some providers can take other providers as children. Because
-  of this, each key in this config is referred to as a "provider tree".
+#### Configuration Object
 
 Each provider configuration has a `type`, listed below, and it's own individual
 settings.
+
+_Example_:
+
+```yaml
+wiki_fruit:
+  type: wiki_fruit
+```
+
+#### Configuration File
+
+Each configuration file should be a map where the keys are provider IDs will be
+used in the API to enable and disable providers per request. The values are
+provider configuration objects, detailed below. Some providers can takes other
+providers as children. Because of this, each key in this config is referred to
+as a "provider tree".
+
+_Example_:
+
+```yaml
+adm:
+  type: memory_cache
+  inner:
+    type: remote_settings
+    collection: "quicksuggest"
+wiki_fruit:
+  type: wiki_fruit
+debug:
+  type: debug
+```
 
 #### Leaf Providers
 
@@ -210,15 +233,14 @@ These are providers that extend, combine, or otherwise modify other providers.
   _Example_:
 
   ```yaml
-  suggestion_providers:
-    sample_multi:
-      type: multiplexer
-      providers:
-        - fixed:
-          type: fixed
-          value: I'm a banana
-        - debug:
-          type: debug
+  sample_multi:
+    type: multiplexer
+    providers:
+      - fixed:
+        type: fixed
+        value: I'm a banana
+      - debug:
+        type: debug
   ```
 
 - Timeout - Returns an empty response if the wrapped provider takes too long to
@@ -241,19 +263,18 @@ These are providers that extend, combine, or otherwise modify other providers.
   _Example_:
 
   ```yaml
-  suggestion_providers:
-    filtered:
-      type: keyword_filter
-      suggestion_blocklist:
-        no_banana: "(Banana|banana|plant)"
-      inner:
-        type: multiplexer
-        providers:
-          - fixed:
-            type: fixed
-            value: I'm a banana
-          - debug:
-            type: debug
+  filtered:
+    type: keyword_filter
+    suggestion_blocklist:
+      no_banana: "(Banana|banana|plant)"
+    inner:
+      type: multiplexer
+      providers:
+        - fixed:
+          type: fixed
+          value: I'm a banana
+        - debug:
+          type: debug
   ```
 
 - Stealth - Runs another provider, but hides the results. Useful for load
