@@ -219,6 +219,7 @@ impl Default for StealthConfig {
 
 /// Settings for Merino suggestion providers.
 #[derive(Serialize, Deserialize)]
+#[serde(transparent)]
 pub struct SuggestionProviderSettings(pub HashMap<String, SuggestionProviderConfig>);
 
 impl SuggestionProviderSettings {
@@ -250,7 +251,6 @@ impl SuggestionProviderSettings {
             .context("loading local config for suggestion providers")?;
 
         serde_path_to_error::deserialize(s)
-            .map(SuggestionProviderSettings)
             .context("Deserializing settings for suggestion providers")
     }
 
@@ -266,7 +266,6 @@ impl SuggestionProviderSettings {
             .expect("Could not load local test settings for suggestion providers");
 
         s.try_into()
-            .map(SuggestionProviderSettings)
             .expect("Could not convert settings for suggestion providers")
     }
 }
