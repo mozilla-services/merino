@@ -218,7 +218,7 @@ impl Default for StealthConfig {
 }
 
 /// Settings for Merino suggestion providers.
-#[derive(Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(transparent)]
 pub struct SuggestionProviderSettings(pub HashMap<String, SuggestionProviderConfig>);
 
