@@ -2,10 +2,7 @@
 
 mod domain;
 
-use std::{
-    convert::TryInto,
-    time::{Duration, Instant},
-};
+use std::time::{Duration, Instant};
 
 use crate::redis::domain::RedisSuggestions;
 use anyhow::Context;

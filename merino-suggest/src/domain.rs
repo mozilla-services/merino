@@ -3,7 +3,6 @@
 use anyhow::ensure;
 use rand::distributions::{Distribution, Standard};
 use serde::{de, Deserialize, Serialize};
-use std::convert::{TryFrom, TryInto};
 use std::fmt::Debug;
 
 /// Represents a value from 0.0 to 1.0, inclusive. That is: a portion of
