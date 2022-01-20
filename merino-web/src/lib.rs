@@ -54,7 +54,7 @@ use crate::providers::SuggestionProviderRef;
 /// # tokio_test::block_on(async {
 /// let listener = std::net::TcpListener::bind("127.0.0.1:8080")
 ///     .expect("Failed to bind port");
-/// let settings = merino_settings::Settings::load()
+/// let settings = merino_settings::Settings::load().await
 ///     .expect("Failed to load settings");
 /// let metrics_client = cadence::StatsdClient::from_sink("merino", cadence::NopMetricSink);
 /// let providers = merino_web::providers::SuggestionProviderRef::init(&settings, &metrics_client)
@@ -77,7 +77,7 @@ use crate::providers::SuggestionProviderRef;
 ///
 /// let listener = TcpListener::bind("127.0.0.1:8080")
 ///     .expect("Failed to bind port");
-/// let settings = merino_settings::Settings::load()
+/// let settings = merino_settings::Settings::load().await
 ///     .expect("Failed to load settings");
 /// let metrics_client = cadence::StatsdClient::from_sink("merino", cadence::NopMetricSink);
 /// let providers = merino_web::providers::SuggestionProviderRef::init(&settings, &metrics_client)

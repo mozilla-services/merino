@@ -167,10 +167,34 @@ Configuration for determining the location of users.
 
 The configuration for suggestion providers.
 
-Note that the provider settings are configured by separate YAML files located in
-`config/providers`. These settings cannot be configured via environment variables.
-The file organization is identical to the [top level settings](#file-organization)
-with the same source overriding rule.
+Note that the provider settings are configured either by a separate YAML file
+located in `config/providers` or by a remote source backed by an HTTP endpoint.
+You can use `provider_settings` to configure how & where Merino to load the
+settings.
+
+#### `Provider Settings`
+
+You can specify the "type" and the "location" of the provider settings. The
+"type" could be `local` or `remote`. For `local` sources, use `path` to specify
+the location; Use `uri` for `remote` sources. Note that only YAML is supported
+for remote sources, whereas all the common formats (JSON, YAML, TOML, etc) are
+supported for local sources.
+
+_Examples_:
+
+- A local source
+```yaml
+provider_settings:
+  type: local
+  path: ./config/providers/base.yaml
+```
+
+- A remote source
+```yaml
+provider_settings:
+  type: remote
+  uri: https://example.org/settings
+```
 
 #### Configuration Object
 

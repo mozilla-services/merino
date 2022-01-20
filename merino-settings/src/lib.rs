@@ -59,6 +59,9 @@ pub struct Settings {
     /// Settings for the HTTP server.
     pub http: HttpSettings,
 
+    /// Settings for the suggestion providers
+    pub provider_settings: ProviderSettings,
+
     /// Providers to use to generate suggestions
     #[serde(default)]
     pub suggestion_providers: HashMap<String, SuggestionProviderConfig>,
@@ -274,39 +277,51 @@ impl SentrySettings {
     }
 }
 
+/// Top-level settings for suggestion providers.
+///
+/// This configuration controls how & where Merino loads the suggestion
+/// providers.
+#[derive(Clone, Debug, Serialize, Deserialize)]
+#[serde(tag = "type", rename_all = "snake_case")]
+pub enum ProviderSettings {
+    /// A local source, located in `path`. This is used for non-production
+    /// environment
+    Local { path: String },
+
+    /// A remote source behind an HTTP endpoint. This is used for production.
+    Remote { uri: String },
+}
+
 impl Settings {
     /// Load settings from configuration files and environment variables.
     ///
     /// # Errors
     /// If any of the configured values are invalid, or if any of the required
     /// configuration files are missing.
-    pub fn load() -> Result<Self> {
-        let mut s = Config::new();
-
-        // Start off with the base config.
-        s.merge(File::with_name("./config/base"))
-            .context("loading base config")?;
-
-        // Merge in an environment specific config.
+    pub async fn load() -> Result<Self> {
         let merino_env = std::env::var("MERINO_ENV").unwrap_or_else(|_| "development".to_string());
-        s.set("env", merino_env.as_str())
-            .context("loading merino environment name")?;
-        s.merge(File::with_name(&format!("config/{}", s.get::<String>("env")?)).required(false))
-            .context("loading environment config")?;
 
-        // Add a local configuration file that is `.gitignore`ed.
-        s.merge(File::with_name("config/local").required(false))
-            .context("loading local config overrides")?;
-
-        // Add environment variables that start with "MERINO_" and have "__" to
-        // separate levels. For example, `MERINO_HTTP__LISTEN` maps to
-        // `Settings::http::listen`.
-        s.merge(Environment::default().prefix("MERINO").separator("__"))
-            .context("merging config")?;
+        let s = Config::builder()
+            // Start off with the base config.
+            .add_source(File::with_name("./config/base"))
+            // Merge in an environment specific config.
+            .add_source(File::with_name(&format!("config/{}", merino_env)).required(false))
+            // Add a local configuration file that is `.gitignore`ed.
+            .add_source(File::with_name("config/local").required(false))
+            // Add environment variables that start with "MERINO_" and have "__" to
+            // separate levels. For example, `MERINO_HTTP__LISTEN` maps to
+            // `Settings::http::listen`.
+            .add_source(Environment::default().prefix("MERINO").separator("__"))
+            .set_override("env", merino_env.as_str())
+            .context("loading merino environment name")?
+            .build()
+            .context("loading merino settings")?;
 
         let mut settings: Settings =
             serde_path_to_error::deserialize(s).context("Deserializing settings")?;
-        let provider_settings = SuggestionProviderSettings::load()?;
+        let provider_settings = SuggestionProviderSettings::load(&settings.provider_settings)
+            .await
+            .context("loading provider settings")?;
         settings.suggestion_providers = provider_settings.0;
 
         Ok(settings)
@@ -314,22 +329,20 @@ impl Settings {
 
     /// Load settings from configuration files for tests.
     pub fn load_for_tests() -> Self {
-        let mut s = Config::new();
+        let s = Config::builder()
+            // Start off with the base config.
+            .add_source(File::with_name("../config/base"))
+            // Merge in test specific config.
+            .add_source(File::with_name("../config/test"))
+            // Add a local  in test specific config.
+            .add_source(File::with_name("../config/local_test").required(false))
+            // Add a local configuration file that is `.gitignore`ed.
+            .set_override("env", "test")
+            .expect("Could not set env for tests")
+            .build()
+            .expect("Could not load settings for tests");
 
-        // Start off with the base config.
-        s.merge(File::with_name("../config/base"))
-            .expect("Could not load base settings");
-
-        // Merge in test specific config.
-        s.set("env", "test").expect("Could not set env for tests");
-        s.merge(File::with_name("../config/test"))
-            .expect("Could not load test settings");
-
-        // Add a local configuration file that is `.gitignore`ed.
-        s.merge(File::with_name("../config/local_test").required(false))
-            .expect("Could not load local settings for tests");
-
-        let mut settings: Settings = s.try_into().expect("Could not convert settings");
+        let mut settings: Settings = s.try_deserialize().expect("Could not convert settings");
         let provider_settings = SuggestionProviderSettings::load_for_tests();
         settings.suggestion_providers = provider_settings.0;
 
@@ -340,43 +353,39 @@ impl Settings {
 #[cfg(test)]
 mod tests {
     use crate::Settings;
-    use anyhow::{Context, Result};
-    use config::{Config, File};
+    use config::{builder::DefaultState, Config, ConfigBuilder, File};
     use parameterized::parameterized;
 
-    fn load_config_files(files: &[&str]) -> Result<Config> {
-        let mut config = Config::new();
+    fn load_config_files(files: &[&str]) -> ConfigBuilder<DefaultState> {
+        let mut builder = Config::builder();
         for f in files {
-            config
-                .merge(File::with_name(f))
-                .context(format!("Loading config {}", f))?;
+            builder = builder.add_source(File::with_name(f))
         }
-
-        Ok(config)
+        builder
     }
 
     #[parameterized(config_name = {"ci", "development", "production", "test"})]
     fn config_loads(config_name: &str) {
-        let mut config =
-            load_config_files(&["../config/base", &format!("../config/{}", config_name)])
-                .expect("could not read config files");
+        let mut builder =
+            load_config_files(&["../config/base", &format!("../config/{}", config_name)]);
 
         // config is a required field that should never be set in the provided files.
-        assert!(config.get_str("env").is_err());
-        config
-            .set("env", "config_name")
+        builder = builder
+            .set_override("env", config_name)
             .expect("Could not set value");
 
         // special case: prod needs sentry manually configured
         if config_name == "production" {
-            config
-                .set("sentry.dsn", "https://public@example.com/1")
+            builder = builder
+                .set_override("sentry.dsn", "https://public@example.com/1")
                 .expect("Could not set value")
-                .set("sentry.env", "test")
+                .set_override("sentry.env", "test")
                 .expect("Could not set value");
         }
 
-        let settings = config.try_into::<Settings>();
+        let config = builder.build().expect("Could not build Config");
+
+        let settings = config.try_deserialize::<Settings>();
         if let Err(err) = &settings {
             println!("Problem while testing {} config: {}", config_name, err);
         }
