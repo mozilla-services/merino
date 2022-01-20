@@ -405,9 +405,7 @@ mod tests {
             uri: server.url("/yaml_source"),
         };
 
-        let providers = SuggestionProviderSettings::load(&settings)
-            .await
-            .unwrap();
+        let providers = SuggestionProviderSettings::load(&settings).await.unwrap();
 
         remote_endpoint.assert();
         assert_eq!(providers.0.len(), 3);
@@ -431,9 +429,7 @@ mod tests {
             path: "../config/providers/development.yaml".to_owned(),
         };
 
-        let providers = SuggestionProviderSettings::load(&settings)
-            .await
-            .unwrap();
+        let providers = SuggestionProviderSettings::load(&settings).await.unwrap();
 
         assert_eq!(providers.0.len(), 3);
         assert!(matches!(

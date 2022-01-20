@@ -334,7 +334,7 @@ impl Settings {
             .add_source(File::with_name("../config/base"))
             // Merge in test specific config.
             .add_source(File::with_name("../config/test"))
-            // Add a local  in test specific config.
+            // Add a local in test specific config.
             .add_source(File::with_name("../config/local_test").required(false))
             // Add a local configuration file that is `.gitignore`ed.
             .set_override("env", "test")
