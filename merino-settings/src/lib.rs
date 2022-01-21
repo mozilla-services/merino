@@ -8,16 +8,16 @@
 //! 1. A base configuration checked into the repository, in `config/base.yaml`.
 //!    This provides the default values for most settings.
 //! 2. Per-environment configuration files in the `config` directory. The
-//!    environment is selected using the environment variable `MERINO_ENV`. The
+//!    environment is selected using the environment variable `MERINO__ENV`. The
 //!    settings for that environment are then loaded from `config/${env}.yaml`, if
 //!    it exists. The default environment is "development". A "production"
 //!    environment is also provided.
 //! 3. A local configuration file not checked into the repository, at
 //!    `config/local.yaml`. This file is in `.gitignore` and is safe to use for
 //!    local configuration and secrets if desired.
-//! 4. Environment variables that begin with `MERINO_` and use `__` as a level
+//! 4. Environment variables that begin with `MERINO` and use `__` as a level
 //!    separator. For example, `Settings::http::workers` can be controlled from the
-//!    environment variable `MERINO_HTTP__WORKERS`.
+//!    environment variable `MERINO__HTTP__WORKERS`.
 //!
 //! Tests should use `Settings::load_for_test` which only reads from
 //! `config/base.yaml`, `config/test.yaml`, and `config/local_test.yaml` (if it
@@ -49,7 +49,7 @@ use crate::providers::{SuggestionProviderConfig, SuggestionProviderSettings};
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Settings {
     /// The environment Merino is running in. Should only be set with the
-    /// `MERINO_ENV` environment variable.
+    /// `MERINO__ENV` environment variable.
     pub env: String,
 
     /// Enable additional features to debug the application. This should not be
@@ -299,7 +299,7 @@ impl Settings {
     /// If any of the configured values are invalid, or if any of the required
     /// configuration files are missing.
     pub async fn load() -> Result<Self> {
-        let merino_env = std::env::var("MERINO_ENV").unwrap_or_else(|_| "development".to_string());
+        let merino_env = std::env::var("MERINO__ENV").unwrap_or_else(|_| "development".to_string());
 
         let s = Config::builder()
             // Start off with the base config.
@@ -308,10 +308,10 @@ impl Settings {
             .add_source(File::with_name(&format!("config/{}", merino_env)).required(false))
             // Add a local configuration file that is `.gitignore`ed.
             .add_source(File::with_name("config/local").required(false))
-            // Add environment variables that start with "MERINO_" and have "__" to
-            // separate levels. For example, `MERINO_HTTP__LISTEN` maps to
+            // Add environment variables that start with "MERINO" and have "__" to
+            // separate levels. For example, `MERINO__HTTP__LISTEN` maps to
             // `Settings::http::listen`.
-            .add_source(Environment::default().prefix("MERINO").separator("__"))
+            .add_source(Environment::with_prefix("MERINO").separator("__"))
             .set_override("env", merino_env.as_str())
             .context("loading merino environment name")?
             .build()

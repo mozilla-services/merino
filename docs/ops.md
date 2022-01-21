@@ -15,7 +15,7 @@ These are the settings sources, with later sources overriding earlier ones.
   provides the default values for most settings.
 
 - Per-environment configuration files in the `config` directory. The environment
-  is selected using the environment variable `MERINO_ENV`. The settings for that
+  is selected using the environment variable `MERINO__ENV`. The settings for that
   environment are then loaded from `config/${env}.yaml`, if it exists. The
   default environment is "development". A "production" environment is also
   provided.
@@ -24,26 +24,26 @@ These are the settings sources, with later sources overriding earlier ones.
   `config/local.yaml`. This file is in `.gitignore` and is safe to use for local
   configuration and secrets if desired.
 
-- Environment variables that begin with `MERINO_` and use `__` (a double
+- Environment variables that begin with `MERINO` and use `__` (a double
   underscore) as a level separator. For example, `Settings::http::workers` can
-  be controlled from the environment variable `MERINO_HTTP__WORKERS`.
+  be controlled from the environment variable `MERINO__HTTP__WORKERS`.
 
 The names given below are of the form "`yaml.path` (`ENVIRONMENT_VAR`)"
 
 ### General
 
-- `env` (`MERINO_ENV`) - Only settable from environment variables. Controls
+- `env` (`MERINO__ENV`) - Only settable from environment variables. Controls
   which environment configuration is loaded, as described above.
 
-- `debug` (`MERINO_DEBUG`) - Boolean that enables additional features to debug
+- `debug` (`MERINO__DEBUG`) - Boolean that enables additional features to debug
   the application. This should not be set to true in public environments, as it
   reveals all configuration, including any configured secrets.
 
-- `public_documentation` (`MERINO_PUBLIC_DOCUMENTATION`) - When users visit the
+- `public_documentation` (`MERINO__PUBLIC_DOCUMENTATION`) - When users visit the
   root of the server, they will be redirected to this URL. Preferable a public
   wiki page that explains what the server is and does.
 
-- `log_full_request` (`MERINO_LOG_FULL_REQUEST`) - Boolean that enables logging
+- `log_full_request` (`MERINO__LOG_FULL_REQUEST`) - Boolean that enables logging
   the entire suggestion request object as a part of the tracing log, including
   the search query. When the setting is false (default), the suggest request
   object should be logged, but the search query should be blank. Note that
@@ -53,9 +53,9 @@ The names given below are of the form "`yaml.path` (`ENVIRONMENT_VAR`)"
 
 Settings for the HTTP server.
 
-- `http.listen` (`MERINO_HTTP__LISTEN`) - An IP and port to listen on, such as
+- `http.listen` (`MERINO__HTTP__LISTEN`) - An IP and port to listen on, such as
   `127.0.0.1:8080` or `0.0.0.0:80`.
-- `http.workers` (`MERINO_HTTP__WORKERS`) - Optional. The number of worker
+- `http.workers` (`MERINO__HTTP__WORKERS`) - Optional. The number of worker
   threads that should be spawned to handle tasks. If not provided will default
   to the number of logical CPU cores available.
 
@@ -71,13 +71,13 @@ Settings to control the format and amount of logs generated.
   - `mozlog` (default in production) - A single line per event, formatted as
     JSON in [MozLog](https://wiki.mozilla.org/Firefox/Services/Logging) format.
 
-- `logging.info` (`MERINO_LOGGING__LEVELS`) - Minimum level of logs that should
+- `logging.info` (`MERINO__LOGGING__LEVELS`) - Minimum level of logs that should
   be reported. This should be a number of _entries_ separated by commas (for
   environment variables) or specified as list (YAML).
 
   This will be combined with the contents of the `RUST_LOG` environment variable
   for compatibility. `RUST_LOG` will take precedence over this setting. If the
-  environment variable `MERINO_LOGGING__LEVELS` is specified, all the settings
+  environment variable `MERINO__LOGGING__LEVELS` is specified, all the settings
   in the YAML file will be ignored.
 
   Each entry can be one of `ERROR`, `WARN`, `INFO`, `DEBUG`, or `TRACE` (in
@@ -90,13 +90,13 @@ Settings to control the format and amount of logs generated.
 
 Settings for Statsd/Datadog style metrics reporting.
 
-- `metrics.sink_host` (`MERINO_METRICS__SINK_ADDRESS`) - The IP or hostname to
+- `metrics.sink_host` (`MERINO__METRICS__SINK_ADDRESS`) - The IP or hostname to
   send metrics to over UDP. Defaults to `0.0.0.0`.
 
-- `metrics.sink_port` (`MERINO_METRICS__SINK_PORT`) - The port to send metrics
+- `metrics.sink_port` (`MERINO__METRICS__SINK_PORT`) - The port to send metrics
   to over UDP. Defaults to 8125.
 
-- `max_queue_size_kb` (`MERINO_METRICS__MAX_QUEUE_SIZE_KB`) - The maximum size
+- `max_queue_size_kb` (`MERINO__METRICS__MAX_QUEUE_SIZE_KB`) - The maximum size
   of the buffer that holds events waiting to be sent. If unsent events rise
   above this, then metrics will be lost. Defaults to 32KB.
 
@@ -104,7 +104,7 @@ Settings for Statsd/Datadog style metrics reporting.
 
 Error reporting via Sentry.
 
-- `sentry.mode` (`MERINO_SENTRY__MODE`) - The type of Sentry integration to
+- `sentry.mode` (`MERINO__SENTRY__MODE`) - The type of Sentry integration to
   enable. One of `release`, `server_debug`, `local_debug`, or `disabled`. The
   two `debug` settings should only be used for local development.
 
@@ -135,7 +135,7 @@ See that page for DSN information. The following two settings are required:
 
 Connection to Redis. This is used by the Redis provider cache below.
 
-- `redis.url` (`MERINO_REDIS__URL`) - The URL to connect Redis at. Example:
+- `redis.url` (`MERINO__REDIS__URL`) - The URL to connect Redis at. Example:
   `redis://127.0.0.1/0`.
 
 ### Remote_settings
@@ -143,15 +143,15 @@ Connection to Redis. This is used by the Redis provider cache below.
 Connection to Remote Settings. This is used by the Remote Settings suggestion
 provider below.
 
-- `remote_settings.server` (`MERINO_REMOTE_SETTINGS__SERVER`) - The server to
+- `remote_settings.server` (`MERINO__REMOTE_SETTINGS__SERVER`) - The server to
   sync from. Example: `https://firefox.settings.services.mozilla.com`.
 
-- `remote_settings.default_bucket` (`MERINO_REMOTE_SETTINGS__DEFAULT_BUCKET`) -
+- `remote_settings.default_bucket` (`MERINO__REMOTE_SETTINGS__DEFAULT_BUCKET`) -
   The bucket to use for Remote Settings providers if not specified in the
   provider config. Example: "main".
 
 - `remote_settings.default_collection`
-  (`MERINO_REMOTE_SETTINGS__DEFAULT_COLLECTION`) - The collection to use for
+  (`MERINO__REMOTE_SETTINGS__DEFAULT_COLLECTION`) - The collection to use for
   Remote Settings providers if not specified in the provider config. Example:
   "quicksuggest".
 
@@ -159,7 +159,7 @@ provider below.
 
 Configuration for determining the location of users.
 
-- `location.maxmind_database` (`MERINO_LOCATION__MAXMIND_DATABASE`) - Path to a
+- `location.maxmind_database` (`MERINO__LOCATION__MAXMIND_DATABASE`) - Path to a
   MaxMind GeoIP database file. Optional. If not specified, geolocation will be
   disabled.
 
