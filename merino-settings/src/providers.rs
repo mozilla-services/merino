@@ -1,3 +1,10 @@
+use crate::ProviderSettings;
+use anyhow::{Context, Result};
+use async_trait::async_trait;
+use config::{
+    builder::AsyncState, AsyncSource, Config, ConfigBuilder, ConfigError, File, FileFormat, Format,
+    Value,
+};
 use serde::{Deserialize, Serialize};
 use serde_with::{serde_as, DurationMilliSeconds, DurationSeconds};
 use std::collections::HashMap;
@@ -215,19 +222,103 @@ impl Default for StealthConfig {
     }
 }
 
+/// Settings for Merino suggestion providers.
+#[derive(Clone, Debug, Serialize, Deserialize)]
+#[serde(transparent)]
+pub struct SuggestionProviderSettings(pub HashMap<String, SuggestionProviderConfig>);
+
+impl SuggestionProviderSettings {
+    /// Load settings for suggestions providers.
+    ///
+    /// The organization of the provider configuration files is identical to the
+    /// top level settings except that it only uses one source (local or remote)
+    /// for each run-mode, and that is configured by `provider_settings` of the
+    /// top-level settings. Alternatively, remote configuration (via JSON) is
+    /// also supported.
+    ///
+    /// Note that settings for suggestion providers cannot be configured via
+    /// environment variables.
+    ///
+    /// # Errors
+    /// If any of the configured values are invalid, or if any of the required
+    /// configuration files are missing.
+    pub async fn load(settings: &ProviderSettings) -> Result<Self> {
+        let builder = ConfigBuilder::<AsyncState>::default();
+        let s = match settings {
+            ProviderSettings::Local { path, .. } => builder.add_source(File::with_name(path)),
+            ProviderSettings::Remote { uri, .. } => {
+                builder.add_async_source(ProviderHttpSource::new(uri.to_owned(), FileFormat::Json))
+            }
+        }
+        .build()
+        .await
+        .context("loading settings for suggestion providers")?;
+
+        serde_path_to_error::deserialize(s)
+            .context("Deserializing settings for suggestion providers")
+    }
+
+    /// Load settings for suggestion providers from configuration files for tests.
+    ///
+    /// Unlike [`Self::load()`], this function is synchronous to facilitate testing.
+    pub fn load_for_tests() -> Self {
+        let s = Config::builder()
+            // Start off with the base config.
+            .add_source(File::with_name("../config/providers/test"))
+            // Merge in test specific config.
+            .add_source(File::with_name("../config/providers/local_test").required(false))
+            .build()
+            .expect("Could not load settings for tests");
+
+        s.try_deserialize().expect("Could not convert settings")
+    }
+}
+
+/// Async HTTP source for suggestion providers
+#[derive(Debug)]
+struct ProviderHttpSource {
+    /// URI to the settings source
+    uri: String,
+
+    /// File format such as YAML, JSON, TOML, etc
+    format: FileFormat,
+}
+
+impl ProviderHttpSource {
+    pub fn new(uri: String, format: FileFormat) -> Self {
+        Self { uri, format }
+    }
+}
+
+#[async_trait]
+impl AsyncSource for ProviderHttpSource {
+    async fn collect(&self) -> Result<HashMap<String, Value>, ConfigError> {
+        reqwest::get(&self.uri)
+            .await
+            .map_err(|e| ConfigError::Foreign(Box::new(e)))?
+            .text()
+            .await
+            .map_err(|e| ConfigError::Foreign(Box::new(e)))
+            .and_then(|text| {
+                self.format
+                    .parse(Some(&self.uri), &text)
+                    .map_err(|e| ConfigError::Foreign(e))
+            })
+    }
+}
+
 #[cfg(test)]
 mod tests {
-    use crate::{providers::SuggestionProviderConfig, Settings};
+    use crate::{providers::SuggestionProviderConfig, ProviderSettings, Settings};
     use anyhow::{Context, Result};
     use config::{Config, File, Value};
+    use httpmock::prelude::*;
     use serde_json::json;
+
+    use super::SuggestionProviderSettings;
 
     #[test]
     fn provider_defaults_are_optional() -> Result<()> {
-        let mut config = Config::new();
-        config.merge(File::with_name("../config/base"))?;
-        config.set("env", "test")?;
-
         // Providers are allowed to have required fields, if there is no logical
         // default. If that's the case, make sure to add them here. Don't
         // provide any values for fields that are options.
@@ -246,10 +337,16 @@ mod tests {
         });
 
         let value_config: Value = serde_json::from_value(value_json.clone())?;
-        config.set("suggestion_providers", value_config)?;
+        let config = Config::builder()
+            .add_source(File::with_name("../config/base"))
+            .set_override("env", "test")
+            .context("Could not set env")?
+            .set_override("suggestion_providers", value_config)
+            .context("Could not set suggestion providers")?
+            .build()?;
 
         let settings = config
-            .try_into::<Settings>()
+            .try_deserialize::<Settings>()
             .context("could not convert settings")?;
 
         let mut found_providers = 0;
@@ -281,5 +378,76 @@ mod tests {
         assert_eq!(found_providers, 11);
 
         Ok(())
+    }
+
+    #[tokio::test]
+    async fn provider_remote_source() {
+        let server = MockServer::start();
+
+        let remote_endpoint = server.mock(|when, then| {
+            when.method(GET).path("/yaml_source");
+            then.status(200)
+                .header("content-type", "application/json")
+                .body(
+                    r#"
+                    {
+                        "adm": {
+                          "type": "remote_settings",
+                          "collection": "quicksuggest"
+                        },
+                        "wiki_fruit": {
+                          "type": "wiki_fruit"
+                        },
+                        "debug": {
+                          "type": "debug"
+                        }
+                    }
+                    "#,
+                );
+        });
+
+        let settings = ProviderSettings::Remote {
+            uri: server.url("/yaml_source"),
+        };
+
+        let providers = SuggestionProviderSettings::load(&settings).await.unwrap();
+
+        remote_endpoint.assert();
+        assert_eq!(providers.0.len(), 3);
+        assert!(matches!(
+            providers.0.get("adm").unwrap(),
+            SuggestionProviderConfig::RemoteSettings(_)
+        ));
+        assert!(matches!(
+            providers.0.get("wiki_fruit").unwrap(),
+            SuggestionProviderConfig::WikiFruit
+        ));
+        assert!(matches!(
+            providers.0.get("debug").unwrap(),
+            SuggestionProviderConfig::Debug
+        ));
+    }
+
+    #[tokio::test]
+    async fn provider_local_source() {
+        let settings = ProviderSettings::Local {
+            path: "../config/providers/development.yaml".to_owned(),
+        };
+
+        let providers = SuggestionProviderSettings::load(&settings).await.unwrap();
+
+        assert_eq!(providers.0.len(), 3);
+        assert!(matches!(
+            providers.0.get("adm").unwrap(),
+            SuggestionProviderConfig::RemoteSettings(_)
+        ));
+        assert!(matches!(
+            providers.0.get("wiki_fruit").unwrap(),
+            SuggestionProviderConfig::WikiFruit
+        ));
+        assert!(matches!(
+            providers.0.get("debug").unwrap(),
+            SuggestionProviderConfig::Debug
+        ));
     }
 }

@@ -16,7 +16,7 @@ pub struct LoggingSettings {
     /// `RUST_LOG`, with values from the environment variable overriding the
     /// config file.
     ///
-    /// The environment variable `MERINO_LOGGING__LEVELS` can be used. This
+    /// The environment variable `MERINO__LOGGING__LEVELS` can be used. This
     /// environment variable will completely override the config file, and wil be
     /// merged with the envvar `RUST_LOG`. `RUST_LOG` takes precedence again.
     ///

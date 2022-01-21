@@ -17,7 +17,9 @@ use tracing_subscriber::{layer::SubscriberExt, EnvFilter};
 /// Primary entry point
 #[actix_rt::main]
 async fn main() -> Result<()> {
-    let settings = merino_settings::Settings::load().context("Loading settings")?;
+    let settings = merino_settings::Settings::load()
+        .await
+        .context("Loading settings")?;
     let _sentry_guard = crate::sentry::init_sentry(&settings).context("initializing sentry")?;
     init_logging(&settings).context("initializing logging")?;
     let metrics_client = init_metrics(&settings).context("initializing metrics")?;
