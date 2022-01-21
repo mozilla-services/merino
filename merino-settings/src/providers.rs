@@ -387,7 +387,7 @@ mod tests {
         let remote_endpoint = server.mock(|when, then| {
             when.method(GET).path("/yaml_source");
             then.status(200)
-                .header("content-type", "application/x-yaml")
+                .header("content-type", "application/json")
                 .body(
                     r#"
                     {
