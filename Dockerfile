@@ -10,7 +10,7 @@ ARG APT_CACHE_BUST="2021-05-13"
 # =============================================================================
 # Pull in the version of cargo-chef we plan to use, so that all the below steps
 # use a consistent set of versions.
-FROM lukemathwalker/cargo-chef:0.1.31-rust-1.54-buster as chef
+FROM lukemathwalker/cargo-chef:0.1.33-rust-1.58-buster as chef
 WORKDIR /app
 
 # =============================================================================
