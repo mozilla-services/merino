@@ -376,7 +376,8 @@ the repository.</p>
 <p>Merino's settings can be specified in two ways: a YAML file placed in a specific
 location, or via environment variables. Not all settings can be set with
 environment variables, however. Notably, provider configuration must be done
-with YAML.</p>
+with its own YAML file.</p>
+<h3 id="file-organization"><a class="header" href="#file-organization"><a href="ops.html#file-organization">File organization</a></a></h3>
 <p>These are the settings sources, with later sources overriding earlier ones.</p>
 <ul>
 <li>
@@ -385,7 +386,7 @@ provides the default values for most settings.</p>
 </li>
 <li>
 <p>Per-environment configuration files in the <code>config</code> directory. The environment
-is selected using the environment variable <code>MERINO_ENV</code>. The settings for that
+is selected using the environment variable <code>MERINO__ENV</code>. The settings for that
 environment are then loaded from <code>config/${env}.yaml</code>, if it exists. The
 default environment is &quot;development&quot;. A &quot;production&quot; environment is also
 provided.</p>
@@ -396,30 +397,30 @@ provided.</p>
 configuration and secrets if desired.</p>
 </li>
 <li>
-<p>Environment variables that begin with <code>MERINO_</code> and use <code>__</code> (a double
+<p>Environment variables that begin with <code>MERINO</code> and use <code>__</code> (a double
 underscore) as a level separator. For example, <code>Settings::http::workers</code> can
-be controlled from the environment variable <code>MERINO_HTTP__WORKERS</code>.</p>
+be controlled from the environment variable <code>MERINO__HTTP__WORKERS</code>.</p>
 </li>
 </ul>
 <p>The names given below are of the form &quot;<code>yaml.path</code> (<code>ENVIRONMENT_VAR</code>)&quot;</p>
 <h3 id="general"><a class="header" href="#general">General</a></h3>
 <ul>
 <li>
-<p><code>env</code> (<code>MERINO_ENV</code>) - Only settable from environment variables. Controls
+<p><code>env</code> (<code>MERINO__ENV</code>) - Only settable from environment variables. Controls
 which environment configuration is loaded, as described above.</p>
 </li>
 <li>
-<p><code>debug</code> (<code>MERINO_DEBUG</code>) - Boolean that enables additional features to debug
+<p><code>debug</code> (<code>MERINO__DEBUG</code>) - Boolean that enables additional features to debug
 the application. This should not be set to true in public environments, as it
 reveals all configuration, including any configured secrets.</p>
 </li>
 <li>
-<p><code>public_documentation</code> (<code>MERINO_PUBLIC_DOCUMENTATION</code>) - When users visit the
+<p><code>public_documentation</code> (<code>MERINO__PUBLIC_DOCUMENTATION</code>) - When users visit the
 root of the server, they will be redirected to this URL. Preferable a public
 wiki page that explains what the server is and does.</p>
 </li>
 <li>
-<p><code>log_full_request</code> (<code>MERINO_LOG_FULL_REQUEST</code>) - Boolean that enables logging
+<p><code>log_full_request</code> (<code>MERINO__LOG_FULL_REQUEST</code>) - Boolean that enables logging
 the entire suggestion request object as a part of the tracing log, including
 the search query. When the setting is false (default), the suggest request
 object should be logged, but the search query should be blank. Note that
@@ -429,9 +430,9 @@ access to the collected query logs is restricted.</p>
 <h3 id="http"><a class="header" href="#http">HTTP</a></h3>
 <p>Settings for the HTTP server.</p>
 <ul>
-<li><code>http.listen</code> (<code>MERINO_HTTP__LISTEN</code>) - An IP and port to listen on, such as
+<li><code>http.listen</code> (<code>MERINO__HTTP__LISTEN</code>) - An IP and port to listen on, such as
 <code>127.0.0.1:8080</code> or <code>0.0.0.0:80</code>.</li>
-<li><code>http.workers</code> (<code>MERINO_HTTP__WORKERS</code>) - Optional. The number of worker
+<li><code>http.workers</code> (<code>MERINO__HTTP__WORKERS</code>) - Optional. The number of worker
 threads that should be spawned to handle tasks. If not provided will default
 to the number of logical CPU cores available.</li>
 </ul>
@@ -449,12 +450,12 @@ JSON in <a href="https://wiki.mozilla.org/Firefox/Services/Logging">MozLog</a> f
 </ul>
 </li>
 <li>
-<p><code>logging.info</code> (<code>MERINO_LOGGING__LEVELS</code>) - Minimum level of logs that should
+<p><code>logging.info</code> (<code>MERINO__LOGGING__LEVELS</code>) - Minimum level of logs that should
 be reported. This should be a number of <em>entries</em> separated by commas (for
 environment variables) or specified as list (YAML).</p>
 <p>This will be combined with the contents of the <code>RUST_LOG</code> environment variable
 for compatibility. <code>RUST_LOG</code> will take precedence over this setting. If the
-environment variable <code>MERINO_LOGGING__LEVELS</code> is specified, all the settings
+environment variable <code>MERINO__LOGGING__LEVELS</code> is specified, all the settings
 in the YAML file will be ignored.</p>
 <p>Each entry can be one of <code>ERROR</code>, <code>WARN</code>, <code>INFO</code>, <code>DEBUG</code>, or <code>TRACE</code> (in
 increasing verbosity), with an optional component that specifies the source of
@@ -467,15 +468,15 @@ default log level to INFO, but would lower the level to <code>DEBUG</code> for t
 <p>Settings for Statsd/Datadog style metrics reporting.</p>
 <ul>
 <li>
-<p><code>metrics.sink_host</code> (<code>MERINO_METRICS__SINK_ADDRESS</code>) - The IP or hostname to
+<p><code>metrics.sink_host</code> (<code>MERINO__METRICS__SINK_ADDRESS</code>) - The IP or hostname to
 send metrics to over UDP. Defaults to <code>0.0.0.0</code>.</p>
 </li>
 <li>
-<p><code>metrics.sink_port</code> (<code>MERINO_METRICS__SINK_PORT</code>) - The port to send metrics
+<p><code>metrics.sink_port</code> (<code>MERINO__METRICS__SINK_PORT</code>) - The port to send metrics
 to over UDP. Defaults to 8125.</p>
 </li>
 <li>
-<p><code>max_queue_size_kb</code> (<code>MERINO_METRICS__MAX_QUEUE_SIZE_KB</code>) - The maximum size
+<p><code>max_queue_size_kb</code> (<code>MERINO__METRICS__MAX_QUEUE_SIZE_KB</code>) - The maximum size
 of the buffer that holds events waiting to be sent. If unsent events rise
 above this, then metrics will be lost. Defaults to 32KB.</p>
 </li>
@@ -483,7 +484,7 @@ above this, then metrics will be lost. Defaults to 32KB.</p>
 <h3 id="sentry"><a class="header" href="#sentry">Sentry</a></h3>
 <p>Error reporting via Sentry.</p>
 <ul>
-<li><code>sentry.mode</code> (<code>MERINO_SENTRY__MODE</code>) - The type of Sentry integration to
+<li><code>sentry.mode</code> (<code>MERINO__SENTRY__MODE</code>) - The type of Sentry integration to
 enable. One of <code>release</code>, <code>server_debug</code>, <code>local_debug</code>, or <code>disabled</code>. The
 two <code>debug</code> settings should only be used for local development.</li>
 </ul>
@@ -510,7 +511,7 @@ you can filter your results out in Sentry's web interface.</li>
 <h3 id="redis"><a class="header" href="#redis">Redis</a></h3>
 <p>Connection to Redis. This is used by the Redis provider cache below.</p>
 <ul>
-<li><code>redis.url</code> (<code>MERINO_REDIS__URL</code>) - The URL to connect Redis at. Example:
+<li><code>redis.url</code> (<code>MERINO__REDIS__URL</code>) - The URL to connect Redis at. Example:
 <code>redis://127.0.0.1/0</code>.</li>
 </ul>
 <h3 id="remote_settings"><a class="header" href="#remote_settings">Remote_settings</a></h3>
@@ -518,17 +519,17 @@ you can filter your results out in Sentry's web interface.</li>
 provider below.</p>
 <ul>
 <li>
-<p><code>remote_settings.server</code> (<code>MERINO_REMOTE_SETTINGS__SERVER</code>) - The server to
+<p><code>remote_settings.server</code> (<code>MERINO__REMOTE_SETTINGS__SERVER</code>) - The server to
 sync from. Example: <code>https://firefox.settings.services.mozilla.com</code>.</p>
 </li>
 <li>
-<p><code>remote_settings.default_bucket</code> (<code>MERINO_REMOTE_SETTINGS__DEFAULT_BUCKET</code>) -
+<p><code>remote_settings.default_bucket</code> (<code>MERINO__REMOTE_SETTINGS__DEFAULT_BUCKET</code>) -
 The bucket to use for Remote Settings providers if not specified in the
 provider config. Example: &quot;main&quot;.</p>
 </li>
 <li>
 <p><code>remote_settings.default_collection</code>
-(<code>MERINO_REMOTE_SETTINGS__DEFAULT_COLLECTION</code>) - The collection to use for
+(<code>MERINO__REMOTE_SETTINGS__DEFAULT_COLLECTION</code>) - The collection to use for
 Remote Settings providers if not specified in the provider config. Example:
 &quot;quicksuggest&quot;.</p>
 </li>
@@ -536,22 +537,61 @@ Remote Settings providers if not specified in the provider config. Example:
 <h3 id="location"><a class="header" href="#location">Location</a></h3>
 <p>Configuration for determining the location of users.</p>
 <ul>
-<li><code>location.maxmind_database</code> (<code>MERINO_LOCATION__MAXMIND_DATABASE</code>) - Path to a
+<li><code>location.maxmind_database</code> (<code>MERINO__LOCATION__MAXMIND_DATABASE</code>) - Path to a
 MaxMind GeoIP database file. Optional. If not specified, geolocation will be
 disabled.</li>
 </ul>
 <h3 id="provider-configuration"><a class="header" href="#provider-configuration">Provider Configuration</a></h3>
-<p>The configuration for suggestion providers. These settings cannot be configured
-via environment variable.</p>
+<p>The configuration for suggestion providers.</p>
+<p>Note that the provider settings are configured either by a separate YAML file
+located in <code>config/providers</code> or by a remote source backed by an HTTP endpoint.
+You can use <code>provider_settings</code> to configure how &amp; where Merino to load the
+settings.</p>
+<h4 id="provider-settings"><a class="header" href="#provider-settings"><code>Provider Settings</code></a></h4>
+<p>You can specify the &quot;type&quot; and the &quot;location&quot; of the provider settings. The
+&quot;type&quot; could be <code>local</code> or <code>remote</code>. For <code>local</code> sources, use <code>path</code> to specify
+the location; Use <code>uri</code> for <code>remote</code> sources. Note that only JSON is supported
+for remote sources, whereas all the common formats (JSON, YAML, TOML, etc) are
+supported for local sources.</p>
+<p><em>Examples</em>:</p>
 <ul>
-<li><code>suggestion_providers</code> - Providers to use to generate suggestions. This should
-be a map where the keys are provider IDs will be used in the API to enable and
-disable providers per request. The values are provider configuration objects,
-detailed below. Some providers can take other providers as children. Because
-of this, each key in this config is referred to as a &quot;provider tree&quot;.</li>
+<li>A local source</li>
 </ul>
+<pre><code class="language-yaml">provider_settings:
+  type: local
+  path: ./config/providers/base.yaml
+</code></pre>
+<ul>
+<li>A remote source</li>
+</ul>
+<pre><code class="language-yaml">provider_settings:
+  type: remote
+  uri: https://example.org/settings
+</code></pre>
+<h4 id="configuration-object"><a class="header" href="#configuration-object">Configuration Object</a></h4>
 <p>Each provider configuration has a <code>type</code>, listed below, and it's own individual
 settings.</p>
+<p><em>Example</em>:</p>
+<pre><code class="language-yaml">wiki_fruit:
+  type: wiki_fruit
+</code></pre>
+<h4 id="configuration-file"><a class="header" href="#configuration-file">Configuration File</a></h4>
+<p>Each configuration file should be a map where the keys are provider IDs will be
+used in the API to enable and disable providers per request. The values are
+provider configuration objects, detailed below. Some providers can takes other
+providers as children. Because of this, each key in this config is referred to
+as a &quot;provider tree&quot;.</p>
+<p><em>Example</em>:</p>
+<pre><code class="language-yaml">adm:
+  type: memory_cache
+  inner:
+    type: remote_settings
+    collection: &quot;quicksuggest&quot;
+wiki_fruit:
+  type: wiki_fruit
+debug:
+  type: debug
+</code></pre>
 <h4 id="leaf-providers"><a class="header" href="#leaf-providers">Leaf Providers</a></h4>
 <p>These are production providers that generate suggestions.</p>
 <ul>
@@ -579,15 +619,14 @@ Settings data, in seconds. Defaults to 3 hours.</li>
 <li><code>providers</code> - A list of other provider configs to draw suggestions from.</li>
 </ul>
 <p><em>Example</em>:</p>
-<pre><code class="language-yaml">suggestion_providers:
-  sample_multi:
-    type: multiplexer
-    providers:
-      - fixed:
-        type: fixed
-        value: I'm a banana
-      - debug:
-        type: debug
+<pre><code class="language-yaml">sample_multi:
+  type: multiplexer
+  providers:
+    - fixed:
+      type: fixed
+      value: I'm a banana
+    - debug:
+      type: debug
 </code></pre>
 </li>
 <li>
@@ -611,19 +650,18 @@ recommended titles are matched against.</li>
 <li><code>inner</code> - The wrapped provider to draw suggestions from.</li>
 </ul>
 <p><em>Example</em>:</p>
-<pre><code class="language-yaml">suggestion_providers:
-  filtered:
-    type: keyword_filter
-    suggestion_blocklist:
-      no_banana: &quot;(Banana|banana|plant)&quot;
-    inner:
-      type: multiplexer
-      providers:
-        - fixed:
-          type: fixed
-          value: I'm a banana
-        - debug:
-          type: debug
+<pre><code class="language-yaml">filtered:
+  type: keyword_filter
+  suggestion_blocklist:
+    no_banana: &quot;(Banana|banana|plant)&quot;
+  inner:
+    type: multiplexer
+    providers:
+      - fixed:
+        type: fixed
+        value: I'm a banana
+      - debug:
+        type: debug
 </code></pre>
 </li>
 <li>

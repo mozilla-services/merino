@@ -1,0 +1,3 @@
+(function() {var implementors = {};
+implementors["merino_settings"] = [{"text":"impl <a class=\"trait\" href=\"config/source/trait.AsyncSource.html\" title=\"trait config::source::AsyncSource\">AsyncSource</a> for <a class=\"struct\" href=\"merino_settings/providers/struct.ProviderHttpSource.html\" title=\"struct merino_settings::providers::ProviderHttpSource\">ProviderHttpSource</a>","synthetic":false,"types":["merino_settings::providers::ProviderHttpSource"]}];
+if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()
