@@ -233,7 +233,8 @@ impl SuggestionProviderSettings {
     /// The organization of the provider configuration files is identical to the
     /// top level settings except that it only uses one source (local or remote)
     /// for each run-mode, and that is configured by `provider_settings` of the
-    /// top-level settings.
+    /// top-level settings. Alternatively, remote configuration (via JSON) is
+    /// also supported.
     ///
     /// Note that settings for suggestion providers cannot be configured via
     /// environment variables.
@@ -246,8 +247,7 @@ impl SuggestionProviderSettings {
         let s = match settings {
             ProviderSettings::Local { path, .. } => builder.add_source(File::with_name(path)),
             ProviderSettings::Remote { uri, .. } => {
-                // TODO(nanj): drop the hardcoded YAML to support other formats.
-                builder.add_async_source(ProviderHttpSource::new(uri.to_owned(), FileFormat::Yaml))
+                builder.add_async_source(ProviderHttpSource::new(uri.to_owned(), FileFormat::Json))
             }
         }
         .build()
@@ -390,13 +390,18 @@ mod tests {
                 .header("content-type", "application/x-yaml")
                 .body(
                     r#"
-                        adm:
-                          type: remote_settings
-                          collection: quicksuggest
-                        wiki_fruit:
-                          type: wiki_fruit
-                        debug:
-                          type: debug
+                    {
+                        "adm": {
+                          "type": "remote_settings",
+                          "collection": "quicksuggest"
+                        },
+                        "wiki_fruit": {
+                          "type": "wiki_fruit"
+                        },
+                        "debug": {
+                          "type": "debug"
+                        }
+                    }
                     "#,
                 );
         });

@@ -176,7 +176,7 @@ settings.
 
 You can specify the "type" and the "location" of the provider settings. The
 "type" could be `local` or `remote`. For `local` sources, use `path` to specify
-the location; Use `uri` for `remote` sources. Note that only YAML is supported
+the location; Use `uri` for `remote` sources. Note that only JSON is supported
 for remote sources, whereas all the common formats (JSON, YAML, TOML, etc) are
 supported for local sources.
 
