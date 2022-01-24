@@ -7,7 +7,6 @@ use dashmap::{mapref::entry::Entry, DashMap};
 use std::collections::hash_map::DefaultHasher;
 use std::fmt::Debug;
 use std::hash::{Hash, Hasher};
-use std::iter::FromIterator;
 
 /// A hashmap that assumes a large number of keys will map to a relatively smaller number of values.
 ///
