@@ -9,6 +9,10 @@ This list does not include any `DEBUG` or `TRACE` level events, since those are
 not logged by default in production. The events below are grouped by crate, and
 the level and type of the log is listed.
 
+Any log containing sensitive data must include a boolean field `sensitive`
+that is set to `true` to exempt it from flowing to the generally accessible
+log inspection interfaces.
+
 ### `merino-adm`
 
 - `INFO adm.remote-settings.sync-start` - The Remote Settings provider has
@@ -27,6 +31,7 @@ the level and type of the log is listed.
 - `INFO web.suggest.request` - A suggestion request is being processed. This
   event will include fields for all relevant details of the request. **Fields:**
 
+  - `sensitive` - Always set to true to ensure proper routing.
   - `query` - If query logging is enabled, the text the user typed. Otherwise an
     empty string.
   - `country` - The country the request came from.
