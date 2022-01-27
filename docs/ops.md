@@ -300,7 +300,24 @@ These are providers that extend, combine, or otherwise modify other providers.
         - debug:
           type: debug
   ```
+- ClientVariantSwitch - Switches between two providers based on whether a request's client variants matches the configured client variant string
 
+  - `type=client_variant_switch`
+  - `client_variant` - the string used to determine whether the matching or default provider is used
+  - `matching_provider` - The wrapped provider to draw suggestions from for a client variant match.
+  - `default_provider` - The wrapped provider to draw suggestions when there is not a client variant match.
+
+  _Example_:
+
+  ```yaml
+  client_variant_switch:
+    type: client_variant_switch
+    client_variant: "hello"
+    matching_provider:
+      type: wiki_fruit
+    default_provider:
+      type: debug
+  ```
 - Stealth - Runs another provider, but hides the results. Useful for load
   testing of new behavior.
 
