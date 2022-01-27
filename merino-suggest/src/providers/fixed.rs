@@ -16,7 +16,7 @@ use crate::{
 /// A suggester that always provides the same suggestion, with a configurable title.
 pub struct FixedProvider {
     /// The string that will be returned in the title.
-    value: String,
+    pub value: String,
 }
 
 impl FixedProvider {

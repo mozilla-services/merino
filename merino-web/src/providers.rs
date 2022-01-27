@@ -114,7 +114,7 @@ async fn make_provider_tree(
             ClientVariantFilterProvider::new_boxed(
                 matching_provider,
                 default_provider,
-                (*filter_config.client_variant).to_string(),
+                filter_config.client_variant.clone(),
             )
         }
 

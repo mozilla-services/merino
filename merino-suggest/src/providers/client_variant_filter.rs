@@ -3,8 +3,11 @@ use async_trait::async_trait;
 
 /// A provider that gives suggestions base
 pub struct ClientVariantFilterProvider {
+    /// Provider to use for suggestions if there is a client variant match
     matching_provider: Box<dyn SuggestionProvider>,
+    /// Provider to use for suggestions if there isn't a client variant match
     default_provider: Box<dyn SuggestionProvider>,
+    /// String use to match with client variants from suggest requests
     client_variant: String,
 }
 
@@ -27,9 +30,10 @@ impl ClientVariantFilterProvider {
 impl SuggestionProvider for ClientVariantFilterProvider {
     fn name(&self) -> String {
         format!(
-            "ClientVariant(matching:{}, default:{})",
+            "ClientVariant(matching:{}, default:{}, client_variant match: {})",
             self.matching_provider.name(),
-            self.default_provider.name()
+            self.default_provider.name(),
+            self.client_variant,
         )
     }
 
@@ -40,7 +44,7 @@ impl SuggestionProvider for ClientVariantFilterProvider {
         let req = request.clone();
         let provider = if req
             .client_variants
-            .unwrap_or(vec![])
+            .unwrap_or_default()
             .contains(&self.client_variant)
         {
             &self.matching_provider
@@ -49,8 +53,7 @@ impl SuggestionProvider for ClientVariantFilterProvider {
         };
         let results = provider
             .suggest(request)
-            .await
-            .unwrap_or_else(|_| SuggestionResponse::new(vec![]));
+            .await?;
         Ok(results)
     }
 
@@ -58,12 +61,10 @@ impl SuggestionProvider for ClientVariantFilterProvider {
         self.matching_provider.cache_inputs(request, cache_inputs);
         self.default_provider.cache_inputs(request, cache_inputs);
 
-        let req = request.clone();
-
-        if req
+        if request
             .client_variants
-            .unwrap_or(vec![])
-            .contains(&self.client_variant)
+            .as_ref()
+            .map_or(false, |cv| cv.contains(&self.client_variant))
         {
             cache_inputs
                 .add(format!("client_variant_match:{}=true", &self.client_variant).as_bytes());
@@ -77,67 +78,21 @@ impl SuggestionProvider for ClientVariantFilterProvider {
 #[cfg(test)]
 mod tests {
     use crate::{
-        CacheStatus, ClientVariantFilterProvider, SuggestError, Suggestion, SuggestionProvider,
-        SuggestionRequest, SuggestionResponse,
+        CacheStatus, ClientVariantFilterProvider, FixedProvider, SuggestError, Suggestion,
+        SuggestionProvider, SuggestionRequest, SuggestionResponse,
     };
     use async_trait::async_trait;
     use fake::{Fake, Faker};
 
-    struct TestMatchSuggestionsProvider();
-
-    #[async_trait]
-    impl SuggestionProvider for TestMatchSuggestionsProvider {
-        fn name(&self) -> String {
-            "TestMatchSuggestionsProvider()".to_string()
-        }
-
-        async fn suggest(
-            &self,
-            _query: SuggestionRequest,
-        ) -> Result<SuggestionResponse, SuggestError> {
-            Ok(SuggestionResponse {
-                cache_status: CacheStatus::NoCache,
-                cache_ttl: None,
-                suggestions: vec![Suggestion {
-                    provider: self.name(),
-                    title: "matching test title".to_string(),
-                    full_keyword: "matching".to_string(),
-                    ..Faker.fake()
-                }],
-            })
-        }
-    }
-
-    struct TestDefaultSuggestionsProvider();
-
-    #[async_trait]
-    impl SuggestionProvider for TestDefaultSuggestionsProvider {
-        fn name(&self) -> String {
-            "TestDefaultSuggestionsProvider()".to_string()
-        }
-
-        async fn suggest(
-            &self,
-            _query: SuggestionRequest,
-        ) -> Result<SuggestionResponse, SuggestError> {
-            Ok(SuggestionResponse {
-                cache_status: CacheStatus::NoCache,
-                cache_ttl: None,
-                suggestions: vec![Suggestion {
-                    provider: self.name(),
-                    title: "A default test title".to_string(),
-                    full_keyword: "default".to_string(),
-                    ..Faker.fake()
-                }],
-            })
-        }
-    }
-
     #[tokio::test]
     async fn test_provider_uses_default_without_client_variants() {
         let client_variant_filter_provider = ClientVariantFilterProvider::new_boxed(
-            Box::new(TestMatchSuggestionsProvider()),
-            Box::new(TestDefaultSuggestionsProvider()),
+            Box::new(FixedProvider {
+                value: "Matching Provider".to_string(),
+            }),
+            Box::new(FixedProvider {
+                value: "Default Provider".to_string(),
+            }),
             "test".to_string(),
         );
 
@@ -148,9 +103,9 @@ mod tests {
 
         assert_eq!(
             res.suggestions[0].provider,
-            "TestDefaultSuggestionsProvider()"
+            "FixedProvider(Default Provider)"
         );
-        assert_eq!(res.suggestions[0].title, "A default test title");
+        assert_eq!(res.suggestions[0].title, "Default Provider");
     }
 
     #[tokio::test]
@@ -171,8 +126,8 @@ mod tests {
 
         assert_eq!(
             res.suggestions[0].provider,
-            "TestMatchSuggestionsProvider()"
+            "FixedProvider(Matching Provider)"
         );
-        assert_eq!(res.suggestions[0].title, "matching test title");
+        assert_eq!(res.suggestions[0].title, "Matching Provider");
     }
 }

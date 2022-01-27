@@ -225,21 +225,10 @@ impl Default for StealthConfig {
 
 #[serde_as]
 #[derive(Clone, Debug, Serialize, Deserialize)]
-#[serde(default)]
 pub struct ClientVariantSwitchConfig {
     pub client_variant: String,
     pub matching_provider: Box<SuggestionProviderConfig>,
     pub default_provider: Box<SuggestionProviderConfig>,
-}
-
-impl Default for ClientVariantSwitchConfig {
-    fn default() -> Self {
-        Self {
-            client_variant: "".to_string(),
-            matching_provider: Box::new(SuggestionProviderConfig::Null),
-            default_provider: Box::new(SuggestionProviderConfig::Null),
-        }
-    }
 }
 
 /// Settings for Merino suggestion providers.
