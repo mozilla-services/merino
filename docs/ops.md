@@ -15,8 +15,8 @@ These are the settings sources, with later sources overriding earlier ones.
   provides the default values for most settings.
 
 - Per-environment configuration files in the `config` directory. The environment
-  is selected using the environment variable `MERINO__ENV`. The settings for that
-  environment are then loaded from `config/${env}.yaml`, if it exists. The
+  is selected using the environment variable `MERINO__ENV`. The settings for
+  that environment are then loaded from `config/${env}.yaml`, if it exists. The
   default environment is "development". A "production" environment is also
   provided.
 
@@ -183,6 +183,7 @@ supported for local sources.
 _Examples_:
 
 - A local source
+
 ```yaml
 provider_settings:
   type: local
@@ -190,6 +191,7 @@ provider_settings:
 ```
 
 - A remote source
+
 ```yaml
 provider_settings:
   type: remote
@@ -353,5 +355,12 @@ testing.
 
 - Null - A provider that never suggests anything. Useful to fill in combinators
   and caches for testing.
+
   - `type="null"` - Note that `null` in YAML is an actual null value, so this
     must be specified as the string `"null"`.
+
+- Fixed - A suggestion provider that provides a fixed response with a
+  customizable title.
+
+  - `value` - A string that will be used for the title of the fixed suggestion.
+    Required.
