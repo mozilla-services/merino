@@ -38,7 +38,11 @@ impl SuggestionProvider for ClientVariantFilterProvider {
         request: SuggestionRequest,
     ) -> Result<SuggestionResponse, SuggestError> {
         let req = request.clone();
-        let provider = if req.client_variants.unwrap_or(vec![]).contains(&self.client_variant) {
+        let provider = if req
+            .client_variants
+            .unwrap_or(vec![])
+            .contains(&self.client_variant)
+        {
             &self.matching_provider
         } else {
             &self.default_provider
@@ -56,7 +60,11 @@ impl SuggestionProvider for ClientVariantFilterProvider {
 
         let req = request.clone();
 
-        if req.client_variants.unwrap_or(vec![]).contains(&self.client_variant) {
+        if req
+            .client_variants
+            .unwrap_or(vec![])
+            .contains(&self.client_variant)
+        {
             cache_inputs
                 .add(format!("client_variant_match:{}=true", &self.client_variant).as_bytes());
         } else {
