@@ -1,3 +1,4 @@
+//! A suggestion provider switches between a matching and default provider based on the client variant string.
 use crate::{CacheInputs, SuggestError, SuggestionProvider, SuggestionRequest, SuggestionResponse};
 use async_trait::async_trait;
 
@@ -79,7 +80,6 @@ mod tests {
         CacheStatus, ClientVariantFilterProvider, FixedProvider, SuggestError, Suggestion,
         SuggestionProvider, SuggestionRequest, SuggestionResponse,
     };
-    use async_trait::async_trait;
     use fake::{Fake, Faker};
 
     #[tokio::test]
@@ -109,8 +109,12 @@ mod tests {
     #[tokio::test]
     async fn test_provider_uses_matching_with_client_variants() {
         let client_variant_filter_provider = ClientVariantFilterProvider::new_boxed(
-            Box::new(TestMatchSuggestionsProvider()),
-            Box::new(TestDefaultSuggestionsProvider()),
+            Box::new(FixedProvider {
+                value: "Matching Provider".to_string(),
+            }),
+            Box::new(FixedProvider {
+                value: "Default Provider".to_string(),
+            }),
             "test".to_string(),
         );
 
