@@ -51,9 +51,7 @@ impl SuggestionProvider for ClientVariantFilterProvider {
         } else {
             &self.default_provider
         };
-        let results = provider
-            .suggest(request)
-            .await?;
+        let results = provider.suggest(request).await?;
         Ok(results)
     }
 
