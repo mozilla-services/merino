@@ -19,6 +19,7 @@ use merino_suggest::{
     SuggestionRequest, SupportedLanguages,
 };
 use serde::Deserialize;
+use serde_with::{rust::StringWithSeparator, serde_as, CommaSeparator};
 use tokio::try_join;
 use woothee::parser::{Parser, WootheeResult};
 
@@ -46,7 +47,10 @@ impl FromRequest for SuggestionRequestWrapper {
             // Retrieve all parts needed to make a SuggestionRequest concurrently.
             // `try_join` implicitly `.await`s.
             let (
-                Query(SuggestQuery { q: query }),
+                Query(SuggestQuery {
+                    q: query,
+                    client_variants,
+                }),
                 SupportedLanguagesWrapper(supported_languages),
                 location,
                 DeviceInfoWrapper(device_info),
@@ -65,6 +69,7 @@ impl FromRequest for SuggestionRequestWrapper {
                 dma: location.dma,
                 city: location.city,
                 device_info,
+                client_variants,
             }))
         }
         .boxed_local()
@@ -72,10 +77,14 @@ impl FromRequest for SuggestionRequestWrapper {
 }
 
 /// A query passed to the API.
+#[serde_as]
 #[derive(Debug, Deserialize)]
 struct SuggestQuery {
     /// The query to generate suggestions for.
     q: String,
+    /// The client variants to generate suggestions with.
+    #[serde_as(as = "StringWithSeparator::<CommaSeparator, String>")]
+    client_variants: Vec<String>,
 }
 
 /// A wrapper around [`SupportedLanguages`].

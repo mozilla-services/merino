@@ -1,5 +1,6 @@
 //! Merino providers that aren't tied to any particular data source.
 
+mod client_variant_filter;
 mod debug;
 mod fixed;
 mod id_multi;
@@ -9,6 +10,7 @@ mod stealth;
 mod timeout;
 mod wikifruit;
 
+pub use self::client_variant_filter::ClientVariantFilterProvider;
 pub use self::debug::DebugProvider;
 pub use self::fixed::FixedProvider;
 pub use self::id_multi::{IdMulti, ProviderDetails as IdMultiProviderDetails};
