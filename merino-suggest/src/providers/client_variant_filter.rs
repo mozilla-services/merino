@@ -77,8 +77,7 @@ impl SuggestionProvider for ClientVariantFilterProvider {
 #[cfg(test)]
 mod tests {
     use crate::{
-        CacheStatus, ClientVariantFilterProvider, FixedProvider, SuggestError, Suggestion,
-        SuggestionProvider, SuggestionRequest, SuggestionResponse,
+        ClientVariantFilterProvider, FixedProvider, SuggestionProvider, SuggestionRequest,
     };
     use fake::{Fake, Faker};
 
