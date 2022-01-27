@@ -83,8 +83,9 @@ struct SuggestQuery {
     /// The query to generate suggestions for.
     q: String,
     /// The client variants to generate suggestions with.
-    #[serde_as(as = "StringWithSeparator::<CommaSeparator, String>")]
-    client_variants: Vec<String>,
+    #[serde_as(as = "Option<StringWithSeparator::<CommaSeparator, String>>")]
+    #[serde(default)]
+    client_variants: Option<Vec<String>>,
 }
 
 /// A wrapper around [`SupportedLanguages`].

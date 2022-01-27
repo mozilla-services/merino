@@ -37,7 +37,8 @@ impl SuggestionProvider for ClientVariantFilterProvider {
         &self,
         request: SuggestionRequest,
     ) -> Result<SuggestionResponse, SuggestError> {
-        let provider = if request.client_variants.contains(&self.client_variant) {
+        let req = request.clone();
+        let provider = if req.client_variants.unwrap_or(vec![]).contains(&self.client_variant) {
             &self.matching_provider
         } else {
             &self.default_provider
@@ -49,11 +50,13 @@ impl SuggestionProvider for ClientVariantFilterProvider {
         Ok(results)
     }
 
-    fn cache_inputs(&self, req: &SuggestionRequest, cache_inputs: &mut dyn CacheInputs) {
-        self.matching_provider.cache_inputs(req, cache_inputs);
-        self.default_provider.cache_inputs(req, cache_inputs);
+    fn cache_inputs(&self, request: &SuggestionRequest, cache_inputs: &mut dyn CacheInputs) {
+        self.matching_provider.cache_inputs(request, cache_inputs);
+        self.default_provider.cache_inputs(request, cache_inputs);
 
-        if req.client_variants.contains(&self.client_variant) {
+        let req = request.clone();
+
+        if req.client_variants.unwrap_or(vec![]).contains(&self.client_variant) {
             cache_inputs
                 .add(format!("client_variant_match:{}=true", &self.client_variant).as_bytes());
         } else {
@@ -152,7 +155,7 @@ mod tests {
 
         let res = client_variant_filter_provider
             .suggest(SuggestionRequest {
-                client_variants: vec!["test".to_string()],
+                client_variants: Some(vec!["test".to_string()]),
                 ..Faker.fake()
             })
             .await
