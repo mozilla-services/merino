@@ -343,6 +343,7 @@ mod tests {
             "fixed": { "type": "fixed", "value": "test suggestion" },
             "keyword_filter": { "type": "keyword_filter" },
             "stealth": { "type": "stealth" },
+            "client_variant_switch": {"type": "client_variant_switch"},
         });
 
         let value_config: Value = serde_json::from_value(value_json.clone())?;
@@ -385,7 +386,7 @@ mod tests {
             );
         }
         // Likewise, if this number needs to change, make sure to update the rest of the test.
-        assert_eq!(found_providers, 11);
+        assert_eq!(found_providers, 12);
 
         Ok(())
     }

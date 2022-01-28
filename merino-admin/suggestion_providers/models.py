@@ -301,7 +301,10 @@ class ClientVariantSwitchConfig(ProviderConfig):
         on_delete=models.SET_NULL,
         null=True,
         related_name="client_variant_switch_matching_provider",
-        help_text=INNER_PROVIDER_HELP_TEXT,
+        help_text="""
+            The provider to use to generate suggestions when one of the 
+            client_variants from a request matches the client_variant field
+        """,
     )
 
     default_provider: models.ForeignKey = models.ForeignKey(
@@ -309,7 +312,10 @@ class ClientVariantSwitchConfig(ProviderConfig):
         on_delete=models.SET_NULL,
         null=True,
         related_name="client_variant_switch_default_provider",
-        help_text=INNER_PROVIDER_HELP_TEXT,
+        help_text="""
+            The provider to use to generate suggestions when none of the 
+            client_variants from a request matches the client_variant field
+        """,
     )
 
     def get_type(self):

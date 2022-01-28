@@ -45,8 +45,8 @@ impl SuggestionProvider for ClientVariantFilterProvider {
         let req = request.clone();
         let provider = if req
             .client_variants
-            .unwrap_or_default()
-            .contains(&self.client_variant)
+            .as_ref()
+            .map_or(false, |cv| cv.contains(&self.client_variant))
         {
             &self.matching_provider
         } else {
