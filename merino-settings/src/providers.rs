@@ -22,6 +22,7 @@ pub enum SuggestionProviderConfig {
     Fixed(FixedConfig),
     KeywordFilter(KeywordFilterConfig),
     Stealth(StealthConfig),
+    ClientVariantSwitch(ClientVariantSwitchConfig),
     Debug,
     WikiFruit,
     Null,
@@ -222,6 +223,14 @@ impl Default for StealthConfig {
     }
 }
 
+#[serde_as]
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct ClientVariantSwitchConfig {
+    pub client_variant: String,
+    pub matching_provider: Box<SuggestionProviderConfig>,
+    pub default_provider: Box<SuggestionProviderConfig>,
+}
+
 /// Settings for Merino suggestion providers.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(transparent)]
@@ -334,6 +343,12 @@ mod tests {
             "fixed": { "type": "fixed", "value": "test suggestion" },
             "keyword_filter": { "type": "keyword_filter" },
             "stealth": { "type": "stealth" },
+            "client_variant_switch": {
+                "type": "client_variant_switch",
+                "client_variant": "test",
+                "matching_provider": {"type":"wiki_fruit"},
+                "default_provider": {"type": "debug"}
+            },
         });
 
         let value_config: Value = serde_json::from_value(value_json.clone())?;
@@ -366,6 +381,7 @@ mod tests {
                     | SuggestionProviderConfig::Timeout(_)
                     | SuggestionProviderConfig::KeywordFilter(_)
                     | SuggestionProviderConfig::Stealth(_)
+                    | SuggestionProviderConfig::ClientVariantSwitch(_)
                     | SuggestionProviderConfig::Debug
                     | SuggestionProviderConfig::WikiFruit
                     | SuggestionProviderConfig::Fixed(_)
@@ -375,7 +391,7 @@ mod tests {
             );
         }
         // Likewise, if this number needs to change, make sure to update the rest of the test.
-        assert_eq!(found_providers, 11);
+        assert_eq!(found_providers, 12);
 
         Ok(())
     }

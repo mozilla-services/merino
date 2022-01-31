@@ -4,6 +4,7 @@ from polymorphic.admin import (
     PolymorphicChildModelAdmin,
 )
 from .models import (
+    ClientVariantSwitchConfig,
     DebugConfig,
     FixedConfig,
     Keyword,
@@ -35,10 +36,13 @@ class BaseConcreteProviderConfigAdmin(PolymorphicChildModelAdmin):
 
     def get_fieldsets(self, request, obj=None):
         return [
-            (None, {
-                'fields': self.get_fields(request, obj=obj),
-                'description': self.base_model.help_text
-            })
+            (
+                None,
+                {
+                    "fields": self.get_fields(request, obj=obj),
+                    "description": self.base_model.help_text,
+                },
+            )
         ]
 
 
@@ -72,17 +76,25 @@ class FixedConfigAdmin(BaseConcreteProviderConfigAdmin):
     base_model = FixedConfig
 
 
+@admin.register(ClientVariantSwitchConfig)
+class ClientVariantSwtichConfigAdmin(BaseConcreteProviderConfigAdmin):
+    base_model = ClientVariantSwitchConfig
+
+
 @admin.register(Keyword)
 class KeywordAdmin(admin.ModelAdmin):
     base_model = Keyword
-    list_display = ['id', 'pattern']
+    list_display = ["id", "pattern"]
 
     def get_fieldsets(self, request, obj=None):
         return [
-            (None, {
-                'fields': self.get_fields(request, obj=obj),
-                'description': self.base_model.help_text
-            })
+            (
+                None,
+                {
+                    "fields": self.get_fields(request, obj=obj),
+                    "description": self.base_model.help_text,
+                },
+            )
         ]
 
 
@@ -95,7 +107,7 @@ class KeywordInlineAdmin(admin.TabularInline):
 class KeywordFilterConfigAdmin(BaseConcreteProviderConfigAdmin):
     base_model = KeywordFilterConfig
     inlines = [KeywordInlineAdmin]
-    exclude = ['suggestion_blocklist']
+    exclude = ["suggestion_blocklist"]
 
 
 @admin.register(StealthConfig)

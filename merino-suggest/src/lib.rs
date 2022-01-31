@@ -29,8 +29,8 @@ use thiserror::Error;
 
 pub use crate::domain::{CacheInputs, Proportion};
 pub use crate::providers::{
-    DebugProvider, FixedProvider, IdMulti, IdMultiProviderDetails, KeywordFilterProvider, Multi,
-    StealthProvider, TimeoutProvider, WikiFruit,
+    ClientVariantFilterProvider, DebugProvider, FixedProvider, IdMulti, IdMultiProviderDetails,
+    KeywordFilterProvider, Multi, StealthProvider, TimeoutProvider, WikiFruit,
 };
 
 /// The range of major Firefox version numbers to use for testing.
@@ -63,6 +63,9 @@ pub struct SuggestionRequest {
     /// The user agent of the request, including OS family, device form factor, and major Firefox
     /// version number.
     pub device_info: DeviceInfo,
+
+    /// Client Variant strings typed by the user.
+    pub client_variants: Option<Vec<String>>,
 }
 
 impl<'a, F> fake::Dummy<F> for SuggestionRequest {
@@ -75,6 +78,7 @@ impl<'a, F> fake::Dummy<F> for SuggestionRequest {
             dma: Some(rng.gen_range(100_u16..1000)),
             city: Some(CityName().fake::<String>()),
             device_info: Faker.fake(),
+            client_variants: Some(Words(1..10).fake_with_rng::<Vec<String>, R>(rng)),
         }
     }
 }

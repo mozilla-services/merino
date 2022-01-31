@@ -281,6 +281,47 @@ class KeywordFilterConfig(ProviderConfig):
         return "keyword_filter"
 
 
+class ClientVariantSwitchConfig(ProviderConfig):
+    help_text = """
+        Provider switches between two providers based on whether a request's 
+        client_variants matches the configured client_variant string. If there 
+        is a match, suggestions will be given from the matching provider. If not,
+        the default provider will be used.
+    """
+    client_variant: models.CharField = models.CharField(
+        max_length=256,
+        help_text="""
+            If this string is found in a client_variants, the matching_provider 
+            will be used for suggestions. If not, the default_provider will be 
+            used.
+        """,
+    )
+    matching_provider: models.ForeignKey = models.ForeignKey(
+        ProviderConfig,
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name="client_variant_switch_matching_provider",
+        help_text="""
+            The provider to use to generate suggestions when one of the 
+            client_variants from a request matches the client_variant field
+        """,
+    )
+
+    default_provider: models.ForeignKey = models.ForeignKey(
+        ProviderConfig,
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name="client_variant_switch_default_provider",
+        help_text="""
+            The provider to use to generate suggestions when none of the 
+            client_variants from a request matches the client_variant field
+        """,
+    )
+
+    def get_type(self):
+        return "client_variant_switch"
+
+
 class StealthConfig(ProviderConfig):
     help_text = """
         A testing tool that generates the server load that would be associated
@@ -289,11 +330,14 @@ class StealthConfig(ProviderConfig):
     """
 
     inner: models.ForeignKey = models.ForeignKey(
-        ProviderConfig, on_delete=models.SET_NULL, null=True, related_name="stealth",
+        ProviderConfig,
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name="stealth",
         help_text=f"""
             {INNER_PROVIDER_HELP_TEXT} The suggestion generated will not be sent
             in the response.
-        """
+        """,
     )
 
     def get_type(self):

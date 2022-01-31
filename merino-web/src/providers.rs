@@ -9,8 +9,8 @@ use merino_adm::remote_settings::RemoteSettingsSuggester;
 use merino_cache::{MemoryCacheSuggester, RedisCacheSuggester};
 use merino_settings::{providers::SuggestionProviderConfig, Settings};
 use merino_suggest::{
-    DebugProvider, FixedProvider, IdMulti, KeywordFilterProvider, Multi, NullProvider,
-    StealthProvider, SuggestionProvider, TimeoutProvider, WikiFruit,
+    ClientVariantFilterProvider, DebugProvider, FixedProvider, IdMulti, KeywordFilterProvider,
+    Multi, NullProvider, StealthProvider, SuggestionProvider, TimeoutProvider, WikiFruit,
 };
 
 /// The SuggestionProvider stored in Actix's app_data.
@@ -96,6 +96,26 @@ async fn make_provider_tree(
             let inner =
                 make_provider_tree(settings, filter_config.inner.as_ref(), metrics_client).await?;
             StealthProvider::new_boxed(inner)
+        }
+
+        SuggestionProviderConfig::ClientVariantSwitch(filter_config) => {
+            let matching_provider = make_provider_tree(
+                settings,
+                filter_config.matching_provider.as_ref(),
+                metrics_client,
+            )
+            .await?;
+            let default_provider = make_provider_tree(
+                settings,
+                filter_config.default_provider.as_ref(),
+                metrics_client,
+            )
+            .await?;
+            ClientVariantFilterProvider::new_boxed(
+                matching_provider,
+                default_provider,
+                filter_config.client_variant.clone(),
+            )
         }
 
         SuggestionProviderConfig::Debug => DebugProvider::new_boxed(settings)?,
