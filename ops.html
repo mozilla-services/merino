@@ -436,6 +436,24 @@ recommended titles are matched against.</li>
 </code></pre>
 </li>
 <li>
+<p>ClientVariantSwitch - Switches between two providers based on whether a request's client variants matches the configured client variant string</p>
+<ul>
+<li><code>type=client_variant_switch</code></li>
+<li><code>client_variant</code> - the string used to determine whether the matching or default provider is used</li>
+<li><code>matching_provider</code> - The wrapped provider to draw suggestions from for a client variant match.</li>
+<li><code>default_provider</code> - The wrapped provider to draw suggestions when there is not a client variant match.</li>
+</ul>
+<p><em>Example</em>:</p>
+<pre><code class="language-yaml">client_variant_switch:
+  type: client_variant_switch
+  client_variant: &quot;hello&quot;
+  matching_provider:
+    type: wiki_fruit
+  default_provider:
+    type: debug
+</code></pre>
+</li>
+<li>
 <p>Stealth - Runs another provider, but hides the results. Useful for load
 testing of new behavior.</p>
 <ul>

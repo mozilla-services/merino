@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["ClientVariantFilterProvider","A provider that gives suggestions base"]]});

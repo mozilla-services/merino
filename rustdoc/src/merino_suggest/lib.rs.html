@@ -451,6 +451,10 @@
 <span id="450">450</span>
 <span id="451">451</span>
 <span id="452">452</span>
+<span id="453">453</span>
+<span id="454">454</span>
+<span id="455">455</span>
+<span id="456">456</span>
 </pre><pre class="rust"><code><span class="attribute">#![<span class="ident">warn</span>(<span class="ident">missing_docs</span>, <span class="ident">clippy::missing_docs_in_private_items</span>)]</span>
 
 <span class="doccomment">//! Suggestion backends for [Merino](../merino/index.html).</span>
@@ -482,8 +486,8 @@
 
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::domain</span>::{<span class="ident">CacheInputs</span>, <span class="ident">Proportion</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::providers</span>::{
-    <span class="ident">DebugProvider</span>, <span class="ident">FixedProvider</span>, <span class="ident">IdMulti</span>, <span class="ident">IdMultiProviderDetails</span>, <span class="ident">KeywordFilterProvider</span>, <span class="ident">Multi</span>,
-    <span class="ident">StealthProvider</span>, <span class="ident">TimeoutProvider</span>, <span class="ident">WikiFruit</span>,
+    <span class="ident">ClientVariantFilterProvider</span>, <span class="ident">DebugProvider</span>, <span class="ident">FixedProvider</span>, <span class="ident">IdMulti</span>, <span class="ident">IdMultiProviderDetails</span>,
+    <span class="ident">KeywordFilterProvider</span>, <span class="ident">Multi</span>, <span class="ident">StealthProvider</span>, <span class="ident">TimeoutProvider</span>, <span class="ident">WikiFruit</span>,
 };
 
 <span class="doccomment">/// The range of major Firefox version numbers to use for testing.</span>
@@ -516,6 +520,9 @@
     <span class="doccomment">/// The user agent of the request, including OS family, device form factor, and major Firefox</span>
     <span class="doccomment">/// version number.</span>
     <span class="kw">pub</span> <span class="ident">device_info</span>: <span class="ident">DeviceInfo</span>,
+
+    <span class="doccomment">/// Client Variant strings typed by the user.</span>
+    <span class="kw">pub</span> <span class="ident">client_variants</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span>,
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">F</span><span class="op">&gt;</span> <span class="ident">fake::Dummy</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">SuggestionRequest</span> {
@@ -528,6 +535,7 @@
             <span class="ident">dma</span>: <span class="prelude-val">Some</span>(<span class="ident">rng</span>.<span class="ident">gen_range</span>(<span class="number">100_u16</span>..<span class="number">1000</span>)),
             <span class="ident">city</span>: <span class="prelude-val">Some</span>(<span class="ident">CityName</span>().<span class="ident">fake</span>::<span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>()),
             <span class="ident">device_info</span>: <span class="ident">Faker</span>.<span class="ident">fake</span>(),
+            <span class="ident">client_variants</span>: <span class="prelude-val">Some</span>(<span class="ident">Words</span>(<span class="number">1</span>..<span class="number">10</span>).<span class="ident">fake_with_rng</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>, <span class="ident">R</span><span class="op">&gt;</span>(<span class="ident">rng</span>)),
         }
     }
 }
