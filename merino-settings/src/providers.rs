@@ -343,7 +343,12 @@ mod tests {
             "fixed": { "type": "fixed", "value": "test suggestion" },
             "keyword_filter": { "type": "keyword_filter" },
             "stealth": { "type": "stealth" },
-            "client_variant_switch": {"type": "client_variant_switch"},
+            "client_variant_switch": {
+                "type": "client_variant_switch",
+                "client_variant": "test",
+                "matching_provider": {"type":"wiki_fruit"},
+                "default_provider": {"type": "debug"}
+            },
         });
 
         let value_config: Value = serde_json::from_value(value_json.clone())?;
