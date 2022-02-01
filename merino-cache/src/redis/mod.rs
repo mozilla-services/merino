@@ -10,7 +10,7 @@ use async_trait::async_trait;
 use cadence::{CountedExt, StatsdClient};
 use fix_hidden_lifetime_bug::fix_hidden_lifetime_bug;
 use merino_settings::{providers::RedisCacheConfig, Settings};
-use merino_suggest::{
+use merino_suggest_traits::{
     metrics::TimedMicros, CacheInputs, CacheStatus, SetupError, SuggestError, Suggestion,
     SuggestionProvider, SuggestionRequest, SuggestionResponse,
 };
@@ -439,7 +439,7 @@ mod test {
     use anyhow::{anyhow, Context};
     use http::Uri;
     use merino_settings::Settings;
-    use merino_suggest::{Proportion, Suggestion};
+    use merino_suggest_traits::{Proportion, Suggestion};
 
     #[tokio::test]
     async fn check_cache() -> anyhow::Result<()> {

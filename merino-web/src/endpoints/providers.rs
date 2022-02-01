@@ -8,7 +8,7 @@ use actix_web::{
     web::{self, Data},
     HttpResponse,
 };
-use merino_suggest::IdMultiProviderDetails;
+use merino_suggest_providers::IdMultiProviderDetails;
 use serde::Serialize;
 
 /// Configure a route to provide details about the available providers.

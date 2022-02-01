@@ -12,7 +12,7 @@ use deduped_dashmap::DedupedMap;
 use http::Uri;
 use lazy_static::lazy_static;
 use merino_settings::{providers::RemoteSettingsConfig, Settings};
-use merino_suggest::{
+use merino_suggest_traits::{
     metrics::TimedMicros, CacheInputs, Proportion, SetupError, SuggestError, Suggestion,
     SuggestionProvider, SuggestionRequest, SuggestionResponse,
 };
@@ -406,7 +406,7 @@ mod tests {
 
     use fake::{Fake, Faker};
     use http::Uri;
-    use merino_suggest::{Proportion, Suggestion, SuggestionProvider, SuggestionRequest};
+    use merino_suggest_traits::{Proportion, Suggestion, SuggestionProvider, SuggestionRequest};
 
     use crate::remote_settings::RemoteSettingsSuggester;
 

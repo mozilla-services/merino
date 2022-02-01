@@ -1,8 +1,11 @@
 //! Tools to make sure providers don't  cache_status: todo!(), cache_ttl: todo!(), suggestions: todo!() take excessive amounts of time.
 
-use crate::{CacheInputs, CacheStatus, SuggestionProvider, SuggestionResponse};
 use async_trait::async_trait;
 use merino_settings::providers::TimeoutConfig;
+use merino_suggest_traits::{
+    CacheInputs, CacheStatus, SuggestError, SuggestionProvider, SuggestionRequest,
+    SuggestionResponse,
+};
 use std::time::Duration;
 
 /// A combinator provider that returns an empty set of suggestions if the wrapped provider takes too long.
@@ -31,14 +34,11 @@ impl SuggestionProvider for TimeoutProvider {
         format!("timeout({})", self.inner.name())
     }
 
-    fn cache_inputs(&self, req: &crate::SuggestionRequest, cache_inputs: &mut dyn CacheInputs) {
+    fn cache_inputs(&self, req: &SuggestionRequest, cache_inputs: &mut dyn CacheInputs) {
         self.inner.cache_inputs(req, cache_inputs);
     }
 
-    async fn suggest(
-        &self,
-        query: crate::SuggestionRequest,
-    ) -> Result<crate::SuggestionResponse, crate::SuggestError> {
+    async fn suggest(&self, query: SuggestionRequest) -> Result<SuggestionResponse, SuggestError> {
         let inner_fut = self.inner.suggest(query);
         let timeout = tokio::time::timeout(self.max_time, inner_fut).await;
         timeout.unwrap_or_else(|_timeout_elapsed| {
@@ -53,9 +53,13 @@ impl SuggestionProvider for TimeoutProvider {
 
 #[cfg(test)]
 mod tests {
-    use crate::{CacheStatus, Suggestion, SuggestionProvider, SuggestionResponse, TimeoutProvider};
+    use super::TimeoutProvider;
     use async_trait::async_trait;
     use fake::{Fake, Faker};
+    use merino_suggest_traits::{
+        CacheStatus, SuggestError, Suggestion, SuggestionProvider, SuggestionRequest,
+        SuggestionResponse,
+    };
     use std::time::Duration;
 
     struct DelayProvider(Duration);
@@ -68,8 +72,8 @@ mod tests {
 
         async fn suggest(
             &self,
-            _query: crate::SuggestionRequest,
-        ) -> Result<crate::SuggestionResponse, crate::SuggestError> {
+            _query: SuggestionRequest,
+        ) -> Result<SuggestionResponse, SuggestError> {
             tokio::time::sleep(self.0).await;
             Ok(SuggestionResponse {
                 cache_status: CacheStatus::NoCache,

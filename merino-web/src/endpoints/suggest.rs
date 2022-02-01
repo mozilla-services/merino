@@ -13,7 +13,7 @@ use actix_web::{
 use anyhow::Result;
 use cadence::{CountedExt, Histogrammed, StatsdClient};
 use merino_settings::Settings;
-use merino_suggest::{Suggestion, SuggestionProvider, SuggestionRequest};
+use merino_suggest_traits::{Suggestion, SuggestionProvider, SuggestionRequest};
 use serde::{Deserialize, Serialize};
 use serde_with::{rust::StringWithSeparator, serde_as, CommaSeparator};
 use tracing_actix_web::RequestId;

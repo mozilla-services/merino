@@ -6,12 +6,12 @@
 
 use std::collections::{HashMap, HashSet};
 
-use crate::{
+use async_trait::async_trait;
+use futures::{future::join_all, TryFutureExt};
+use merino_suggest_traits::{
     CacheInputs, CacheStatus, SuggestError, SuggestionProvider, SuggestionRequest,
     SuggestionResponse,
 };
-use async_trait::async_trait;
-use futures::{future::join_all, TryFutureExt};
 use serde::Serialize;
 
 /// A provider that aggregates suggestions from suggesters that tracks an ID per
@@ -149,12 +149,12 @@ impl SuggestionProvider for IdMulti {
 mod tests {
     use std::collections::HashMap;
 
-    use crate::{
-        CacheStatus, IdMulti, SuggestError, SuggestionProvider, SuggestionRequest,
-        SuggestionResponse,
-    };
+    use super::IdMulti;
     use async_trait::async_trait;
     use fake::{Fake, Faker};
+    use merino_suggest_traits::{
+        CacheStatus, SuggestError, SuggestionProvider, SuggestionRequest, SuggestionResponse,
+    };
     use tokio::sync::oneshot::error::TryRecvError;
 
     /// A provider that can be externally paused mid-request.

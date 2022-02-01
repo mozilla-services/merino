@@ -5,7 +5,6 @@
 pub mod device_info;
 mod domain;
 pub mod metrics;
-mod providers;
 
 use std::fmt::Debug;
 use std::hash::Hash;
@@ -13,6 +12,7 @@ use std::ops::Range;
 use std::time::Duration;
 
 use crate::device_info::DeviceInfo;
+pub use crate::domain::{CacheInputs, Proportion};
 use actix_web::http::header::{AcceptLanguage, LanguageTag, Preference, QualityItem};
 use async_trait::async_trait;
 use fake::{
@@ -27,11 +27,7 @@ use serde::{Deserialize, Serialize};
 use serde_with::{serde_as, DisplayFromStr};
 use thiserror::Error;
 
-pub use crate::domain::{CacheInputs, Proportion};
-pub use crate::providers::{
-    ClientVariantFilterProvider, DebugProvider, FixedProvider, IdMulti, IdMultiProviderDetails,
-    KeywordFilterProvider, Multi, StealthProvider, TimeoutProvider, WikiFruit,
-};
+/// A provider that never provides any suggestions.
 
 /// The range of major Firefox version numbers to use for testing.
 pub const FIREFOX_TEST_VERSIONS: Range<u32> = 70..95;
@@ -286,28 +282,6 @@ pub trait SuggestionProvider: Send + Sync {
     }
 }
 
-/// A provider that never provides any suggestions
-pub struct NullProvider;
-
-#[async_trait]
-impl SuggestionProvider for NullProvider {
-    fn name(&self) -> String {
-        "NullProvider".into()
-    }
-
-    fn cache_inputs(&self, _req: &SuggestionRequest, _hasher: &mut dyn CacheInputs) {
-        // No property of req will change the response
-    }
-
-    fn is_null(&self) -> bool {
-        true
-    }
-
-    async fn suggest(&self, _query: SuggestionRequest) -> Result<SuggestionResponse, SuggestError> {
-        Ok(SuggestionResponse::new(vec![]))
-    }
-}
-
 /// Errors that may occur while setting up the provider.
 #[derive(Debug, Error)]
 #[allow(missing_docs, clippy::missing_docs_in_private_items)]
@@ -357,6 +331,28 @@ impl SupportedLanguages {
                 Preference::Specific(item) => item.to_owned(),
             })
         })
+    }
+}
+
+/// A basic provider that never returns any suggestions.
+pub struct NullProvider;
+
+#[async_trait]
+impl SuggestionProvider for NullProvider {
+    fn name(&self) -> String {
+        "NullProvider".into()
+    }
+
+    fn cache_inputs(&self, _req: &SuggestionRequest, _hasher: &mut dyn CacheInputs) {
+        // No property of req will change the response
+    }
+
+    fn is_null(&self) -> bool {
+        true
+    }
+
+    async fn suggest(&self, _query: SuggestionRequest) -> Result<SuggestionResponse, SuggestError> {
+        Ok(SuggestionResponse::new(vec![]))
     }
 }
 

@@ -9,7 +9,7 @@ use async_trait::async_trait;
 use fake::{Fake, Faker};
 use merino_settings::Settings;
 
-use crate::{
+use merino_suggest_traits::{
     Proportion, SetupError, SuggestError, Suggestion, SuggestionProvider, SuggestionRequest,
     SuggestionResponse,
 };

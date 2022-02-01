@@ -439,6 +439,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "async-recursion"
+version = "1.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2cda8f4bcc10624c4e85bc66b3f452cca98cfa5ca002dc83a16aad2367641bea"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn",
+]
+
+[[package]]
 name = "async-std"
 version = "1.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1149,12 +1160,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0e25ea47919b1560c4e3b7fe0aaab9becf5b84a10325ddf7db0f0ba5e1026499"
 
 [[package]]
-name = "difference"
-version = "2.0.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "524cbf6897b527295dff137cec09ecf3a05f4fddffd7dfcd1585403449e74198"
-
-[[package]]
 name = "digest"
 version = "0.8.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1268,12 +1273,6 @@ checksum = "80df024fbc5ac80f87dfef0d9f5209a252f2a497f7f42944cff24d8253cac065"
 dependencies = [
  "cfg-if 1.0.0",
 ]
-
-[[package]]
-name = "endian-type"
-version = "0.1.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c34f04666d835ff5d62e058c3995147c06f42fe86ff053337632bca83e42702d"
 
 [[package]]
 name = "event-listener"
@@ -1727,33 +1726,6 @@ name = "httpdate"
 version = "1.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6456b8a6c8f33fee7d958fcd1b60d55b11940a79e63ae87013e6d22e26034440"
-
-[[package]]
-name = "httpmock"
-version = "0.5.8"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b217899bcbe8ad3bdee7a46727bd3754b908831462755567852fb20eac585d46"
-dependencies = [
- "assert-json-diff",
- "async-object-pool",
- "async-trait",
- "base64 0.13.0",
- "basic-cookies",
- "crossbeam-utils",
- "difference",
- "futures-util",
- "hyper 0.14.10",
- "isahc",
- "lazy_static",
- "levenshtein",
- "log",
- "qstring",
- "regex",
- "serde",
- "serde_json",
- "serde_regex",
- "tokio 1.15.0",
-]
 
 [[package]]
 name = "httpmock"
@@ -2215,12 +2187,9 @@ dependencies = [
  "fake",
  "futures",
  "http",
- "httpmock 0.5.8",
  "lazy_static",
  "merino-settings",
- "merino-suggest",
- "pretty_assertions",
- "radix_trie",
+ "merino-suggest-traits",
  "remote-settings-client",
  "reqwest 0.11.4",
  "sentry",
@@ -2228,7 +2197,6 @@ dependencies = [
  "serde",
  "serde_derive",
  "serde_json",
- "serde_qs",
  "serde_with",
  "thiserror",
  "tokio 1.15.0",
@@ -2250,7 +2218,7 @@ dependencies = [
  "http",
  "lazy_static",
  "merino-settings",
- "merino-suggest",
+ "merino-suggest-traits",
  "proptest",
  "redis",
  "serde",
@@ -2270,9 +2238,7 @@ dependencies = [
  "cadence",
  "crossbeam-channel",
  "deadpool",
- "httpmock 0.5.8",
  "lazy_static",
- "maplit",
  "merino-integration-tests-macro",
  "merino-settings",
  "merino-web",
@@ -2285,7 +2251,6 @@ dependencies = [
  "serde_with",
  "statsd-parser",
  "tokio 1.15.0",
- "tokio-test",
  "tracing",
  "tracing-futures",
  "tracing-subscriber",
@@ -2295,8 +2260,6 @@ dependencies = [
 name = "merino-integration-tests-macro"
 version = "0.5.1"
 dependencies = [
- "merino-integration-tests",
- "parameterized",
  "proc-macro2",
  "quote",
  "syn",
@@ -2310,7 +2273,7 @@ dependencies = [
  "async-trait",
  "config 0.11.0 (git+https://github.com/mehcode/config-rs?rev=53e43fb)",
  "http",
- "httpmock 0.6.6",
+ "httpmock",
  "parameterized",
  "redis",
  "reqwest 0.11.4",
@@ -2325,18 +2288,22 @@ dependencies = [
 ]
 
 [[package]]
-name = "merino-suggest"
+name = "merino-suggest-providers"
 version = "0.5.1"
 dependencies = [
  "actix-web",
  "anyhow",
+ "async-recursion 1.0.0",
  "async-trait",
  "blake3",
  "cadence",
  "fake",
  "futures",
  "http",
+ "merino-adm",
+ "merino-cache",
  "merino-settings",
+ "merino-suggest-traits",
  "rand 0.8.4",
  "regex",
  "serde",
@@ -2348,6 +2315,26 @@ dependencies = [
 ]
 
 [[package]]
+name = "merino-suggest-traits"
+version = "0.5.1"
+dependencies = [
+ "actix-web",
+ "anyhow",
+ "async-trait",
+ "blake3",
+ "cadence",
+ "fake",
+ "http",
+ "rand 0.8.4",
+ "regex",
+ "serde",
+ "serde_json",
+ "serde_with",
+ "thiserror",
+ "tokio 1.15.0",
+]
+
+[[package]]
 name = "merino-web"
 version = "0.5.1"
 dependencies = [
@@ -2356,7 +2343,7 @@ dependencies = [
  "actix-web",
  "actix-web-location",
  "anyhow",
- "async-recursion",
+ "async-recursion 0.3.2",
  "backtrace",
  "cadence",
  "futures",
@@ -2365,7 +2352,8 @@ dependencies = [
  "merino-adm",
  "merino-cache",
  "merino-settings",
- "merino-suggest",
+ "merino-suggest-providers",
+ "merino-suggest-traits",
  "pretty_assertions",
  "sentry",
  "sentry-backtrace",
@@ -2528,15 +2516,6 @@ name = "new_debug_unreachable"
 version = "1.0.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e4a24736216ec316047a1fc4252e27dabb04218aa4a3f37c6e7ddbf1f9782b54"
-
-[[package]]
-name = "nibble_vec"
-version = "0.1.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "77a5d83df9f36fe23f0c3648c6bbb8b0298bb5f1939c8f2704431371f4b84d43"
-dependencies = [
- "smallvec",
-]
 
 [[package]]
 name = "nom"
@@ -2958,15 +2937,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "qstring"
-version = "0.7.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d464fae65fff2680baf48019211ce37aaec0c78e9264c84a3e484717f965104e"
-dependencies = [
- "percent-encoding",
-]
-
-[[package]]
 name = "quick-error"
 version = "1.2.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2985,16 +2955,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c3d0b9745dc2debf507c8422de05d7226cc1f0644216dfdfead988f9b1ab32a7"
 dependencies = [
  "proc-macro2",
-]
-
-[[package]]
-name = "radix_trie"
-version = "0.2.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c069c179fcdc6a2fe24d8d18305cf085fdbd4f922c041943e203685d6a1c58fd"
-dependencies = [
- "endian-type",
- "nibble_vec",
 ]
 
 [[package]]
@@ -3571,17 +3531,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "42f6109f0506e20f7e0f910e51a0079acf41da8e0694e6442527c4ddf5a2b158"
 dependencies = [
  "serde",
-]
-
-[[package]]
-name = "serde_qs"
-version = "0.8.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d8a72808528a89fa9eca23bbb6a1eb92cb639b881357269b6510f11e50c0f8a9"
-dependencies = [
- "percent-encoding",
- "serde",
- "thiserror",
 ]
 
 [[package]]

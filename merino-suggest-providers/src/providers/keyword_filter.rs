@@ -2,14 +2,14 @@
 
 use std::collections::HashMap;
 
-use crate::{
-    CacheInputs, SetupError, SuggestError, SuggestionProvider, SuggestionRequest,
-    SuggestionResponse,
-};
 use anyhow::Context;
 use async_trait::async_trait;
 use blake3::Hash;
 use cadence::{Counted, StatsdClient};
+use merino_suggest_traits::{
+    CacheInputs, SetupError, SuggestError, SuggestionProvider, SuggestionRequest,
+    SuggestionResponse,
+};
 use regex::{RegexSet, RegexSetBuilder};
 
 /// A combinator provider that filters the results from the wrapped provider
@@ -115,13 +115,14 @@ impl SuggestionProvider for KeywordFilterProvider {
 
 #[cfg(test)]
 mod tests {
-    use crate::{
-        CacheStatus, KeywordFilterProvider, SuggestError, Suggestion, SuggestionProvider,
-        SuggestionRequest, SuggestionResponse,
-    };
+    use super::KeywordFilterProvider;
     use async_trait::async_trait;
     use cadence::{SpyMetricSink, StatsdClient};
     use fake::{Fake, Faker};
+    use merino_suggest_traits::{
+        CacheStatus, SuggestError, Suggestion, SuggestionProvider, SuggestionRequest,
+        SuggestionResponse,
+    };
     use std::collections::HashMap;
 
     struct TestSuggestionsProvider();

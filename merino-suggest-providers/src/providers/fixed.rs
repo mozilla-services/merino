@@ -8,7 +8,7 @@ use async_trait::async_trait;
 use http::Uri;
 use merino_settings::{providers::FixedConfig, Settings};
 
-use crate::{
+use merino_suggest_traits::{
     CacheInputs, Proportion, SetupError, SuggestError, Suggestion, SuggestionProvider,
     SuggestionRequest, SuggestionResponse,
 };

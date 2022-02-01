@@ -1,11 +1,11 @@
 //! Provides a provider-combinator that provides suggestions from multiple sub-providers.
 
-use crate::{
+use async_trait::async_trait;
+use futures::future::join_all;
+use merino_suggest_traits::{
     CacheInputs, CacheStatus, SuggestError, SuggestionProvider, SuggestionRequest,
     SuggestionResponse,
 };
-use async_trait::async_trait;
-use futures::future::join_all;
 
 /// A provider that aggregates suggestions from multiple suggesters.
 pub struct Multi {
@@ -75,11 +75,12 @@ impl SuggestionProvider for Multi {
 
 #[cfg(test)]
 mod tests {
-    use crate::{
-        CacheStatus, Multi, SuggestError, SuggestionProvider, SuggestionRequest, SuggestionResponse,
-    };
+    use super::Multi;
     use async_trait::async_trait;
     use fake::{Fake, Faker};
+    use merino_suggest_traits::{
+        CacheStatus, SuggestError, SuggestionProvider, SuggestionRequest, SuggestionResponse,
+    };
     use tokio::sync::oneshot::error::TryRecvError;
 
     /// A provider that can be externally paused mid-request.

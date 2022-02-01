@@ -14,7 +14,7 @@ use futures_util::{
     FutureExt,
 };
 use lazy_static::lazy_static;
-use merino_suggest::{
+use merino_suggest_traits::{
     device_info::{Browser, DeviceInfo, FormFactor, OsFamily},
     SuggestionRequest, SupportedLanguages,
 };
@@ -27,7 +27,7 @@ lazy_static! {
     static ref EMPTY_HEADER: HeaderValue = HeaderValue::from_static("");
 }
 
-/// An extractor for a [`merino_suggest::SuggestionRequest`].
+/// An extractor for a [`merino_suggest_traits::SuggestionRequest`].
 pub struct SuggestionRequestWrapper(pub SuggestionRequest);
 
 impl FromRequest for SuggestionRequestWrapper {
@@ -216,7 +216,7 @@ mod tests {
         test::TestRequest,
         FromRequest, HttpRequest,
     };
-    use merino_suggest::{
+    use merino_suggest_traits::{
         device_info::{Browser, DeviceInfo, FormFactor, OsFamily},
         SupportedLanguages,
     };

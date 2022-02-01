@@ -1,6 +1,8 @@
 //! A suggestion provider switches between a matching and default provider based on the client variant string.
-use crate::{CacheInputs, SuggestError, SuggestionProvider, SuggestionRequest, SuggestionResponse};
 use async_trait::async_trait;
+use merino_suggest_traits::{
+    CacheInputs, SuggestError, SuggestionProvider, SuggestionRequest, SuggestionResponse,
+};
 
 /// A provider that gives suggestions base
 pub struct ClientVariantFilterProvider {
@@ -76,10 +78,9 @@ impl SuggestionProvider for ClientVariantFilterProvider {
 
 #[cfg(test)]
 mod tests {
-    use crate::{
-        ClientVariantFilterProvider, FixedProvider, SuggestionProvider, SuggestionRequest,
-    };
+    use crate::{ClientVariantFilterProvider, FixedProvider};
     use fake::{Fake, Faker};
+    use merino_suggest_traits::{SuggestionProvider, SuggestionRequest};
 
     #[tokio::test]
     async fn test_provider_uses_default_without_client_variants() {

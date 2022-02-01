@@ -1,6 +1,6 @@
-//! Wrapper types for [`merino-suggest`] types so traits can be implemented
+//! Wrapper types for [`merino-suggest_traits`] types so traits can be implemented
 
-use merino_suggest::Suggestion;
+use merino_suggest_traits::Suggestion;
 use redis::{FromRedisValue, ToRedisArgs};
 
 /// A byte string prepended to all cached data to avoid format problems. Cache
@@ -102,7 +102,7 @@ impl FromRedisValue for RedisTtl {
 mod tests {
     use anyhow::{anyhow, Result};
     use http::Uri;
-    use merino_suggest::{Proportion, Suggestion};
+    use merino_suggest_traits::{Proportion, Suggestion};
     use proptest::prelude::*;
     use redis::{FromRedisValue, ToRedisArgs};
 

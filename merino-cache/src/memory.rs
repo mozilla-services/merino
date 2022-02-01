@@ -11,7 +11,7 @@ use cadence::{CountedExt, Gauged, StatsdClient};
 use deduped_dashmap::{ControlFlow, DedupedMap};
 use lazy_static::lazy_static;
 use merino_settings::providers::MemoryCacheConfig;
-use merino_suggest::{
+use merino_suggest_traits::{
     metrics::TimedMicros, CacheInputs, CacheStatus, Suggestion, SuggestionProvider,
     SuggestionRequest, SuggestionResponse,
 };
@@ -213,7 +213,7 @@ impl SuggestionProvider for Suggester {
     async fn suggest(
         &self,
         query: SuggestionRequest,
-    ) -> Result<SuggestionResponse, merino_suggest::SuggestError> {
+    ) -> Result<SuggestionResponse, merino_suggest_traits::SuggestError> {
         let now = Instant::now();
         let key = self.cache_key(&query);
         let span = tracing::debug_span!("memory-suggest", ?key);
@@ -280,7 +280,7 @@ impl SuggestionProvider for Suggester {
                     .send();
                 Ok(response)
             } else {
-                Err(merino_suggest::SuggestError::Internal(anyhow!(
+                Err(merino_suggest_traits::SuggestError::Internal(anyhow!(
                     "No result generated"
                 )))
             }
@@ -296,7 +296,7 @@ mod tests {
     use cadence::{SpyMetricSink, StatsdClient};
     use deduped_dashmap::DedupedMap;
     use fake::{Fake, Faker};
-    use merino_suggest::{NullProvider, Suggestion};
+    use merino_suggest_traits::{NullProvider, Suggestion};
     use std::{
         sync::Arc,
         time::{Duration, Instant},

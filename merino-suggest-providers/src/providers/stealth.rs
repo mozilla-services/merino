@@ -1,7 +1,9 @@
 //! A provider that executes an inner provider, but returns no suggestions.
 
-use crate::{CacheInputs, SuggestError, SuggestionProvider, SuggestionRequest, SuggestionResponse};
 use async_trait::async_trait;
+use merino_suggest_traits::{
+    CacheInputs, SuggestError, SuggestionProvider, SuggestionRequest, SuggestionResponse,
+};
 
 /// A provider that runs `inner`, but doesn't return any results.
 pub struct StealthProvider {
@@ -38,13 +40,13 @@ impl StealthProvider {
 
 #[cfg(test)]
 mod tests {
-    use crate::{
-        StealthProvider, SuggestError, Suggestion, SuggestionProvider, SuggestionRequest,
-        SuggestionResponse,
-    };
+    use super::StealthProvider;
     use async_trait::async_trait;
     use fake::{Fake, Faker};
     use futures::StreamExt;
+    use merino_suggest_traits::{
+        SuggestError, Suggestion, SuggestionProvider, SuggestionRequest, SuggestionResponse,
+    };
     use std::sync::atomic::{AtomicU32, Ordering};
 
     struct CounterProvider {
