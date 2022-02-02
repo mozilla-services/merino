@@ -23,7 +23,10 @@ pub struct WikipediaDocument {
     pub page_id: u32,
 }
 
-///
+/// The namespace of a Wikipedia page. Included here for completeness, but all
+/// of the content we are interested are likely in namespace 0, Articles. This
+/// will be included in the Wikipedia data that we have access to, and is
+/// important to disambiguate page IDs.
 #[allow(missing_docs, clippy::missing_docs_in_private_items)]
 #[derive(Clone, Copy, Debug)]
 pub enum WikipediaNamespace {

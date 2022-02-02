@@ -160,7 +160,7 @@ impl ElasticHelper {
     }
 }
 
-/// An object that can be indexed using [`ElasticHelper`].  pub trait HelperIndexable: Serialize {
+/// An object that can be indexed using [`ElasticHelper`].
 pub trait HelperIndexable: Serialize {
     /// The ID that this document should be indexed under. Two documents with
     /// the same ID are considered to be semantically equivalent. If a document

@@ -295,7 +295,7 @@ pub enum ProviderSettings {
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
-#[serde(tag = "Type", rename_all = "snake_case")]
+#[serde(tag = "type", rename_all = "snake_case")]
 pub struct ElasticsearchSettings {
     pub connection: ElasticsearchConnection,
 }
