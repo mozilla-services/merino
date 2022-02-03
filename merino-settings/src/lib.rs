@@ -94,6 +94,8 @@ pub struct Settings {
     /// off, the suggest request object should be logged, but the
     /// search query should be blank.
     pub log_full_request: bool,
+
+    pub elasticsearch: ElasticsearchSettings,
 }
 
 /// Settings for the HTTP server.
@@ -290,6 +292,26 @@ pub enum ProviderSettings {
 
     /// A remote source behind an HTTP endpoint. This is used for production.
     Remote { uri: String },
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+#[serde(tag = "type", rename_all = "snake_case")]
+pub struct ElasticsearchSettings {
+    pub connection: ElasticsearchConnection,
+}
+
+#[serde_as]
+#[derive(Clone, Debug, Serialize, Deserialize)]
+#[serde(tag = "type", rename_all = "snake_case")]
+pub enum ElasticsearchConnection {
+    Single {
+        #[serde_as(as = "DisplayFromStr")]
+        url: Uri,
+    },
+    Cloud {
+        cloud_id: String,
+    },
+    None,
 }
 
 impl Settings {
