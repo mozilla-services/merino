@@ -23,7 +23,7 @@ pub struct WikiFruit {
 
 impl WikiFruit {
     /// Create a WikiFruit provider from settings.
-    pub fn new_boxed(settings: &Settings) -> Result<Box<Self>, SetupError> {
+    pub fn new_boxed(settings: Settings) -> Result<Box<Self>, SetupError> {
         if !settings.debug {
             Err(SetupError::InvalidConfiguration(anyhow!(
                 "WikiFruit suggestion provider can only be used in debug mode",

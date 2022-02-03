@@ -4,6 +4,7 @@
 
 mod maker;
 mod providers;
+mod reconfigure;
 
 pub use crate::{
     maker::make_provider_tree,
@@ -18,5 +19,6 @@ pub use crate::{
         timeout::TimeoutProvider,
         wikifruit::WikiFruit,
     },
+    reconfigure::reconfigure_provider_tree,
 };
 pub use merino_suggest_traits::NullProvider;

@@ -37,7 +37,7 @@ impl KeywordFilterProvider {
     pub fn new_boxed(
         blocklist: HashMap<String, String>,
         inner: Box<dyn SuggestionProvider>,
-        metrics_client: &StatsdClient,
+        metrics_client: StatsdClient,
     ) -> Result<Box<Self>, SetupError> {
         let (blocklist_ids, regexes): (Vec<String>, Vec<String>) = blocklist.into_iter().unzip();
 
@@ -58,7 +58,7 @@ impl KeywordFilterProvider {
             blocklist_rules,
             blocklist_hash,
             inner,
-            metrics_client: metrics_client.clone(),
+            metrics_client,
         }))
     }
 }
@@ -175,7 +175,7 @@ mod tests {
         let filter_provider = KeywordFilterProvider::new_boxed(
             blocklist,
             Box::new(TestSuggestionsProvider()),
-            &metrics_client,
+            metrics_client.clone(),
         )
         .expect("failed to create the keyword filter provider");
 
@@ -209,7 +209,7 @@ mod tests {
         let filter_provider = KeywordFilterProvider::new_boxed(
             blocklist,
             Box::new(TestSuggestionsProvider()),
-            &metrics_client,
+            metrics_client.clone(),
         )
         .expect("failed to create the keyword filter provider");
 
@@ -244,7 +244,7 @@ mod tests {
         let filter_provider = KeywordFilterProvider::new_boxed(
             blocklist,
             Box::new(TestSuggestionsProvider()),
-            &metrics_client,
+            metrics_client.clone(),
         )
         .expect("failed to create the keyword filter provider");
 

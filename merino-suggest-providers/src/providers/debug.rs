@@ -22,7 +22,7 @@ pub struct DebugProvider {
 
 impl DebugProvider {
     /// Create a DebugProvider provider from settings.
-    pub fn new_boxed(settings: &Settings) -> Result<Box<Self>, SetupError> {
+    pub fn new_boxed(settings: Settings) -> Result<Box<Self>, SetupError> {
         if !settings.debug {
             Err(SetupError::InvalidConfiguration(anyhow!(
                 "DebugProvider can only be used in debug mode",

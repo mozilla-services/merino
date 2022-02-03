@@ -187,8 +187,8 @@ impl Suggester {
     #[allow(clippy::manual_async_fn)]
     #[fix_hidden_lifetime_bug]
     pub async fn new_boxed(
-        settings: &Settings,
-        config: &RedisCacheConfig,
+        settings: Settings,
+        config: RedisCacheConfig,
         metrics_client: StatsdClient,
         provider: Box<dyn SuggestionProvider + 'static>,
     ) -> Result<Box<Self>, SetupError> {

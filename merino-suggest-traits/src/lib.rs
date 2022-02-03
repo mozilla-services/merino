@@ -6,10 +6,11 @@ pub mod device_info;
 mod domain;
 pub mod metrics;
 
-use std::fmt::Debug;
 use std::hash::Hash;
 use std::ops::Range;
+use std::pin::Pin;
 use std::time::Duration;
+use std::{fmt::Debug, future::Future};
 
 use crate::device_info::DeviceInfo;
 pub use crate::domain::{CacheInputs, Proportion};
@@ -23,6 +24,7 @@ use fake::{
     Fake, Faker,
 };
 use http::Uri;
+use merino_settings::SuggestionProviderConfig;
 use serde::{Deserialize, Serialize};
 use serde_with::{serde_as, DisplayFromStr};
 use thiserror::Error;
@@ -280,7 +282,31 @@ pub trait SuggestionProvider: Send + Sync {
         self.cache_inputs(req, &mut cache_inputs);
         format!("provider:v1:{}", cache_inputs.hash())
     }
+
+    /// Reconfigure the provider, using a new configuration object. State should
+    /// be preserved if possible.
+    ///
+    /// The parameter `make_fresh` can be used to make a new provider from a
+    /// configuration, such as if a inner provider must be thrown away and
+    /// recreated.
+    fn reconfigure(
+        &mut self,
+        new_config: serde_json::Value,
+        make_fresh: MakeFreshType,
+    ) -> Result<(), SetupError> {
+        todo!("{:?} {:?}", new_config, std::any::Any::type_id(&make_fresh))
+    }
 }
+
+/// A type that represents an object-safe function that can be passed to
+/// suggestion reconfigure methods to make new inner providers.
+pub type MakeFreshType = Box<
+    dyn Fn(
+        SuggestionProviderConfig,
+    ) -> Pin<
+        Box<(dyn Future<Output = Result<Box<dyn SuggestionProvider>, SetupError>> + 'static)>,
+    >,
+>;
 
 /// Errors that may occur while setting up the provider.
 #[derive(Debug, Error)]

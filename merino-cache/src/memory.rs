@@ -104,7 +104,7 @@ impl Suggester {
     /// Create a in-memory suggestion cache from settings that wraps `provider`.
     #[must_use]
     pub fn new_boxed(
-        config: &MemoryCacheConfig,
+        config: MemoryCacheConfig,
         provider: Box<dyn SuggestionProvider>,
         metrics_client: StatsdClient,
     ) -> Box<Self> {

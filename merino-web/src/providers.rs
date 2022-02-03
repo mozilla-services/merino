@@ -14,7 +14,7 @@ pub struct SuggestionProviderRef(pub Arc<IdMulti>);
 
 impl SuggestionProviderRef {
     /// initialize the suggestion providers
-    pub async fn init(settings: &Settings, metrics_client: &StatsdClient) -> Result<Self> {
+    pub async fn init(settings: Settings, metrics_client: StatsdClient) -> Result<Self> {
         let mut idm = IdMulti::default();
 
         let _setup_span = tracing::info_span!("suggestion_provider_setup");
@@ -23,10 +23,10 @@ impl SuggestionProviderRef {
             "Setting up suggestion providers"
         );
 
-        for (name, config) in &settings.suggestion_providers {
+        for (name, config) in settings.suggestion_providers.clone() {
             idm.add_provider(
                 name,
-                make_provider_tree(settings, config, metrics_client).await?,
+                make_provider_tree(settings.clone(), config, metrics_client.clone()).await?,
             );
         }
 
@@ -51,7 +51,7 @@ mod tests {
         let settings = Settings::load_for_tests();
         let config = SuggestionProviderConfig::Null;
         let metrics_client = StatsdClient::from_sink("merino-test", SpyMetricSink::new().1);
-        let provider_tree = make_provider_tree(&settings, &config, &metrics_client).await?;
+        let provider_tree = make_provider_tree(settings, config, metrics_client).await?;
         assert_eq!(provider_tree.name(), "NullProvider");
         Ok(())
     }
@@ -76,7 +76,7 @@ mod tests {
         });
 
         let metrics_client = StatsdClient::from_sink("merino-test", SpyMetricSink::new().1);
-        let provider_tree = make_provider_tree(&settings, &config, &metrics_client).await?;
+        let provider_tree = make_provider_tree(settings, config, metrics_client).await?;
         assert_eq!(
             provider_tree.name(),
             "Multi(NullProvider, RedisCache(MemoryCache(WikiFruit)), NullProvider)"

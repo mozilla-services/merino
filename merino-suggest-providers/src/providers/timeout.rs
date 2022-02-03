@@ -20,7 +20,7 @@ pub struct TimeoutProvider {
 impl TimeoutProvider {
     /// Construct a new, boxed timeout provider.
     #[must_use]
-    pub fn new_boxed(config: &TimeoutConfig, inner: Box<dyn SuggestionProvider>) -> Box<Self> {
+    pub fn new_boxed(config: TimeoutConfig, inner: Box<dyn SuggestionProvider>) -> Box<Self> {
         Box::new(Self {
             max_time: config.max_time,
             inner,

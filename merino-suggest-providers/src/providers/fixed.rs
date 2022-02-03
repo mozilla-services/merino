@@ -23,14 +23,14 @@ impl FixedProvider {
     /// Create a DebugProvider provider from settings.
     ///
     /// The `provider` field of the suggestion will be overwritten.
-    pub fn new_boxed(settings: &Settings, config: &FixedConfig) -> Result<Box<Self>, SetupError> {
+    pub fn new_boxed(settings: Settings, config: FixedConfig) -> Result<Box<Self>, SetupError> {
         if !settings.debug {
             Err(SetupError::InvalidConfiguration(anyhow!(
                 "FixedProvider can only be used in debug mode",
             )))
         } else {
             Ok(Box::new(Self {
-                value: config.value.clone(),
+                value: config.value,
             }))
         }
     }

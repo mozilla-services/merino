@@ -151,9 +151,12 @@ where
     let address = listener.local_addr().unwrap().to_string();
     let redis_client =
         redis::Client::open(settings.redis.url.clone()).expect("Couldn't access redis server");
-    let providers = merino_web::providers::SuggestionProviderRef::init(&settings, &metrics_client)
-        .await
-        .expect("Could not create providers");
+    let providers = merino_web::providers::SuggestionProviderRef::init(
+        settings.clone(),
+        metrics_client.clone(),
+    )
+    .await
+    .expect("Could not create providers");
     let server = merino_web::run(listener, metrics_client, settings.clone(), providers)
         .expect("Failed to start server");
     let server_handle = tokio::spawn(server.with_current_subscriber());

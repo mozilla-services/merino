@@ -50,9 +50,13 @@ impl IdMulti {
     }
 
     /// Modify this provider to include another named provider tree.
-    pub fn add_provider(&mut self, name: &str, provider: Box<dyn SuggestionProvider>) -> &mut Self {
+    pub fn add_provider(
+        &mut self,
+        name: String,
+        provider: Box<dyn SuggestionProvider>,
+    ) -> &mut Self {
         if !provider.is_null() {
-            self.providers.insert(name.to_string(), provider);
+            self.providers.insert(name, provider);
         }
         self
     }

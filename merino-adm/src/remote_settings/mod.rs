@@ -40,8 +40,8 @@ impl RemoteSettingsSuggester {
     /// Returns an error if the settings are invalid for this provider, or if
     /// the initial sync fails.
     pub async fn new_boxed(
-        settings: &Settings,
-        config: &RemoteSettingsConfig,
+        settings: Settings,
+        config: RemoteSettingsConfig,
         metrics_client: StatsdClient,
     ) -> Result<Box<Self>, SetupError> {
         let reqwest_client = ReqwestClient::try_new()

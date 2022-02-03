@@ -57,7 +57,7 @@ use crate::providers::SuggestionProviderRef;
 /// let settings = merino_settings::Settings::load().await
 ///     .expect("Failed to load settings");
 /// let metrics_client = cadence::StatsdClient::from_sink("merino", cadence::NopMetricSink);
-/// let providers = merino_web::providers::SuggestionProviderRef::init(&settings, &metrics_client)
+/// let providers = merino_web::providers::SuggestionProviderRef::init(settings.clone(), metrics_client.clone())
 ///                 .await
 ///                 .expect("Could not create providers");
 /// let server = merino_web::run(listener, metrics_client, settings, providers)
@@ -80,7 +80,7 @@ use crate::providers::SuggestionProviderRef;
 /// let settings = merino_settings::Settings::load().await
 ///     .expect("Failed to load settings");
 /// let metrics_client = cadence::StatsdClient::from_sink("merino", cadence::NopMetricSink);
-/// let providers = merino_web::providers::SuggestionProviderRef::init(&settings, &metrics_client)
+/// let providers = merino_web::providers::SuggestionProviderRef::init(settings.clone(), metrics_client.clone())
 ///                 .await
 ///                 .expect("Could not create providers");
 /// let server = merino_web::run(listener, metrics_client, settings, providers)
