@@ -24,10 +24,10 @@ and <code>AsyncWrite</code> in order to provide types that behave like byte stre
 can be used in almost exactly the same manner as the standard library’s
 <code>Read</code> and <code>Write</code>. Most types in the standard library that implement <code>Read</code>
 and <code>Write</code> have asynchronous equivalents in <code>tokio</code> that implement
-<code>AsyncRead</code> and <code>AsyncWrite</code>, such as <a href="crate::fs::File"><code>File</code></a> and <a href="../net/struct.TcpStream.html"><code>TcpStream</code></a>.</p>
+<code>AsyncRead</code> and <code>AsyncWrite</code>, such as <a href="../fs/struct.File.html"><code>File</code></a> and <a href="../net/struct.TcpStream.html"><code>TcpStream</code></a>.</p>
 <p>For example, the standard library documentation introduces <code>Read</code> by
 <a href="https://doc.rust-lang.org/1.58.1/std/io/index.html#read-and-write">demonstrating</a> reading some bytes from a <a href="https://doc.rust-lang.org/1.58.1/std/fs/struct.File.html"><code>std::fs::File</code></a>. We
-can do the same with <a href="crate::fs::File"><code>tokio::fs::File</code></a>:</p>
+can do the same with <a href="../fs/struct.File.html"><code>tokio::fs::File</code></a>:</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">tokio::io</span>::{<span class="self">self</span>, <span class="ident">AsyncReadExt</span>};
 <span class="kw">use</span> <span class="ident">tokio::fs::File</span>;
@@ -110,7 +110,7 @@ buffer of bytes, and then use that <a href="https://docs.rs/tokio-util/0.6/tokio
 that implements <a href="trait.AsyncRead.html"><code>AsyncRead</code></a> and <a href="trait.AsyncWrite.html"><code>AsyncWrite</code></a> into a <code>Sink</code>/<code>Stream</code> of
 your structured data.</p>
 <h2 id="standard-input-and-output" class="section-header"><a href="#standard-input-and-output">Standard input and output</a></h2>
-<p>Tokio provides asynchronous APIs to standard <a href="fn@stdin">input</a>, <a href="fn@stdout">output</a>, and <a href="fn@stderr">error</a>.
+<p>Tokio provides asynchronous APIs to standard <a href="fn.stdin.html">input</a>, <a href="fn.stdout.html">output</a>, and <a href="fn.stderr.html">error</a>.
 These APIs are very similar to the ones provided by <code>std</code>, but they also
 implement <a href="trait.AsyncRead.html"><code>AsyncRead</code></a> and <a href="trait.AsyncWrite.html"><code>AsyncWrite</code></a>.</p>
 <p>Note that the standard input / output APIs  <strong>must</strong> be used from the
@@ -137,6 +137,9 @@ re-exported from <code>std::io</code> for ease of use.</p>
 over and…</p>
 </div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.Sink.html" title="tokio::io::Sink struct">Sink</a></div><div class="item-right docblock-short"><p>An async writer which will move data into the void.</p>
 </div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.Split.html" title="tokio::io::Split struct">Split</a></div><div class="item-right docblock-short"><p>Splitter for the <a href="trait.AsyncBufReadExt.html#method.split"><code>split</code></a> method.</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.Stderr.html" title="tokio::io::Stderr struct">Stderr</a></div><div class="item-right docblock-short"><p>A handle to the standard error stream of a process.</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.Stdin.html" title="tokio::io::Stdin struct">Stdin</a></div><div class="item-right docblock-short"><p>A handle to the standard input stream of a process.</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.Stdout.html" title="tokio::io::Stdout struct">Stdout</a></div><div class="item-right docblock-short"><p>A handle to the standard output stream of a process.</p>
 </div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.Take.html" title="tokio::io::Take struct">Take</a></div><div class="item-right docblock-short"><p>Stream for the <a href="trait.AsyncReadExt.html#method.take"><code>take</code></a> method.</p>
 </div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.WriteHalf.html" title="tokio::io::WriteHalf struct">WriteHalf</a></div><div class="item-right docblock-short"><p>The writable half of a value returned from <a href="fn.split.html"><code>split</code></a>.</p>
 </div></div></div><h2 id="traits" class="small-section-header"><a href="#traits">Traits</a></h2>
@@ -159,5 +162,8 @@ over and…</p>
 data.</p>
 </div></div><div class="item-row"><div class="item-left module-item"><a class="fn" href="fn.split.html" title="tokio::io::split fn">split</a></div><div class="item-right docblock-short"><p>Splits a single value implementing <code>AsyncRead + AsyncWrite</code> into separate
 <code>AsyncRead</code> and <code>AsyncWrite</code> handles.</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="fn" href="fn.stderr.html" title="tokio::io::stderr fn">stderr</a></div><div class="item-right docblock-short"><p>Constructs a new handle to the standard error of the current process.</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="fn" href="fn.stdin.html" title="tokio::io::stdin fn">stdin</a></div><div class="item-right docblock-short"><p>Constructs a new handle to the standard input of the current process.</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="fn" href="fn.stdout.html" title="tokio::io::stdout fn">stdout</a></div><div class="item-right docblock-short"><p>Constructs a new handle to the standard output of the current process.</p>
 </div></div></div></section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="tokio" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
 </body></html>

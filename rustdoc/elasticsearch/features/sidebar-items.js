@@ -1,0 +1,1 @@
+initSidebarItems({"enum":[["FeaturesGetFeaturesParts","API parts for the Features Get Features API"]],"struct":[["Features","Namespace client for Features APIs"],["FeaturesGetFeatures","Builder for the Features Get Features API"]]});

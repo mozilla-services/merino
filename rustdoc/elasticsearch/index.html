@@ -1,0 +1,321 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Official Rust client for Elasticsearch"><meta name="keywords" content="rust, rustlang, rust-lang, elasticsearch"><title>elasticsearch - Rust</title><link rel="stylesheet" type="text/css" href="../normalize.css"><link rel="stylesheet" type="text/css" href="../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../ayu.css" disabled ><script id="default-settings" ></script><script src="../storage.js"></script><script src="../crates.js"></script><script defer src="../main.js"></script>
+    <noscript><link rel="stylesheet" href="../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../favicon.svg"><style type="text/css">#crate-search{background-image:url("../down-arrow.svg");}</style></head><body class="rustdoc mod crate"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../elasticsearch/index.html'><div class='logo-container rust-logo'><img src='https:&#x2F;&#x2F;raw.githubusercontent.com&#x2F;elastic&#x2F;elasticsearch-rs&#x2F;master&#x2F;docs&#x2F;images&#x2F;logo.png' alt='logo'></div></a><h2 class="location">Crate elasticsearch</h2><div class="block version"><div class="narrow-helper"></div><p>Version 7.14.0-alpha.1</p></div><div class="sidebar-elems"><a id="all-types" href="all.html"><p>See all elasticsearch's items</p></a><div class="block items"><ul><li><a href="#modules">Modules</a></li><li><a href="#structs">Structs</a></li><li><a href="#enums">Enums</a></li></ul></div><div id="sidebar-vars" data-name="elasticsearch" data-ty="mod" data-relpath=""></div><script defer src="sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../wheel.svg"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Crate <a class="mod" href="#">elasticsearch</a><button id="copy-path" onclick="copy_path(this)" title="Copy item path to clipboard"><img src="../clipboard.svg" width="19" height="18" alt="Copy item path"></button></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../src/elasticsearch/lib.rs.html#19-533" title="goto source code">[src]</a></span></h1><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Official Rust client for <a href="https://www.elastic.co/products/elasticsearch">Elasticsearch</a></p>
+<p><code>Elasticsearch</code> is an official Rust client for Elasticsearch, providing an efficient asynchronous
+client for all stable Elasticsearch APIs that’s easy to use.</p>
+<h2 id="versions-and-compatibility" class="section-header"><a href="#versions-and-compatibility">Versions and Compatibility</a></h2><div><table><thead><tr><th>Rust client</th><th>Elasticsearch</th></tr></thead><tbody>
+<tr><td>7.x</td><td>7.x</td></tr>
+</tbody></table>
+</div>
+<p>A major version of the client is compatible with the same major version of Elasticsearch.
+Since Elasticsearch is developed following <a href="https://semver.org/">Semantic Versioning</a> principles,
+Any minor/patch version of the client can be used against any minor/patch version of Elasticsearch
+<strong>within the same major version lineage</strong>. For example,</p>
+<ul>
+<li>A <code>7.5.0</code> client can be used against <code>7.0.0</code> Elasticsearch</li>
+<li>A <code>7.4.0</code> client can be used against <code>7.5.1</code> Elasticsearch</li>
+</ul>
+<p>In the former case, a 7.5.0 client may contain additional API functions that are not available
+in 7.0.0 Elasticsearch. In this case, these APIs cannot be used, but for any APIs available in
+Elasticsearch, the respective API functions on the client will be compatible.</p>
+<p>In the latter case, a 7.4.0 client won’t contain API functions for APIs that are introduced in
+Elasticsearch 7.5.0+, but for all other APIs available in Elasticsearch, the respective API
+functions on the client will be compatible.</p>
+<p><strong>No compatibility assurances are given between different major versions of the client and
+Elasticsearch</strong>. Major differences likely exist between major versions of Elasticsearch, particularly
+around request and response object formats, but also around API urls and behaviour.</p>
+<h2 id="features" class="section-header"><a href="#features">Features</a></h2>
+<p>The following are a list of Cargo features that can be enabled or disabled:</p>
+<ul>
+<li><strong>native-tls</strong> <em>(enabled by default)</em>: Enables TLS functionality provided by <code>native-tls</code>.</li>
+<li><strong>rustls-tls</strong>: Enables TLS functionality provided by <code>rustls</code>.</li>
+<li><strong>beta-apis</strong>: Enables beta APIs. Beta APIs are on track to become stable and permanent features. Use them with
+caution because it is possible that breaking changes are made to these APIs in a minor version.</li>
+<li><strong>experimental-apis</strong>: Enables experimental APIs. Experimental APIs are just that - an experiment. An experimental
+API might have breaking changes in any future version, or it might even be removed entirely. This feature also
+enables <code>beta-apis</code>.</li>
+</ul>
+<h2 id="getting-started" class="section-header"><a href="#getting-started">Getting started</a></h2>
+<p>Add the <code>elasticsearch</code> crate and version to Cargo.toml. Choose the version that is compatible with
+the version of Elasticsearch you’re using</p>
+<div class="example-wrap"><pre class="language-toml,no_run"><code>[dependencies]
+elasticsearch = &quot;7.14.0-alpha.1&quot;</code></pre></div>
+<p>The following <em>optional</em> dependencies may also be useful to create requests and read responses</p>
+<div class="example-wrap"><pre class="language-toml,no_run"><code>serde = &quot;~1&quot;
+serde_json = &quot;~1&quot;</code></pre></div><h4 id="async-support-with-tokio" class="section-header"><a href="#async-support-with-tokio">Async support with tokio</a></h4>
+<p>The client uses <a href="https://crates.io/crates/reqwest"><code>reqwest</code></a> to make HTTP calls, which internally uses
+the <a href="https://crates.io/crates/tokio"><code>tokio</code></a> runtime for async support. As such, you may require
+to take a dependency on <code>tokio</code> in order to use the client. For example, in Cargo.toml, you may
+need the following dependency</p>
+<div class="example-wrap"><pre class="language-toml,no_run"><code>tokio = { version = &quot;*&quot;, features = [&quot;full&quot;] }</code></pre></div>
+<p>and to attribute async main function with <code>#[tokio::main]</code></p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="attribute">#[<span class="ident">tokio::main</span>]</span>
+<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">main</span>() -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">std::error::Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="comment">// your code ...</span>
+    <span class="prelude-val">Ok</span>(())
+}</code></pre></div>
+<p>and attribute test functions with <code>#[tokio::test]</code></p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="attribute">#[<span class="ident">tokio::test</span>]</span>
+<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">my_test</span>() -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">std::error::Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="comment">// your code ...</span>
+    <span class="prelude-val">Ok</span>(())
+}</code></pre></div>
+<h3 id="create-a-client" class="section-header"><a href="#create-a-client">Create a client</a></h3>
+<p>To create a client to make API calls to Elasticsearch running on <code>http://localhost:9200</code></p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">let</span> <span class="ident">client</span> <span class="op">=</span> <span class="ident">Elasticsearch::default</span>();</code></pre></div>
+<p>Alternatively, you can create a client to make API calls against Elasticsearch running on a
+specific <a href="http/struct.Url.html" title="url::Url">url::Url</a></p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">let</span> <span class="ident">transport</span> <span class="op">=</span> <span class="ident">Transport::single_node</span>(<span class="string">&quot;https://example.com&quot;</span>)<span class="question-mark">?</span>;
+<span class="kw">let</span> <span class="ident">client</span> <span class="op">=</span> <span class="ident">Elasticsearch::new</span>(<span class="ident">transport</span>);</code></pre></div>
+<p>If you’re running against an Elasticsearch deployment in <a href="https://www.elastic.co/cloud/">Elastic Cloud</a>,
+a client can be created using a <a href="https://www.elastic.co/guide/en/cloud/current/ec-cloud-id.html">Cloud ID</a>
+and credentials retrieved from the Cloud web console</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">let</span> <span class="ident">cloud_id</span> <span class="op">=</span> <span class="string">&quot;cluster_name:Y2xvdWQtZW5kcG9pbnQuZXhhbXBsZSQzZGFkZjgyM2YwNTM4ODQ5N2VhNjg0MjM2ZDkxOGExYQ==&quot;</span>;
+<span class="kw">let</span> <span class="ident">credentials</span> <span class="op">=</span> <span class="ident">Credentials::Basic</span>(<span class="string">&quot;&lt;username&gt;&quot;</span>.<span class="ident">into</span>(), <span class="string">&quot;&lt;password&gt;&quot;</span>.<span class="ident">into</span>());
+<span class="kw">let</span> <span class="ident">transport</span> <span class="op">=</span> <span class="ident">Transport::cloud</span>(<span class="ident">cloud_id</span>, <span class="ident">credentials</span>)<span class="question-mark">?</span>;
+<span class="kw">let</span> <span class="ident">client</span> <span class="op">=</span> <span class="ident">Elasticsearch::new</span>(<span class="ident">transport</span>);</code></pre></div>
+<p>More control over how a <a href="http/transport/struct.Transport.html">Transport</a> is built can be
+achieved using <a href="http/transport/struct.TransportBuilder.html">TransportBuilder</a> to build a transport, and
+passing it to <a href="struct.Elasticsearch.html#method.new" title="Elasticsearch::new">Elasticsearch::new</a> create a new instance of <a href="struct.Elasticsearch.html" title="Elasticsearch">Elasticsearch</a></p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="ident">Url::parse</span>(<span class="string">&quot;https://example.com&quot;</span>)<span class="question-mark">?</span>;
+<span class="kw">let</span> <span class="ident">conn_pool</span> <span class="op">=</span> <span class="ident">SingleNodeConnectionPool::new</span>(<span class="ident">url</span>);
+<span class="kw">let</span> <span class="ident">transport</span> <span class="op">=</span> <span class="ident">TransportBuilder::new</span>(<span class="ident">conn_pool</span>).<span class="ident">disable_proxy</span>().<span class="ident">build</span>()<span class="question-mark">?</span>;
+<span class="kw">let</span> <span class="ident">client</span> <span class="op">=</span> <span class="ident">Elasticsearch::new</span>(<span class="ident">transport</span>);</code></pre></div>
+<h3 id="making-api-calls" class="section-header"><a href="#making-api-calls">Making API calls</a></h3>
+<p>The client exposes all stable Elasticsearch APIs, either on the root <a href="struct.Elasticsearch.html" title="Elasticsearch">Elasticsearch</a> client,
+or on a <em>namespace</em> client that groups related APIs, such as <a href="cat/struct.Cat.html">Cat</a>, which groups the
+Cat related APIs. All API functions are <code>async</code> and can be <code>await</code>ed.</p>
+<p>The following makes an API call to the cat indices API</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">let</span> <span class="ident">response</span> <span class="op">=</span> <span class="ident">client</span>
+    .<span class="ident">cat</span>()
+    .<span class="ident">indices</span>(<span class="ident">CatIndicesParts::Index</span>(<span class="kw-2">&amp;</span>[<span class="string">&quot;*&quot;</span>]))
+    .<span class="ident">send</span>()
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+
+<span class="kw">let</span> <span class="ident">response_body</span> <span class="op">=</span> <span class="ident">response</span>.<span class="ident">json</span>::<span class="op">&lt;</span><span class="ident">Value</span><span class="op">&gt;</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+<span class="kw">for</span> <span class="ident">record</span> <span class="kw">in</span> <span class="ident">response_body</span>.<span class="ident">as_array</span>().<span class="ident">unwrap</span>() {
+    <span class="comment">// print the name of each index</span>
+    <span class="macro">println!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">record</span>[<span class="string">&quot;index&quot;</span>].<span class="ident">as_str</span>().<span class="ident">unwrap</span>());
+}</code></pre></div>
+<p>For APIs that contain parts of the Url path to be provided by the consumer, the Url path
+variants are modelled as an <code>enum</code>, such as <a href="cat/enum.CatIndicesParts.html">CatIndicesParts</a> in the above example, which models
+the variants of the <a href="cat/struct.CatIndices.html">CatIndices</a> API.</p>
+<h4 id="indexing" class="section-header"><a href="#indexing">Indexing</a></h4>
+<p>Indexing a single document can be achieved with the index API</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">let</span> <span class="ident">response</span> <span class="op">=</span> <span class="ident">client</span>
+    .<span class="ident">index</span>(<span class="ident">IndexParts::IndexId</span>(<span class="string">&quot;tweets&quot;</span>, <span class="string">&quot;1&quot;</span>))
+    .<span class="ident">body</span>(<span class="macro">json!</span>({
+        <span class="string">&quot;id&quot;</span>: <span class="number">1</span>,
+        <span class="string">&quot;user&quot;</span>: <span class="string">&quot;kimchy&quot;</span>,
+        <span class="string">&quot;post_date&quot;</span>: <span class="string">&quot;2009-11-15T00:00:00Z&quot;</span>,
+        <span class="string">&quot;message&quot;</span>: <span class="string">&quot;Trying out Elasticsearch, so far so good?&quot;</span>
+    }))
+    .<span class="ident">send</span>()
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+
+<span class="kw">let</span> <span class="ident">successful</span> <span class="op">=</span> <span class="ident">response</span>.<span class="ident">status_code</span>().<span class="ident">is_success</span>();</code></pre></div>
+<p>For indexing multiple documents, the bulk API is a better option, allowing multiple operations
+to be sent in one API call</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">body</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">JsonBody</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::with_capacity</span>(<span class="number">4</span>);
+
+<span class="comment">// add the first operation and document</span>
+<span class="ident">body</span>.<span class="ident">push</span>(<span class="macro">json!</span>({<span class="string">&quot;index&quot;</span>: {<span class="string">&quot;_id&quot;</span>: <span class="string">&quot;1&quot;</span>}}).<span class="ident">into</span>());
+<span class="ident">body</span>.<span class="ident">push</span>(<span class="macro">json!</span>({
+    <span class="string">&quot;id&quot;</span>: <span class="number">1</span>,
+    <span class="string">&quot;user&quot;</span>: <span class="string">&quot;kimchy&quot;</span>,
+    <span class="string">&quot;post_date&quot;</span>: <span class="string">&quot;2009-11-15T00:00:00Z&quot;</span>,
+    <span class="string">&quot;message&quot;</span>: <span class="string">&quot;Trying out Elasticsearch, so far so good?&quot;</span>
+}).<span class="ident">into</span>());
+
+<span class="comment">// add the second operation and document</span>
+<span class="ident">body</span>.<span class="ident">push</span>(<span class="macro">json!</span>({<span class="string">&quot;index&quot;</span>: {<span class="string">&quot;_id&quot;</span>: <span class="string">&quot;2&quot;</span>}}).<span class="ident">into</span>());
+<span class="ident">body</span>.<span class="ident">push</span>(<span class="macro">json!</span>({
+    <span class="string">&quot;id&quot;</span>: <span class="number">2</span>,
+    <span class="string">&quot;user&quot;</span>: <span class="string">&quot;forloop&quot;</span>,
+    <span class="string">&quot;post_date&quot;</span>: <span class="string">&quot;2020-01-08T00:00:00Z&quot;</span>,
+    <span class="string">&quot;message&quot;</span>: <span class="string">&quot;Bulk indexing with the rust client, yeah!&quot;</span>
+}).<span class="ident">into</span>());
+
+<span class="kw">let</span> <span class="ident">response</span> <span class="op">=</span> <span class="ident">client</span>
+    .<span class="ident">bulk</span>(<span class="ident">BulkParts::Index</span>(<span class="string">&quot;tweets&quot;</span>))
+    .<span class="ident">body</span>(<span class="ident">body</span>)
+    .<span class="ident">send</span>()
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+
+<span class="kw">let</span> <span class="ident">response_body</span> <span class="op">=</span> <span class="ident">response</span>.<span class="ident">json</span>::<span class="op">&lt;</span><span class="ident">Value</span><span class="op">&gt;</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+<span class="kw">let</span> <span class="ident">successful</span> <span class="op">=</span> <span class="ident">response_body</span>[<span class="string">&quot;errors&quot;</span>].<span class="ident">as_bool</span>().<span class="ident">unwrap</span>() <span class="op">==</span> <span class="bool-val">false</span>;</code></pre></div>
+<h4 id="searching" class="section-header"><a href="#searching">Searching</a></h4>
+<p>The following makes an API call to <code>tweets/_search</code> with the json body
+<code>{&quot;query&quot;:{&quot;match&quot;:{&quot;message&quot;:&quot;Elasticsearch&quot;}}}</code></p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">let</span> <span class="ident">response</span> <span class="op">=</span> <span class="ident">client</span>
+    .<span class="ident">search</span>(<span class="ident">SearchParts::Index</span>(<span class="kw-2">&amp;</span>[<span class="string">&quot;tweets&quot;</span>]))
+    .<span class="ident">from</span>(<span class="number">0</span>)
+    .<span class="ident">size</span>(<span class="number">10</span>)
+    .<span class="ident">body</span>(<span class="macro">json!</span>({
+        <span class="string">&quot;query&quot;</span>: {
+            <span class="string">&quot;match&quot;</span>: {
+                <span class="string">&quot;message&quot;</span>: <span class="string">&quot;Elasticsearch rust&quot;</span>
+            }
+        }
+    }))
+    .<span class="ident">send</span>()
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+
+<span class="kw">let</span> <span class="ident">response_body</span> <span class="op">=</span> <span class="ident">response</span>.<span class="ident">json</span>::<span class="op">&lt;</span><span class="ident">Value</span><span class="op">&gt;</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+<span class="kw">let</span> <span class="ident">took</span> <span class="op">=</span> <span class="ident">response_body</span>[<span class="string">&quot;took&quot;</span>].<span class="ident">as_i64</span>().<span class="ident">unwrap</span>();
+<span class="kw">for</span> <span class="ident">hit</span> <span class="kw">in</span> <span class="ident">response_body</span>[<span class="string">&quot;hits&quot;</span>][<span class="string">&quot;hits&quot;</span>].<span class="ident">as_array</span>().<span class="ident">unwrap</span>() {
+    <span class="comment">// print the source document</span>
+    <span class="macro">println!</span>(<span class="string">&quot;{:?}&quot;</span>, <span class="ident">hit</span>[<span class="string">&quot;_source&quot;</span>]);
+}</code></pre></div>
+<h3 id="request-bodies" class="section-header"><a href="#request-bodies">Request bodies</a></h3>
+<p>For APIs that expect JSON, the <code>body</code> associated function of the API constrains the input
+to a type that implements <a href="../serde/ser/trait.Serialize.html" title="serde::Serialize">serde::Serialize</a> trait. An example of this was the indexing a single
+document example above.</p>
+<p>Some APIs expect newline delimited JSON
+(NDJSON) however, so the <code>body</code> associated for these APIs constrain the input to a vector of
+types that implement <a href="http/request/trait.Body.html">Body</a> trait.  An example of this was the bulk indexing multiple documents
+above.</p>
+<p>The <a href="http/request/trait.Body.html">Body</a> trait represents the body of an API call, allowing for different body implementations.
+As well as those to represent JSON and NDJSON, a few other types also have implementations for
+<a href="http/request/trait.Body.html">Body</a>, such as byte slice. Whilst these can’t be passed to the API functions directly,
+<a href="struct.Elasticsearch.html#method.send" title="Elasticsearch::send">Elasticsearch::send</a> can be used</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">let</span> <span class="ident">body</span> <span class="op">=</span> <span class="string">b&quot;{\&quot;query\&quot;:{\&quot;match_all\&quot;:{}}}&quot;</span>;
+
+<span class="kw">let</span> <span class="ident">response</span> <span class="op">=</span> <span class="ident">client</span>
+    .<span class="ident">send</span>(<span class="ident">Method::Post</span>,
+        <span class="ident">SearchParts::Index</span>(<span class="kw-2">&amp;</span>[<span class="string">&quot;tweets&quot;</span>]).<span class="ident">url</span>().<span class="ident">as_ref</span>(),
+        <span class="ident">HeaderMap::new</span>(),
+        <span class="prelude-ty">Option</span>::<span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Value</span><span class="op">&gt;</span><span class="ident">::None</span>,
+        <span class="prelude-val">Some</span>(<span class="ident">body</span>.<span class="ident">as_ref</span>()),
+        <span class="prelude-val">None</span>,
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+</code></pre></div>
+</div></details><h2 id="reexports" class="small-section-header"><a href="#reexports">Re-exports</a></h2>
+<div class="item-table"><div class="item-row"><div class="item-left import-item"><code>pub use crate::http::transport::<a class="static" href="http/transport/static.DEFAULT_ADDRESS.html" title="static elasticsearch::http::transport::DEFAULT_ADDRESS">DEFAULT_ADDRESS</a>;</code></div><div class="item-right docblock-short"></div></div></div><h2 id="modules" class="small-section-header"><a href="#modules">Modules</a></h2>
+<div class="item-table"><div class="item-row"><div class="item-left module-item"><a class="mod" href="async_search/index.html" title="elasticsearch::async_search mod">async_search</a></div><div class="item-right docblock-short"><p>Async Search APIs</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="mod" href="auth/index.html" title="elasticsearch::auth mod">auth</a></div><div class="item-right docblock-short"><p>Authentication components</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="mod" href="autoscaling/index.html" title="elasticsearch::autoscaling mod">autoscaling</a></div><div class="item-right docblock-short"><p>Autoscaling APIs</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="mod" href="cat/index.html" title="elasticsearch::cat mod">cat</a></div><div class="item-right docblock-short"><p>Cat APIs</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="mod" href="ccr/index.html" title="elasticsearch::ccr mod">ccr</a></div><div class="item-right docblock-short"><p>Cross-cluster Replication APIs</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="mod" href="cert/index.html" title="elasticsearch::cert mod">cert</a></div><div class="item-right docblock-short"><p>Certificate components</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="mod" href="cluster/index.html" title="elasticsearch::cluster mod">cluster</a></div><div class="item-right docblock-short"><p>Cluster APIs</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="mod" href="dangling_indices/index.html" title="elasticsearch::dangling_indices mod">dangling_indices</a></div><div class="item-right docblock-short"><p>Dangling Index APIs</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="mod" href="enrich/index.html" title="elasticsearch::enrich mod">enrich</a></div><div class="item-right docblock-short"><p>Enrich APIs</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="mod" href="eql/index.html" title="elasticsearch::eql mod">eql</a></div><div class="item-right docblock-short"><p>EQL APIs</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="mod" href="features/index.html" title="elasticsearch::features mod">features</a></div><div class="item-right docblock-short"><p>Features APIs</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="mod" href="graph/index.html" title="elasticsearch::graph mod">graph</a></div><div class="item-right docblock-short"><p>Graph APIs</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="mod" href="http/index.html" title="elasticsearch::http mod">http</a></div><div class="item-right docblock-short"><p>HTTP components</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="mod" href="ilm/index.html" title="elasticsearch::ilm mod">ilm</a></div><div class="item-right docblock-short"><p>Index Lifecycle Management APIs</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="mod" href="indices/index.html" title="elasticsearch::indices mod">indices</a></div><div class="item-right docblock-short"><p>Index APIs</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="mod" href="ingest/index.html" title="elasticsearch::ingest mod">ingest</a></div><div class="item-right docblock-short"><p>Ingest APIs</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="mod" href="license/index.html" title="elasticsearch::license mod">license</a></div><div class="item-right docblock-short"><p>Licensing APIs</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="mod" href="logstash/index.html" title="elasticsearch::logstash mod">logstash</a></div><div class="item-right docblock-short"><p>Logstash APIs</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="mod" href="migration/index.html" title="elasticsearch::migration mod">migration</a></div><div class="item-right docblock-short"><p>Migration APIs</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="mod" href="ml/index.html" title="elasticsearch::ml mod">ml</a></div><div class="item-right docblock-short"><p>Machine Learning APIs</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="mod" href="nodes/index.html" title="elasticsearch::nodes mod">nodes</a></div><div class="item-right docblock-short"><p>Node APIs</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="mod" href="params/index.html" title="elasticsearch::params mod">params</a></div><div class="item-right docblock-short"><p>API parameters</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="mod" href="security/index.html" title="elasticsearch::security mod">security</a></div><div class="item-right docblock-short"><p>Security APIs</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="mod" href="slm/index.html" title="elasticsearch::slm mod">slm</a></div><div class="item-right docblock-short"><p>Snapshot Lifecycle Management APIs</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="mod" href="snapshot/index.html" title="elasticsearch::snapshot mod">snapshot</a></div><div class="item-right docblock-short"><p>Snapshot APIs</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="mod" href="sql/index.html" title="elasticsearch::sql mod">sql</a></div><div class="item-right docblock-short"><p>SQL APIs</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="mod" href="ssl/index.html" title="elasticsearch::ssl mod">ssl</a></div><div class="item-right docblock-short"><p>SSL APIs</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="mod" href="text_structure/index.html" title="elasticsearch::text_structure mod">text_structure</a></div><div class="item-right docblock-short"><p>Text structure APIs</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="mod" href="transform/index.html" title="elasticsearch::transform mod">transform</a></div><div class="item-right docblock-short"><p>Transform APIs</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="mod" href="watcher/index.html" title="elasticsearch::watcher mod">watcher</a></div><div class="item-right docblock-short"><p>Watcher (Alerting) APIs</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="mod" href="xpack/index.html" title="elasticsearch::xpack mod">xpack</a></div><div class="item-right docblock-short"><p>X-Pack APIs</p>
+</div></div></div><h2 id="structs" class="small-section-header"><a href="#structs">Structs</a></h2>
+<div class="item-table"><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.Bulk.html" title="elasticsearch::Bulk struct">Bulk</a></div><div class="item-right docblock-short"><p>Builder for the <a href="https://www.elastic.co/guide/en/elasticsearch/reference/7.14/docs-bulk.html">Bulk API</a></p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.BulkCreateOperation.html" title="elasticsearch::BulkCreateOperation struct">BulkCreateOperation</a></div><div class="item-right docblock-short"><p>Bulk create operation</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.BulkDeleteOperation.html" title="elasticsearch::BulkDeleteOperation struct">BulkDeleteOperation</a></div><div class="item-right docblock-short"><p>Bulk delete operation</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.BulkIndexOperation.html" title="elasticsearch::BulkIndexOperation struct">BulkIndexOperation</a></div><div class="item-right docblock-short"><p>Bulk index operation</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.BulkOperation.html" title="elasticsearch::BulkOperation struct">BulkOperation</a></div><div class="item-right docblock-short"><p>A bulk operation consists of a header that indicates the bulk action and the related metadata
+for the action, and an optional source document.</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.BulkOperations.html" title="elasticsearch::BulkOperations struct">BulkOperations</a></div><div class="item-right docblock-short"><p>A collection of bulk operations.</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.BulkUpdateOperation.html" title="elasticsearch::BulkUpdateOperation struct">BulkUpdateOperation</a></div><div class="item-right docblock-short"><p>Bulk update operation</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.ClearScroll.html" title="elasticsearch::ClearScroll struct">ClearScroll</a></div><div class="item-right docblock-short"><p>Builder for the <a href="https://www.elastic.co/guide/en/elasticsearch/reference/7.14/clear-scroll-api.html">Clear Scroll API</a></p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.ClosePointInTime.html" title="elasticsearch::ClosePointInTime struct">ClosePointInTime</a></div><div class="item-right docblock-short"><p>Builder for the <a href="https://www.elastic.co/guide/en/elasticsearch/reference/7.14/point-in-time-api.html">Close Point In Time API</a></p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.Count.html" title="elasticsearch::Count struct">Count</a></div><div class="item-right docblock-short"><p>Builder for the <a href="https://www.elastic.co/guide/en/elasticsearch/reference/7.14/search-count.html">Count API</a></p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.Create.html" title="elasticsearch::Create struct">Create</a></div><div class="item-right docblock-short"><p>Builder for the <a href="https://www.elastic.co/guide/en/elasticsearch/reference/7.14/docs-index_.html">Create API</a></p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.Delete.html" title="elasticsearch::Delete struct">Delete</a></div><div class="item-right docblock-short"><p>Builder for the <a href="https://www.elastic.co/guide/en/elasticsearch/reference/7.14/docs-delete.html">Delete API</a></p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.DeleteByQuery.html" title="elasticsearch::DeleteByQuery struct">DeleteByQuery</a></div><div class="item-right docblock-short"><p>Builder for the <a href="https://www.elastic.co/guide/en/elasticsearch/reference/7.14/docs-delete-by-query.html">Delete By Query API</a></p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.DeleteByQueryRethrottle.html" title="elasticsearch::DeleteByQueryRethrottle struct">DeleteByQueryRethrottle</a></div><div class="item-right docblock-short"><p>Builder for the <a href="https://www.elastic.co/guide/en/elasticsearch/reference/7.14/docs-delete-by-query.html">Delete By Query Rethrottle API</a></p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.DeleteScript.html" title="elasticsearch::DeleteScript struct">DeleteScript</a></div><div class="item-right docblock-short"><p>Builder for the <a href="https://www.elastic.co/guide/en/elasticsearch/reference/7.14/modules-scripting.html">Delete Script API</a></p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.Elasticsearch.html" title="elasticsearch::Elasticsearch struct">Elasticsearch</a></div><div class="item-right docblock-short"><p>Root client for top level APIs</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.Error.html" title="elasticsearch::Error struct">Error</a></div><div class="item-right docblock-short"><p>An error with the client.</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.Exists.html" title="elasticsearch::Exists struct">Exists</a></div><div class="item-right docblock-short"><p>Builder for the <a href="https://www.elastic.co/guide/en/elasticsearch/reference/7.14/docs-get.html">Exists API</a></p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.ExistsSource.html" title="elasticsearch::ExistsSource struct">ExistsSource</a></div><div class="item-right docblock-short"><p>Builder for the <a href="https://www.elastic.co/guide/en/elasticsearch/reference/7.14/docs-get.html">Exists Source API</a></p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.Explain.html" title="elasticsearch::Explain struct">Explain</a></div><div class="item-right docblock-short"><p>Builder for the <a href="https://www.elastic.co/guide/en/elasticsearch/reference/7.14/search-explain.html">Explain API</a></p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.FieldCaps.html" title="elasticsearch::FieldCaps struct">FieldCaps</a></div><div class="item-right docblock-short"><p>Builder for the <a href="https://www.elastic.co/guide/en/elasticsearch/reference/7.14/search-field-caps.html">Field Caps API</a></p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.Get.html" title="elasticsearch::Get struct">Get</a></div><div class="item-right docblock-short"><p>Builder for the <a href="https://www.elastic.co/guide/en/elasticsearch/reference/7.14/docs-get.html">Get API</a></p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.GetScript.html" title="elasticsearch::GetScript struct">GetScript</a></div><div class="item-right docblock-short"><p>Builder for the <a href="https://www.elastic.co/guide/en/elasticsearch/reference/7.14/modules-scripting.html">Get Script API</a></p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.GetSource.html" title="elasticsearch::GetSource struct">GetSource</a></div><div class="item-right docblock-short"><p>Builder for the <a href="https://www.elastic.co/guide/en/elasticsearch/reference/7.14/docs-get.html">Get Source API</a></p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.Index.html" title="elasticsearch::Index struct">Index</a></div><div class="item-right docblock-short"><p>Builder for the <a href="https://www.elastic.co/guide/en/elasticsearch/reference/7.14/docs-index_.html">Index API</a></p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.Info.html" title="elasticsearch::Info struct">Info</a></div><div class="item-right docblock-short"><p>Builder for the <a href="https://www.elastic.co/guide/en/elasticsearch/reference/7.14/index.html">Info API</a></p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.Mget.html" title="elasticsearch::Mget struct">Mget</a></div><div class="item-right docblock-short"><p>Builder for the <a href="https://www.elastic.co/guide/en/elasticsearch/reference/7.14/docs-multi-get.html">Mget API</a></p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.Msearch.html" title="elasticsearch::Msearch struct">Msearch</a></div><div class="item-right docblock-short"><p>Builder for the <a href="https://www.elastic.co/guide/en/elasticsearch/reference/7.14/search-multi-search.html">Msearch API</a></p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.MsearchTemplate.html" title="elasticsearch::MsearchTemplate struct">MsearchTemplate</a></div><div class="item-right docblock-short"><p>Builder for the <a href="https://www.elastic.co/guide/en/elasticsearch/reference/7.14/search-multi-search.html">Msearch Template API</a></p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.Mtermvectors.html" title="elasticsearch::Mtermvectors struct">Mtermvectors</a></div><div class="item-right docblock-short"><p>Builder for the <a href="https://www.elastic.co/guide/en/elasticsearch/reference/7.14/docs-multi-termvectors.html">Mtermvectors API</a></p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.OpenPointInTime.html" title="elasticsearch::OpenPointInTime struct">OpenPointInTime</a></div><div class="item-right docblock-short"><p>Builder for the <a href="https://www.elastic.co/guide/en/elasticsearch/reference/7.14/point-in-time-api.html">Open Point In Time API</a></p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.Ping.html" title="elasticsearch::Ping struct">Ping</a></div><div class="item-right docblock-short"><p>Builder for the <a href="https://www.elastic.co/guide/en/elasticsearch/reference/7.14/index.html">Ping API</a></p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.PutScript.html" title="elasticsearch::PutScript struct">PutScript</a></div><div class="item-right docblock-short"><p>Builder for the <a href="https://www.elastic.co/guide/en/elasticsearch/reference/7.14/modules-scripting.html">Put Script API</a></p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.Reindex.html" title="elasticsearch::Reindex struct">Reindex</a></div><div class="item-right docblock-short"><p>Builder for the <a href="https://www.elastic.co/guide/en/elasticsearch/reference/7.14/docs-reindex.html">Reindex API</a></p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.ReindexRethrottle.html" title="elasticsearch::ReindexRethrottle struct">ReindexRethrottle</a></div><div class="item-right docblock-short"><p>Builder for the <a href="https://www.elastic.co/guide/en/elasticsearch/reference/7.14/docs-reindex.html">Reindex Rethrottle API</a></p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.RenderSearchTemplate.html" title="elasticsearch::RenderSearchTemplate struct">RenderSearchTemplate</a></div><div class="item-right docblock-short"><p>Builder for the <a href="https://www.elastic.co/guide/en/elasticsearch/reference/7.14/render-search-template-api.html">Render Search Template API</a></p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.Scroll.html" title="elasticsearch::Scroll struct">Scroll</a></div><div class="item-right docblock-short"><p>Builder for the <a href="https://www.elastic.co/guide/en/elasticsearch/reference/7.14/search-request-body.html#request-body-search-scroll">Scroll API</a></p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.Search.html" title="elasticsearch::Search struct">Search</a></div><div class="item-right docblock-short"><p>Builder for the <a href="https://www.elastic.co/guide/en/elasticsearch/reference/7.14/search-search.html">Search API</a></p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.SearchShards.html" title="elasticsearch::SearchShards struct">SearchShards</a></div><div class="item-right docblock-short"><p>Builder for the <a href="https://www.elastic.co/guide/en/elasticsearch/reference/7.14/search-shards.html">Search Shards API</a></p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.SearchTemplate.html" title="elasticsearch::SearchTemplate struct">SearchTemplate</a></div><div class="item-right docblock-short"><p>Builder for the <a href="https://www.elastic.co/guide/en/elasticsearch/reference/7.14/search-template.html">Search Template API</a></p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.Termvectors.html" title="elasticsearch::Termvectors struct">Termvectors</a></div><div class="item-right docblock-short"><p>Builder for the <a href="https://www.elastic.co/guide/en/elasticsearch/reference/7.14/docs-termvectors.html">Termvectors API</a></p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.Update.html" title="elasticsearch::Update struct">Update</a></div><div class="item-right docblock-short"><p>Builder for the <a href="https://www.elastic.co/guide/en/elasticsearch/reference/7.14/docs-update.html">Update API</a></p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.UpdateByQuery.html" title="elasticsearch::UpdateByQuery struct">UpdateByQuery</a></div><div class="item-right docblock-short"><p>Builder for the <a href="https://www.elastic.co/guide/en/elasticsearch/reference/7.14/docs-update-by-query.html">Update By Query API</a></p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.UpdateByQueryRethrottle.html" title="elasticsearch::UpdateByQueryRethrottle struct">UpdateByQueryRethrottle</a></div><div class="item-right docblock-short"><p>Builder for the <a href="https://www.elastic.co/guide/en/elasticsearch/reference/7.14/docs-update-by-query.html">Update By Query Rethrottle API</a></p>
+</div></div></div><h2 id="enums" class="small-section-header"><a href="#enums">Enums</a></h2>
+<div class="item-table"><div class="item-row"><div class="item-left module-item"><a class="enum" href="enum.BulkParts.html" title="elasticsearch::BulkParts enum">BulkParts</a></div><div class="item-right docblock-short"><p>API parts for the Bulk API</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="enum" href="enum.ClearScrollParts.html" title="elasticsearch::ClearScrollParts enum">ClearScrollParts</a></div><div class="item-right docblock-short"><p>API parts for the Clear Scroll API</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="enum" href="enum.ClosePointInTimeParts.html" title="elasticsearch::ClosePointInTimeParts enum">ClosePointInTimeParts</a></div><div class="item-right docblock-short"><p>API parts for the Close Point In Time API</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="enum" href="enum.CountParts.html" title="elasticsearch::CountParts enum">CountParts</a></div><div class="item-right docblock-short"><p>API parts for the Count API</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="enum" href="enum.CreateParts.html" title="elasticsearch::CreateParts enum">CreateParts</a></div><div class="item-right docblock-short"><p>API parts for the Create API</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="enum" href="enum.DeleteByQueryParts.html" title="elasticsearch::DeleteByQueryParts enum">DeleteByQueryParts</a></div><div class="item-right docblock-short"><p>API parts for the Delete By Query API</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="enum" href="enum.DeleteByQueryRethrottleParts.html" title="elasticsearch::DeleteByQueryRethrottleParts enum">DeleteByQueryRethrottleParts</a></div><div class="item-right docblock-short"><p>API parts for the Delete By Query Rethrottle API</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="enum" href="enum.DeleteParts.html" title="elasticsearch::DeleteParts enum">DeleteParts</a></div><div class="item-right docblock-short"><p>API parts for the Delete API</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="enum" href="enum.DeleteScriptParts.html" title="elasticsearch::DeleteScriptParts enum">DeleteScriptParts</a></div><div class="item-right docblock-short"><p>API parts for the Delete Script API</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="enum" href="enum.ExistsParts.html" title="elasticsearch::ExistsParts enum">ExistsParts</a></div><div class="item-right docblock-short"><p>API parts for the Exists API</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="enum" href="enum.ExistsSourceParts.html" title="elasticsearch::ExistsSourceParts enum">ExistsSourceParts</a></div><div class="item-right docblock-short"><p>API parts for the Exists Source API</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="enum" href="enum.ExplainParts.html" title="elasticsearch::ExplainParts enum">ExplainParts</a></div><div class="item-right docblock-short"><p>API parts for the Explain API</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="enum" href="enum.FieldCapsParts.html" title="elasticsearch::FieldCapsParts enum">FieldCapsParts</a></div><div class="item-right docblock-short"><p>API parts for the Field Caps API</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="enum" href="enum.GetParts.html" title="elasticsearch::GetParts enum">GetParts</a></div><div class="item-right docblock-short"><p>API parts for the Get API</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="enum" href="enum.GetScriptParts.html" title="elasticsearch::GetScriptParts enum">GetScriptParts</a></div><div class="item-right docblock-short"><p>API parts for the Get Script API</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="enum" href="enum.GetSourceParts.html" title="elasticsearch::GetSourceParts enum">GetSourceParts</a></div><div class="item-right docblock-short"><p>API parts for the Get Source API</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="enum" href="enum.IndexParts.html" title="elasticsearch::IndexParts enum">IndexParts</a></div><div class="item-right docblock-short"><p>API parts for the Index API</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="enum" href="enum.InfoParts.html" title="elasticsearch::InfoParts enum">InfoParts</a></div><div class="item-right docblock-short"><p>API parts for the Info API</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="enum" href="enum.MgetParts.html" title="elasticsearch::MgetParts enum">MgetParts</a></div><div class="item-right docblock-short"><p>API parts for the Mget API</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="enum" href="enum.MsearchParts.html" title="elasticsearch::MsearchParts enum">MsearchParts</a></div><div class="item-right docblock-short"><p>API parts for the Msearch API</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="enum" href="enum.MsearchTemplateParts.html" title="elasticsearch::MsearchTemplateParts enum">MsearchTemplateParts</a></div><div class="item-right docblock-short"><p>API parts for the Msearch Template API</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="enum" href="enum.MtermvectorsParts.html" title="elasticsearch::MtermvectorsParts enum">MtermvectorsParts</a></div><div class="item-right docblock-short"><p>API parts for the Mtermvectors API</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="enum" href="enum.OpenPointInTimeParts.html" title="elasticsearch::OpenPointInTimeParts enum">OpenPointInTimeParts</a></div><div class="item-right docblock-short"><p>API parts for the Open Point In Time API</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="enum" href="enum.PingParts.html" title="elasticsearch::PingParts enum">PingParts</a></div><div class="item-right docblock-short"><p>API parts for the Ping API</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="enum" href="enum.PutScriptParts.html" title="elasticsearch::PutScriptParts enum">PutScriptParts</a></div><div class="item-right docblock-short"><p>API parts for the Put Script API</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="enum" href="enum.ReindexParts.html" title="elasticsearch::ReindexParts enum">ReindexParts</a></div><div class="item-right docblock-short"><p>API parts for the Reindex API</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="enum" href="enum.ReindexRethrottleParts.html" title="elasticsearch::ReindexRethrottleParts enum">ReindexRethrottleParts</a></div><div class="item-right docblock-short"><p>API parts for the Reindex Rethrottle API</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="enum" href="enum.RenderSearchTemplateParts.html" title="elasticsearch::RenderSearchTemplateParts enum">RenderSearchTemplateParts</a></div><div class="item-right docblock-short"><p>API parts for the Render Search Template API</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="enum" href="enum.ScrollParts.html" title="elasticsearch::ScrollParts enum">ScrollParts</a></div><div class="item-right docblock-short"><p>API parts for the Scroll API</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="enum" href="enum.SearchParts.html" title="elasticsearch::SearchParts enum">SearchParts</a></div><div class="item-right docblock-short"><p>API parts for the Search API</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="enum" href="enum.SearchShardsParts.html" title="elasticsearch::SearchShardsParts enum">SearchShardsParts</a></div><div class="item-right docblock-short"><p>API parts for the Search Shards API</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="enum" href="enum.SearchTemplateParts.html" title="elasticsearch::SearchTemplateParts enum">SearchTemplateParts</a></div><div class="item-right docblock-short"><p>API parts for the Search Template API</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="enum" href="enum.TermvectorsParts.html" title="elasticsearch::TermvectorsParts enum">TermvectorsParts</a></div><div class="item-right docblock-short"><p>API parts for the Termvectors API</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="enum" href="enum.UpdateByQueryParts.html" title="elasticsearch::UpdateByQueryParts enum">UpdateByQueryParts</a></div><div class="item-right docblock-short"><p>API parts for the Update By Query API</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="enum" href="enum.UpdateByQueryRethrottleParts.html" title="elasticsearch::UpdateByQueryRethrottleParts enum">UpdateByQueryRethrottleParts</a></div><div class="item-right docblock-short"><p>API parts for the Update By Query Rethrottle API</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="enum" href="enum.UpdateParts.html" title="elasticsearch::UpdateParts enum">UpdateParts</a></div><div class="item-right docblock-short"><p>API parts for the Update API</p>
+</div></div></div></section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../" data-current-crate="elasticsearch" data-search-index-js="../search-index.js" data-search-js="../search.js"></div>
+</body></html>

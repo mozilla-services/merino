@@ -1,0 +1,1 @@
+initSidebarItems({"enum":[["TextStructureFindStructureParts","API parts for the Text Structure Find Structure API"]],"struct":[["TextStructure","Namespace client for TextStructure APIs"],["TextStructureFindStructure","Builder for the Text Structure Find Structure API"]]});

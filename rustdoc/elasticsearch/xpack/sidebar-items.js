@@ -1,0 +1,1 @@
+initSidebarItems({"enum":[["XpackInfoParts","API parts for the Xpack Info API"],["XpackUsageParts","API parts for the Xpack Usage API"]],"struct":[["Xpack","Namespace client for X-Pack APIs"],["XpackInfo","Builder for the Xpack Info API"],["XpackUsage","Builder for the Xpack Usage API"]]});

@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["ElasticHelper","A wrapper around an Elasticsearch client to make common operations easier and more consistent."]],"trait":[["HelperIndexable","An object that can be indexed using [`ElasticHelper`]."]]});

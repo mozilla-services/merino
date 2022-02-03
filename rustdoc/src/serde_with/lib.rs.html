@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;usr&#x2F;local&#x2F;cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;serde_with-1.9.4&#x2F;src&#x2F;lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><script defer src="../../main.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;usr&#x2F;local&#x2F;cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;serde_with-1.11.0&#x2F;src&#x2F;lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><script defer src="../../main.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script>
     <noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../serde_with/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">   1</span>
 <span id="2">   2</span>
 <span id="3">   3</span>
@@ -1786,6 +1786,123 @@
 <span id="1785">1785</span>
 <span id="1786">1786</span>
 <span id="1787">1787</span>
+<span id="1788">1788</span>
+<span id="1789">1789</span>
+<span id="1790">1790</span>
+<span id="1791">1791</span>
+<span id="1792">1792</span>
+<span id="1793">1793</span>
+<span id="1794">1794</span>
+<span id="1795">1795</span>
+<span id="1796">1796</span>
+<span id="1797">1797</span>
+<span id="1798">1798</span>
+<span id="1799">1799</span>
+<span id="1800">1800</span>
+<span id="1801">1801</span>
+<span id="1802">1802</span>
+<span id="1803">1803</span>
+<span id="1804">1804</span>
+<span id="1805">1805</span>
+<span id="1806">1806</span>
+<span id="1807">1807</span>
+<span id="1808">1808</span>
+<span id="1809">1809</span>
+<span id="1810">1810</span>
+<span id="1811">1811</span>
+<span id="1812">1812</span>
+<span id="1813">1813</span>
+<span id="1814">1814</span>
+<span id="1815">1815</span>
+<span id="1816">1816</span>
+<span id="1817">1817</span>
+<span id="1818">1818</span>
+<span id="1819">1819</span>
+<span id="1820">1820</span>
+<span id="1821">1821</span>
+<span id="1822">1822</span>
+<span id="1823">1823</span>
+<span id="1824">1824</span>
+<span id="1825">1825</span>
+<span id="1826">1826</span>
+<span id="1827">1827</span>
+<span id="1828">1828</span>
+<span id="1829">1829</span>
+<span id="1830">1830</span>
+<span id="1831">1831</span>
+<span id="1832">1832</span>
+<span id="1833">1833</span>
+<span id="1834">1834</span>
+<span id="1835">1835</span>
+<span id="1836">1836</span>
+<span id="1837">1837</span>
+<span id="1838">1838</span>
+<span id="1839">1839</span>
+<span id="1840">1840</span>
+<span id="1841">1841</span>
+<span id="1842">1842</span>
+<span id="1843">1843</span>
+<span id="1844">1844</span>
+<span id="1845">1845</span>
+<span id="1846">1846</span>
+<span id="1847">1847</span>
+<span id="1848">1848</span>
+<span id="1849">1849</span>
+<span id="1850">1850</span>
+<span id="1851">1851</span>
+<span id="1852">1852</span>
+<span id="1853">1853</span>
+<span id="1854">1854</span>
+<span id="1855">1855</span>
+<span id="1856">1856</span>
+<span id="1857">1857</span>
+<span id="1858">1858</span>
+<span id="1859">1859</span>
+<span id="1860">1860</span>
+<span id="1861">1861</span>
+<span id="1862">1862</span>
+<span id="1863">1863</span>
+<span id="1864">1864</span>
+<span id="1865">1865</span>
+<span id="1866">1866</span>
+<span id="1867">1867</span>
+<span id="1868">1868</span>
+<span id="1869">1869</span>
+<span id="1870">1870</span>
+<span id="1871">1871</span>
+<span id="1872">1872</span>
+<span id="1873">1873</span>
+<span id="1874">1874</span>
+<span id="1875">1875</span>
+<span id="1876">1876</span>
+<span id="1877">1877</span>
+<span id="1878">1878</span>
+<span id="1879">1879</span>
+<span id="1880">1880</span>
+<span id="1881">1881</span>
+<span id="1882">1882</span>
+<span id="1883">1883</span>
+<span id="1884">1884</span>
+<span id="1885">1885</span>
+<span id="1886">1886</span>
+<span id="1887">1887</span>
+<span id="1888">1888</span>
+<span id="1889">1889</span>
+<span id="1890">1890</span>
+<span id="1891">1891</span>
+<span id="1892">1892</span>
+<span id="1893">1893</span>
+<span id="1894">1894</span>
+<span id="1895">1895</span>
+<span id="1896">1896</span>
+<span id="1897">1897</span>
+<span id="1898">1898</span>
+<span id="1899">1899</span>
+<span id="1900">1900</span>
+<span id="1901">1901</span>
+<span id="1902">1902</span>
+<span id="1903">1903</span>
+<span id="1904">1904</span>
 </pre><pre class="rust"><code><span class="attribute">#![<span class="ident">deny</span>(
     <span class="ident">missing_copy_implementations</span>,
     <span class="comment">// missing_crate_level_docs, not available in MSRV</span>
@@ -1813,16 +1930,13 @@
 <span class="attribute">#![<span class="ident">doc</span>(<span class="ident">test</span>(<span class="ident">attr</span>(<span class="ident">warn</span>(<span class="ident">rust_2018_idioms</span>))))]</span>
 <span class="comment">// Not needed for 2018 edition and conflicts with `rust_2018_idioms`</span>
 <span class="attribute">#![<span class="ident">doc</span>(<span class="ident">test</span>(<span class="ident">no_crate_inject</span>))]</span>
-<span class="attribute">#![<span class="ident">doc</span>(<span class="ident">html_root_url</span> <span class="op">=</span> <span class="string">&quot;https://docs.rs/serde_with/1.9.4&quot;</span>)]</span>
-<span class="comment">// Necessary to silence the warning about clippy::unknown_clippy_lints on nightly</span>
-<span class="attribute">#![<span class="ident">allow</span>(<span class="ident">renamed_and_removed_lints</span>)]</span>
-<span class="comment">// Rust 1.45: introduction of `strip_prefix` used by clippy::manual_strip</span>
-<span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy::unknown_clippy_lints</span>)]</span>
+<span class="attribute">#![<span class="ident">doc</span>(<span class="ident">html_root_url</span> <span class="op">=</span> <span class="string">&quot;https://docs.rs/serde_with/1.11.0&quot;</span>)]</span>
+<span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">feature</span>(<span class="ident">doc_cfg</span>))]</span>
 
-<span class="doccomment">//! [![docs.rs badge](https://docs.rs/serde_with/badge.svg)](https://docs.rs/serde_with/)</span>
 <span class="doccomment">//! [![crates.io badge](https://img.shields.io/crates/v/serde_with.svg)](https://crates.io/crates/serde_with/)</span>
 <span class="doccomment">//! [![Build Status](https://github.com/jonasbb/serde_with/workflows/Rust%20CI/badge.svg)](https://github.com/jonasbb/serde_with)</span>
 <span class="doccomment">//! [![codecov](https://codecov.io/gh/jonasbb/serde_with/branch/master/graph/badge.svg)](https://codecov.io/gh/jonasbb/serde_with)</span>
+<span class="doccomment">//! [![Binder](https://img.shields.io/badge/Try%20on%20-binder-579ACA.svg?logo=data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFkAAABZCAMAAABi1XidAAAB8lBMVEX///9XmsrmZYH1olJXmsr1olJXmsrmZYH1olJXmsr1olJXmsrmZYH1olL1olJXmsr1olJXmsrmZYH1olL1olJXmsrmZYH1olJXmsr1olL1olJXmsrmZYH1olL1olJXmsrmZYH1olL1olL0nFf1olJXmsrmZYH1olJXmsq8dZb1olJXmsrmZYH1olJXmspXmspXmsr1olL1olJXmsrmZYH1olJXmsr1olL1olJXmsrmZYH1olL1olLeaIVXmsrmZYH1olL1olL1olJXmsrmZYH1olLna31Xmsr1olJXmsr1olJXmsrmZYH1olLqoVr1olJXmsr1olJXmsrmZYH1olL1olKkfaPobXvviGabgadXmsqThKuofKHmZ4Dobnr1olJXmsr1olJXmspXmsr1olJXmsrfZ4TuhWn1olL1olJXmsqBi7X1olJXmspZmslbmMhbmsdemsVfl8ZgmsNim8Jpk8F0m7R4m7F5nLB6jbh7jbiDirOEibOGnKaMhq+PnaCVg6qWg6qegKaff6WhnpKofKGtnomxeZy3noG6dZi+n3vCcpPDcpPGn3bLb4/Mb47UbIrVa4rYoGjdaIbeaIXhoWHmZYHobXvpcHjqdHXreHLroVrsfG/uhGnuh2bwj2Hxk17yl1vzmljzm1j0nlX1olL3AJXWAAAAbXRSTlMAEBAQHx8gICAuLjAwMDw9PUBAQEpQUFBXV1hgYGBkcHBwcXl8gICAgoiIkJCQlJicnJ2goKCmqK+wsLC4usDAwMjP0NDQ1NbW3Nzg4ODi5+3v8PDw8/T09PX29vb39/f5+fr7+/z8/Pz9/v7+zczCxgAABC5JREFUeAHN1ul3k0UUBvCb1CTVpmpaitAGSLSpSuKCLWpbTKNJFGlcSMAFF63iUmRccNG6gLbuxkXU66JAUef/9LSpmXnyLr3T5AO/rzl5zj137p136BISy44fKJXuGN/d19PUfYeO67Znqtf2KH33Id1psXoFdW30sPZ1sMvs2D060AHqws4FHeJojLZqnw53cmfvg+XR8mC0OEjuxrXEkX5ydeVJLVIlV0e10PXk5k7dYeHu7Cj1j+49uKg7uLU61tGLw1lq27ugQYlclHC4bgv7VQ+TAyj5Zc/UjsPvs1sd5cWryWObtvWT2EPa4rtnWW3JkpjggEpbOsPr7F7EyNewtpBIslA7p43HCsnwooXTEc3UmPmCNn5lrqTJxy6nRmcavGZVt/3Da2pD5NHvsOHJCrdc1G2r3DITpU7yic7w/7Rxnjc0kt5GC4djiv2Sz3Fb2iEZg41/ddsFDoyuYrIkmFehz0HR2thPgQqMyQYb2OtB0WxsZ3BeG3+wpRb1vzl2UYBog8FfGhttFKjtAclnZYrRo9ryG9uG/FZQU4AEg8ZE9LjGMzTmqKXPLnlWVnIlQQTvxJf8ip7VgjZjyVPrjw1te5otM7RmP7xm+sK2Gv9I8Gi++BRbEkR9EBw8zRUcKxwp73xkaLiqQb+kGduJTNHG72zcW9LoJgqQxpP3/Tj//c3yB0tqzaml05/+orHLksVO+95kX7/7qgJvnjlrfr2Ggsyx0eoy9uPzN5SPd86aXggOsEKW2Prz7du3VID3/tzs/sSRs2w7ovVHKtjrX2pd7ZMlTxAYfBAL9jiDwfLkq55Tm7ifhMlTGPyCAs7RFRhn47JnlcB9RM5T97ASuZXIcVNuUDIndpDbdsfrqsOppeXl5Y+XVKdjFCTh+zGaVuj0d9zy05PPK3QzBamxdwtTCrzyg/2Rvf2EstUjordGwa/kx9mSJLr8mLLtCW8HHGJc2R5hS219IiF6PnTusOqcMl57gm0Z8kanKMAQg0qSyuZfn7zItsbGyO9QlnxY0eCuD1XL2ys/MsrQhltE7Ug0uFOzufJFE2PxBo/YAx8XPPdDwWN0MrDRYIZF0mSMKCNHgaIVFoBbNoLJ7tEQDKxGF0kcLQimojCZopv0OkNOyWCCg9XMVAi7ARJzQdM2QUh0gmBozjc3Skg6dSBRqDGYSUOu66Zg+I2fNZs/M3/f/Grl/XnyF1Gw3VKCez0PN5IUfFLqvgUN4C0qNqYs5YhPL+aVZYDE4IpUk57oSFnJm4FyCqqOE0jhY2SMyLFoo56zyo6becOS5UVDdj7Vih0zp+tcMhwRpBeLyqtIjlJKAIZSbI8SGSF3k0pA3mR5tHuwPFoa7N7reoq2bqCsAk1HqCu5uvI1n6JuRXI+S1Mco54YmYTwcn6Aeic+kssXi8XpXC4V3t7/ADuTNKaQJdScAAAAAElFTkSuQmCC)](https://mybinder.org/v2/gist/jonasbb/18b9aece4c17f617b1c2b3946d29eeb0/HEAD?filepath=serde-with-demo.ipynb)</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! ---</span>
 <span class="doccomment">//!</span>
@@ -1831,6 +1945,9 @@
 <span class="doccomment">//!</span>
 <span class="doccomment">//! * De/Serializing a type using the `Display` and `FromStr` traits, e.g., for `u8`, `url::Url`, or `mime::Mime`.</span>
 <span class="doccomment">//!      Check [`DisplayFromStr`][] or [`serde_with::rust::display_fromstr`][display_fromstr] for details.</span>
+<span class="doccomment">//! * Support for arrays larger than 32 elements or using const generics.</span>
+<span class="doccomment">//!     With `serde_as` large arrays are supported, even if they are nested in other types.</span>
+<span class="doccomment">//!     `[bool; 64]`, `Option&lt;[u8; M]&gt;`, and `Box&lt;[[u8; 64]; N]&gt;` are all supported, as [this examples shows](#large-and-const-generic-arrays).</span>
 <span class="doccomment">//! * Skip serializing all empty `Option` types with [`#[skip_serializing_none]`][skip_serializing_none].</span>
 <span class="doccomment">//! * Apply a prefix to each field name of a struct, without changing the de/serialize implementations of the struct using [`with_prefix!`][].</span>
 <span class="doccomment">//! * Deserialize a comma separated list like `#hash,#tags,#are,#great` into a `Vec&lt;String&gt;`.</span>
@@ -1849,7 +1966,7 @@
 <span class="doccomment">//!</span>
 <span class="doccomment">//! ```toml</span>
 <span class="doccomment">//! [dependencies.serde_with]</span>
-<span class="doccomment">//! version = &quot;1.9.4&quot;</span>
+<span class="doccomment">//! version = &quot;1.11.0&quot;</span>
 <span class="doccomment">//! features = [ &quot;...&quot; ]</span>
 <span class="doccomment">//! ```</span>
 <span class="doccomment">//!</span>
@@ -1889,6 +2006,44 @@
 <span class="doccomment">//! # &quot;#;</span>
 <span class="doccomment">//! # assert_eq!(json.replace(&quot; &quot;, &quot;&quot;).replace(&quot;\n&quot;, &quot;&quot;), serde_json::to_string(&amp;foo).unwrap());</span>
 <span class="doccomment">//! # assert_eq!(foo, serde_json::from_str(&amp;json).unwrap());</span>
+<span class="doccomment">//! # }</span>
+<span class="doccomment">//! ```</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! ## Large and const-generic arrays</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! serde does not support arrays with more than 32 elements or using const-generics.</span>
+<span class="doccomment">//! The `serde_as` attribute allows to circumvent this restriction, even for nested types and nested arrays.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! ```rust</span>
+<span class="doccomment">//! # #[cfg(FALSE)] {</span>
+<span class="doccomment">//! # #[cfg(feature = &quot;macros&quot;)]</span>
+<span class="doccomment">//! # use serde::{Deserialize, Serialize};</span>
+<span class="doccomment">//! # #[cfg(feature = &quot;macros&quot;)]</span>
+<span class="doccomment">//! # use serde_with::serde_as;</span>
+<span class="doccomment">//! # #[cfg(feature = &quot;macros&quot;)]</span>
+<span class="doccomment">//! #[serde_as]</span>
+<span class="doccomment">//! # #[derive(Debug, Eq, PartialEq)]</span>
+<span class="doccomment">//! #[derive(Deserialize, Serialize)]</span>
+<span class="doccomment">//! struct Arrays&lt;const N: usize, const M: usize&gt; {</span>
+<span class="doccomment">//!     #[serde_as(as = &quot;[_; N]&quot;)]</span>
+<span class="doccomment">//!     constgeneric: [bool; N],</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//!     #[serde_as(as = &quot;Box&lt;[[_; 64]; N]&gt;&quot;)]</span>
+<span class="doccomment">//!     nested: Box&lt;[[u8; 64]; N]&gt;,</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//!     #[serde_as(as = &quot;Option&lt;[_; M]&gt;&quot;)]</span>
+<span class="doccomment">//!     optional: Option&lt;[u8; M]&gt;,</span>
+<span class="doccomment">//! }</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! # #[cfg(all(feature = &quot;macros&quot;, feature = &quot;json&quot;))] {</span>
+<span class="doccomment">//! // This allows us to serialize a struct like this</span>
+<span class="doccomment">//! let arrays: Arrays&lt;100, 128&gt; = Arrays {</span>
+<span class="doccomment">//!     constgeneric: [true; 100],</span>
+<span class="doccomment">//!     nested: Box::new([[111; 64]; 100]),</span>
+<span class="doccomment">//!     optional: Some([222; 128])</span>
+<span class="doccomment">//! };</span>
+<span class="doccomment">//! assert!(serde_json::to_string(&amp;arrays).is_ok());</span>
+<span class="doccomment">//! # }</span>
 <span class="doccomment">//! # }</span>
 <span class="doccomment">//! ```</span>
 <span class="doccomment">//!</span>
@@ -1988,28 +2143,34 @@
 <span class="doccomment">//! # }</span>
 <span class="doccomment">//! ```</span>
 <span class="doccomment">//!</span>
-<span class="doccomment">//! [`DisplayFromStr`]: https://docs.rs/serde_with/1.9.4/serde_with/struct.DisplayFromStr.html</span>
-<span class="doccomment">//! [`with_prefix!`]: https://docs.rs/serde_with/1.9.4/serde_with/macro.with_prefix.html</span>
-<span class="doccomment">//! [display_fromstr]: https://docs.rs/serde_with/1.9.4/serde_with/rust/display_fromstr/index.html</span>
-<span class="doccomment">//! [feature flags]: https://docs.rs/serde_with/1.9.4/serde_with/guide/feature_flags/index.html</span>
-<span class="doccomment">//! [skip_serializing_none]: https://docs.rs/serde_with/1.9.4/serde_with/attr.skip_serializing_none.html</span>
-<span class="doccomment">//! [StringWithSeparator]: https://docs.rs/serde_with/1.9.4/serde_with/rust/struct.StringWithSeparator.html</span>
-<span class="doccomment">//! [user guide]: https://docs.rs/serde_with/1.9.4/serde_with/guide/index.html</span>
+<span class="doccomment">//! [`DisplayFromStr`]: https://docs.rs/serde_with/1.11.0/serde_with/struct.DisplayFromStr.html</span>
+<span class="doccomment">//! [`with_prefix!`]: https://docs.rs/serde_with/1.11.0/serde_with/macro.with_prefix.html</span>
+<span class="doccomment">//! [display_fromstr]: https://docs.rs/serde_with/1.11.0/serde_with/rust/display_fromstr/index.html</span>
+<span class="doccomment">//! [feature flags]: https://docs.rs/serde_with/1.11.0/serde_with/guide/feature_flags/index.html</span>
+<span class="doccomment">//! [skip_serializing_none]: https://docs.rs/serde_with/1.11.0/serde_with/attr.skip_serializing_none.html</span>
+<span class="doccomment">//! [StringWithSeparator]: https://docs.rs/serde_with/1.11.0/serde_with/rust/struct.StringWithSeparator.html</span>
+<span class="doccomment">//! [user guide]: https://docs.rs/serde_with/1.11.0/serde_with/guide/index.html</span>
 <span class="doccomment">//! [with-annotation]: https://serde.rs/field-attrs.html#with</span>
-<span class="doccomment">//! [as-annotation]: https://docs.rs/serde_with/1.9.4/serde_with/guide/serde_as/index.html</span>
+<span class="doccomment">//! [as-annotation]: https://docs.rs/serde_with/1.11.0/serde_with/guide/serde_as/index.html</span>
 
 <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
 <span class="kw">pub</span> <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">serde</span>;
 
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;base64&quot;</span>)]</span>
+<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;base64&quot;</span>)))]</span>
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">base64</span>;
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;chrono&quot;</span>)]</span>
+<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;chrono&quot;</span>)))]</span>
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">chrono</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">de</span>;
 <span class="kw">mod</span> <span class="ident">duplicate_key_impls</span>;
 <span class="kw">mod</span> <span class="ident">flatten_maybe</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">formats</span>;
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;hex&quot;</span>)]</span>
+<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;hex&quot;</span>)))]</span>
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">hex</span>;
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;json&quot;</span>)]</span>
+<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;json&quot;</span>)))]</span>
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">json</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">rust</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">ser</span>;
@@ -2053,6 +2214,7 @@
     <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">guide</span> {
         <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">feature_flags</span>;
         <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">serde_as</span>;
+        <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">serde_as_transformations</span>;
     }
 }
 
@@ -2061,6 +2223,7 @@
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Deserializer</span>, <span class="ident">Serialize</span>, <span class="ident">Serializer</span>};
 <span class="comment">// Re-Export all proc_macros, as these should be seen as part of the serde_with crate</span>
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;macros&quot;</span>)]</span>
+<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;macros&quot;</span>)))]</span>
 <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">inline</span>)]</span>
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">serde_with_macros</span>::<span class="kw-2">*</span>;
 <span class="kw">use</span> <span class="ident">std::marker::PhantomData</span>;
@@ -2095,9 +2258,9 @@
 
 <span class="doccomment">/// Adapter to convert from `serde_as` to the serde traits.</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// The `As` type adapter allows to use types implementing [`DeserializeAs`][] or [`SerializeAs`][] in place of serde&#39;s with-annotation.</span>
-<span class="doccomment">/// The with-annotation allows to run custom code when de/serializing, however it is quite inflexible.</span>
-<span class="doccomment">/// The traits [`DeserializeAs`][]/[`SerializeAs`][] are more flexible, as they allow composition and nesting of types to create more complex de/serialization behavior.</span>
+<span class="doccomment">/// The `As` type adapter allows using types which implement [`DeserializeAs`] or [`SerializeAs`] in place of serde&#39;s with-annotation.</span>
+<span class="doccomment">/// The with-annotation allows running custom code when de/serializing, however it is quite inflexible.</span>
+<span class="doccomment">/// The traits [`DeserializeAs`]/[`SerializeAs`] are more flexible, as they allow composition and nesting of types to create more complex de/serialization behavior.</span>
 <span class="doccomment">/// However, they are not directly compatible with serde, as they are not provided by serde.</span>
 <span class="doccomment">/// The `As` type adapter makes them compatible, by forwarding the function calls to `serialize`/`deserialize` to the corresponding functions `serialize_as` and `deserialize_as`.</span>
 <span class="doccomment">///</span>
@@ -2132,7 +2295,7 @@
 <span class="doccomment">/// # }</span>
 <span class="doccomment">/// ```</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// [serde_as]: https://docs.rs/serde_with/1.9.4/serde_with/attr.serde_as.html</span>
+<span class="doccomment">/// [serde_as]: https://docs.rs/serde_with/1.11.0/serde_with/attr.serde_as.html</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Default</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">As</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="question-mark">?</span><span class="ident">Sized</span><span class="op">&gt;</span>(<span class="ident">PhantomData</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>);
 
@@ -2175,7 +2338,7 @@
 
 <span class="doccomment">/// De/Serialize using [`Display`] and [`FromStr`] implementation</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// This allows to deserialize a string as a number.</span>
+<span class="doccomment">/// This allows deserializing a string as a number.</span>
 <span class="doccomment">/// It can be very useful for serialization formats like JSON, which do not support integer</span>
 <span class="doccomment">/// numbers and have to resort to strings to represent them.</span>
 <span class="doccomment">///</span>
@@ -2224,9 +2387,9 @@
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Default</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">DisplayFromStr</span>;
 
-<span class="doccomment">/// De/Serialize a [`Option`]`&lt;`[`String`]`&gt;` type while transforming the empty string to [`None`]</span>
+<span class="doccomment">/// De/Serialize a [`Option&lt;String&gt;`] type while transforming the empty string to [`None`]</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// Convert an [`Option`]`&lt;T&gt;` from/to string using [`FromStr`] and [`AsRef`]`&lt;`[`str`]`&gt;` implementations.</span>
+<span class="doccomment">/// Convert an [`Option&lt;T&gt;`] from/to string using [`FromStr`] and [`AsRef&lt;str&gt;`] implementations.</span>
 <span class="doccomment">/// An empty string is deserialized as [`None`] and a [`None`] vice versa.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// The same functionality is also available as [`serde_with::rust::string_empty_as_none`][crate::rust::string_empty_as_none] compatible with serde&#39;s with-annotation.</span>
@@ -2598,7 +2761,7 @@
 <span class="doccomment">/// ```</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// [`chrono::Duration`]: chrono_crate::Duration</span>
-<span class="doccomment">/// [feature flag]: https://docs.rs/serde_with/1.9.4/serde_with/guide/feature_flags/index.html</span>
+<span class="doccomment">/// [feature flag]: https://docs.rs/serde_with/1.11.0/serde_with/guide/feature_flags/index.html</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Default</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">DurationSeconds</span><span class="op">&lt;</span>
     <span class="ident">FORMAT</span>: <span class="ident">formats::Format</span> <span class="op">=</span> <span class="ident">u64</span>,
@@ -2724,7 +2887,7 @@
 <span class="doccomment">/// ```</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// [`chrono::Duration`]: chrono_crate::Duration</span>
-<span class="doccomment">/// [feature flag]: https://docs.rs/serde_with/1.9.4/serde_with/guide/feature_flags/index.html</span>
+<span class="doccomment">/// [feature flag]: https://docs.rs/serde_with/1.11.0/serde_with/guide/feature_flags/index.html</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Default</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">DurationSecondsWithFrac</span><span class="op">&lt;</span>
     <span class="ident">FORMAT</span>: <span class="ident">formats::Format</span> <span class="op">=</span> <span class="ident">f64</span>,
@@ -2733,7 +2896,7 @@
 
 <span class="doccomment">/// Equivalent to [`DurationSeconds`] with milli-seconds as base unit.</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// This type is equivalent to [`DurationSeconds`] except that the each unit represents 1 milli-second instead of 1 second for [`DurationSeconds`].</span>
+<span class="doccomment">/// This type is equivalent to [`DurationSeconds`] except that each unit represents 1 milli-second instead of 1 second for [`DurationSeconds`].</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Default</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">DurationMilliSeconds</span><span class="op">&lt;</span>
     <span class="ident">FORMAT</span>: <span class="ident">formats::Format</span> <span class="op">=</span> <span class="ident">u64</span>,
@@ -2742,7 +2905,7 @@
 
 <span class="doccomment">/// Equivalent to [`DurationSecondsWithFrac`] with milli-seconds as base unit.</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// This type is equivalent to [`DurationSecondsWithFrac`] except that the each unit represents 1 milli-second instead of 1 second for [`DurationSecondsWithFrac`].</span>
+<span class="doccomment">/// This type is equivalent to [`DurationSecondsWithFrac`] except that each unit represents 1 milli-second instead of 1 second for [`DurationSecondsWithFrac`].</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Default</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">DurationMilliSecondsWithFrac</span><span class="op">&lt;</span>
     <span class="ident">FORMAT</span>: <span class="ident">formats::Format</span> <span class="op">=</span> <span class="ident">f64</span>,
@@ -2751,7 +2914,7 @@
 
 <span class="doccomment">/// Equivalent to [`DurationSeconds`] with micro-seconds as base unit.</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// This type is equivalent to [`DurationSeconds`] except that the each unit represents 1 micro-second instead of 1 second for [`DurationSeconds`].</span>
+<span class="doccomment">/// This type is equivalent to [`DurationSeconds`] except that each unit represents 1 micro-second instead of 1 second for [`DurationSeconds`].</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Default</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">DurationMicroSeconds</span><span class="op">&lt;</span>
     <span class="ident">FORMAT</span>: <span class="ident">formats::Format</span> <span class="op">=</span> <span class="ident">u64</span>,
@@ -2760,7 +2923,7 @@
 
 <span class="doccomment">/// Equivalent to [`DurationSecondsWithFrac`] with micro-seconds as base unit.</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// This type is equivalent to [`DurationSecondsWithFrac`] except that the each unit represents 1 micro-second instead of 1 second for [`DurationSecondsWithFrac`].</span>
+<span class="doccomment">/// This type is equivalent to [`DurationSecondsWithFrac`] except that each unit represents 1 micro-second instead of 1 second for [`DurationSecondsWithFrac`].</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Default</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">DurationMicroSecondsWithFrac</span><span class="op">&lt;</span>
     <span class="ident">FORMAT</span>: <span class="ident">formats::Format</span> <span class="op">=</span> <span class="ident">f64</span>,
@@ -2769,7 +2932,7 @@
 
 <span class="doccomment">/// Equivalent to [`DurationSeconds`] with nano-seconds as base unit.</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// This type is equivalent to [`DurationSeconds`] except that the each unit represents 1 nano-second instead of 1 second for [`DurationSeconds`].</span>
+<span class="doccomment">/// This type is equivalent to [`DurationSeconds`] except that each unit represents 1 nano-second instead of 1 second for [`DurationSeconds`].</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Default</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">DurationNanoSeconds</span><span class="op">&lt;</span>
     <span class="ident">FORMAT</span>: <span class="ident">formats::Format</span> <span class="op">=</span> <span class="ident">u64</span>,
@@ -2778,7 +2941,7 @@
 
 <span class="doccomment">/// Equivalent to [`DurationSecondsWithFrac`] with nano-seconds as base unit.</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// This type is equivalent to [`DurationSecondsWithFrac`] except that the each unit represents 1 nano-second instead of 1 second for [`DurationSecondsWithFrac`].</span>
+<span class="doccomment">/// This type is equivalent to [`DurationSecondsWithFrac`] except that each unit represents 1 nano-second instead of 1 second for [`DurationSecondsWithFrac`].</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Default</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">DurationNanoSecondsWithFrac</span><span class="op">&lt;</span>
     <span class="ident">FORMAT</span>: <span class="ident">formats::Format</span> <span class="op">=</span> <span class="ident">f64</span>,
@@ -2921,7 +3084,7 @@
 <span class="doccomment">///</span>
 <span class="doccomment">/// [`SystemTime`]: std::time::SystemTime</span>
 <span class="doccomment">/// [DateTime]: chrono_crate::DateTime</span>
-<span class="doccomment">/// [feature flag]: https://docs.rs/serde_with/1.9.4/serde_with/guide/feature_flags/index.html</span>
+<span class="doccomment">/// [feature flag]: https://docs.rs/serde_with/1.11.0/serde_with/guide/feature_flags/index.html</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Default</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">TimestampSeconds</span><span class="op">&lt;</span>
     <span class="ident">FORMAT</span>: <span class="ident">formats::Format</span> <span class="op">=</span> <span class="ident">i64</span>,
@@ -3050,7 +3213,7 @@
 <span class="doccomment">///</span>
 <span class="doccomment">/// [`SystemTime`]: std::time::SystemTime</span>
 <span class="doccomment">/// [DateTime]: chrono_crate::DateTime</span>
-<span class="doccomment">/// [feature flag]: https://docs.rs/serde_with/1.9.4/serde_with/guide/feature_flags/index.html</span>
+<span class="doccomment">/// [feature flag]: https://docs.rs/serde_with/1.11.0/serde_with/guide/feature_flags/index.html</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Default</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">TimestampSecondsWithFrac</span><span class="op">&lt;</span>
     <span class="ident">FORMAT</span>: <span class="ident">formats::Format</span> <span class="op">=</span> <span class="ident">f64</span>,
@@ -3059,7 +3222,7 @@
 
 <span class="doccomment">/// Equivalent to [`TimestampSeconds`] with milli-seconds as base unit.</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// This type is equivalent to [`TimestampSeconds`] except that the each unit represents 1 milli-second instead of 1 second for [`TimestampSeconds`].</span>
+<span class="doccomment">/// This type is equivalent to [`TimestampSeconds`] except that each unit represents 1 milli-second instead of 1 second for [`TimestampSeconds`].</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Default</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">TimestampMilliSeconds</span><span class="op">&lt;</span>
     <span class="ident">FORMAT</span>: <span class="ident">formats::Format</span> <span class="op">=</span> <span class="ident">i64</span>,
@@ -3068,7 +3231,7 @@
 
 <span class="doccomment">/// Equivalent to [`TimestampSecondsWithFrac`] with milli-seconds as base unit.</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// This type is equivalent to [`TimestampSecondsWithFrac`] except that the each unit represents 1 milli-second instead of 1 second for [`TimestampSecondsWithFrac`].</span>
+<span class="doccomment">/// This type is equivalent to [`TimestampSecondsWithFrac`] except that each unit represents 1 milli-second instead of 1 second for [`TimestampSecondsWithFrac`].</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Default</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">TimestampMilliSecondsWithFrac</span><span class="op">&lt;</span>
     <span class="ident">FORMAT</span>: <span class="ident">formats::Format</span> <span class="op">=</span> <span class="ident">f64</span>,
@@ -3077,7 +3240,7 @@
 
 <span class="doccomment">/// Equivalent to [`TimestampSeconds`] with micro-seconds as base unit.</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// This type is equivalent to [`TimestampSeconds`] except that the each unit represents 1 micro-second instead of 1 second for [`TimestampSeconds`].</span>
+<span class="doccomment">/// This type is equivalent to [`TimestampSeconds`] except that each unit represents 1 micro-second instead of 1 second for [`TimestampSeconds`].</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Default</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">TimestampMicroSeconds</span><span class="op">&lt;</span>
     <span class="ident">FORMAT</span>: <span class="ident">formats::Format</span> <span class="op">=</span> <span class="ident">i64</span>,
@@ -3086,7 +3249,7 @@
 
 <span class="doccomment">/// Equivalent to [`TimestampSecondsWithFrac`] with micro-seconds as base unit.</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// This type is equivalent to [`TimestampSecondsWithFrac`] except that the each unit represents 1 micro-second instead of 1 second for [`TimestampSecondsWithFrac`].</span>
+<span class="doccomment">/// This type is equivalent to [`TimestampSecondsWithFrac`] except that each unit represents 1 micro-second instead of 1 second for [`TimestampSecondsWithFrac`].</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Default</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">TimestampMicroSecondsWithFrac</span><span class="op">&lt;</span>
     <span class="ident">FORMAT</span>: <span class="ident">formats::Format</span> <span class="op">=</span> <span class="ident">f64</span>,
@@ -3095,7 +3258,7 @@
 
 <span class="doccomment">/// Equivalent to [`TimestampSeconds`] with nano-seconds as base unit.</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// This type is equivalent to [`TimestampSeconds`] except that the each unit represents 1 nano-second instead of 1 second for [`TimestampSeconds`].</span>
+<span class="doccomment">/// This type is equivalent to [`TimestampSeconds`] except that each unit represents 1 nano-second instead of 1 second for [`TimestampSeconds`].</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Default</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">TimestampNanoSeconds</span><span class="op">&lt;</span>
     <span class="ident">FORMAT</span>: <span class="ident">formats::Format</span> <span class="op">=</span> <span class="ident">i64</span>,
@@ -3104,7 +3267,7 @@
 
 <span class="doccomment">/// Equivalent to [`TimestampSecondsWithFrac`] with nano-seconds as base unit.</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// This type is equivalent to [`TimestampSecondsWithFrac`] except that the each unit represents 1 nano-second instead of 1 second for [`TimestampSecondsWithFrac`].</span>
+<span class="doccomment">/// This type is equivalent to [`TimestampSecondsWithFrac`] except that each unit represents 1 nano-second instead of 1 second for [`TimestampSecondsWithFrac`].</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Default</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">TimestampNanoSecondsWithFrac</span><span class="op">&lt;</span>
     <span class="ident">FORMAT</span>: <span class="ident">formats::Format</span> <span class="op">=</span> <span class="ident">f64</span>,
@@ -3116,9 +3279,9 @@
 <span class="doccomment">/// Serialization of byte sequences like `&amp;[u8]` or `Vec&lt;u8&gt;` is quite inefficient since each value will be serialized individually.</span>
 <span class="doccomment">/// This converter type optimizes the serialization and deserialization.</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// This is a port of the `serde_bytes` crate making it compatible with the `serde_as`-annotation, which allows it to be used in more cases than provided by `serde_bytes`.</span>
+<span class="doccomment">/// This is a port of the [`serde_bytes`] crate making it compatible with the `serde_as`-annotation, which allows it to be used in more cases than provided by [`serde_bytes`].</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// The type provides de-/serialization for these types:</span>
+<span class="doccomment">/// The type provides de/serialization for these types:</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// * `[u8; N]`, Rust 1.51+, not possible using `serde_bytes`</span>
 <span class="doccomment">/// * `&amp;[u8; N]`, Rust 1.51+, not possible using `serde_bytes`</span>
@@ -3128,6 +3291,8 @@
 <span class="doccomment">/// * `Vec&lt;u8&gt;`</span>
 <span class="doccomment">/// * `Cow&lt;&#39;_, [u8]&gt;`</span>
 <span class="doccomment">/// * `Cow&lt;&#39;_, [u8; N]&gt;`, Rust 1.51+, not possible using `serde_bytes`</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// [`serde_bytes`]: https://crates.io/crates/serde_bytes</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// # Examples</span>
 <span class="doccomment">///</span>
@@ -3281,13 +3446,13 @@
 
 <span class="doccomment">/// Deserialize one or many elements</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// Sometime it is desireable to have a shortcut in writing 1-element lists in a config file.</span>
+<span class="doccomment">/// Sometimes it is desirable to have a shortcut in writing 1-element lists in a config file.</span>
 <span class="doccomment">/// Usually, this is done by either writing a list or the list element itself.</span>
 <span class="doccomment">/// This distinction is not semantically important on the Rust side, thus both forms should serialize into the same `Vec`.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// The `OneOrMany` adapter achieves exactly this use case.</span>
 <span class="doccomment">/// The serialization behavior can be tweaked to either always serialize as a list using `PreferMany` or to serialize as the inner element if possible using `PreferOne`.</span>
-<span class="doccomment">/// By default `PreferOne` is assumed, which can also be omitted like `OneOrMany&lt;_&gt;`.</span>
+<span class="doccomment">/// By default, `PreferOne` is assumed, which can also be omitted like `OneOrMany&lt;_&gt;`.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// # Examples</span>
 <span class="doccomment">///</span>
@@ -3345,8 +3510,8 @@
 <span class="doccomment">/// They are tried in order and the first one working is applied.</span>
 <span class="doccomment">/// Serialization always picks the first option.</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// `PickFirst` has one type parameter which must be instanciated with a tuple of two, three, or four elements.</span>
-<span class="doccomment">/// For example, `PickFirst&lt;(_, DisplayFromStr)&gt;` on a field of type `u32` allows to deserialize from a number or from a string via the `FromStr` trait.</span>
+<span class="doccomment">/// `PickFirst` has one type parameter which must be instantiated with a tuple of two, three, or four elements.</span>
+<span class="doccomment">/// For example, `PickFirst&lt;(_, DisplayFromStr)&gt;` on a field of type `u32` allows deserializing from a number or from a string via the `FromStr` trait.</span>
 <span class="doccomment">/// The value will be serialized as a number, since that is what the first type `_` indicates.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// # Examples</span>
@@ -3573,6 +3738,75 @@
 <span class="doccomment">/// ```</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Default</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">TryFromInto</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">PhantomData</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>);
+
+<span class="doccomment">/// Borrow `Cow` data during deserialization when possible.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// The types `Cow&lt;&#39;a, [u8]&gt;`, `Cow&lt;&#39;a, [u8; N]&gt;`, and `Cow&lt;&#39;a, str&gt;` can borrow from the input data during deserialization.</span>
+<span class="doccomment">/// serde supports this, by annotating the fields with `#[serde(borrow)]`. but does not support borrowing on nested types.</span>
+<span class="doccomment">/// This gap is filled by this `BorrowCow` adapter.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// Using this adapter with `Cow&lt;&#39;a, [u8]&gt;`/Cow&lt;&#39;a, [u8; N]&gt;` will serialize the value as a sequence of `u8` values.</span>
+<span class="doccomment">/// This *might* not allow to borrow the data during deserialization.</span>
+<span class="doccomment">/// For a different format, which is also more efficient, use the [`Bytes`] adapter, which is also implemented for `Cow`.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// When combined with the [`serde_as`] attribute, the `#[serde(borrow)]` annotation will be added automatically.</span>
+<span class="doccomment">/// If the annotation is wrong or too broad, for example because of multiple lifetime parameters, a manual annotation is required.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// # Examples</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// ```rust</span>
+<span class="doccomment">/// # #[cfg(feature = &quot;macros&quot;)] {</span>
+<span class="doccomment">/// # use serde::{Deserialize, Serialize};</span>
+<span class="doccomment">/// # use serde_with::{serde_as, BorrowCow};</span>
+<span class="doccomment">/// # use std::borrow::Cow;</span>
+<span class="doccomment">/// #</span>
+<span class="doccomment">/// #[serde_as]</span>
+<span class="doccomment">/// # #[derive(Debug, PartialEq)]</span>
+<span class="doccomment">/// #[derive(Deserialize, Serialize)]</span>
+<span class="doccomment">/// struct Data&lt;&#39;a, &#39;b, &#39;c&gt; {</span>
+<span class="doccomment">///     #[serde_as(as = &quot;BorrowCow&quot;)]</span>
+<span class="doccomment">///     str: Cow&lt;&#39;a, str&gt;,</span>
+<span class="doccomment">///     #[serde_as(as = &quot;BorrowCow&quot;)]</span>
+<span class="doccomment">///     slice: Cow&lt;&#39;b, [u8]&gt;,</span>
+<span class="doccomment">///</span>
+<span class="doccomment">///     #[serde_as(as = &quot;Option&lt;[BorrowCow; 1]&gt;&quot;)]</span>
+<span class="doccomment">///     nested: Option&lt;[Cow&lt;&#39;c, str&gt;; 1]&gt;,</span>
+<span class="doccomment">/// }</span>
+<span class="doccomment">/// let data = Data {</span>
+<span class="doccomment">///     str: &quot;foobar&quot;.into(),</span>
+<span class="doccomment">///     slice: b&quot;foobar&quot;[..].into(),</span>
+<span class="doccomment">///     nested: Some([&quot;HelloWorld&quot;.into()]),</span>
+<span class="doccomment">/// };</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// // Define our expected JSON form</span>
+<span class="doccomment">/// let j = r#&quot;{</span>
+<span class="doccomment">///   &quot;str&quot;: &quot;foobar&quot;,</span>
+<span class="doccomment">///   &quot;slice&quot;: [</span>
+<span class="doccomment">///     102,</span>
+<span class="doccomment">///     111,</span>
+<span class="doccomment">///     111,</span>
+<span class="doccomment">///     98,</span>
+<span class="doccomment">///     97,</span>
+<span class="doccomment">///     114</span>
+<span class="doccomment">///   ],</span>
+<span class="doccomment">///   &quot;nested&quot;: [</span>
+<span class="doccomment">///     &quot;HelloWorld&quot;</span>
+<span class="doccomment">///   ]</span>
+<span class="doccomment">/// }&quot;#;</span>
+<span class="doccomment">/// // Ensure serialization and deserialization produce the expected results</span>
+<span class="doccomment">/// assert_eq!(j, serde_json::to_string_pretty(&amp;data).unwrap());</span>
+<span class="doccomment">/// assert_eq!(data, serde_json::from_str(j).unwrap());</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// // Cow borrows from the input data</span>
+<span class="doccomment">/// let deserialized: Data&lt;&#39;_, &#39;_, &#39;_&gt; = serde_json::from_str(j).unwrap();</span>
+<span class="doccomment">/// assert!(matches!(deserialized.str, Cow::Borrowed(_)));</span>
+<span class="doccomment">/// assert!(matches!(deserialized.nested, Some([Cow::Borrowed(_)])));</span>
+<span class="doccomment">/// // JSON does not allow borrowing bytes, so `slice` does not borrow</span>
+<span class="doccomment">/// assert!(matches!(deserialized.slice, Cow::Owned(_)));</span>
+<span class="doccomment">/// # }</span>
+<span class="doccomment">/// ```</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Default</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">BorrowCow</span>;
 </code></pre></div>
 </section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="serde_with" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
 </body></html>

@@ -1,0 +1,1 @@
+initSidebarItems({"enum":[["MigrationDeprecationsParts","API parts for the Migration Deprecations API"]],"struct":[["Migration","Namespace client for Migration APIs"],["MigrationDeprecations","Builder for the Migration Deprecations API"]]});
