@@ -767,6 +767,9 @@ production, including what should be done about them, if anything.</p>
 <p>This list does not include any <code>DEBUG</code> or <code>TRACE</code> level events, since those are
 not logged by default in production. The events below are grouped by crate, and
 the level and type of the log is listed.</p>
+<p>Any log containing sensitive data must include a boolean field <code>sensitive</code>
+that is set to <code>true</code> to exempt it from flowing to the generally accessible
+log inspection interfaces.</p>
 <h3 id="merino-adm"><a class="header" href="#merino-adm"><code>merino-adm</code></a></h3>
 <ul>
 <li>
@@ -789,6 +792,7 @@ suggestion to the Redis server.</li>
 <p><code>INFO web.suggest.request</code> - A suggestion request is being processed. This
 event will include fields for all relevant details of the request. <strong>Fields:</strong></p>
 <ul>
+<li><code>sensitive</code> - Always set to true to ensure proper routing.</li>
 <li><code>query</code> - If query logging is enabled, the text the user typed. Otherwise an
 empty string.</li>
 <li><code>country</code> - The country the request came from.</li>
