@@ -401,7 +401,8 @@ async fn suggest_logs_searches_when_requested(
             continue;
         }
         // If the type is correct, the `has` assertion above ensures everything is ok
-        if event.fields.get("r#type") == Some(&Value::String("web.suggest.request".to_string())) {
+        if event.fields.get("r#type") == Some(&json!("web.suggest.request")) {
+            assert_eq!(event.fields.get("sensitive"), Some(&json!(true)));
             continue;
         }
         // If this is a non-request, non-debug/trace log, then it should not have the query anywhere in it

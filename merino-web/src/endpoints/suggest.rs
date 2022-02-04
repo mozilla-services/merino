@@ -190,6 +190,7 @@ fn safe_log_request(
 
     tracing::info!(
         r#type = "web.suggest.request",
+        sensitive = true,
         accepts_english = ?request.accepts_english,
         city = request.city.as_deref(),
         country = request.country.as_deref(),
