@@ -228,7 +228,6 @@ fn parse_settings_body(
                     "only `val: Type` parameters can be used for merino_test settings inputs",
                 )
                 .into_compile_error()
-                .into()
             }
         }
     }
