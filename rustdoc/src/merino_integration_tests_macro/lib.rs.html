@@ -184,11 +184,63 @@
 <span id="183">183</span>
 <span id="184">184</span>
 <span id="185">185</span>
+<span id="186">186</span>
+<span id="187">187</span>
+<span id="188">188</span>
+<span id="189">189</span>
+<span id="190">190</span>
+<span id="191">191</span>
+<span id="192">192</span>
+<span id="193">193</span>
+<span id="194">194</span>
+<span id="195">195</span>
+<span id="196">196</span>
+<span id="197">197</span>
+<span id="198">198</span>
+<span id="199">199</span>
+<span id="200">200</span>
+<span id="201">201</span>
+<span id="202">202</span>
+<span id="203">203</span>
+<span id="204">204</span>
+<span id="205">205</span>
+<span id="206">206</span>
+<span id="207">207</span>
+<span id="208">208</span>
+<span id="209">209</span>
+<span id="210">210</span>
+<span id="211">211</span>
+<span id="212">212</span>
+<span id="213">213</span>
+<span id="214">214</span>
+<span id="215">215</span>
+<span id="216">216</span>
+<span id="217">217</span>
+<span id="218">218</span>
+<span id="219">219</span>
+<span id="220">220</span>
+<span id="221">221</span>
+<span id="222">222</span>
+<span id="223">223</span>
+<span id="224">224</span>
+<span id="225">225</span>
+<span id="226">226</span>
+<span id="227">227</span>
+<span id="228">228</span>
+<span id="229">229</span>
+<span id="230">230</span>
+<span id="231">231</span>
+<span id="232">232</span>
+<span id="233">233</span>
+<span id="234">234</span>
+<span id="235">235</span>
+<span id="236">236</span>
+<span id="237">237</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">proc_macro::TokenStream</span>;
 <span class="kw">use</span> <span class="ident">quote::quote</span>;
 <span class="kw">use</span> <span class="ident">syn</span>::{
-    <span class="ident">punctuated::Punctuated</span>, <span class="ident">token::Comma</span>, <span class="ident">ExprClosure</span>, <span class="ident">FnArg</span>, <span class="ident">Pat</span>, <span class="ident">PatType</span>, <span class="ident">Path</span>, <span class="ident">PathArguments</span>,
-    <span class="ident">PathSegment</span>, <span class="ident">TypePath</span>,
+    <span class="ident">punctuated::Punctuated</span>, <span class="ident">token::Comma</span>, <span class="ident">Attribute</span>, <span class="ident">ExprClosure</span>, <span class="ident">FnArg</span>, <span class="ident">Pat</span>, <span class="ident">PatType</span>, <span class="ident">Path</span>,
+    <span class="ident">PathArguments</span>, <span class="ident">PathSegment</span>, <span class="ident">TypePath</span>,
 };
 
 <span class="doccomment">/// Wrap a test case in setup and tear down boiler plate, including manipulating</span>
@@ -246,11 +298,68 @@
     <span class="kw">let</span> <span class="ident">sig</span> <span class="op">=</span> <span class="kw-2">&amp;mut</span> <span class="ident">input</span>.<span class="ident">sig</span>;
     <span class="kw">let</span> <span class="ident">body</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">block</span>;
 
-    <span class="comment">// If the function doesn&#39;t have a #[test] attribute, we&#39;ll probably need to provide one.</span>
+    <span class="comment">// Check that function is async. Then remove `async` from the signature,</span>
+    <span class="comment">// so we can reuse the same signature for our blocking sync outer function.</span>
+    <span class="kw">if</span> <span class="ident">sig</span>.<span class="ident">asyncness</span>.<span class="ident">is_none</span>() {
+        <span class="kw">return</span> <span class="ident">syn::Error::new_spanned</span>(
+            <span class="ident">input</span>.<span class="ident">sig</span>.<span class="ident">fn_token</span>,
+            <span class="string">&quot;the async keyword is missing from the function declaration&quot;</span>,
+        )
+        .<span class="ident">to_compile_error</span>()
+        .<span class="ident">into</span>();
+    }
+    <span class="ident">sig</span>.<span class="ident">asyncness</span> <span class="op">=</span> <span class="prelude-val">None</span>;
+
+    <span class="comment">// Check if the `#[test]` attribute should be added.</span>
+    <span class="kw">let</span> <span class="ident">missing_test_attr</span> <span class="op">=</span> <span class="ident">maybe_add_test_attr</span>(<span class="kw-2">&amp;</span><span class="ident">attrs</span>[..]);
+
+    <span class="comment">// A place to store all the top-level arguments along the following parsing.</span>
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">toplevel_args</span> <span class="op">=</span> <span class="ident">Punctuated</span>::<span class="op">&lt;</span><span class="ident">FnArg</span>, <span class="ident">Comma</span><span class="op">&gt;</span><span class="ident">::new</span>();
+
+    <span class="comment">// Parse the `TestingTools` argument.</span>
+    <span class="kw">let</span> <span class="ident">testing_tools_arg</span> <span class="op">=</span> <span class="ident">parse_testing_tools_arg</span>(<span class="kw-2">&amp;</span><span class="ident">sig</span>.<span class="ident">inputs</span>, <span class="kw-2">&amp;mut</span> <span class="ident">toplevel_args</span>);
+    <span class="kw">if</span> <span class="ident">testing_tools_arg</span>.<span class="ident">is_none</span>() {
+        <span class="kw">return</span> <span class="ident">syn::Error::new_spanned</span>(<span class="kw-2">&amp;</span><span class="ident">sig</span>.<span class="ident">inputs</span>, <span class="string">&quot;expected an argument of type TestingTools&quot;</span>)
+            .<span class="ident">into_compile_error</span>()
+            .<span class="ident">into</span>();
+    }
+
+    <span class="comment">// Parse the body of the settings closure if any.</span>
+    <span class="kw">let</span> <span class="ident">settings_body</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">attributes</span>.<span class="ident">is_empty</span>() {
+        <span class="macro">quote!</span>({})
+    } <span class="kw">else</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">settings_closure</span> <span class="op">=</span> <span class="macro">syn::parse_macro_input!</span>(<span class="ident">attributes</span> <span class="kw">as</span> <span class="ident">ExprClosure</span>);
+        <span class="ident">parse_settings_body</span>(<span class="kw-2">&amp;mut</span> <span class="ident">settings_closure</span>, <span class="kw-2">&amp;mut</span> <span class="ident">toplevel_args</span>)
+    };
+
+    <span class="comment">// Add all collected arguments to the top level signature.</span>
+    <span class="ident">sig</span>.<span class="ident">inputs</span> <span class="op">=</span> <span class="ident">toplevel_args</span>;
+
+    <span class="comment">// output the built test function</span>
+    (<span class="macro">quote!</span> {
+        #(#<span class="ident">attrs</span>)<span class="op">*</span>
+        #<span class="ident">missing_test_attr</span>
+        #<span class="ident">vis</span> #<span class="ident">sig</span> {
+            <span class="ident">actix_rt::System::new</span>()
+                .<span class="ident">block_on</span>(<span class="kw">async</span> {
+                    <span class="comment">// crate here refers to `merino-integration-tests`</span>
+                    <span class="ident"><span class="kw">crate</span>::merino_test</span>(
+                        <span class="op">|</span><span class="ident">settings</span><span class="op">|</span> { #<span class="ident">settings_body</span> },
+                        <span class="op">|</span> #<span class="ident">testing_tools_arg</span> <span class="op">|</span> <span class="kw">async</span> <span class="kw">move</span> { #<span class="ident">body</span> }
+                    ).<span class="kw">await</span>
+                })
+        }
+    })
+    .<span class="ident">into</span>()
+}
+
+<span class="doccomment">/// Add the `#[test]` attribute to the test if needed.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// This is mainly for those parameterized tests (`#[parameterized(...)]`) by</span>
+<span class="doccomment">/// the crate `parameterized`, which unconditionally adds `#[test]`.</span>
+<span class="kw">fn</span> <span class="ident">maybe_add_test_attr</span>(<span class="ident">attrs</span>: <span class="kw-2">&amp;</span>[<span class="ident">Attribute</span>]) -&gt; <span class="ident">proc_macro2::TokenStream</span> {
     <span class="kw">let</span> <span class="ident">has_test_attr</span> <span class="op">=</span> <span class="ident">attrs</span>.<span class="ident">iter</span>().<span class="ident">any</span>(<span class="op">|</span><span class="ident">attr</span><span class="op">|</span> <span class="ident">attr</span>.<span class="ident">path</span>.<span class="ident">is_ident</span>(<span class="string">&quot;test&quot;</span>));
 
-    <span class="comment">// Check for the library parameterized, which unconditionally adds</span>
-    <span class="comment">// `#[test]`.</span>
     <span class="kw">let</span> <span class="ident">is_parameterized</span> <span class="op">=</span> <span class="ident">attrs</span>.<span class="ident">iter</span>().<span class="ident">any</span>(<span class="op">|</span><span class="ident">attr</span><span class="op">|</span> {
         <span class="kw">let</span> <span class="ident">segment_names</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">attr</span>
             .<span class="ident">path</span>
@@ -264,31 +373,38 @@
 
     <span class="comment">// If parameterized is not being used and there is no test attribute already</span>
     <span class="comment">// present, add one.</span>
-    <span class="kw">let</span> <span class="ident">missing_test_attr</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">has_test_attr</span> <span class="op">|</span><span class="op">|</span> <span class="ident">is_parameterized</span> {
+    <span class="kw">if</span> <span class="ident">has_test_attr</span> <span class="op">|</span><span class="op">|</span> <span class="ident">is_parameterized</span> {
         <span class="macro">quote!</span>()
     } <span class="kw">else</span> {
         <span class="macro">quote!</span>(<span class="attribute">#[<span class="ident">test</span>]</span>)
-    };
-
-    <span class="comment">// Check that function is async. Then remove `async` from the signature, so we can reuse the same signature for our blocking sync outer function.</span>
-    <span class="kw">if</span> <span class="ident">sig</span>.<span class="ident">asyncness</span>.<span class="ident">is_none</span>() {
-        <span class="kw">return</span> <span class="ident">syn::Error::new_spanned</span>(
-            <span class="ident">input</span>.<span class="ident">sig</span>.<span class="ident">fn_token</span>,
-            <span class="string">&quot;the async keyword is missing from the function declaration&quot;</span>,
-        )
-        .<span class="ident">to_compile_error</span>()
-        .<span class="ident">into</span>();
     }
-    <span class="ident">sig</span>.<span class="ident">asyncness</span> <span class="op">=</span> <span class="prelude-val">None</span>;
+}
 
-    <span class="comment">// Find and take the `TestingTools` arg, leaving any others in place. This</span>
-    <span class="comment">// has the pattern match that defines the bindings the caller is expecting</span>
-    <span class="comment">// to use, so we have to use it directly.</span>
-    <span class="kw">let</span> <span class="ident">original_args</span> <span class="op">=</span> <span class="ident">sig</span>.<span class="ident">inputs</span>.<span class="ident">clone</span>();
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">toplevel_args</span> <span class="op">=</span> <span class="ident">Punctuated</span>::<span class="op">&lt;</span><span class="ident">FnArg</span>, <span class="ident">Comma</span><span class="op">&gt;</span><span class="ident">::new</span>();
+<span class="doccomment">/// Find and take the `TestingTools` argument from the arguments of the test</span>
+<span class="doccomment">/// function, leaving any others in place by storing in `toplevel_args`.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// # Example</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// Parse the `TestingTools { test_client, .. }: TestingTools` from the</span>
+<span class="doccomment">/// following test.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// ```ignore</span>
+<span class="doccomment">/// #[merino_test_macro]</span>
+<span class="doccomment">/// async fn test(TestingTools { test_client, .. }: TestingTools) {</span>
+<span class="doccomment">///   ...</span>
+<span class="doccomment">/// }</span>
+<span class="doccomment">/// ```</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// This has the pattern match that defines the bindings the caller is</span>
+<span class="doccomment">/// expecting to use, so we have to use it directly.</span>
+<span class="kw">fn</span> <span class="ident">parse_testing_tools_arg</span>(
+    <span class="ident">args</span>: <span class="kw-2">&amp;</span><span class="ident">Punctuated</span><span class="op">&lt;</span><span class="ident">FnArg</span>, <span class="ident">Comma</span><span class="op">&gt;</span>,
+    <span class="ident">toplevel_args</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Punctuated</span><span class="op">&lt;</span><span class="ident">FnArg</span>, <span class="ident">Comma</span><span class="op">&gt;</span>,
+) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">FnArg</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">testing_tools_arg</span> <span class="op">=</span> <span class="prelude-val">None</span>;
 
-    <span class="kw">for</span> <span class="ident">arg</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">original_args</span> {
+    <span class="kw">for</span> <span class="ident">arg</span> <span class="kw">in</span> <span class="ident">args</span> {
         <span class="kw">match</span> <span class="ident">arg</span> {
             <span class="ident">syn::FnArg::Receiver</span>(<span class="kw">_</span>) =&gt; <span class="ident">toplevel_args</span>.<span class="ident">push</span>(<span class="ident">arg</span>.<span class="ident">clone</span>()),
             <span class="ident">syn::FnArg::Typed</span>(<span class="ident">PatType</span> { <span class="kw-2">ref</span> <span class="ident">ty</span>, .. }) =&gt; <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="kw-2">*</span><span class="ident">ty</span> {
@@ -316,58 +432,46 @@
         }
     }
 
-    <span class="kw">if</span> <span class="ident">testing_tools_arg</span>.<span class="ident">is_none</span>() {
-        <span class="kw">return</span> <span class="ident">syn::Error::new_spanned</span>(<span class="ident">original_args</span>, <span class="string">&quot;expected an argument of type TestingTools&quot;</span>)
-            .<span class="ident">into_compile_error</span>()
-            .<span class="ident">into</span>();
-    }
+    <span class="ident">testing_tools_arg</span>
+}
 
-    <span class="comment">// The settings closure in the macro invocation can also contribute</span>
-    <span class="comment">// arguments. These arguments can be used by other macros like</span>
-    <span class="comment">// parameterized.</span>
-    <span class="kw">let</span> <span class="ident">settings_body</span> <span class="op">=</span>
-        <span class="kw">if</span> <span class="ident">attributes</span>.<span class="ident">is_empty</span>() {
-            <span class="macro">quote!</span>({})
-        } <span class="kw">else</span> {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">settings_closure</span> <span class="op">=</span> <span class="macro">syn::parse_macro_input!</span>(<span class="ident">attributes</span> <span class="kw">as</span> <span class="ident">ExprClosure</span>);
-            <span class="kw">let</span> <span class="ident">new_settings_args</span> <span class="op">=</span> <span class="ident">Punctuated</span>::<span class="op">&lt;</span><span class="ident">Pat</span>, <span class="ident">Comma</span><span class="op">&gt;</span><span class="ident">::new</span>();
-            <span class="kw">for</span> <span class="ident">arg</span> <span class="kw">in</span> <span class="ident">settings_closure</span>.<span class="ident">inputs</span> {
-                <span class="kw">match</span> <span class="ident">arg</span> {
-                    <span class="ident">Pat::Ident</span>(<span class="ident">pat</span>) <span class="kw">if</span> <span class="ident">pat</span>.<span class="ident">ident</span> <span class="op">==</span> <span class="string">&quot;settings&quot;</span> =&gt; (),
-                    <span class="ident">Pat::Type</span>(<span class="ident">pat</span>) =&gt; <span class="ident">toplevel_args</span>.<span class="ident">push</span>(<span class="ident">FnArg::Typed</span>(<span class="ident">pat</span>)),
-                    <span class="kw">_</span> =&gt; <span class="kw">return</span> <span class="ident">syn::Error::new_spanned</span>(
-                        <span class="ident">arg</span>,
-                        <span class="string">&quot;only `val: Type` parameters can be used for merino_test settings inputs&quot;</span>,
-                    )
-                    .<span class="ident">into_compile_error</span>()
-                    .<span class="ident">into</span>(),
-                }
+<span class="doccomment">/// Parse the body of the `settings` closure.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// # Example</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// Parse the `settings.debug = false` from the following test.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// ```ignore</span>
+<span class="doccomment">/// #[merino_test_macro(|settings| settings.debug = false)]</span>
+<span class="doccomment">/// async fn test(TestingTools { test_client, .. }: TestingTools) {</span>
+<span class="doccomment">///   ...</span>
+<span class="doccomment">/// }</span>
+<span class="doccomment">/// ```</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// The settings closure in the macro invocation can also contribute</span>
+<span class="doccomment">/// arguments. These arguments, stored in `toplevel_args`, can be used by other</span>
+<span class="doccomment">/// macros like parameterized.</span>
+<span class="kw">fn</span> <span class="ident">parse_settings_body</span>(
+    <span class="ident">settings_closure</span>: <span class="kw-2">&amp;mut</span> <span class="ident">ExprClosure</span>,
+    <span class="ident">toplevel_args</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Punctuated</span><span class="op">&lt;</span><span class="ident">FnArg</span>, <span class="ident">Comma</span><span class="op">&gt;</span>,
+) -&gt; <span class="ident">proc_macro2::TokenStream</span> {
+    <span class="kw">let</span> <span class="ident">new_settings_args</span> <span class="op">=</span> <span class="ident">Punctuated</span>::<span class="op">&lt;</span><span class="ident">Pat</span>, <span class="ident">Comma</span><span class="op">&gt;</span><span class="ident">::new</span>();
+    <span class="kw">for</span> <span class="ident">arg</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">settings_closure</span>.<span class="ident">inputs</span> {
+        <span class="kw">match</span> <span class="ident">arg</span> {
+            <span class="ident">Pat::Ident</span>(<span class="ident">pat</span>) <span class="kw">if</span> <span class="ident">pat</span>.<span class="ident">ident</span> <span class="op">==</span> <span class="string">&quot;settings&quot;</span> =&gt; (),
+            <span class="ident">Pat::Type</span>(<span class="ident">pat</span>) =&gt; <span class="ident">toplevel_args</span>.<span class="ident">push</span>(<span class="ident">FnArg::Typed</span>(<span class="ident">pat</span>.<span class="ident">clone</span>())),
+            <span class="kw">_</span> =&gt; {
+                <span class="kw">return</span> <span class="ident">syn::Error::new_spanned</span>(
+                    <span class="ident">arg</span>,
+                    <span class="string">&quot;only `val: Type` parameters can be used for merino_test settings inputs&quot;</span>,
+                )
+                .<span class="ident">into_compile_error</span>()
             }
-            <span class="ident">settings_closure</span>.<span class="ident">inputs</span> <span class="op">=</span> <span class="ident">new_settings_args</span>;
-            <span class="kw">let</span> <span class="ident">closure_body</span> <span class="op">=</span> <span class="ident">settings_closure</span>.<span class="ident">body</span>;
-            <span class="macro">quote!</span>({ #<span class="ident">closure_body</span> })
-        };
-
-    <span class="comment">// Add all collected arguments to the top level signature.</span>
-    <span class="ident">sig</span>.<span class="ident">inputs</span> <span class="op">=</span> <span class="ident">toplevel_args</span>;
-
-    <span class="comment">// output the built test function</span>
-
-    (<span class="macro">quote!</span> {
-        #(#<span class="ident">attrs</span>)<span class="op">*</span>
-        #<span class="ident">missing_test_attr</span>
-        #<span class="ident">vis</span> #<span class="ident">sig</span> {
-            <span class="ident">actix_rt::System::new</span>()
-                .<span class="ident">block_on</span>(<span class="kw">async</span> {
-                    <span class="comment">// crate here refers to `merino-integration-tests`</span>
-                    <span class="ident"><span class="kw">crate</span>::merino_test</span>(
-                        <span class="op">|</span><span class="ident">settings</span><span class="op">|</span> { #<span class="ident">settings_body</span> },
-                        <span class="op">|</span> #<span class="ident">testing_tools_arg</span> <span class="op">|</span> <span class="kw">async</span> <span class="kw">move</span> { #<span class="ident">body</span> }
-                    ).<span class="kw">await</span>
-                })
         }
-    })
-    .<span class="ident">into</span>()
+    }
+    <span class="ident">settings_closure</span>.<span class="ident">inputs</span> <span class="op">=</span> <span class="ident">new_settings_args</span>;
+    <span class="kw">let</span> <span class="ident">closure_body</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">settings_closure</span>.<span class="ident">body</span>;
+    <span class="macro">quote!</span>({ #<span class="ident">closure_body</span> })
 }
 </code></pre></div>
 </section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="merino_integration_tests_macro" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
