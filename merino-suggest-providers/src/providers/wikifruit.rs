@@ -11,8 +11,8 @@ use http::Uri;
 use merino_settings::Settings;
 
 use merino_suggest_traits::{
-    CacheInputs, Proportion, SetupError, SuggestError, Suggestion, SuggestionProvider,
-    SuggestionRequest, SuggestionResponse,
+    convert_config, CacheInputs, MakeFreshType, Proportion, SetupError, SuggestError, Suggestion,
+    SuggestionProvider, SuggestionRequest, SuggestionResponse,
 };
 
 /// A toy suggester to test the system.
@@ -94,5 +94,14 @@ impl SuggestionProvider for WikiFruit {
         };
 
         Ok(SuggestionResponse::new(suggestion.into_iter().collect()))
+    }
+
+    async fn reconfigure(
+        &mut self,
+        new_config: serde_json::Value,
+        _make_fresh: &MakeFreshType,
+    ) -> Result<(), SetupError> {
+        // make sure this is a wiki fruit config
+        convert_config(new_config)
     }
 }

@@ -12,8 +12,9 @@ use deduped_dashmap::{ControlFlow, DedupedMap};
 use lazy_static::lazy_static;
 use merino_settings::providers::MemoryCacheConfig;
 use merino_suggest_traits::{
-    metrics::TimedMicros, CacheInputs, CacheStatus, Suggestion, SuggestionProvider,
-    SuggestionRequest, SuggestionResponse,
+    convert_config, metrics::TimedMicros, reconfigure_or_remake, CacheInputs, CacheStatus,
+    MakeFreshType, NullProvider, SetupError, Suggestion, SuggestionProvider, SuggestionRequest,
+    SuggestionResponse,
 };
 use std::{
     collections::HashMap,
@@ -79,10 +80,9 @@ impl LOCK_TABLE {
 }
 
 /// A in-memory cache for suggestions.
-#[derive(Clone)]
 pub struct Suggester {
     /// The suggester to query on cache-miss.
-    inner: Arc<Box<dyn SuggestionProvider>>,
+    inner: Box<dyn SuggestionProvider>,
 
     /// The Statsd client used to record statistics.
     metrics_client: StatsdClient,
@@ -109,7 +109,7 @@ impl Suggester {
         metrics_client: StatsdClient,
     ) -> Box<Self> {
         let suggester = Self {
-            inner: Arc::new(provider),
+            inner: provider,
             metrics_client,
             items: Arc::new(DedupedMap::new()),
             default_ttl: config.default_ttl,
@@ -118,7 +118,7 @@ impl Suggester {
         };
 
         {
-            let cloned_suggester = suggester.clone();
+            let cloned_suggester = suggester.clone_with_null_provider();
             let task_interval = config.cleanup_interval;
             tokio::spawn(async move {
                 let mut timer = tokio::time::interval(task_interval);
@@ -128,7 +128,7 @@ impl Suggester {
                 timer.tick().await;
                 loop {
                     timer.tick().await;
-                    let mut cache = cloned_suggester.clone();
+                    let mut cache = cloned_suggester.clone_with_null_provider();
 
                     // Dispatch the expiry task to the blocking threads of the
                     // runtime. This prevents the expiry task, which is inherently
@@ -197,6 +197,25 @@ impl Suggester {
                 self.items.len_pointers() as u64,
             )
             .ok();
+    }
+
+    /// It is often useful to have access to most of the fields on this object,
+    /// but providers are not generally cloneable, so `self.inner` cannot be
+    /// cloned.
+    ///
+    /// Introducing an Arc around `inner` complicates things, but the situations
+    /// where we want clones of this object don't need the inner provider. So
+    /// perform a partial clone that clones most fields, replacing the provider
+    /// with a dummy value.
+    fn clone_with_null_provider(&self) -> Self {
+        Self {
+            inner: Box::new(NullProvider),
+            metrics_client: self.metrics_client.clone(),
+            items: self.items.clone(),
+            default_ttl: self.default_ttl,
+            default_lock_timeout: self.default_lock_timeout,
+            max_background_removals: self.max_background_removals,
+        }
     }
 }
 
@@ -288,6 +307,22 @@ impl SuggestionProvider for Suggester {
         .instrument(span)
         .await
     }
+
+    async fn reconfigure(
+        &mut self,
+        new_config: serde_json::Value,
+        make_fresh: &MakeFreshType,
+    ) -> Result<(), SetupError> {
+        let new_config: MemoryCacheConfig = convert_config(new_config)?;
+
+        self.default_ttl = new_config.default_ttl;
+        self.default_lock_timeout = new_config.default_lock_timeout;
+        self.max_background_removals = new_config.max_removed_entries;
+
+        reconfigure_or_remake(&mut self.inner, *new_config.inner, make_fresh).await?;
+
+        Ok(())
+    }
 }
 
 #[cfg(test)]
@@ -327,7 +362,7 @@ mod tests {
         let metrics_client = StatsdClient::from_sink("merino-test", sink);
 
         let mut suggester = Suggester {
-            inner: Arc::new(Box::new(NullProvider)),
+            inner: Box::new(NullProvider),
             metrics_client,
             items: cache.clone(),
             default_ttl: Duration::from_secs(30),

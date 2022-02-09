@@ -11,8 +11,9 @@ use cadence::{CountedExt, StatsdClient};
 use fix_hidden_lifetime_bug::fix_hidden_lifetime_bug;
 use merino_settings::{providers::RedisCacheConfig, Settings};
 use merino_suggest_traits::{
-    metrics::TimedMicros, CacheInputs, CacheStatus, SetupError, SuggestError, Suggestion,
-    SuggestionProvider, SuggestionRequest, SuggestionResponse,
+    convert_config, metrics::TimedMicros, reconfigure_or_remake, CacheInputs, CacheStatus,
+    MakeFreshType, SetupError, SuggestError, Suggestion, SuggestionProvider, SuggestionRequest,
+    SuggestionResponse,
 };
 use redis::RedisError;
 use tracing_futures::{Instrument, WithSubscriber};
@@ -426,6 +427,16 @@ impl SuggestionProvider for Suggester {
             .with_tag("cache-status", rv.cache_status.to_string().as_str())
             .send();
         Ok(rv)
+    }
+
+    async fn reconfigure(
+        &mut self,
+        new_config: serde_json::Value,
+        make_fresh: &MakeFreshType,
+    ) -> Result<(), SetupError> {
+        let new_config: RedisCacheConfig = convert_config(new_config)?;
+        reconfigure_or_remake(&mut self.inner, *new_config.inner, make_fresh).await?;
+        Ok(())
     }
 }
 

@@ -10,8 +10,8 @@ use fake::{Fake, Faker};
 use merino_settings::Settings;
 
 use merino_suggest_traits::{
-    Proportion, SetupError, SuggestError, Suggestion, SuggestionProvider, SuggestionRequest,
-    SuggestionResponse,
+    convert_config, MakeFreshType, Proportion, SetupError, SuggestError, Suggestion,
+    SuggestionProvider, SuggestionRequest, SuggestionResponse,
 };
 
 /// A toy suggester to test the system.
@@ -53,5 +53,14 @@ impl SuggestionProvider for DebugProvider {
             score: Proportion::zero(),
             ..Faker.fake()
         }]))
+    }
+
+    async fn reconfigure(
+        &mut self,
+        new_config: serde_json::Value,
+        _make_fresh: &MakeFreshType,
+    ) -> Result<(), SetupError> {
+        // make sure this is the right kind of config
+        convert_config(new_config)
     }
 }

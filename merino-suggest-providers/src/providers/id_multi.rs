@@ -6,11 +6,13 @@
 
 use std::collections::{HashMap, HashSet};
 
+use anyhow::{anyhow, Context};
 use async_trait::async_trait;
 use futures::{future::join_all, TryFutureExt};
+use merino_settings::SuggestionProviderConfig;
 use merino_suggest_traits::{
-    CacheInputs, CacheStatus, SuggestError, SuggestionProvider, SuggestionRequest,
-    SuggestionResponse,
+    reconfigure_or_remake, CacheInputs, CacheStatus, SetupError, SuggestError, SuggestionProvider,
+    SuggestionRequest, SuggestionResponse,
 };
 use serde::Serialize;
 
@@ -120,6 +122,11 @@ impl IdMulti {
             rv
         })
     }
+
+    /// Get a mutable reference to a provider by name.
+    pub fn get_provider_mut(&mut self, name: &str) -> Option<&mut Box<dyn SuggestionProvider>> {
+        self.providers.get_mut(name)
+    }
 }
 
 #[async_trait]
@@ -147,6 +154,53 @@ impl SuggestionProvider for IdMulti {
         let ids: HashSet<_> = self.providers.keys().cloned().collect();
         self.suggest_from_ids(request, &ids).await
     }
+
+    #[tracing::instrument(level = "info", skip(self, new_config, make_fresh))]
+    async fn reconfigure(
+        &mut self,
+        new_config: serde_json::Value,
+        make_fresh: &merino_suggest_traits::MakeFreshType,
+    ) -> Result<(), SetupError> {
+        let new_configs: HashMap<String, SuggestionProviderConfig> =
+            serde_json::from_value(new_config)
+                .context("coercing provider config")
+                .map_err(SetupError::InvalidConfiguration)?;
+
+        let new_names: HashSet<_> = new_configs.keys().cloned().collect();
+        let old_names: HashSet<_> = self.providers.keys().cloned().collect();
+
+        let names_to_add = new_names.difference(&old_names);
+        let names_to_remove = old_names.difference(&new_names);
+        let names_to_reconfigure = old_names.intersection(&new_names);
+
+        for name in names_to_remove {
+            tracing::info!(provider_name = %name, r#type = "suggestion-providers.reconfigure.removing-provider", "Removing provider");
+            self.providers.remove(name);
+        }
+
+        for name in names_to_reconfigure {
+            tracing::info!(provider_name = %name, r#type = "suggestion-providers.reconfigure.reconfiguring-provider", "Reconfiguring provider");
+            let provider = self
+                .get_provider_mut(name)
+                .ok_or_else(|| SetupError::Internal(anyhow!("expected provider not found")))?;
+            let config = new_configs
+                .get(name)
+                .ok_or_else(|| SetupError::Internal(anyhow!("expected config not found")))?;
+            reconfigure_or_remake(provider, config.clone(), make_fresh).await?;
+        }
+
+        for name in names_to_add {
+            tracing::info!(provider_name = %name, r#type = "suggestion-providers.reconfigure.adding-provider", "Adding fresh provider");
+            let config = new_configs
+                .get(name)
+                .ok_or_else(|| SetupError::Internal(anyhow!("expected config not found")))?
+                .clone();
+            let new_provider = make_fresh(config).await?;
+            self.providers.insert(name.to_string(), new_provider);
+        }
+
+        Ok(())
+    }
 }
 
 #[cfg(test)]
@@ -157,7 +211,8 @@ mod tests {
     use async_trait::async_trait;
     use fake::{Fake, Faker};
     use merino_suggest_traits::{
-        CacheStatus, SuggestError, SuggestionProvider, SuggestionRequest, SuggestionResponse,
+        CacheStatus, MakeFreshType, SetupError, SuggestError, SuggestionProvider,
+        SuggestionRequest, SuggestionResponse,
     };
     use tokio::sync::oneshot::error::TryRecvError;
 
@@ -185,6 +240,14 @@ mod tests {
                 cache_ttl: None,
                 suggestions: vec![],
             })
+        }
+
+        async fn reconfigure(
+            &mut self,
+            _new_config: serde_json::Value,
+            _make_fresh: &MakeFreshType,
+        ) -> Result<(), SetupError> {
+            unimplemented!()
         }
     }
 

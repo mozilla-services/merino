@@ -1,8 +1,10 @@
 //! A provider that executes an inner provider, but returns no suggestions.
 
 use async_trait::async_trait;
+use merino_settings::providers::StealthConfig;
 use merino_suggest_traits::{
-    CacheInputs, SuggestError, SuggestionProvider, SuggestionRequest, SuggestionResponse,
+    convert_config, reconfigure_or_remake, CacheInputs, MakeFreshType, SetupError, SuggestError,
+    SuggestionProvider, SuggestionRequest, SuggestionResponse,
 };
 
 /// A provider that runs `inner`, but doesn't return any results.
@@ -28,6 +30,16 @@ impl SuggestionProvider for StealthProvider {
         self.inner.suggest(request).await?;
         Ok(SuggestionResponse::new(vec![]))
     }
+
+    async fn reconfigure(
+        &mut self,
+        new_config: serde_json::Value,
+        make_fresh: &MakeFreshType,
+    ) -> Result<(), SetupError> {
+        let new_config: StealthConfig = convert_config(new_config)?;
+        reconfigure_or_remake(&mut self.inner, *new_config.inner, make_fresh).await?;
+        Ok(())
+    }
 }
 
 impl StealthProvider {
@@ -45,7 +57,8 @@ mod tests {
     use fake::{Fake, Faker};
     use futures::StreamExt;
     use merino_suggest_traits::{
-        SuggestError, Suggestion, SuggestionProvider, SuggestionRequest, SuggestionResponse,
+        MakeFreshType, SetupError, SuggestError, Suggestion, SuggestionProvider, SuggestionRequest,
+        SuggestionResponse,
     };
     use std::sync::atomic::{AtomicU32, Ordering};
 
@@ -68,6 +81,14 @@ mod tests {
                 title: format!("{}", self.counter.load(Ordering::SeqCst)),
                 ..Faker.fake()
             }]))
+        }
+
+        async fn reconfigure(
+            &mut self,
+            _new_config: serde_json::Value,
+            _make_fresh: &MakeFreshType,
+        ) -> Result<(), SetupError> {
+            unimplemented!()
         }
     }
 

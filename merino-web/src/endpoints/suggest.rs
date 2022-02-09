@@ -52,7 +52,7 @@ async fn suggest(
     let request_id: &Uuid = extensions
         .get::<RequestId>()
         .ok_or_else(HandlerError::internal)?;
-    let id_multi = &provider.0;
+    let id_multi = &provider.provider.read().await;
     let response = match &query_parameters.providers {
         Some(provider_ids) => {
             id_multi

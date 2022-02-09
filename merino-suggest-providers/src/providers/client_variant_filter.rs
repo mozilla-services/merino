@@ -1,7 +1,9 @@
 //! A suggestion provider switches between a matching and default provider based on the client variant string.
 use async_trait::async_trait;
+use merino_settings::providers::ClientVariantSwitchConfig;
 use merino_suggest_traits::{
-    CacheInputs, SuggestError, SuggestionProvider, SuggestionRequest, SuggestionResponse,
+    convert_config, reconfigure_or_remake, CacheInputs, MakeFreshType, SetupError, SuggestError,
+    SuggestionProvider, SuggestionRequest, SuggestionResponse,
 };
 
 /// A provider that gives suggestions base
@@ -73,6 +75,28 @@ impl SuggestionProvider for ClientVariantFilterProvider {
             cache_inputs
                 .add(format!("client_variant_match:{}=false", &self.client_variant).as_bytes());
         };
+    }
+
+    async fn reconfigure(
+        &mut self,
+        new_config: serde_json::Value,
+        make_fresh: &MakeFreshType,
+    ) -> Result<(), SetupError> {
+        let new_config: ClientVariantSwitchConfig = convert_config(new_config)?;
+        self.client_variant = new_config.client_variant;
+        reconfigure_or_remake(
+            &mut self.matching_provider,
+            *new_config.matching_provider,
+            make_fresh,
+        )
+        .await?;
+        reconfigure_or_remake(
+            &mut self.default_provider,
+            *new_config.default_provider,
+            make_fresh,
+        )
+        .await?;
+        Ok(())
     }
 }
 

@@ -3,8 +3,8 @@
 use async_trait::async_trait;
 use merino_settings::providers::TimeoutConfig;
 use merino_suggest_traits::{
-    CacheInputs, CacheStatus, SuggestError, SuggestionProvider, SuggestionRequest,
-    SuggestionResponse,
+    convert_config, reconfigure_or_remake, CacheInputs, CacheStatus, MakeFreshType, SetupError,
+    SuggestError, SuggestionProvider, SuggestionRequest, SuggestionResponse,
 };
 use std::time::Duration;
 
@@ -49,6 +49,17 @@ impl SuggestionProvider for TimeoutProvider {
             })
         })
     }
+
+    async fn reconfigure(
+        &mut self,
+        new_config: serde_json::Value,
+        make_fresh: &MakeFreshType,
+    ) -> Result<(), SetupError> {
+        let new_config: TimeoutConfig = convert_config(new_config)?;
+        reconfigure_or_remake(&mut self.inner, *new_config.inner, make_fresh).await?;
+        self.max_time = new_config.max_time;
+        Ok(())
+    }
 }
 
 #[cfg(test)]
@@ -57,8 +68,8 @@ mod tests {
     use async_trait::async_trait;
     use fake::{Fake, Faker};
     use merino_suggest_traits::{
-        CacheStatus, SuggestError, Suggestion, SuggestionProvider, SuggestionRequest,
-        SuggestionResponse,
+        CacheStatus, MakeFreshType, SetupError, SuggestError, Suggestion, SuggestionProvider,
+        SuggestionRequest, SuggestionResponse,
     };
     use std::time::Duration;
 
@@ -83,6 +94,14 @@ mod tests {
                     ..Faker.fake()
                 }],
             })
+        }
+
+        async fn reconfigure(
+            &mut self,
+            _new_config: serde_json::Value,
+            _make_fresh: &MakeFreshType,
+        ) -> Result<(), SetupError> {
+            unimplemented!()
         }
     }
 

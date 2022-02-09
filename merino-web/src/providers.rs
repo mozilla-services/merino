@@ -1,19 +1,31 @@
 //! Tools to manager providers.
 
-use std::sync::Arc;
-
-use anyhow::Result;
+use anyhow::{Context, Result};
 use cadence::StatsdClient;
 use merino_settings::Settings;
+use merino_settings::SuggestionProviderConfig;
 use merino_suggest_providers::make_provider_tree;
+use merino_suggest_providers::reconfigure_provider_tree;
 use merino_suggest_providers::IdMulti;
+use std::collections::HashMap;
+use std::sync::Arc;
+use tokio::sync::RwLock as TokioRwLock;
 
 /// The SuggestionProvider stored in Actix's app_data.
 #[derive(Clone)]
-pub struct SuggestionProviderRef(pub Arc<IdMulti>);
+pub struct SuggestionProviderRef {
+    /// The wrapped providers.
+    pub provider: Arc<TokioRwLock<IdMulti>>,
+    /// The metrics client used, to enable reconfiguration of providers.
+    metrics_client: StatsdClient,
+    /// The settings used to create the provider, to enable reconfiguration.
+    settings: Settings,
+}
 
 impl SuggestionProviderRef {
-    /// initialize the suggestion providers
+    /// Initialize the suggestion providers
+    /// # Errors
+    /// If a provider fails to initialize.
     pub async fn init(settings: Settings, metrics_client: StatsdClient) -> Result<Self> {
         let mut idm = IdMulti::default();
 
@@ -30,7 +42,32 @@ impl SuggestionProviderRef {
             );
         }
 
-        Ok(Self(Arc::new(idm)))
+        Ok(Self {
+            provider: Arc::new(TokioRwLock::new(idm)),
+            metrics_client,
+            settings,
+        })
+    }
+
+    /// Reconfigure the reference providers with a new config.
+    /// # Errors
+    /// If a provider fails to reconfigure, or if there is a problem converting the provider configuration to the require format.
+    pub async fn reconfigure(
+        &self,
+        suggestion_providers: HashMap<String, SuggestionProviderConfig>,
+    ) -> Result<()> {
+        let mut id_provider = self.provider.write().await;
+        let type_erased_config = serde_json::to_value(suggestion_providers)
+            .context("serialized context for provider reconfiguration")?;
+        reconfigure_provider_tree(
+            &mut *id_provider,
+            self.settings.clone(),
+            type_erased_config,
+            self.metrics_client.clone(),
+        )
+        .await
+        .context("reconfiguring providers")?;
+        Ok(())
     }
 }
 

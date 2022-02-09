@@ -76,11 +76,7 @@ pub async fn make_provider_tree(
                 metrics_client.clone(),
             )
             .await?;
-            KeywordFilterProvider::new_boxed(
-                filter_config.suggestion_blocklist.clone(),
-                inner,
-                metrics_client.clone(),
-            )?
+            KeywordFilterProvider::new_boxed(filter_config, inner, metrics_client.clone())?
         }
 
         SuggestionProviderConfig::Stealth(filter_config) => {

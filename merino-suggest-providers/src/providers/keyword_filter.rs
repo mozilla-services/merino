@@ -6,9 +6,10 @@ use anyhow::Context;
 use async_trait::async_trait;
 use blake3::Hash;
 use cadence::{Counted, StatsdClient};
+use merino_settings::providers::KeywordFilterConfig;
 use merino_suggest_traits::{
-    CacheInputs, SetupError, SuggestError, SuggestionProvider, SuggestionRequest,
-    SuggestionResponse,
+    convert_config, reconfigure_or_remake, CacheInputs, MakeFreshType, SetupError, SuggestError,
+    SuggestionProvider, SuggestionRequest, SuggestionResponse,
 };
 use regex::{RegexSet, RegexSetBuilder};
 
@@ -35,23 +36,12 @@ pub struct KeywordFilterProvider {
 impl KeywordFilterProvider {
     /// Construct a new, boxed filter provider.
     pub fn new_boxed(
-        blocklist: HashMap<String, String>,
+        config: KeywordFilterConfig,
         inner: Box<dyn SuggestionProvider>,
         metrics_client: StatsdClient,
     ) -> Result<Box<Self>, SetupError> {
-        let (blocklist_ids, regexes): (Vec<String>, Vec<String>) = blocklist.into_iter().unzip();
-
-        let mut hasher = blake3::Hasher::new();
-        for r in &regexes {
-            hasher.update(r.as_bytes());
-        }
-        let blocklist_hash = hasher.finalize();
-
-        let blocklist_rules = RegexSetBuilder::new(regexes)
-            .case_insensitive(true)
-            .build()
-            .context("KeywordFilterProvider failed to compile the regex set.")
-            .map_err(SetupError::InvalidConfiguration)?;
+        let (blocklist_ids, blocklist_hash, blocklist_rules) =
+            Self::prep_blocklist(config.suggestion_blocklist)?;
 
         Ok(Box::new(Self {
             blocklist_ids,
@@ -60,6 +50,27 @@ impl KeywordFilterProvider {
             inner,
             metrics_client,
         }))
+    }
+
+    /// Convert a map from rule IDs to blocking regexes, and build the data
+    /// structures needed to efficiently apply those rules. Used to initialize
+    /// or reconfigure this provider.
+    fn prep_blocklist(
+        blocklist: HashMap<String, String>,
+    ) -> Result<(Vec<String>, Hash, RegexSet), SetupError> {
+        let (blocklist_ids, regexes): (Vec<String>, Vec<String>) = blocklist.into_iter().unzip();
+        let mut hasher = blake3::Hasher::new();
+        for r in &regexes {
+            hasher.update(r.as_bytes());
+        }
+        let blocklist_hash = hasher.finalize();
+        let blocklist_rules = RegexSetBuilder::new(regexes)
+            .case_insensitive(true)
+            .build()
+            .context("KeywordFilterProvider failed to compile the regex set.")
+            .map_err(SetupError::InvalidConfiguration)?;
+
+        Ok((blocklist_ids, blocklist_hash, blocklist_rules))
     }
 }
 
@@ -111,6 +122,21 @@ impl SuggestionProvider for KeywordFilterProvider {
 
         Ok(results)
     }
+
+    async fn reconfigure(
+        &mut self,
+        new_config: serde_json::Value,
+        make_fresh: &MakeFreshType,
+    ) -> Result<(), SetupError> {
+        let new_config: KeywordFilterConfig = convert_config(new_config)?;
+        let (blocklist_ids, blocklist_hash, blocklist_rules) =
+            Self::prep_blocklist(new_config.suggestion_blocklist)?;
+        self.blocklist_ids = blocklist_ids;
+        self.blocklist_hash = blocklist_hash;
+        self.blocklist_rules = blocklist_rules;
+        reconfigure_or_remake(&mut self.inner, *new_config.inner, make_fresh).await?;
+        Ok(())
+    }
 }
 
 #[cfg(test)]
@@ -119,9 +145,10 @@ mod tests {
     use async_trait::async_trait;
     use cadence::{SpyMetricSink, StatsdClient};
     use fake::{Fake, Faker};
+    use merino_settings::{providers::KeywordFilterConfig, SuggestionProviderConfig};
     use merino_suggest_traits::{
-        CacheStatus, SuggestError, Suggestion, SuggestionProvider, SuggestionRequest,
-        SuggestionResponse,
+        CacheStatus, MakeFreshType, SetupError, SuggestError, Suggestion, SuggestionProvider,
+        SuggestionRequest, SuggestionResponse,
     };
     use std::collections::HashMap;
 
@@ -162,18 +189,29 @@ mod tests {
                 ],
             })
         }
+
+        async fn reconfigure(
+            &mut self,
+            _new_config: serde_json::Value,
+            _make_fresh: &MakeFreshType,
+        ) -> Result<(), SetupError> {
+            unimplemented!()
+        }
     }
 
     #[tokio::test]
     async fn test_provider_filters() {
-        let mut blocklist = HashMap::new();
-        blocklist.insert("filter_1".to_string(), "test".to_string());
+        let mut suggestion_blocklist = HashMap::new();
+        suggestion_blocklist.insert("filter_1".to_string(), "test".to_string());
 
         let (rx, sink) = SpyMetricSink::new();
         let metrics_client = StatsdClient::from_sink("merino-test", sink);
 
         let filter_provider = KeywordFilterProvider::new_boxed(
-            blocklist,
+            KeywordFilterConfig {
+                suggestion_blocklist,
+                inner: Box::new(SuggestionProviderConfig::Null),
+            },
             Box::new(TestSuggestionsProvider()),
             metrics_client.clone(),
         )
@@ -199,15 +237,18 @@ mod tests {
 
     #[tokio::test]
     async fn test_provider_all_filtered() {
-        let mut blocklist = HashMap::new();
-        blocklist.insert("filter_1".to_string(), "test".to_string());
-        blocklist.insert("filter_2".to_string(), "through".to_string());
+        let mut suggestion_blocklist = HashMap::new();
+        suggestion_blocklist.insert("filter_1".to_string(), "test".to_string());
+        suggestion_blocklist.insert("filter_2".to_string(), "through".to_string());
 
         let (rx, sink) = SpyMetricSink::new();
         let metrics_client = StatsdClient::from_sink("merino-test", sink);
 
         let filter_provider = KeywordFilterProvider::new_boxed(
-            blocklist,
+            KeywordFilterConfig {
+                suggestion_blocklist,
+                inner: Box::new(SuggestionProviderConfig::Null),
+            },
             Box::new(TestSuggestionsProvider()),
             metrics_client.clone(),
         )
@@ -235,14 +276,17 @@ mod tests {
 
     #[tokio::test]
     async fn test_provider_nothing_filtered() {
-        let mut blocklist = HashMap::new();
-        blocklist.insert("filter_1".to_string(), "no-match".to_string());
+        let mut suggestion_blocklist = HashMap::new();
+        suggestion_blocklist.insert("filter_1".to_string(), "no-match".to_string());
 
         let (rx, sink) = SpyMetricSink::new();
         let metrics_client = StatsdClient::from_sink("merino-test", sink);
 
         let filter_provider = KeywordFilterProvider::new_boxed(
-            blocklist,
+            KeywordFilterConfig {
+                suggestion_blocklist,
+                inner: Box::new(SuggestionProviderConfig::Null),
+            },
             Box::new(TestSuggestionsProvider()),
             metrics_client.clone(),
         )

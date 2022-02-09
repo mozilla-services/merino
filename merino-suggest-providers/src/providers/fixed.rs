@@ -3,14 +3,14 @@
 //!
 //! It is meant to be used in development and testing.
 
-use anyhow::anyhow;
+use anyhow::{anyhow, Context};
 use async_trait::async_trait;
 use http::Uri;
 use merino_settings::{providers::FixedConfig, Settings};
 
 use merino_suggest_traits::{
-    CacheInputs, Proportion, SetupError, SuggestError, Suggestion, SuggestionProvider,
-    SuggestionRequest, SuggestionResponse,
+    CacheInputs, MakeFreshType, Proportion, SetupError, SuggestError, Suggestion,
+    SuggestionProvider, SuggestionRequest, SuggestionResponse,
 };
 
 /// A suggester that always provides the same suggestion, with a configurable title.
@@ -63,5 +63,17 @@ impl SuggestionProvider for FixedProvider {
             is_sponsored: false,
             icon: Uri::from_static("https://mozilla.com/favicon.png"),
         }]))
+    }
+
+    async fn reconfigure(
+        &mut self,
+        new_config: serde_json::Value,
+        _make_fresh: &MakeFreshType,
+    ) -> Result<(), SetupError> {
+        let new_config: FixedConfig = serde_json::from_value(new_config)
+            .context("loading provider config")
+            .map_err(SetupError::InvalidConfiguration)?;
+        self.value = new_config.value;
+        Ok(())
     }
 }
