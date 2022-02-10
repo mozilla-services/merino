@@ -6,12 +6,14 @@
 
 use std::collections::{HashMap, HashSet};
 
-use crate::{
-    CacheInputs, CacheStatus, SuggestError, SuggestionProvider, SuggestionRequest,
-    SuggestionResponse,
-};
+use anyhow::{anyhow, Context};
 use async_trait::async_trait;
 use futures::{future::join_all, TryFutureExt};
+use merino_settings::SuggestionProviderConfig;
+use merino_suggest_traits::{
+    reconfigure_or_remake, CacheInputs, CacheStatus, SetupError, SuggestError, SuggestionProvider,
+    SuggestionRequest, SuggestionResponse,
+};
 use serde::Serialize;
 
 /// A provider that aggregates suggestions from suggesters that tracks an ID per
@@ -50,9 +52,13 @@ impl IdMulti {
     }
 
     /// Modify this provider to include another named provider tree.
-    pub fn add_provider(&mut self, name: &str, provider: Box<dyn SuggestionProvider>) -> &mut Self {
+    pub fn add_provider(
+        &mut self,
+        name: String,
+        provider: Box<dyn SuggestionProvider>,
+    ) -> &mut Self {
         if !provider.is_null() {
-            self.providers.insert(name.to_string(), provider);
+            self.providers.insert(name, provider);
         }
         self
     }
@@ -116,6 +122,11 @@ impl IdMulti {
             rv
         })
     }
+
+    /// Get a mutable reference to a provider by name.
+    pub fn get_provider_mut(&mut self, name: &str) -> Option<&mut Box<dyn SuggestionProvider>> {
+        self.providers.get_mut(name)
+    }
 }
 
 #[async_trait]
@@ -143,18 +154,66 @@ impl SuggestionProvider for IdMulti {
         let ids: HashSet<_> = self.providers.keys().cloned().collect();
         self.suggest_from_ids(request, &ids).await
     }
+
+    #[tracing::instrument(level = "info", skip(self, new_config, make_fresh))]
+    async fn reconfigure(
+        &mut self,
+        new_config: serde_json::Value,
+        make_fresh: &merino_suggest_traits::MakeFreshType,
+    ) -> Result<(), SetupError> {
+        let new_configs: HashMap<String, SuggestionProviderConfig> =
+            serde_json::from_value(new_config)
+                .context("coercing provider config")
+                .map_err(SetupError::InvalidConfiguration)?;
+
+        let new_names: HashSet<_> = new_configs.keys().cloned().collect();
+        let old_names: HashSet<_> = self.providers.keys().cloned().collect();
+
+        let names_to_add = new_names.difference(&old_names);
+        let names_to_remove = old_names.difference(&new_names);
+        let names_to_reconfigure = old_names.intersection(&new_names);
+
+        for name in names_to_remove {
+            tracing::info!(provider_name = %name, r#type = "suggestion-providers.reconfigure.removing-provider", "Removing provider");
+            self.providers.remove(name);
+        }
+
+        for name in names_to_reconfigure {
+            tracing::info!(provider_name = %name, r#type = "suggestion-providers.reconfigure.reconfiguring-provider", "Reconfiguring provider");
+            let provider = self
+                .get_provider_mut(name)
+                .ok_or_else(|| SetupError::Internal(anyhow!("expected provider not found")))?;
+            let config = new_configs
+                .get(name)
+                .ok_or_else(|| SetupError::Internal(anyhow!("expected config not found")))?;
+            reconfigure_or_remake(provider, config.clone(), make_fresh).await?;
+        }
+
+        for name in names_to_add {
+            tracing::info!(provider_name = %name, r#type = "suggestion-providers.reconfigure.adding-provider", "Adding fresh provider");
+            let config = new_configs
+                .get(name)
+                .ok_or_else(|| SetupError::Internal(anyhow!("expected config not found")))?
+                .clone();
+            let new_provider = make_fresh(config).await?;
+            self.providers.insert(name.to_string(), new_provider);
+        }
+
+        Ok(())
+    }
 }
 
 #[cfg(test)]
 mod tests {
     use std::collections::HashMap;
 
-    use crate::{
-        CacheStatus, IdMulti, SuggestError, SuggestionProvider, SuggestionRequest,
-        SuggestionResponse,
-    };
+    use super::IdMulti;
     use async_trait::async_trait;
     use fake::{Fake, Faker};
+    use merino_suggest_traits::{
+        CacheStatus, MakeFreshType, SetupError, SuggestError, SuggestionProvider,
+        SuggestionRequest, SuggestionResponse,
+    };
     use tokio::sync::oneshot::error::TryRecvError;
 
     /// A provider that can be externally paused mid-request.
@@ -181,6 +240,14 @@ mod tests {
                 cache_ttl: None,
                 suggestions: vec![],
             })
+        }
+
+        async fn reconfigure(
+            &mut self,
+            _new_config: serde_json::Value,
+            _make_fresh: &MakeFreshType,
+        ) -> Result<(), SetupError> {
+            unimplemented!()
         }
     }
 

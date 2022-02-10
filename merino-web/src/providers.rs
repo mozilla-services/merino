@@ -1,26 +1,33 @@
 //! Tools to manager providers.
 
-use std::sync::Arc;
-
-use anyhow::Result;
-use async_recursion::async_recursion;
+use anyhow::{Context, Result};
 use cadence::StatsdClient;
-use merino_adm::remote_settings::RemoteSettingsSuggester;
-use merino_cache::{MemoryCacheSuggester, RedisCacheSuggester};
-use merino_settings::{providers::SuggestionProviderConfig, Settings};
-use merino_suggest::{
-    ClientVariantFilterProvider, DebugProvider, FixedProvider, IdMulti, KeywordFilterProvider,
-    Multi, NullProvider, StealthProvider, SuggestionProvider, TimeoutProvider, WikiFruit,
-};
+use merino_settings::Settings;
+use merino_settings::SuggestionProviderConfig;
+use merino_suggest_providers::make_provider_tree;
+use merino_suggest_providers::reconfigure_provider_tree;
+use merino_suggest_providers::IdMulti;
+use std::collections::HashMap;
+use std::sync::Arc;
+use tokio::sync::RwLock as TokioRwLock;
 
 /// The SuggestionProvider stored in Actix's app_data.
 #[derive(Clone)]
-pub struct SuggestionProviderRef(pub Arc<IdMulti>);
+pub struct SuggestionProviderRef {
+    /// The wrapped providers.
+    pub provider: Arc<TokioRwLock<IdMulti>>,
+    /// The metrics client used, to enable reconfiguration of providers.
+    metrics_client: StatsdClient,
+    /// The settings used to create the provider, to enable reconfiguration.
+    settings: Settings,
+}
 
 impl SuggestionProviderRef {
-    /// initialize the suggestion providers
-    pub async fn init(settings: &Settings, metrics_client: &StatsdClient) -> Result<Self> {
-        let mut idm = merino_suggest::IdMulti::default();
+    /// Initialize the suggestion providers
+    /// # Errors
+    /// If a provider fails to initialize.
+    pub async fn init(settings: Settings, metrics_client: StatsdClient) -> Result<Self> {
+        let mut idm = IdMulti::default();
 
         let _setup_span = tracing::info_span!("suggestion_provider_setup");
         tracing::info!(
@@ -28,101 +35,40 @@ impl SuggestionProviderRef {
             "Setting up suggestion providers"
         );
 
-        for (name, config) in &settings.suggestion_providers {
+        for (name, config) in settings.suggestion_providers.clone() {
             idm.add_provider(
                 name,
-                make_provider_tree(settings, config, metrics_client).await?,
+                make_provider_tree(settings.clone(), config, metrics_client.clone()).await?,
             );
         }
 
-        Ok(Self(Arc::new(idm)))
+        Ok(Self {
+            provider: Arc::new(TokioRwLock::new(idm)),
+            metrics_client,
+            settings,
+        })
     }
-}
 
-/// Recursive helper to build a tree of providers.
-#[async_recursion]
-async fn make_provider_tree(
-    settings: &Settings,
-    config: &SuggestionProviderConfig,
-    metrics_client: &StatsdClient,
-) -> Result<Box<dyn SuggestionProvider>> {
-    let provider: Box<dyn SuggestionProvider> = match config {
-        SuggestionProviderConfig::RemoteSettings(rs_config) => {
-            RemoteSettingsSuggester::new_boxed(settings, rs_config, metrics_client.clone()).await?
-        }
-
-        SuggestionProviderConfig::MemoryCache(memory_config) => {
-            let inner =
-                make_provider_tree(settings, memory_config.inner.as_ref(), metrics_client).await?;
-            MemoryCacheSuggester::new_boxed(memory_config, inner, metrics_client.clone())
-        }
-
-        SuggestionProviderConfig::RedisCache(redis_config) => {
-            let inner =
-                make_provider_tree(settings, redis_config.inner.as_ref(), metrics_client).await?;
-            RedisCacheSuggester::new_boxed(settings, redis_config, metrics_client.clone(), inner)
-                .await?
-        }
-
-        SuggestionProviderConfig::Multiplexer(multi_config) => {
-            let mut providers = Vec::new();
-            for config in &multi_config.providers {
-                providers.push(make_provider_tree(settings, config, metrics_client).await?);
-            }
-            Multi::new_boxed(providers)
-        }
-
-        SuggestionProviderConfig::Timeout(timeout_config) => {
-            let inner =
-                make_provider_tree(settings, timeout_config.inner.as_ref(), metrics_client).await?;
-            TimeoutProvider::new_boxed(timeout_config, inner)
-        }
-
-        SuggestionProviderConfig::Fixed(fixed_config) => {
-            FixedProvider::new_boxed(settings, fixed_config)?
-        }
-
-        SuggestionProviderConfig::KeywordFilter(filter_config) => {
-            let inner =
-                make_provider_tree(settings, filter_config.inner.as_ref(), metrics_client).await?;
-            KeywordFilterProvider::new_boxed(
-                filter_config.suggestion_blocklist.clone(),
-                inner,
-                metrics_client,
-            )?
-        }
-
-        SuggestionProviderConfig::Stealth(filter_config) => {
-            let inner =
-                make_provider_tree(settings, filter_config.inner.as_ref(), metrics_client).await?;
-            StealthProvider::new_boxed(inner)
-        }
-
-        SuggestionProviderConfig::ClientVariantSwitch(filter_config) => {
-            let matching_provider = make_provider_tree(
-                settings,
-                filter_config.matching_provider.as_ref(),
-                metrics_client,
-            )
-            .await?;
-            let default_provider = make_provider_tree(
-                settings,
-                filter_config.default_provider.as_ref(),
-                metrics_client,
-            )
-            .await?;
-            ClientVariantFilterProvider::new_boxed(
-                matching_provider,
-                default_provider,
-                filter_config.client_variant.clone(),
-            )
-        }
-
-        SuggestionProviderConfig::Debug => DebugProvider::new_boxed(settings)?,
-        SuggestionProviderConfig::WikiFruit => WikiFruit::new_boxed(settings)?,
-        SuggestionProviderConfig::Null => Box::new(NullProvider),
-    };
-    Ok(provider)
+    /// Reconfigure the reference providers with a new config.
+    /// # Errors
+    /// If a provider fails to reconfigure, or if there is a problem converting the provider configuration to the require format.
+    pub async fn reconfigure(
+        &self,
+        suggestion_providers: HashMap<String, SuggestionProviderConfig>,
+    ) -> Result<()> {
+        let mut id_provider = self.provider.write().await;
+        let type_erased_config = serde_json::to_value(suggestion_providers)
+            .context("serialized context for provider reconfiguration")?;
+        reconfigure_provider_tree(
+            &mut *id_provider,
+            self.settings.clone(),
+            type_erased_config,
+            self.metrics_client.clone(),
+        )
+        .await
+        .context("reconfiguring providers")?;
+        Ok(())
+    }
 }
 
 #[cfg(test)]
@@ -142,7 +88,7 @@ mod tests {
         let settings = Settings::load_for_tests();
         let config = SuggestionProviderConfig::Null;
         let metrics_client = StatsdClient::from_sink("merino-test", SpyMetricSink::new().1);
-        let provider_tree = make_provider_tree(&settings, &config, &metrics_client).await?;
+        let provider_tree = make_provider_tree(settings, config, metrics_client).await?;
         assert_eq!(provider_tree.name(), "NullProvider");
         Ok(())
     }
@@ -167,7 +113,7 @@ mod tests {
         });
 
         let metrics_client = StatsdClient::from_sink("merino-test", SpyMetricSink::new().1);
-        let provider_tree = make_provider_tree(&settings, &config, &metrics_client).await?;
+        let provider_tree = make_provider_tree(settings, config, metrics_client).await?;
         assert_eq!(
             provider_tree.name(),
             "Multi(NullProvider, RedisCache(MemoryCache(WikiFruit)), NullProvider)"

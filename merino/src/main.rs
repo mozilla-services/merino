@@ -24,7 +24,7 @@ async fn main() -> Result<()> {
     init_logging(&settings).context("initializing logging")?;
     let metrics_client = init_metrics(&settings).context("initializing metrics")?;
 
-    let providers = SuggestionProviderRef::init(&settings, &metrics_client).await?;
+    let providers = SuggestionProviderRef::init(settings.clone(), metrics_client.clone()).await?;
 
     let listener = TcpListener::bind(settings.http.listen).context("Binding port")?;
     merino_web::run(listener, metrics_client, settings, providers)

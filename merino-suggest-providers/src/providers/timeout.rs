@@ -1,8 +1,11 @@
 //! Tools to make sure providers don't  cache_status: todo!(), cache_ttl: todo!(), suggestions: todo!() take excessive amounts of time.
 
-use crate::{CacheInputs, CacheStatus, SuggestionProvider, SuggestionResponse};
 use async_trait::async_trait;
 use merino_settings::providers::TimeoutConfig;
+use merino_suggest_traits::{
+    convert_config, reconfigure_or_remake, CacheInputs, CacheStatus, MakeFreshType, SetupError,
+    SuggestError, SuggestionProvider, SuggestionRequest, SuggestionResponse,
+};
 use std::time::Duration;
 
 /// A combinator provider that returns an empty set of suggestions if the wrapped provider takes too long.
@@ -17,7 +20,7 @@ pub struct TimeoutProvider {
 impl TimeoutProvider {
     /// Construct a new, boxed timeout provider.
     #[must_use]
-    pub fn new_boxed(config: &TimeoutConfig, inner: Box<dyn SuggestionProvider>) -> Box<Self> {
+    pub fn new_boxed(config: TimeoutConfig, inner: Box<dyn SuggestionProvider>) -> Box<Self> {
         Box::new(Self {
             max_time: config.max_time,
             inner,
@@ -31,14 +34,11 @@ impl SuggestionProvider for TimeoutProvider {
         format!("timeout({})", self.inner.name())
     }
 
-    fn cache_inputs(&self, req: &crate::SuggestionRequest, cache_inputs: &mut dyn CacheInputs) {
+    fn cache_inputs(&self, req: &SuggestionRequest, cache_inputs: &mut dyn CacheInputs) {
         self.inner.cache_inputs(req, cache_inputs);
     }
 
-    async fn suggest(
-        &self,
-        query: crate::SuggestionRequest,
-    ) -> Result<crate::SuggestionResponse, crate::SuggestError> {
+    async fn suggest(&self, query: SuggestionRequest) -> Result<SuggestionResponse, SuggestError> {
         let inner_fut = self.inner.suggest(query);
         let timeout = tokio::time::timeout(self.max_time, inner_fut).await;
         timeout.unwrap_or_else(|_timeout_elapsed| {
@@ -49,13 +49,28 @@ impl SuggestionProvider for TimeoutProvider {
             })
         })
     }
+
+    async fn reconfigure(
+        &mut self,
+        new_config: serde_json::Value,
+        make_fresh: &MakeFreshType,
+    ) -> Result<(), SetupError> {
+        let new_config: TimeoutConfig = convert_config(new_config)?;
+        reconfigure_or_remake(&mut self.inner, *new_config.inner, make_fresh).await?;
+        self.max_time = new_config.max_time;
+        Ok(())
+    }
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::{CacheStatus, Suggestion, SuggestionProvider, SuggestionResponse, TimeoutProvider};
+    use super::TimeoutProvider;
     use async_trait::async_trait;
     use fake::{Fake, Faker};
+    use merino_suggest_traits::{
+        CacheStatus, MakeFreshType, SetupError, SuggestError, Suggestion, SuggestionProvider,
+        SuggestionRequest, SuggestionResponse,
+    };
     use std::time::Duration;
 
     struct DelayProvider(Duration);
@@ -68,8 +83,8 @@ mod tests {
 
         async fn suggest(
             &self,
-            _query: crate::SuggestionRequest,
-        ) -> Result<crate::SuggestionResponse, crate::SuggestError> {
+            _query: SuggestionRequest,
+        ) -> Result<SuggestionResponse, SuggestError> {
             tokio::time::sleep(self.0).await;
             Ok(SuggestionResponse {
                 cache_status: CacheStatus::NoCache,
@@ -79,6 +94,14 @@ mod tests {
                     ..Faker.fake()
                 }],
             })
+        }
+
+        async fn reconfigure(
+            &mut self,
+            _new_config: serde_json::Value,
+            _make_fresh: &MakeFreshType,
+        ) -> Result<(), SetupError> {
+            unimplemented!()
         }
     }
 

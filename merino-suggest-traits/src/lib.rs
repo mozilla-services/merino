@@ -5,15 +5,17 @@
 pub mod device_info;
 mod domain;
 pub mod metrics;
-mod providers;
 
-use std::fmt::Debug;
 use std::hash::Hash;
 use std::ops::Range;
+use std::pin::Pin;
 use std::time::Duration;
+use std::{fmt::Debug, future::Future};
 
 use crate::device_info::DeviceInfo;
+pub use crate::domain::{CacheInputs, Proportion};
 use actix_web::http::header::{AcceptLanguage, LanguageTag, Preference, QualityItem};
+use anyhow::Context;
 use async_trait::async_trait;
 use fake::{
     faker::{
@@ -23,15 +25,13 @@ use fake::{
     Fake, Faker,
 };
 use http::Uri;
+use merino_settings::SuggestionProviderConfig;
+use serde::de::DeserializeOwned;
 use serde::{Deserialize, Serialize};
 use serde_with::{serde_as, DisplayFromStr};
 use thiserror::Error;
 
-pub use crate::domain::{CacheInputs, Proportion};
-pub use crate::providers::{
-    ClientVariantFilterProvider, DebugProvider, FixedProvider, IdMulti, IdMultiProviderDetails,
-    KeywordFilterProvider, Multi, StealthProvider, TimeoutProvider, WikiFruit,
-};
+/// A provider that never provides any suggestions.
 
 /// The range of major Firefox version numbers to use for testing.
 pub const FIREFOX_TEST_VERSIONS: Range<u32> = 70..95;
@@ -284,29 +284,35 @@ pub trait SuggestionProvider: Send + Sync {
         self.cache_inputs(req, &mut cache_inputs);
         format!("provider:v1:{}", cache_inputs.hash())
     }
+
+    /// Reconfigure the provider, using a new configuration object. State should
+    /// be preserved if possible.
+    ///
+    /// The parameter `make_fresh` can be used to make a new provider from a
+    /// configuration, such as if a inner provider must be thrown away and
+    /// recreated.
+    async fn reconfigure(
+        &mut self,
+        new_config: serde_json::Value,
+        make_fresh: &MakeFreshType,
+    ) -> Result<(), SetupError>;
 }
 
-/// A provider that never provides any suggestions
-pub struct NullProvider;
-
-#[async_trait]
-impl SuggestionProvider for NullProvider {
-    fn name(&self) -> String {
-        "NullProvider".into()
-    }
-
-    fn cache_inputs(&self, _req: &SuggestionRequest, _hasher: &mut dyn CacheInputs) {
-        // No property of req will change the response
-    }
-
-    fn is_null(&self) -> bool {
-        true
-    }
-
-    async fn suggest(&self, _query: SuggestionRequest) -> Result<SuggestionResponse, SuggestError> {
-        Ok(SuggestionResponse::new(vec![]))
-    }
-}
+/// A type that represents an object-safe function that can be passed to
+/// suggestion reconfigure methods to make new inner providers.
+pub type MakeFreshType = Box<
+    dyn Send
+        + Sync
+        + Fn(
+            SuggestionProviderConfig,
+        ) -> Pin<
+            Box<
+                (dyn Send
+                     + Future<Output = Result<Box<dyn SuggestionProvider>, SetupError>>
+                     + 'static),
+            >,
+        >,
+>;
 
 /// Errors that may occur while setting up the provider.
 #[derive(Debug, Error)]
@@ -323,6 +329,9 @@ pub enum SetupError {
 
     #[error("Required data was not in the expected format")]
     Format(#[source] anyhow::Error),
+
+    #[error("An unexpected state was encountered")]
+    Internal(#[source] anyhow::Error),
 }
 
 /// Errors that may occur while querying for suggestions.
@@ -358,6 +367,77 @@ impl SupportedLanguages {
             })
         })
     }
+}
+
+/// A basic provider that never returns any suggestions.
+pub struct NullProvider;
+
+#[async_trait]
+impl SuggestionProvider for NullProvider {
+    fn name(&self) -> String {
+        "NullProvider".into()
+    }
+
+    fn cache_inputs(&self, _req: &SuggestionRequest, _hasher: &mut dyn CacheInputs) {
+        // No property of req will change the response
+    }
+
+    fn is_null(&self) -> bool {
+        true
+    }
+
+    async fn suggest(&self, _query: SuggestionRequest) -> Result<SuggestionResponse, SuggestError> {
+        Ok(SuggestionResponse::new(vec![]))
+    }
+
+    async fn reconfigure(
+        &mut self,
+        new_config: serde_json::Value,
+        _make_fresh: &MakeFreshType,
+    ) -> Result<(), SetupError> {
+        // make sure this is the right kind of config
+        convert_config(new_config)
+    }
+}
+
+/// Convert a [`serde_json::Value`] into an appropriate provider configuration object.
+/// # Errors
+/// If the `Value` passed does not conform to the expected schema of the config,
+/// a `SetupError::InvalidConfiguration` error will be returned.
+pub fn convert_config<T: DeserializeOwned>(config: serde_json::Value) -> Result<T, SetupError> {
+    serde_json::from_value::<T>(config)
+        .context("loading provider config")
+        .map_err(SetupError::InvalidConfiguration)
+}
+
+/// Reconfigure the passed provider, or if there is a problem reconfiguring it,
+/// replace it with a newly created provider.
+/// # Errors
+/// If there is an error serializing the config, no changes will be made and
+/// that error will be returned. If there is an error reconfiguring the original
+/// provider, a new provider will be created and written to the reference for
+/// the original provider, overwriting the original. The error that resulted
+/// from reconfigure will be logged as a warning. If there is an error during
+/// while creating the new provider, the original provider will not be
+/// overwritten, and may be in an inconsistent state.
+pub async fn reconfigure_or_remake(
+    provider: &mut Box<dyn SuggestionProvider>,
+    new_config: SuggestionProviderConfig,
+    make_fresh: &MakeFreshType,
+) -> Result<(), SetupError> {
+    let serialized_config = serde_json::to_value(new_config.clone())
+        .context("serializing provider config")
+        .map_err(SetupError::InvalidConfiguration)?;
+
+    if let Err(error) = provider.reconfigure(serialized_config, make_fresh).await {
+        tracing::warn!(
+            r#type = "suggest-traits.reconfigure-or-remake.reconfigure-error",
+            ?error,
+            "Could not reconfigure provider in place"
+        );
+        *provider = make_fresh(new_config).await?;
+    }
+    Ok(())
 }
 
 #[cfg(test)]
@@ -418,6 +498,14 @@ mod tests {
 
         fn cache_inputs(&self, req: &SuggestionRequest, cache_inputs: &mut dyn CacheInputs) {
             cache_inputs.add(req.query.as_bytes());
+        }
+
+        async fn reconfigure(
+            &mut self,
+            _new_config: serde_json::Value,
+            _make_fresh: &MakeFreshType,
+        ) -> Result<(), SetupError> {
+            unimplemented!()
         }
     }
 

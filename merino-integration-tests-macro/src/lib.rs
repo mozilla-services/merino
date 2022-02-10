@@ -13,44 +13,6 @@ use syn::{
 /// macros should be placed below the `merino_test` macro. Additionally, the
 /// settings closure can specify arguments that will be available on the
 /// resulting function, for use by `parameterized`.
-///
-/// # Example:
-///
-/// Basic usage:
-///
-/// ```
-/// use merino_integration_tests::{merino_test_macro, TestingTools};
-///
-/// #[merino_test_macro]
-/// async fn test_function(TestingTools { test_client, .. }: TestingTools) {
-///     // test using test_client
-/// }
-/// ```
-///
-/// Settings can be customized:
-///
-/// ```
-/// use merino_integration_tests::{merino_test_macro, TestingTools};
-///
-/// #[merino_test_macro(|settings| settings.debug = true)]
-/// async fn test_function(TestingTools { test_client, .. }: TestingTools) {
-///     // test using test_client while the debug setting is true.
-/// }
-/// ```
-///
-/// Other test macros, like `parameterized`, can be used:
-///
-/// ```
-/// use merino_integration_tests::{TestingTools, merino_test_macro};
-/// use parameterized::parameterized;
-///
-/// #[merino_test_macro(|settings, ttl: u64| settings.redis_cache.default_ttl = ttl)]
-/// #[parameterized(ttl = { 300, 600 })]
-/// async fn test(TestingTools { .. }: TestingTools) {
-///     // test will run twice, once with each TTL setting.
-/// }
-/// ```
-///
 #[proc_macro_attribute]
 pub fn merino_test(attributes: TokenStream, item: TokenStream) -> TokenStream {
     // Parse the function that this macro is attached to.

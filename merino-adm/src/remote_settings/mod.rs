@@ -12,9 +12,9 @@ use deduped_dashmap::DedupedMap;
 use http::Uri;
 use lazy_static::lazy_static;
 use merino_settings::{providers::RemoteSettingsConfig, Settings};
-use merino_suggest::{
-    metrics::TimedMicros, CacheInputs, Proportion, SetupError, SuggestError, Suggestion,
-    SuggestionProvider, SuggestionRequest, SuggestionResponse,
+use merino_suggest_traits::{
+    convert_config, metrics::TimedMicros, CacheInputs, MakeFreshType, Proportion, SetupError,
+    SuggestError, Suggestion, SuggestionProvider, SuggestionRequest, SuggestionResponse,
 };
 use serde::{Deserialize, Serialize};
 use serde_with::{serde_as, DisplayFromStr};
@@ -40,8 +40,8 @@ impl RemoteSettingsSuggester {
     /// Returns an error if the settings are invalid for this provider, or if
     /// the initial sync fails.
     pub async fn new_boxed(
-        settings: &Settings,
-        config: &RemoteSettingsConfig,
+        settings: Settings,
+        config: RemoteSettingsConfig,
         metrics_client: StatsdClient,
     ) -> Result<Box<Self>, SetupError> {
         let reqwest_client = ReqwestClient::try_new()
@@ -367,6 +367,15 @@ impl SuggestionProvider for RemoteSettingsSuggester {
 
         Ok(suggestions)
     }
+
+    async fn reconfigure(
+        &mut self,
+        new_config: serde_json::Value,
+        _make_fresh: &MakeFreshType,
+    ) -> Result<(), SetupError> {
+        let _new_config = convert_config(new_config)?;
+        todo!();
+    }
 }
 
 /// The metadata of an attachment that might be associated with a Remote Settings record.
@@ -406,7 +415,7 @@ mod tests {
 
     use fake::{Fake, Faker};
     use http::Uri;
-    use merino_suggest::{Proportion, Suggestion, SuggestionProvider, SuggestionRequest};
+    use merino_suggest_traits::{Proportion, Suggestion, SuggestionProvider, SuggestionRequest};
 
     use crate::remote_settings::RemoteSettingsSuggester;
 

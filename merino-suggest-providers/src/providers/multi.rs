@@ -1,11 +1,13 @@
 //! Provides a provider-combinator that provides suggestions from multiple sub-providers.
 
-use crate::{
-    CacheInputs, CacheStatus, SuggestError, SuggestionProvider, SuggestionRequest,
-    SuggestionResponse,
-};
 use async_trait::async_trait;
-use futures::future::join_all;
+use futures::StreamExt;
+use futures::{future::join_all, stream::FuturesUnordered};
+use merino_settings::providers::MultiplexerConfig;
+use merino_suggest_traits::{
+    convert_config, reconfigure_or_remake, CacheInputs, CacheStatus, MakeFreshType, SetupError,
+    SuggestError, SuggestionProvider, SuggestionRequest, SuggestionResponse,
+};
 
 /// A provider that aggregates suggestions from multiple suggesters.
 pub struct Multi {
@@ -71,15 +73,49 @@ impl SuggestionProvider for Multi {
             rv
         })
     }
+
+    async fn reconfigure(
+        &mut self,
+        new_config: serde_json::Value,
+        make_fresh: &MakeFreshType,
+    ) -> Result<(), SetupError> {
+        let new_config: MultiplexerConfig = convert_config(new_config)?;
+
+        if new_config.providers.len() == self.providers.len() {
+            // be optimistic. maybe nothing changed too drastically
+            for (conf, prov) in new_config
+                .providers
+                .into_iter()
+                .zip(self.providers.iter_mut())
+            {
+                reconfigure_or_remake(prov, conf, make_fresh).await?;
+            }
+        } else {
+            // Be pessimistic and just throw everything away and recreate it all
+            // TODO This can probably be better, right?
+            self.providers.truncate(0);
+            let mut queue = FuturesUnordered::new();
+            for conf in new_config.providers {
+                queue.push(make_fresh(conf));
+            }
+            while let Some(result) = queue.next().await {
+                result?;
+            }
+        }
+
+        Ok(())
+    }
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::{
-        CacheStatus, Multi, SuggestError, SuggestionProvider, SuggestionRequest, SuggestionResponse,
-    };
+    use super::Multi;
     use async_trait::async_trait;
     use fake::{Fake, Faker};
+    use merino_suggest_traits::{
+        CacheStatus, MakeFreshType, SetupError, SuggestError, SuggestionProvider,
+        SuggestionRequest, SuggestionResponse,
+    };
     use tokio::sync::oneshot::error::TryRecvError;
 
     /// A provider that can be externally paused mid-request.
@@ -106,6 +142,14 @@ mod tests {
                 cache_ttl: None,
                 suggestions: vec![],
             })
+        }
+
+        async fn reconfigure(
+            &mut self,
+            _new_config: serde_json::Value,
+            _make_fresh: &MakeFreshType,
+        ) -> Result<(), SetupError> {
+            unimplemented!()
         }
     }
 

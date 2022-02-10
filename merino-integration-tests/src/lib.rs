@@ -19,6 +19,10 @@
 //! the state of the app. It then calls the test function that is passed to it,
 //! providing the above tools as an argument.
 //!
+//! # Examples:
+//!
+//! A realistic test:
+//!
 //! ```
 //! use merino_integration_tests::{TestingTools, merino_test_macro};
 //!
@@ -32,6 +36,41 @@
 //!
 //!    assert_eq!(response.status(), StatusCode::OK);
 //!    assert_eq!(response.content_length(), Some(0));
+//! }
+//! ```
+//!
+//! Basic usage:
+//!
+//! ```
+//! use merino_integration_tests::{merino_test_macro, TestingTools};
+//!
+//! #[merino_test_macro]
+//! async fn test_function(TestingTools { test_client, .. }: TestingTools) {
+//!     // test using test_client
+//! }
+//! ```
+//!
+//! Settings can be customized:
+//!
+//! ```
+//! use merino_integration_tests::{merino_test_macro, TestingTools};
+//!
+//! #[merino_test_macro(|settings| settings.debug = true)]
+//! async fn test_function(TestingTools { test_client, .. }: TestingTools) {
+//!     // test using test_client while the debug setting is true.
+//! }
+//! ```
+//!
+//! Other test macros, like `parameterized`, can be used:
+//!
+//! ```
+//! use merino_integration_tests::{TestingTools, merino_test_macro};
+//! use parameterized::parameterized;
+//!
+//! #[merino_test_macro(|settings, ttl: u64| settings.redis_cache.default_ttl = ttl)]
+//! #[parameterized(ttl = { 300, 600 })]
+//! async fn test(TestingTools { .. }: TestingTools) {
+//!     // test will run twice, once with each TTL setting.
 //! }
 //! ```
 

@@ -49,9 +49,11 @@ impl LogWatcher {
     /// ```
     /// # use merino_integration_tests::{LogWatcher, TracingJsonEvent};
     /// # use tracing::Level;
+    /// # let mut fields = std::collections::HashMap::new();
+    /// # fields.insert("message".to_string(), serde_json::json!("message".to_string()));
     /// # let mut log_watcher = LogWatcher::with_events(vec![
     /// #     TracingJsonEvent {
-    /// #         fields: maplit::hashmap!{ "message".to_string() => serde_json::json!("request success") },
+    /// #         fields,
     /// #         level: Level::INFO,
     /// #         target: String::new(),
     /// #         timestamp: String::new(),

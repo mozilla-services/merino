@@ -9,9 +9,9 @@ use async_trait::async_trait;
 use fake::{Fake, Faker};
 use merino_settings::Settings;
 
-use crate::{
-    Proportion, SetupError, SuggestError, Suggestion, SuggestionProvider, SuggestionRequest,
-    SuggestionResponse,
+use merino_suggest_traits::{
+    convert_config, MakeFreshType, Proportion, SetupError, SuggestError, Suggestion,
+    SuggestionProvider, SuggestionRequest, SuggestionResponse,
 };
 
 /// A toy suggester to test the system.
@@ -22,7 +22,7 @@ pub struct DebugProvider {
 
 impl DebugProvider {
     /// Create a DebugProvider provider from settings.
-    pub fn new_boxed(settings: &Settings) -> Result<Box<Self>, SetupError> {
+    pub fn new_boxed(settings: Settings) -> Result<Box<Self>, SetupError> {
         if !settings.debug {
             Err(SetupError::InvalidConfiguration(anyhow!(
                 "DebugProvider can only be used in debug mode",
@@ -53,5 +53,14 @@ impl SuggestionProvider for DebugProvider {
             score: Proportion::zero(),
             ..Faker.fake()
         }]))
+    }
+
+    async fn reconfigure(
+        &mut self,
+        new_config: serde_json::Value,
+        _make_fresh: &MakeFreshType,
+    ) -> Result<(), SetupError> {
+        // make sure this is the right kind of config
+        convert_config(new_config)
     }
 }

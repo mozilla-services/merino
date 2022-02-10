@@ -10,9 +10,10 @@ use async_trait::async_trait;
 use cadence::{CountedExt, StatsdClient};
 use fix_hidden_lifetime_bug::fix_hidden_lifetime_bug;
 use merino_settings::{providers::RedisCacheConfig, Settings};
-use merino_suggest::{
-    metrics::TimedMicros, CacheInputs, CacheStatus, SetupError, SuggestError, Suggestion,
-    SuggestionProvider, SuggestionRequest, SuggestionResponse,
+use merino_suggest_traits::{
+    convert_config, metrics::TimedMicros, reconfigure_or_remake, CacheInputs, CacheStatus,
+    MakeFreshType, SetupError, SuggestError, Suggestion, SuggestionProvider, SuggestionRequest,
+    SuggestionResponse,
 };
 use redis::RedisError;
 use tracing_futures::{Instrument, WithSubscriber};
@@ -187,8 +188,8 @@ impl Suggester {
     #[allow(clippy::manual_async_fn)]
     #[fix_hidden_lifetime_bug]
     pub async fn new_boxed(
-        settings: &Settings,
-        config: &RedisCacheConfig,
+        settings: Settings,
+        config: RedisCacheConfig,
         metrics_client: StatsdClient,
         provider: Box<dyn SuggestionProvider + 'static>,
     ) -> Result<Box<Self>, SetupError> {
@@ -427,6 +428,16 @@ impl SuggestionProvider for Suggester {
             .send();
         Ok(rv)
     }
+
+    async fn reconfigure(
+        &mut self,
+        new_config: serde_json::Value,
+        make_fresh: &MakeFreshType,
+    ) -> Result<(), SetupError> {
+        let new_config: RedisCacheConfig = convert_config(new_config)?;
+        reconfigure_or_remake(&mut self.inner, *new_config.inner, make_fresh).await?;
+        Ok(())
+    }
 }
 
 #[cfg(test)]
@@ -439,7 +450,7 @@ mod test {
     use anyhow::{anyhow, Context};
     use http::Uri;
     use merino_settings::Settings;
-    use merino_suggest::{Proportion, Suggestion};
+    use merino_suggest_traits::{Proportion, Suggestion};
 
     #[tokio::test]
     async fn check_cache() -> anyhow::Result<()> {

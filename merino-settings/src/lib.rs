@@ -42,7 +42,8 @@ use serde::{Deserialize, Serialize};
 use serde_with::{serde_as, DisplayFromStr};
 use std::{collections::HashMap, net::SocketAddr, path::PathBuf, str::FromStr};
 
-use crate::providers::{SuggestionProviderConfig, SuggestionProviderSettings};
+pub use crate::providers::SuggestionProviderConfig;
+use crate::providers::SuggestionProviderSettings;
 
 /// Top level settings object for Merino.
 #[serde_as]

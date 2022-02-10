@@ -4,16 +4,19 @@ use std::collections::HashMap;
 
 use crate::{errors::HandlerError, providers::SuggestionProviderRef};
 use actix_web::{
-    get,
-    web::{self, Data},
+    get, post,
+    web::{self, Data, Json},
     HttpResponse,
 };
-use merino_suggest::IdMultiProviderDetails;
+use merino_settings::{Settings, SuggestionProviderConfig};
+use merino_suggest_providers::IdMultiProviderDetails;
 use serde::Serialize;
 
 /// Configure a route to provide details about the available providers.
 pub fn configure(config: &mut web::ServiceConfig) {
-    config.service(list_providers);
+    config
+        .service(list_providers)
+        .service(reconfigure_providers);
 }
 
 /// Return details about the available providers.
@@ -21,8 +24,8 @@ pub fn configure(config: &mut web::ServiceConfig) {
 async fn list_providers(
     provider: Data<SuggestionProviderRef>,
 ) -> Result<HttpResponse, HandlerError> {
-    let provider = &provider.0;
-    let providers = provider
+    let id_provider = &provider.provider.read().await;
+    let providers = id_provider
         .list_providers()
         .into_iter()
         .map(|p| (p.id.clone(), p))
@@ -38,4 +41,23 @@ async fn list_providers(
 struct ListResponse {
     /// details about the providers
     providers: HashMap<String, IdMultiProviderDetails>,
+}
+
+/// Reconfigures providers on the fly from *unvalidated* user input. *Don't use
+/// this in production!*
+#[post("reconfigure")]
+async fn reconfigure_providers(
+    config: Json<HashMap<String, SuggestionProviderConfig>>,
+    provider: Data<SuggestionProviderRef>,
+    settings: Data<Settings>,
+) -> Result<HttpResponse, HandlerError> {
+    if settings.debug {
+        provider
+            .reconfigure(config.clone())
+            .await
+            .map_err(|_| HandlerError::internal())?;
+        Ok(HttpResponse::NoContent().body(""))
+    } else {
+        Ok(HttpResponse::NotFound().body(""))
+    }
 }

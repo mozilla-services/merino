@@ -10,9 +10,9 @@ use async_trait::async_trait;
 use http::Uri;
 use merino_settings::Settings;
 
-use crate::{
-    domain::Proportion, CacheInputs, SetupError, SuggestError, Suggestion, SuggestionProvider,
-    SuggestionRequest, SuggestionResponse,
+use merino_suggest_traits::{
+    convert_config, CacheInputs, MakeFreshType, Proportion, SetupError, SuggestError, Suggestion,
+    SuggestionProvider, SuggestionRequest, SuggestionResponse,
 };
 
 /// A toy suggester to test the system.
@@ -23,7 +23,7 @@ pub struct WikiFruit {
 
 impl WikiFruit {
     /// Create a WikiFruit provider from settings.
-    pub fn new_boxed(settings: &Settings) -> Result<Box<Self>, SetupError> {
+    pub fn new_boxed(settings: Settings) -> Result<Box<Self>, SetupError> {
         if !settings.debug {
             Err(SetupError::InvalidConfiguration(anyhow!(
                 "WikiFruit suggestion provider can only be used in debug mode",
@@ -94,5 +94,14 @@ impl SuggestionProvider for WikiFruit {
         };
 
         Ok(SuggestionResponse::new(suggestion.into_iter().collect()))
+    }
+
+    async fn reconfigure(
+        &mut self,
+        new_config: serde_json::Value,
+        _make_fresh: &MakeFreshType,
+    ) -> Result<(), SetupError> {
+        // make sure this is a wiki fruit config
+        convert_config(new_config)
     }
 }
