@@ -1,1 +1,0 @@
-initSidebarItems({"fn":[["pipe","Creates a new asynchronous pipe with the default configuration."]],"struct":[["PipeReader","The reading end of an asynchronous pipe."],["PipeWriter","The writing end of an asynchronous pipe."]]});

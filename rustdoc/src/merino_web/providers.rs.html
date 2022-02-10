@@ -122,83 +122,36 @@
 <span id="121">121</span>
 <span id="122">122</span>
 <span id="123">123</span>
-<span id="124">124</span>
-<span id="125">125</span>
-<span id="126">126</span>
-<span id="127">127</span>
-<span id="128">128</span>
-<span id="129">129</span>
-<span id="130">130</span>
-<span id="131">131</span>
-<span id="132">132</span>
-<span id="133">133</span>
-<span id="134">134</span>
-<span id="135">135</span>
-<span id="136">136</span>
-<span id="137">137</span>
-<span id="138">138</span>
-<span id="139">139</span>
-<span id="140">140</span>
-<span id="141">141</span>
-<span id="142">142</span>
-<span id="143">143</span>
-<span id="144">144</span>
-<span id="145">145</span>
-<span id="146">146</span>
-<span id="147">147</span>
-<span id="148">148</span>
-<span id="149">149</span>
-<span id="150">150</span>
-<span id="151">151</span>
-<span id="152">152</span>
-<span id="153">153</span>
-<span id="154">154</span>
-<span id="155">155</span>
-<span id="156">156</span>
-<span id="157">157</span>
-<span id="158">158</span>
-<span id="159">159</span>
-<span id="160">160</span>
-<span id="161">161</span>
-<span id="162">162</span>
-<span id="163">163</span>
-<span id="164">164</span>
-<span id="165">165</span>
-<span id="166">166</span>
-<span id="167">167</span>
-<span id="168">168</span>
-<span id="169">169</span>
-<span id="170">170</span>
-<span id="171">171</span>
-<span id="172">172</span>
-<span id="173">173</span>
-<span id="174">174</span>
-<span id="175">175</span>
-<span id="176">176</span>
-<span id="177">177</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Tools to manager providers.</span>
 
-<span class="kw">use</span> <span class="ident">std::sync::Arc</span>;
-
-<span class="kw">use</span> <span class="ident">anyhow::Result</span>;
-<span class="kw">use</span> <span class="ident">async_recursion::async_recursion</span>;
+<span class="kw">use</span> <span class="ident">anyhow</span>::{<span class="ident">Context</span>, <span class="prelude-ty">Result</span>};
 <span class="kw">use</span> <span class="ident">cadence::StatsdClient</span>;
-<span class="kw">use</span> <span class="ident">merino_adm::remote_settings::RemoteSettingsSuggester</span>;
-<span class="kw">use</span> <span class="ident">merino_cache</span>::{<span class="ident">MemoryCacheSuggester</span>, <span class="ident">RedisCacheSuggester</span>};
-<span class="kw">use</span> <span class="ident">merino_settings</span>::{<span class="ident">providers::SuggestionProviderConfig</span>, <span class="ident">Settings</span>};
-<span class="kw">use</span> <span class="ident">merino_suggest</span>::{
-    <span class="ident">ClientVariantFilterProvider</span>, <span class="ident">DebugProvider</span>, <span class="ident">FixedProvider</span>, <span class="ident">IdMulti</span>, <span class="ident">KeywordFilterProvider</span>,
-    <span class="ident">Multi</span>, <span class="ident">NullProvider</span>, <span class="ident">StealthProvider</span>, <span class="ident">SuggestionProvider</span>, <span class="ident">TimeoutProvider</span>, <span class="ident">WikiFruit</span>,
-};
+<span class="kw">use</span> <span class="ident">merino_settings::Settings</span>;
+<span class="kw">use</span> <span class="ident">merino_settings::SuggestionProviderConfig</span>;
+<span class="kw">use</span> <span class="ident">merino_suggest_providers::make_provider_tree</span>;
+<span class="kw">use</span> <span class="ident">merino_suggest_providers::reconfigure_provider_tree</span>;
+<span class="kw">use</span> <span class="ident">merino_suggest_providers::IdMulti</span>;
+<span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
+<span class="kw">use</span> <span class="ident">std::sync::Arc</span>;
+<span class="kw">use</span> <span class="ident">tokio::sync::RwLock</span> <span class="kw">as</span> <span class="ident">TokioRwLock</span>;
 
 <span class="doccomment">/// The SuggestionProvider stored in Actix&#39;s app_data.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">SuggestionProviderRef</span>(<span class="kw">pub</span> <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">IdMulti</span><span class="op">&gt;</span>);
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">SuggestionProviderRef</span> {
+    <span class="doccomment">/// The wrapped providers.</span>
+    <span class="kw">pub</span> <span class="ident">provider</span>: <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">TokioRwLock</span><span class="op">&lt;</span><span class="ident">IdMulti</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    <span class="doccomment">/// The metrics client used, to enable reconfiguration of providers.</span>
+    <span class="ident">metrics_client</span>: <span class="ident">StatsdClient</span>,
+    <span class="doccomment">/// The settings used to create the provider, to enable reconfiguration.</span>
+    <span class="ident">settings</span>: <span class="ident">Settings</span>,
+}
 
 <span class="kw">impl</span> <span class="ident">SuggestionProviderRef</span> {
-    <span class="doccomment">/// initialize the suggestion providers</span>
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">init</span>(<span class="ident">settings</span>: <span class="kw-2">&amp;</span><span class="ident">Settings</span>, <span class="ident">metrics_client</span>: <span class="kw-2">&amp;</span><span class="ident">StatsdClient</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">idm</span> <span class="op">=</span> <span class="ident">merino_suggest::IdMulti::default</span>();
+    <span class="doccomment">/// Initialize the suggestion providers</span>
+    <span class="doccomment">/// # Errors</span>
+    <span class="doccomment">/// If a provider fails to initialize.</span>
+    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">init</span>(<span class="ident">settings</span>: <span class="ident">Settings</span>, <span class="ident">metrics_client</span>: <span class="ident">StatsdClient</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">idm</span> <span class="op">=</span> <span class="ident">IdMulti::default</span>();
 
         <span class="kw">let</span> <span class="ident">_setup_span</span> <span class="op">=</span> <span class="macro">tracing::info_span!</span>(<span class="string">&quot;suggestion_provider_setup&quot;</span>);
         <span class="macro">tracing::info!</span>(
@@ -206,101 +159,40 @@
             <span class="string">&quot;Setting up suggestion providers&quot;</span>
         );
 
-        <span class="kw">for</span> (<span class="ident">name</span>, <span class="ident">config</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">settings</span>.<span class="ident">suggestion_providers</span> {
+        <span class="kw">for</span> (<span class="ident">name</span>, <span class="ident">config</span>) <span class="kw">in</span> <span class="ident">settings</span>.<span class="ident">suggestion_providers</span>.<span class="ident">clone</span>() {
             <span class="ident">idm</span>.<span class="ident">add_provider</span>(
                 <span class="ident">name</span>,
-                <span class="ident">make_provider_tree</span>(<span class="ident">settings</span>, <span class="ident">config</span>, <span class="ident">metrics_client</span>).<span class="kw">await</span><span class="question-mark">?</span>,
+                <span class="ident">make_provider_tree</span>(<span class="ident">settings</span>.<span class="ident">clone</span>(), <span class="ident">config</span>, <span class="ident">metrics_client</span>.<span class="ident">clone</span>()).<span class="kw">await</span><span class="question-mark">?</span>,
             );
         }
 
-        <span class="prelude-val">Ok</span>(<span class="self">Self</span>(<span class="ident">Arc::new</span>(<span class="ident">idm</span>)))
+        <span class="prelude-val">Ok</span>(<span class="self">Self</span> {
+            <span class="ident">provider</span>: <span class="ident">Arc::new</span>(<span class="ident">TokioRwLock::new</span>(<span class="ident">idm</span>)),
+            <span class="ident">metrics_client</span>,
+            <span class="ident">settings</span>,
+        })
     }
-}
 
-<span class="doccomment">/// Recursive helper to build a tree of providers.</span>
-<span class="attribute">#[<span class="ident">async_recursion</span>]</span>
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">make_provider_tree</span>(
-    <span class="ident">settings</span>: <span class="kw-2">&amp;</span><span class="ident">Settings</span>,
-    <span class="ident">config</span>: <span class="kw-2">&amp;</span><span class="ident">SuggestionProviderConfig</span>,
-    <span class="ident">metrics_client</span>: <span class="kw-2">&amp;</span><span class="ident">StatsdClient</span>,
-) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">SuggestionProvider</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">provider</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">SuggestionProvider</span><span class="op">&gt;</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">config</span> {
-        <span class="ident">SuggestionProviderConfig::RemoteSettings</span>(<span class="ident">rs_config</span>) =&gt; {
-            <span class="ident">RemoteSettingsSuggester::new_boxed</span>(<span class="ident">settings</span>, <span class="ident">rs_config</span>, <span class="ident">metrics_client</span>.<span class="ident">clone</span>()).<span class="kw">await</span><span class="question-mark">?</span>
-        }
-
-        <span class="ident">SuggestionProviderConfig::MemoryCache</span>(<span class="ident">memory_config</span>) =&gt; {
-            <span class="kw">let</span> <span class="ident">inner</span> <span class="op">=</span>
-                <span class="ident">make_provider_tree</span>(<span class="ident">settings</span>, <span class="ident">memory_config</span>.<span class="ident">inner</span>.<span class="ident">as_ref</span>(), <span class="ident">metrics_client</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-            <span class="ident">MemoryCacheSuggester::new_boxed</span>(<span class="ident">memory_config</span>, <span class="ident">inner</span>, <span class="ident">metrics_client</span>.<span class="ident">clone</span>())
-        }
-
-        <span class="ident">SuggestionProviderConfig::RedisCache</span>(<span class="ident">redis_config</span>) =&gt; {
-            <span class="kw">let</span> <span class="ident">inner</span> <span class="op">=</span>
-                <span class="ident">make_provider_tree</span>(<span class="ident">settings</span>, <span class="ident">redis_config</span>.<span class="ident">inner</span>.<span class="ident">as_ref</span>(), <span class="ident">metrics_client</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-            <span class="ident">RedisCacheSuggester::new_boxed</span>(<span class="ident">settings</span>, <span class="ident">redis_config</span>, <span class="ident">metrics_client</span>.<span class="ident">clone</span>(), <span class="ident">inner</span>)
-                .<span class="kw">await</span><span class="question-mark">?</span>
-        }
-
-        <span class="ident">SuggestionProviderConfig::Multiplexer</span>(<span class="ident">multi_config</span>) =&gt; {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">providers</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-            <span class="kw">for</span> <span class="ident">config</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">multi_config</span>.<span class="ident">providers</span> {
-                <span class="ident">providers</span>.<span class="ident">push</span>(<span class="ident">make_provider_tree</span>(<span class="ident">settings</span>, <span class="ident">config</span>, <span class="ident">metrics_client</span>).<span class="kw">await</span><span class="question-mark">?</span>);
-            }
-            <span class="ident">Multi::new_boxed</span>(<span class="ident">providers</span>)
-        }
-
-        <span class="ident">SuggestionProviderConfig::Timeout</span>(<span class="ident">timeout_config</span>) =&gt; {
-            <span class="kw">let</span> <span class="ident">inner</span> <span class="op">=</span>
-                <span class="ident">make_provider_tree</span>(<span class="ident">settings</span>, <span class="ident">timeout_config</span>.<span class="ident">inner</span>.<span class="ident">as_ref</span>(), <span class="ident">metrics_client</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-            <span class="ident">TimeoutProvider::new_boxed</span>(<span class="ident">timeout_config</span>, <span class="ident">inner</span>)
-        }
-
-        <span class="ident">SuggestionProviderConfig::Fixed</span>(<span class="ident">fixed_config</span>) =&gt; {
-            <span class="ident">FixedProvider::new_boxed</span>(<span class="ident">settings</span>, <span class="ident">fixed_config</span>)<span class="question-mark">?</span>
-        }
-
-        <span class="ident">SuggestionProviderConfig::KeywordFilter</span>(<span class="ident">filter_config</span>) =&gt; {
-            <span class="kw">let</span> <span class="ident">inner</span> <span class="op">=</span>
-                <span class="ident">make_provider_tree</span>(<span class="ident">settings</span>, <span class="ident">filter_config</span>.<span class="ident">inner</span>.<span class="ident">as_ref</span>(), <span class="ident">metrics_client</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-            <span class="ident">KeywordFilterProvider::new_boxed</span>(
-                <span class="ident">filter_config</span>.<span class="ident">suggestion_blocklist</span>.<span class="ident">clone</span>(),
-                <span class="ident">inner</span>,
-                <span class="ident">metrics_client</span>,
-            )<span class="question-mark">?</span>
-        }
-
-        <span class="ident">SuggestionProviderConfig::Stealth</span>(<span class="ident">filter_config</span>) =&gt; {
-            <span class="kw">let</span> <span class="ident">inner</span> <span class="op">=</span>
-                <span class="ident">make_provider_tree</span>(<span class="ident">settings</span>, <span class="ident">filter_config</span>.<span class="ident">inner</span>.<span class="ident">as_ref</span>(), <span class="ident">metrics_client</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-            <span class="ident">StealthProvider::new_boxed</span>(<span class="ident">inner</span>)
-        }
-
-        <span class="ident">SuggestionProviderConfig::ClientVariantSwitch</span>(<span class="ident">filter_config</span>) =&gt; {
-            <span class="kw">let</span> <span class="ident">matching_provider</span> <span class="op">=</span> <span class="ident">make_provider_tree</span>(
-                <span class="ident">settings</span>,
-                <span class="ident">filter_config</span>.<span class="ident">matching_provider</span>.<span class="ident">as_ref</span>(),
-                <span class="ident">metrics_client</span>,
-            )
-            .<span class="kw">await</span><span class="question-mark">?</span>;
-            <span class="kw">let</span> <span class="ident">default_provider</span> <span class="op">=</span> <span class="ident">make_provider_tree</span>(
-                <span class="ident">settings</span>,
-                <span class="ident">filter_config</span>.<span class="ident">default_provider</span>.<span class="ident">as_ref</span>(),
-                <span class="ident">metrics_client</span>,
-            )
-            .<span class="kw">await</span><span class="question-mark">?</span>;
-            <span class="ident">ClientVariantFilterProvider::new_boxed</span>(
-                <span class="ident">matching_provider</span>,
-                <span class="ident">default_provider</span>,
-                <span class="ident">filter_config</span>.<span class="ident">client_variant</span>.<span class="ident">clone</span>(),
-            )
-        }
-
-        <span class="ident">SuggestionProviderConfig::Debug</span> =&gt; <span class="ident">DebugProvider::new_boxed</span>(<span class="ident">settings</span>)<span class="question-mark">?</span>,
-        <span class="ident">SuggestionProviderConfig::WikiFruit</span> =&gt; <span class="ident">WikiFruit::new_boxed</span>(<span class="ident">settings</span>)<span class="question-mark">?</span>,
-        <span class="ident">SuggestionProviderConfig::Null</span> =&gt; <span class="ident">Box::new</span>(<span class="ident">NullProvider</span>),
-    };
-    <span class="prelude-val">Ok</span>(<span class="ident">provider</span>)
+    <span class="doccomment">/// Reconfigure the reference providers with a new config.</span>
+    <span class="doccomment">/// # Errors</span>
+    <span class="doccomment">/// If a provider fails to reconfigure, or if there is a problem converting the provider configuration to the require format.</span>
+    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">reconfigure</span>(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        <span class="ident">suggestion_providers</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">SuggestionProviderConfig</span><span class="op">&gt;</span>,
+    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">id_provider</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">provider</span>.<span class="ident">write</span>().<span class="kw">await</span>;
+        <span class="kw">let</span> <span class="ident">type_erased_config</span> <span class="op">=</span> <span class="ident">serde_json::to_value</span>(<span class="ident">suggestion_providers</span>)
+            .<span class="ident">context</span>(<span class="string">&quot;serialized context for provider reconfiguration&quot;</span>)<span class="question-mark">?</span>;
+        <span class="ident">reconfigure_provider_tree</span>(
+            <span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">id_provider</span>,
+            <span class="self">self</span>.<span class="ident">settings</span>.<span class="ident">clone</span>(),
+            <span class="ident">type_erased_config</span>,
+            <span class="self">self</span>.<span class="ident">metrics_client</span>.<span class="ident">clone</span>(),
+        )
+        .<span class="kw">await</span>
+        .<span class="ident">context</span>(<span class="string">&quot;reconfiguring providers&quot;</span>)<span class="question-mark">?</span>;
+        <span class="prelude-val">Ok</span>(())
+    }
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
@@ -320,7 +212,7 @@
         <span class="kw">let</span> <span class="ident">settings</span> <span class="op">=</span> <span class="ident">Settings::load_for_tests</span>();
         <span class="kw">let</span> <span class="ident">config</span> <span class="op">=</span> <span class="ident">SuggestionProviderConfig::Null</span>;
         <span class="kw">let</span> <span class="ident">metrics_client</span> <span class="op">=</span> <span class="ident">StatsdClient::from_sink</span>(<span class="string">&quot;merino-test&quot;</span>, <span class="ident">SpyMetricSink::new</span>().<span class="number">1</span>);
-        <span class="kw">let</span> <span class="ident">provider_tree</span> <span class="op">=</span> <span class="ident">make_provider_tree</span>(<span class="kw-2">&amp;</span><span class="ident">settings</span>, <span class="kw-2">&amp;</span><span class="ident">config</span>, <span class="kw-2">&amp;</span><span class="ident">metrics_client</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="kw">let</span> <span class="ident">provider_tree</span> <span class="op">=</span> <span class="ident">make_provider_tree</span>(<span class="ident">settings</span>, <span class="ident">config</span>, <span class="ident">metrics_client</span>).<span class="kw">await</span><span class="question-mark">?</span>;
         <span class="macro">assert_eq!</span>(<span class="ident">provider_tree</span>.<span class="ident">name</span>(), <span class="string">&quot;NullProvider&quot;</span>);
         <span class="prelude-val">Ok</span>(())
     }
@@ -345,7 +237,7 @@
         });
 
         <span class="kw">let</span> <span class="ident">metrics_client</span> <span class="op">=</span> <span class="ident">StatsdClient::from_sink</span>(<span class="string">&quot;merino-test&quot;</span>, <span class="ident">SpyMetricSink::new</span>().<span class="number">1</span>);
-        <span class="kw">let</span> <span class="ident">provider_tree</span> <span class="op">=</span> <span class="ident">make_provider_tree</span>(<span class="kw-2">&amp;</span><span class="ident">settings</span>, <span class="kw-2">&amp;</span><span class="ident">config</span>, <span class="kw-2">&amp;</span><span class="ident">metrics_client</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="kw">let</span> <span class="ident">provider_tree</span> <span class="op">=</span> <span class="ident">make_provider_tree</span>(<span class="ident">settings</span>, <span class="ident">config</span>, <span class="ident">metrics_client</span>).<span class="kw">await</span><span class="question-mark">?</span>;
         <span class="macro">assert_eq!</span>(
             <span class="ident">provider_tree</span>.<span class="ident">name</span>(),
             <span class="string">&quot;Multi(NullProvider, RedisCache(MemoryCache(WikiFruit)), NullProvider)&quot;</span>

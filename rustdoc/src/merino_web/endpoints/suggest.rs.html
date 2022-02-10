@@ -224,7 +224,7 @@
 <span class="kw">use</span> <span class="ident">anyhow::Result</span>;
 <span class="kw">use</span> <span class="ident">cadence</span>::{<span class="ident">CountedExt</span>, <span class="ident">Histogrammed</span>, <span class="ident">StatsdClient</span>};
 <span class="kw">use</span> <span class="ident">merino_settings::Settings</span>;
-<span class="kw">use</span> <span class="ident">merino_suggest</span>::{<span class="ident">Suggestion</span>, <span class="ident">SuggestionProvider</span>, <span class="ident">SuggestionRequest</span>};
+<span class="kw">use</span> <span class="ident">merino_suggest_traits</span>::{<span class="ident">Suggestion</span>, <span class="ident">SuggestionProvider</span>, <span class="ident">SuggestionRequest</span>};
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 <span class="kw">use</span> <span class="ident">serde_with</span>::{<span class="ident">rust::StringWithSeparator</span>, <span class="ident">serde_as</span>, <span class="ident">CommaSeparator</span>};
 <span class="kw">use</span> <span class="ident">tracing_actix_web::RequestId</span>;
@@ -263,7 +263,7 @@
     <span class="kw">let</span> <span class="ident">request_id</span>: <span class="kw-2">&amp;</span><span class="ident">Uuid</span> <span class="op">=</span> <span class="ident">extensions</span>
         .<span class="ident">get</span>::<span class="op">&lt;</span><span class="ident">RequestId</span><span class="op">&gt;</span>()
         .<span class="ident">ok_or_else</span>(<span class="ident">HandlerError::internal</span>)<span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">id_multi</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">provider</span>.<span class="number">0</span>;
+    <span class="kw">let</span> <span class="ident">id_multi</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">provider</span>.<span class="ident">provider</span>.<span class="ident">read</span>().<span class="kw">await</span>;
     <span class="kw">let</span> <span class="ident">response</span> <span class="op">=</span> <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="ident">query_parameters</span>.<span class="ident">providers</span> {
         <span class="prelude-val">Some</span>(<span class="ident">provider_ids</span>) =&gt; {
             <span class="ident">id_multi</span>

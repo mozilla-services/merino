@@ -198,44 +198,6 @@
 <span id="197">197</span>
 <span id="198">198</span>
 <span id="199">199</span>
-<span id="200">200</span>
-<span id="201">201</span>
-<span id="202">202</span>
-<span id="203">203</span>
-<span id="204">204</span>
-<span id="205">205</span>
-<span id="206">206</span>
-<span id="207">207</span>
-<span id="208">208</span>
-<span id="209">209</span>
-<span id="210">210</span>
-<span id="211">211</span>
-<span id="212">212</span>
-<span id="213">213</span>
-<span id="214">214</span>
-<span id="215">215</span>
-<span id="216">216</span>
-<span id="217">217</span>
-<span id="218">218</span>
-<span id="219">219</span>
-<span id="220">220</span>
-<span id="221">221</span>
-<span id="222">222</span>
-<span id="223">223</span>
-<span id="224">224</span>
-<span id="225">225</span>
-<span id="226">226</span>
-<span id="227">227</span>
-<span id="228">228</span>
-<span id="229">229</span>
-<span id="230">230</span>
-<span id="231">231</span>
-<span id="232">232</span>
-<span id="233">233</span>
-<span id="234">234</span>
-<span id="235">235</span>
-<span id="236">236</span>
-<span id="237">237</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">proc_macro::TokenStream</span>;
 <span class="kw">use</span> <span class="ident">quote::quote</span>;
 <span class="kw">use</span> <span class="ident">syn</span>::{
@@ -251,44 +213,6 @@
 <span class="doccomment">/// macros should be placed below the `merino_test` macro. Additionally, the</span>
 <span class="doccomment">/// settings closure can specify arguments that will be available on the</span>
 <span class="doccomment">/// resulting function, for use by `parameterized`.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Example:</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Basic usage:</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">/// use merino_integration_tests::{merino_test_macro, TestingTools};</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// #[merino_test_macro]</span>
-<span class="doccomment">/// async fn test_function(TestingTools { test_client, .. }: TestingTools) {</span>
-<span class="doccomment">///     // test using test_client</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Settings can be customized:</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">/// use merino_integration_tests::{merino_test_macro, TestingTools};</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// #[merino_test_macro(|settings| settings.debug = true)]</span>
-<span class="doccomment">/// async fn test_function(TestingTools { test_client, .. }: TestingTools) {</span>
-<span class="doccomment">///     // test using test_client while the debug setting is true.</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Other test macros, like `parameterized`, can be used:</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">/// use merino_integration_tests::{TestingTools, merino_test_macro};</span>
-<span class="doccomment">/// use parameterized::parameterized;</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// #[merino_test_macro(|settings, ttl: u64| settings.redis_cache.default_ttl = ttl)]</span>
-<span class="doccomment">/// #[parameterized(ttl = { 300, 600 })]</span>
-<span class="doccomment">/// async fn test(TestingTools { .. }: TestingTools) {</span>
-<span class="doccomment">///     // test will run twice, once with each TTL setting.</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">///</span>
 <span class="attribute">#[<span class="ident">proc_macro_attribute</span>]</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">merino_test</span>(<span class="ident">attributes</span>: <span class="ident">TokenStream</span>, <span class="ident">item</span>: <span class="ident">TokenStream</span>) -&gt; <span class="ident">TokenStream</span> {
     <span class="comment">// Parse the function that this macro is attached to.</span>

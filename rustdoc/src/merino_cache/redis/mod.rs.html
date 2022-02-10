@@ -537,6 +537,17 @@
 <span id="536">536</span>
 <span id="537">537</span>
 <span id="538">538</span>
+<span id="539">539</span>
+<span id="540">540</span>
+<span id="541">541</span>
+<span id="542">542</span>
+<span id="543">543</span>
+<span id="544">544</span>
+<span id="545">545</span>
+<span id="546">546</span>
+<span id="547">547</span>
+<span id="548">548</span>
+<span id="549">549</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Interactions with Redis.</span>
 
 <span class="kw">mod</span> <span class="ident">domain</span>;
@@ -549,9 +560,10 @@
 <span class="kw">use</span> <span class="ident">cadence</span>::{<span class="ident">CountedExt</span>, <span class="ident">StatsdClient</span>};
 <span class="kw">use</span> <span class="ident">fix_hidden_lifetime_bug::fix_hidden_lifetime_bug</span>;
 <span class="kw">use</span> <span class="ident">merino_settings</span>::{<span class="ident">providers::RedisCacheConfig</span>, <span class="ident">Settings</span>};
-<span class="kw">use</span> <span class="ident">merino_suggest</span>::{
-    <span class="ident">metrics::TimedMicros</span>, <span class="ident">CacheInputs</span>, <span class="ident">CacheStatus</span>, <span class="ident">SetupError</span>, <span class="ident">SuggestError</span>, <span class="ident">Suggestion</span>,
-    <span class="ident">SuggestionProvider</span>, <span class="ident">SuggestionRequest</span>, <span class="ident">SuggestionResponse</span>,
+<span class="kw">use</span> <span class="ident">merino_suggest_traits</span>::{
+    <span class="ident">convert_config</span>, <span class="ident">metrics::TimedMicros</span>, <span class="ident">reconfigure_or_remake</span>, <span class="ident">CacheInputs</span>, <span class="ident">CacheStatus</span>,
+    <span class="ident">MakeFreshType</span>, <span class="ident">SetupError</span>, <span class="ident">SuggestError</span>, <span class="ident">Suggestion</span>, <span class="ident">SuggestionProvider</span>, <span class="ident">SuggestionRequest</span>,
+    <span class="ident">SuggestionResponse</span>,
 };
 <span class="kw">use</span> <span class="ident">redis::RedisError</span>;
 <span class="kw">use</span> <span class="ident">tracing_futures</span>::{<span class="ident">Instrument</span>, <span class="ident">WithSubscriber</span>};
@@ -726,8 +738,8 @@
     <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::manual_async_fn</span>)]</span>
     <span class="attribute">#[<span class="ident">fix_hidden_lifetime_bug</span>]</span>
     <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">new_boxed</span>(
-        <span class="ident">settings</span>: <span class="kw-2">&amp;</span><span class="ident">Settings</span>,
-        <span class="ident">config</span>: <span class="kw-2">&amp;</span><span class="ident">RedisCacheConfig</span>,
+        <span class="ident">settings</span>: <span class="ident">Settings</span>,
+        <span class="ident">config</span>: <span class="ident">RedisCacheConfig</span>,
         <span class="ident">metrics_client</span>: <span class="ident">StatsdClient</span>,
         <span class="ident">provider</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">SuggestionProvider</span> <span class="op">+</span> <span class="lifetime">&#39;static</span><span class="op">&gt;</span>,
     ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">SetupError</span><span class="op">&gt;</span> {
@@ -966,6 +978,16 @@
             .<span class="ident">send</span>();
         <span class="prelude-val">Ok</span>(<span class="ident">rv</span>)
     }
+
+    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">reconfigure</span>(
+        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
+        <span class="ident">new_config</span>: <span class="ident">serde_json::Value</span>,
+        <span class="ident">make_fresh</span>: <span class="kw-2">&amp;</span><span class="ident">MakeFreshType</span>,
+    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">SetupError</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">new_config</span>: <span class="ident">RedisCacheConfig</span> <span class="op">=</span> <span class="ident">convert_config</span>(<span class="ident">new_config</span>)<span class="question-mark">?</span>;
+        <span class="ident">reconfigure_or_remake</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">inner</span>, <span class="kw-2">*</span><span class="ident">new_config</span>.<span class="ident">inner</span>, <span class="ident">make_fresh</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="prelude-val">Ok</span>(())
+    }
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
@@ -978,7 +1000,7 @@
     <span class="kw">use</span> <span class="ident">anyhow</span>::{<span class="ident">anyhow</span>, <span class="ident">Context</span>};
     <span class="kw">use</span> <span class="ident">http::Uri</span>;
     <span class="kw">use</span> <span class="ident">merino_settings::Settings</span>;
-    <span class="kw">use</span> <span class="ident">merino_suggest</span>::{<span class="ident">Proportion</span>, <span class="ident">Suggestion</span>};
+    <span class="kw">use</span> <span class="ident">merino_suggest_traits</span>::{<span class="ident">Proportion</span>, <span class="ident">Suggestion</span>};
 
     <span class="attribute">#[<span class="ident">tokio::test</span>]</span>
     <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">check_cache</span>() -&gt; <span class="ident">anyhow::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
