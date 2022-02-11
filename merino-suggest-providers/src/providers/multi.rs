@@ -99,7 +99,7 @@ impl SuggestionProvider for Multi {
                 queue.push(make_fresh(conf));
             }
             while let Some(result) = queue.next().await {
-                result?;
+                self.providers.push(result?);
             }
         }
 
