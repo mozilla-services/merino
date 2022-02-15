@@ -331,7 +331,9 @@ mod tests {
     use cadence::{SpyMetricSink, StatsdClient};
     use deduped_dashmap::DedupedMap;
     use fake::{Fake, Faker};
-    use merino_suggest_traits::{NullProvider, Suggestion};
+    use futures::{future::ready, FutureExt};
+    use merino_settings::providers::{MemoryCacheConfig, SuggestionProviderConfig};
+    use merino_suggest_traits::{MakeFreshType, NullProvider, Suggestion, SuggestionProvider};
     use std::{
         sync::Arc,
         time::{Duration, Instant},
@@ -412,5 +414,42 @@ mod tests {
         // Should fail, wrong lock value
         LOCK_TABLE.update(other_lock_name, lock, || lock_check = false);
         assert!(lock_check);
+    }
+
+    #[tokio::test]
+    async fn test_reconfigure() {
+        let cache: Arc<DedupedMap<String, Instant, Vec<Suggestion>>> = Arc::new(DedupedMap::new());
+        // Provide an inspectable metrics sink to validate the collected data.
+        let (_, sink) = SpyMetricSink::new();
+        let metrics_client = StatsdClient::from_sink("merino-test", sink);
+
+        let mut provider = Suggester {
+            inner: Box::new(NullProvider),
+            metrics_client,
+            items: cache.clone(),
+            default_ttl: Duration::from_secs(30),
+            default_lock_timeout: Duration::from_secs(1),
+            max_background_removals: usize::MAX,
+        };
+
+        // This won't be called as `DelayProvider::reconfigure()` will always succeed.
+        let make_fresh: MakeFreshType = Box::new(move |_fresh_config: SuggestionProviderConfig| {
+            ready(Ok(Box::new(NullProvider) as Box<dyn SuggestionProvider>)).boxed()
+        });
+
+        let value =
+            serde_json::to_value(MemoryCacheConfig::default()).expect("failed to serialize");
+        provider
+            .reconfigure(value, &make_fresh)
+            .await
+            .expect("failed to reconfigure");
+        let default = MemoryCacheConfig::default();
+
+        assert_eq!(provider.default_ttl, default.default_ttl);
+        assert_eq!(provider.default_lock_timeout, default.default_lock_timeout);
+        assert_eq!(
+            provider.max_background_removals,
+            default.max_removed_entries
+        );
     }
 }

@@ -104,7 +104,13 @@ impl SuggestionProvider for ClientVariantFilterProvider {
 mod tests {
     use crate::{ClientVariantFilterProvider, FixedProvider};
     use fake::{Fake, Faker};
-    use merino_suggest_traits::{SuggestionProvider, SuggestionRequest};
+    use futures::{future::ready, FutureExt};
+    use merino_settings::providers::{
+        ClientVariantSwitchConfig, FixedConfig, SuggestionProviderConfig,
+    };
+    use merino_suggest_traits::{
+        MakeFreshType, NullProvider, SuggestionProvider, SuggestionRequest,
+    };
 
     #[tokio::test]
     async fn test_provider_uses_default_without_client_variants() {
@@ -155,5 +161,66 @@ mod tests {
             "FixedProvider(Matching Provider)"
         );
         assert_eq!(res.suggestions[0].title, "Matching Provider");
+    }
+
+    #[tokio::test]
+    async fn test_reconfigure() {
+        let mut provider = ClientVariantFilterProvider::new_boxed(
+            Box::new(FixedProvider {
+                value: "Matching Provider".to_string(),
+            }),
+            Box::new(FixedProvider {
+                value: "Default Provider".to_string(),
+            }),
+            "test".to_string(),
+        );
+
+        // This won't be called as `DelayProvider::reconfigure()` will always succeed.
+        let make_fresh: MakeFreshType = Box::new(move |_fresh_config: SuggestionProviderConfig| {
+            ready(Ok(Box::new(NullProvider) as Box<dyn SuggestionProvider>)).boxed()
+        });
+
+        let value = serde_json::to_value(ClientVariantSwitchConfig {
+            client_variant: "foo".to_owned(),
+            matching_provider: Box::new(SuggestionProviderConfig::Fixed(FixedConfig {
+                value: "New Matching Provider".to_owned(),
+            })),
+            default_provider: Box::new(SuggestionProviderConfig::Fixed(FixedConfig {
+                value: "New Default Provider".to_owned(),
+            })),
+        })
+        .expect("failed to serialize");
+        provider
+            .reconfigure(value, &make_fresh)
+            .await
+            .expect("failed to reconfigure");
+        assert_eq!(provider.client_variant, "foo");
+
+        // Query the updated default provider.
+        let res = provider
+            .suggest(Faker.fake())
+            .await
+            .expect("failed to get suggestion");
+
+        assert_eq!(
+            res.suggestions[0].provider,
+            "FixedProvider(New Default Provider)"
+        );
+        assert_eq!(res.suggestions[0].title, "New Default Provider");
+
+        // Query the updated matching provider.
+        let res = provider
+            .suggest(SuggestionRequest {
+                client_variants: Some(vec!["foo".to_string()]),
+                ..Faker.fake()
+            })
+            .await
+            .expect("failed to get suggestion");
+
+        assert_eq!(
+            res.suggestions[0].provider,
+            "FixedProvider(New Matching Provider)"
+        );
+        assert_eq!(res.suggestions[0].title, "New Matching Provider");
     }
 }

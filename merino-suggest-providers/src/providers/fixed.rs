@@ -77,3 +77,33 @@ impl SuggestionProvider for FixedProvider {
         Ok(())
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::FixedProvider;
+    use futures::{future::ready, FutureExt};
+    use merino_settings::providers::{FixedConfig, SuggestionProviderConfig};
+    use merino_suggest_traits::{MakeFreshType, NullProvider, SuggestionProvider};
+
+    #[tokio::test]
+    async fn test_reconfigure() {
+        let mut provider = FixedProvider {
+            value: "foo".to_owned(),
+        };
+
+        // This won't be called as `DelayProvider::reconfigure()` will always succeed.
+        let make_fresh: MakeFreshType = Box::new(move |_fresh_config: SuggestionProviderConfig| {
+            ready(Ok(Box::new(NullProvider) as Box<dyn SuggestionProvider>)).boxed()
+        });
+
+        let value = serde_json::to_value(FixedConfig {
+            value: "bar".to_owned(),
+        })
+        .expect("failed to serialize");
+        provider
+            .reconfigure(value, &make_fresh)
+            .await
+            .expect("failed to reconfigure");
+        assert_eq!(provider.value, "bar");
+    }
+}

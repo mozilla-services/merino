@@ -145,6 +145,7 @@ mod tests {
     use async_trait::async_trait;
     use cadence::{SpyMetricSink, StatsdClient};
     use fake::{Fake, Faker};
+    use futures::{future::ready, FutureExt};
     use merino_settings::{providers::KeywordFilterConfig, SuggestionProviderConfig};
     use merino_suggest_traits::{
         CacheStatus, MakeFreshType, SetupError, SuggestError, Suggestion, SuggestionProvider,
@@ -195,7 +196,8 @@ mod tests {
             _new_config: serde_json::Value,
             _make_fresh: &MakeFreshType,
         ) -> Result<(), SetupError> {
-            unimplemented!()
+            // No-op
+            Ok(())
         }
     }
 
@@ -301,5 +303,61 @@ mod tests {
 
         // Verify that nothing was recorded.
         assert!(rx.is_empty());
+    }
+
+    #[tokio::test]
+    async fn test_reconfigure() {
+        let mut suggestion_blocklist = HashMap::new();
+        suggestion_blocklist.insert("filter_1".to_string(), "test".to_string());
+
+        let (rx, sink) = SpyMetricSink::new();
+        let metrics_client = StatsdClient::from_sink("merino-test", sink);
+
+        let mut provider = KeywordFilterProvider::new_boxed(
+            KeywordFilterConfig {
+                suggestion_blocklist,
+                inner: Box::new(SuggestionProviderConfig::Null),
+            },
+            Box::new(TestSuggestionsProvider()),
+            metrics_client.clone(),
+        )
+        .expect("failed to create the keyword filter provider");
+
+        // This won't be called as `DelayProvider::reconfigure()` will always succeed.
+        let make_fresh: MakeFreshType = Box::new(move |_fresh_config: SuggestionProviderConfig| {
+            ready(Ok(
+                Box::new(TestSuggestionsProvider()) as Box<dyn SuggestionProvider>
+            ))
+            .boxed()
+        });
+
+        let mut suggestion_blocklist = HashMap::new();
+        suggestion_blocklist.insert("filter_2".to_string(), "test".to_string());
+        let value = serde_json::to_value(KeywordFilterConfig {
+            suggestion_blocklist,
+            inner: Box::new(SuggestionProviderConfig::Null),
+        })
+        .expect("failed to serialize");
+        provider
+            .reconfigure(value, &make_fresh)
+            .await
+            .expect("failed to reconfigure");
+
+        let res = provider
+            .suggest(Faker.fake())
+            .await
+            .expect("failed to get suggestion");
+
+        assert_eq!(res.suggestions.len(), 2);
+        assert_eq!(res.suggestions[0].provider, "TestSuggestionsProvider()");
+        assert_eq!(res.suggestions[0].title, "A suggestion that goes through");
+
+        // Verify that the filtering was properly recorded.
+        assert_eq!(rx.len(), 1);
+        let sent = rx.recv().unwrap();
+        assert_eq!(
+            "merino-test.keywordfilter.match:1|c|#id:filter_2",
+            String::from_utf8(sent).unwrap()
+        );
     }
 }

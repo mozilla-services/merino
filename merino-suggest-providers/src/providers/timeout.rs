@@ -67,6 +67,8 @@ mod tests {
     use super::TimeoutProvider;
     use async_trait::async_trait;
     use fake::{Fake, Faker};
+    use futures::{future::ready, FutureExt};
+    use merino_settings::providers::{SuggestionProviderConfig, TimeoutConfig};
     use merino_suggest_traits::{
         CacheStatus, MakeFreshType, SetupError, SuggestError, Suggestion, SuggestionProvider,
         SuggestionRequest, SuggestionResponse,
@@ -101,7 +103,8 @@ mod tests {
             _new_config: serde_json::Value,
             _make_fresh: &MakeFreshType,
         ) -> Result<(), SetupError> {
-            unimplemented!()
+            // No-op
+            Ok(())
         }
     }
 
@@ -130,5 +133,29 @@ mod tests {
             .expect("failed to get suggestion");
         assert_eq!(res.suggestions.len(), 1);
         assert_eq!(res.suggestions[0].provider, "DelayProvider(10ms)");
+    }
+
+    #[tokio::test]
+    async fn test_reconfigure() {
+        let mut timeout_provider = TimeoutProvider {
+            max_time: Duration::from_millis(1000),
+            inner: Box::new(DelayProvider(Duration::from_millis(10))),
+        };
+
+        // This won't be called as `DelayProvider::reconfigure()` will always succeed.
+        let make_fresh: MakeFreshType = Box::new(move |_fresh_config: SuggestionProviderConfig| {
+            ready(Ok(
+                Box::new(DelayProvider(Duration::from_millis(1000))) as Box<dyn SuggestionProvider>
+            ))
+            .boxed()
+        });
+
+        // Reconfigure the outer provider to be the default.
+        let value = serde_json::to_value(TimeoutConfig::default()).expect("failed to serialize");
+        timeout_provider
+            .reconfigure(value, &make_fresh)
+            .await
+            .expect("failed to reconfigure");
+        assert_eq!(timeout_provider.max_time, TimeoutConfig::default().max_time);
     }
 }

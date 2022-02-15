@@ -435,6 +435,10 @@ impl SuggestionProvider for Suggester {
         make_fresh: &MakeFreshType,
     ) -> Result<(), SetupError> {
         let new_config: RedisCacheConfig = convert_config(new_config)?;
+
+        self.default_ttl = new_config.default_ttl;
+        self.default_lock_timeout = new_config.default_lock_timeout;
+
         reconfigure_or_remake(&mut self.inner, *new_config.inner, make_fresh).await?;
         Ok(())
     }
