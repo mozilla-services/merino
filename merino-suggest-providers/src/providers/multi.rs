@@ -223,15 +223,8 @@ mod tests {
         let mut provider = Multi::new(vec![Box::new(prov_fixed), Box::new(prov_null)]);
 
         // This won't be called as `DelayProvider::reconfigure()` will always succeed.
-        let make_fresh: MakeFreshType = Box::new(move |fresh_config: SuggestionProviderConfig| {
-            let provider: Box<dyn SuggestionProvider> = match fresh_config {
-                SuggestionProviderConfig::Fixed(config) => Box::new(FixedProvider {
-                    value: config.value,
-                }),
-                SuggestionProviderConfig::Null => Box::new(NullProvider),
-                _ => unreachable!(),
-            };
-            ready(Ok(provider)).boxed()
+        let make_fresh: MakeFreshType = Box::new(move |_fresh_config: SuggestionProviderConfig| {
+            unreachable!();
         });
 
         let value = serde_json::to_value(MultiplexerConfig {
@@ -265,7 +258,7 @@ mod tests {
         let prov_null = NullProvider;
         let mut provider = Multi::new(vec![Box::new(prov_fixed), Box::new(prov_null)]);
 
-        // This won't be called as `DelayProvider::reconfigure()` will always succeed.
+        // This will be called for making a new Fixed provider.
         let make_fresh: MakeFreshType = Box::new(move |fresh_config: SuggestionProviderConfig| {
             let provider: Box<dyn SuggestionProvider> = match fresh_config {
                 SuggestionProviderConfig::Fixed(config) => Box::new(FixedProvider {

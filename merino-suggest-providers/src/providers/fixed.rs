@@ -81,9 +81,8 @@ impl SuggestionProvider for FixedProvider {
 #[cfg(test)]
 mod tests {
     use super::FixedProvider;
-    use futures::{future::ready, FutureExt};
     use merino_settings::providers::{FixedConfig, SuggestionProviderConfig};
-    use merino_suggest_traits::{MakeFreshType, NullProvider, SuggestionProvider};
+    use merino_suggest_traits::{MakeFreshType, SuggestionProvider};
 
     #[tokio::test]
     async fn test_reconfigure() {
@@ -93,7 +92,7 @@ mod tests {
 
         // This won't be called as `DelayProvider::reconfigure()` will always succeed.
         let make_fresh: MakeFreshType = Box::new(move |_fresh_config: SuggestionProviderConfig| {
-            ready(Ok(Box::new(NullProvider) as Box<dyn SuggestionProvider>)).boxed()
+            unreachable!();
         });
 
         let value = serde_json::to_value(FixedConfig {

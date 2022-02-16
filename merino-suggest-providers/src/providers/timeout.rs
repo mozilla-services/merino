@@ -67,7 +67,6 @@ mod tests {
     use super::TimeoutProvider;
     use async_trait::async_trait;
     use fake::{Fake, Faker};
-    use futures::{future::ready, FutureExt};
     use merino_settings::providers::{SuggestionProviderConfig, TimeoutConfig};
     use merino_suggest_traits::{
         CacheStatus, MakeFreshType, SetupError, SuggestError, Suggestion, SuggestionProvider,
@@ -144,10 +143,7 @@ mod tests {
 
         // This won't be called as `DelayProvider::reconfigure()` will always succeed.
         let make_fresh: MakeFreshType = Box::new(move |_fresh_config: SuggestionProviderConfig| {
-            ready(Ok(
-                Box::new(DelayProvider(Duration::from_millis(1000))) as Box<dyn SuggestionProvider>
-            ))
-            .boxed()
+            unreachable!();
         });
 
         // Reconfigure the outer provider to be the default.

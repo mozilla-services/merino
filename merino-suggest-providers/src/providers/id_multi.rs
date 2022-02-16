@@ -205,7 +205,7 @@ impl SuggestionProvider for IdMulti {
 
 #[cfg(test)]
 mod tests {
-    use std::collections::HashMap;
+    use std::collections::{HashMap, HashSet};
 
     use super::IdMulti;
     use crate::FixedProvider;
@@ -337,7 +337,7 @@ mod tests {
 
         let mut provider = IdMulti::new(providers);
 
-        // This won't be called as `DelayProvider::reconfigure()` will always succeed.
+        // This will be called for making fresh providers
         let make_fresh: MakeFreshType = Box::new(move |fresh_config: SuggestionProviderConfig| {
             let provider: Box<dyn SuggestionProvider> = match fresh_config {
                 SuggestionProviderConfig::Fixed(config) => Box::new(FixedProvider {
@@ -376,8 +376,13 @@ mod tests {
             .suggest(Faker.fake())
             .await
             .expect("failed to suggest");
-        assert_eq!(response.suggestions.len(), 2);
-        assert_eq!(response.suggestions[0].title, "bar");
-        assert_eq!(response.suggestions[1].title, "baz");
+        assert_eq!(
+            response
+                .suggestions
+                .iter()
+                .map(|suggestion| suggestion.title.as_str())
+                .collect::<HashSet<_>>(),
+            ["bar", "baz"].into_iter().collect::<HashSet<_>>()
+        );
     }
 }

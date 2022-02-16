@@ -396,7 +396,7 @@ impl SuggestionProvider for NullProvider {
         _make_fresh: &MakeFreshType,
     ) -> Result<(), SetupError> {
         // make sure this is the right kind of config
-        convert_config(new_config)
+        convert_config::<SuggestionProviderConfig>(new_config).map(|_| ())
     }
 }
 

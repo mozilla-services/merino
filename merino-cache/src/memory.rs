@@ -331,7 +331,6 @@ mod tests {
     use cadence::{SpyMetricSink, StatsdClient};
     use deduped_dashmap::DedupedMap;
     use fake::{Fake, Faker};
-    use futures::{future::ready, FutureExt};
     use merino_settings::providers::{MemoryCacheConfig, SuggestionProviderConfig};
     use merino_suggest_traits::{MakeFreshType, NullProvider, Suggestion, SuggestionProvider};
     use std::{
@@ -434,7 +433,7 @@ mod tests {
 
         // This won't be called as `DelayProvider::reconfigure()` will always succeed.
         let make_fresh: MakeFreshType = Box::new(move |_fresh_config: SuggestionProviderConfig| {
-            ready(Ok(Box::new(NullProvider) as Box<dyn SuggestionProvider>)).boxed()
+            unreachable!();
         });
 
         let value =

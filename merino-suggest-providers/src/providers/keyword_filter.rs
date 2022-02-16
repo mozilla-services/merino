@@ -145,7 +145,6 @@ mod tests {
     use async_trait::async_trait;
     use cadence::{SpyMetricSink, StatsdClient};
     use fake::{Fake, Faker};
-    use futures::{future::ready, FutureExt};
     use merino_settings::{providers::KeywordFilterConfig, SuggestionProviderConfig};
     use merino_suggest_traits::{
         CacheStatus, MakeFreshType, SetupError, SuggestError, Suggestion, SuggestionProvider,
@@ -325,10 +324,7 @@ mod tests {
 
         // This won't be called as `DelayProvider::reconfigure()` will always succeed.
         let make_fresh: MakeFreshType = Box::new(move |_fresh_config: SuggestionProviderConfig| {
-            ready(Ok(
-                Box::new(TestSuggestionsProvider()) as Box<dyn SuggestionProvider>
-            ))
-            .boxed()
+            unreachable!();
         });
 
         let mut suggestion_blocklist = HashMap::new();

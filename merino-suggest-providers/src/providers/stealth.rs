@@ -56,11 +56,11 @@ mod tests {
     use crate::FixedProvider;
     use async_trait::async_trait;
     use fake::{Fake, Faker};
-    use futures::{future::ready, FutureExt, StreamExt};
+    use futures::StreamExt;
     use merino_settings::providers::{FixedConfig, StealthConfig, SuggestionProviderConfig};
     use merino_suggest_traits::{
-        MakeFreshType, NullProvider, SetupError, SuggestError, Suggestion, SuggestionProvider,
-        SuggestionRequest, SuggestionResponse,
+        MakeFreshType, SetupError, SuggestError, Suggestion, SuggestionProvider, SuggestionRequest,
+        SuggestionResponse,
     };
     use std::sync::atomic::{AtomicU32, Ordering};
 
@@ -128,7 +128,7 @@ mod tests {
 
         // This won't be called as `DelayProvider::reconfigure()` will always succeed.
         let make_fresh: MakeFreshType = Box::new(move |_fresh_config: SuggestionProviderConfig| {
-            ready(Ok(Box::new(NullProvider) as Box<dyn SuggestionProvider>)).boxed()
+            unreachable!();
         });
 
         let value = serde_json::to_value(StealthConfig {

@@ -104,13 +104,10 @@ impl SuggestionProvider for ClientVariantFilterProvider {
 mod tests {
     use crate::{ClientVariantFilterProvider, FixedProvider};
     use fake::{Fake, Faker};
-    use futures::{future::ready, FutureExt};
     use merino_settings::providers::{
         ClientVariantSwitchConfig, FixedConfig, SuggestionProviderConfig,
     };
-    use merino_suggest_traits::{
-        MakeFreshType, NullProvider, SuggestionProvider, SuggestionRequest,
-    };
+    use merino_suggest_traits::{MakeFreshType, SuggestionProvider, SuggestionRequest};
 
     #[tokio::test]
     async fn test_provider_uses_default_without_client_variants() {
@@ -177,7 +174,7 @@ mod tests {
 
         // This won't be called as `DelayProvider::reconfigure()` will always succeed.
         let make_fresh: MakeFreshType = Box::new(move |_fresh_config: SuggestionProviderConfig| {
-            ready(Ok(Box::new(NullProvider) as Box<dyn SuggestionProvider>)).boxed()
+            unreachable!();
         });
 
         let value = serde_json::to_value(ClientVariantSwitchConfig {
