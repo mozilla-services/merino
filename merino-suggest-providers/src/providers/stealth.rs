@@ -53,9 +53,11 @@ impl StealthProvider {
 #[cfg(test)]
 mod tests {
     use super::StealthProvider;
+    use crate::FixedProvider;
     use async_trait::async_trait;
     use fake::{Fake, Faker};
     use futures::StreamExt;
+    use merino_settings::providers::{FixedConfig, StealthConfig, SuggestionProviderConfig};
     use merino_suggest_traits::{
         MakeFreshType, SetupError, SuggestError, Suggestion, SuggestionProvider, SuggestionRequest,
         SuggestionResponse,
@@ -115,5 +117,38 @@ mod tests {
         let count: u32 = res.suggestions[0].title.parse().unwrap();
         // 100 from the loop above, and another from right now.
         assert_eq!(count, 101);
+    }
+
+    #[tokio::test]
+    async fn test_reconfigure() {
+        let inner = Box::new(FixedProvider {
+            value: "foo".to_owned(),
+        });
+        let mut provider = StealthProvider { inner };
+
+        // This won't be called as `DelayProvider::reconfigure()` will always succeed.
+        let make_fresh: MakeFreshType = Box::new(move |_fresh_config: SuggestionProviderConfig| {
+            unreachable!();
+        });
+
+        let value = serde_json::to_value(StealthConfig {
+            inner: Box::new(SuggestionProviderConfig::Fixed(FixedConfig {
+                value: "bar".to_owned(),
+            })),
+        })
+        .expect("failed to serialize");
+        provider
+            .reconfigure(value, &make_fresh)
+            .await
+            .expect("failed to reconfigure");
+
+        // Ask the counter provider how many times it was called.
+        let res = provider
+            .inner
+            .suggest(Faker.fake())
+            .await
+            .expect("Failed to suggest from inner");
+        assert_eq!(res.suggestions.len(), 1);
+        assert_eq!(res.suggestions[0].title, "bar");
     }
 }

@@ -110,10 +110,13 @@ impl SuggestionProvider for Multi {
 #[cfg(test)]
 mod tests {
     use super::Multi;
+    use crate::FixedProvider;
     use async_trait::async_trait;
     use fake::{Fake, Faker};
+    use futures::{future::ready, FutureExt};
+    use merino_settings::providers::{FixedConfig, MultiplexerConfig, SuggestionProviderConfig};
     use merino_suggest_traits::{
-        CacheStatus, MakeFreshType, SetupError, SuggestError, SuggestionProvider,
+        CacheStatus, MakeFreshType, NullProvider, SetupError, SuggestError, SuggestionProvider,
         SuggestionRequest, SuggestionResponse,
     };
     use tokio::sync::oneshot::error::TryRecvError;
@@ -209,5 +212,88 @@ mod tests {
         // Wait for the response.
         suggestion_result_rx.await.unwrap();
         task_handle.await.unwrap();
+    }
+
+    #[tokio::test]
+    async fn test_reconfigure_optimisitc() {
+        let prov_fixed = FixedProvider {
+            value: "foo".to_owned(),
+        };
+        let prov_null = NullProvider;
+        let mut provider = Multi::new(vec![Box::new(prov_fixed), Box::new(prov_null)]);
+
+        // This won't be called as `DelayProvider::reconfigure()` will always succeed.
+        let make_fresh: MakeFreshType = Box::new(move |_fresh_config: SuggestionProviderConfig| {
+            unreachable!();
+        });
+
+        let value = serde_json::to_value(MultiplexerConfig {
+            providers: vec![
+                SuggestionProviderConfig::Fixed(FixedConfig {
+                    value: "bar".to_owned(),
+                }),
+                SuggestionProviderConfig::Null,
+            ],
+        })
+        .expect("failed to serialize");
+        provider
+            .reconfigure(value, &make_fresh)
+            .await
+            .expect("failed to reconfigure");
+        assert_eq!(provider.providers.len(), 2);
+
+        let response = provider
+            .suggest(Faker.fake())
+            .await
+            .expect("failed to suggest");
+        assert_eq!(response.suggestions.len(), 1);
+        assert_eq!(response.suggestions[0].title, "bar");
+    }
+
+    #[tokio::test]
+    async fn test_reconfigure_pessimisitc() {
+        let prov_fixed = FixedProvider {
+            value: "foo".to_owned(),
+        };
+        let prov_null = NullProvider;
+        let mut provider = Multi::new(vec![Box::new(prov_fixed), Box::new(prov_null)]);
+
+        // This will be called for making a new Fixed provider.
+        let make_fresh: MakeFreshType = Box::new(move |fresh_config: SuggestionProviderConfig| {
+            let provider: Box<dyn SuggestionProvider> = match fresh_config {
+                SuggestionProviderConfig::Fixed(config) => Box::new(FixedProvider {
+                    value: config.value,
+                }),
+                SuggestionProviderConfig::Null => Box::new(NullProvider),
+                _ => unreachable!(),
+            };
+            ready(Ok(provider)).boxed()
+        });
+
+        let value = serde_json::to_value(MultiplexerConfig {
+            providers: vec![
+                SuggestionProviderConfig::Fixed(FixedConfig {
+                    value: "bar".to_owned(),
+                }),
+                SuggestionProviderConfig::Fixed(FixedConfig {
+                    value: "baz".to_owned(),
+                }),
+                SuggestionProviderConfig::Null,
+            ],
+        })
+        .expect("failed to serialize");
+        provider
+            .reconfigure(value, &make_fresh)
+            .await
+            .expect("failed to reconfigure");
+        assert_eq!(provider.providers.len(), 3);
+
+        let response = provider
+            .suggest(Faker.fake())
+            .await
+            .expect("failed to suggest");
+        assert_eq!(response.suggestions.len(), 2);
+        assert_eq!(response.suggestions[0].title, "bar");
+        assert_eq!(response.suggestions[1].title, "baz");
     }
 }

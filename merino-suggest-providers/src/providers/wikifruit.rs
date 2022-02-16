@@ -10,6 +10,7 @@ use async_trait::async_trait;
 use http::Uri;
 use merino_settings::Settings;
 
+use merino_settings::SuggestionProviderConfig;
 use merino_suggest_traits::{
     convert_config, CacheInputs, MakeFreshType, Proportion, SetupError, SuggestError, Suggestion,
     SuggestionProvider, SuggestionRequest, SuggestionResponse,
@@ -102,6 +103,6 @@ impl SuggestionProvider for WikiFruit {
         _make_fresh: &MakeFreshType,
     ) -> Result<(), SetupError> {
         // make sure this is a wiki fruit config
-        convert_config(new_config)
+        convert_config::<SuggestionProviderConfig>(new_config).map(|_| ())
     }
 }

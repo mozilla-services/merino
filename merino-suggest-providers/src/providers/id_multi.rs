@@ -205,13 +205,16 @@ impl SuggestionProvider for IdMulti {
 
 #[cfg(test)]
 mod tests {
-    use std::collections::HashMap;
+    use std::collections::{HashMap, HashSet};
 
     use super::IdMulti;
+    use crate::FixedProvider;
     use async_trait::async_trait;
     use fake::{Fake, Faker};
+    use futures::{future::ready, FutureExt};
+    use merino_settings::providers::{FixedConfig, SuggestionProviderConfig};
     use merino_suggest_traits::{
-        CacheStatus, MakeFreshType, SetupError, SuggestError, SuggestionProvider,
+        CacheStatus, MakeFreshType, NullProvider, SetupError, SuggestError, SuggestionProvider,
         SuggestionRequest, SuggestionResponse,
     };
     use tokio::sync::oneshot::error::TryRecvError;
@@ -314,5 +317,72 @@ mod tests {
         // Wait for the response.
         suggestion_result_rx.await.unwrap();
         task_handle.await.unwrap();
+    }
+
+    #[tokio::test]
+    async fn test_reconfigure() {
+        let prov_fixed = FixedProvider {
+            value: "foo".to_owned(),
+        };
+        let prov_null = NullProvider;
+        let providers: HashMap<_, _> = [
+            (
+                "fixed".to_owned(),
+                Box::new(prov_fixed) as Box<dyn SuggestionProvider>,
+            ),
+            ("null".to_owned(), Box::new(prov_null)),
+        ]
+        .into_iter()
+        .collect();
+
+        let mut provider = IdMulti::new(providers);
+
+        // This will be called for making fresh providers
+        let make_fresh: MakeFreshType = Box::new(move |fresh_config: SuggestionProviderConfig| {
+            let provider: Box<dyn SuggestionProvider> = match fresh_config {
+                SuggestionProviderConfig::Fixed(config) => Box::new(FixedProvider {
+                    value: config.value,
+                }),
+                SuggestionProviderConfig::Null => Box::new(NullProvider),
+                _ => unreachable!(),
+            };
+            ready(Ok(provider)).boxed()
+        });
+
+        let to_update = SuggestionProviderConfig::Fixed(FixedConfig {
+            value: "bar".to_owned(),
+        });
+        let to_add = SuggestionProviderConfig::Fixed(FixedConfig {
+            value: "baz".to_owned(),
+        });
+        let provider_configs: HashMap<_, _> = [
+            ("fixed".to_owned(), to_update),
+            ("another_fixed".to_owned(), to_add),
+            // The "null" provider to be removed.
+        ]
+        .into_iter()
+        .collect();
+
+        let value = serde_json::to_value(provider_configs).expect("failed to serialize");
+        provider
+            .reconfigure(value, &make_fresh)
+            .await
+            .expect("failed to reconfigure");
+
+        // Only "fixed" and "another_fixed" remain, the "null" one should be removed.
+        assert_eq!(provider.providers.len(), 2);
+
+        let response = provider
+            .suggest(Faker.fake())
+            .await
+            .expect("failed to suggest");
+        assert_eq!(
+            response
+                .suggestions
+                .iter()
+                .map(|suggestion| suggestion.title.as_str())
+                .collect::<HashSet<_>>(),
+            ["bar", "baz"].into_iter().collect::<HashSet<_>>()
+        );
     }
 }
