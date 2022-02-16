@@ -133,6 +133,29 @@
 <span id="132">132</span>
 <span id="133">133</span>
 <span id="134">134</span>
+<span id="135">135</span>
+<span id="136">136</span>
+<span id="137">137</span>
+<span id="138">138</span>
+<span id="139">139</span>
+<span id="140">140</span>
+<span id="141">141</span>
+<span id="142">142</span>
+<span id="143">143</span>
+<span id="144">144</span>
+<span id="145">145</span>
+<span id="146">146</span>
+<span id="147">147</span>
+<span id="148">148</span>
+<span id="149">149</span>
+<span id="150">150</span>
+<span id="151">151</span>
+<span id="152">152</span>
+<span id="153">153</span>
+<span id="154">154</span>
+<span id="155">155</span>
+<span id="156">156</span>
+<span id="157">157</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Tools to make sure providers don&#39;t  cache_status: todo!(), cache_ttl: todo!(), suggestions: todo!() take excessive amounts of time.</span>
 
 <span class="kw">use</span> <span class="ident">async_trait::async_trait</span>;
@@ -202,6 +225,7 @@
     <span class="kw">use</span> <span class="ident"><span class="kw">super</span>::TimeoutProvider</span>;
     <span class="kw">use</span> <span class="ident">async_trait::async_trait</span>;
     <span class="kw">use</span> <span class="ident">fake</span>::{<span class="ident">Fake</span>, <span class="ident">Faker</span>};
+    <span class="kw">use</span> <span class="ident">merino_settings::providers</span>::{<span class="ident">SuggestionProviderConfig</span>, <span class="ident">TimeoutConfig</span>};
     <span class="kw">use</span> <span class="ident">merino_suggest_traits</span>::{
         <span class="ident">CacheStatus</span>, <span class="ident">MakeFreshType</span>, <span class="ident">SetupError</span>, <span class="ident">SuggestError</span>, <span class="ident">Suggestion</span>, <span class="ident">SuggestionProvider</span>,
         <span class="ident">SuggestionRequest</span>, <span class="ident">SuggestionResponse</span>,
@@ -236,7 +260,8 @@
             <span class="ident">_new_config</span>: <span class="ident">serde_json::Value</span>,
             <span class="ident">_make_fresh</span>: <span class="kw-2">&amp;</span><span class="ident">MakeFreshType</span>,
         ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">SetupError</span><span class="op">&gt;</span> {
-            <span class="macro">unimplemented!</span>()
+            <span class="comment">// No-op</span>
+            <span class="prelude-val">Ok</span>(())
         }
     }
 
@@ -265,6 +290,27 @@
             .<span class="ident">expect</span>(<span class="string">&quot;failed to get suggestion&quot;</span>);
         <span class="macro">assert_eq!</span>(<span class="ident">res</span>.<span class="ident">suggestions</span>.<span class="ident">len</span>(), <span class="number">1</span>);
         <span class="macro">assert_eq!</span>(<span class="ident">res</span>.<span class="ident">suggestions</span>[<span class="number">0</span>].<span class="ident">provider</span>, <span class="string">&quot;DelayProvider(10ms)&quot;</span>);
+    }
+
+    <span class="attribute">#[<span class="ident">tokio::test</span>]</span>
+    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">test_reconfigure</span>() {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">timeout_provider</span> <span class="op">=</span> <span class="ident">TimeoutProvider</span> {
+            <span class="ident">max_time</span>: <span class="ident">Duration::from_millis</span>(<span class="number">1000</span>),
+            <span class="ident">inner</span>: <span class="ident">Box::new</span>(<span class="ident">DelayProvider</span>(<span class="ident">Duration::from_millis</span>(<span class="number">10</span>))),
+        };
+
+        <span class="comment">// This won&#39;t be called as `DelayProvider::reconfigure()` will always succeed.</span>
+        <span class="kw">let</span> <span class="ident">make_fresh</span>: <span class="ident">MakeFreshType</span> <span class="op">=</span> <span class="ident">Box::new</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">_fresh_config</span>: <span class="ident">SuggestionProviderConfig</span><span class="op">|</span> {
+            <span class="macro">unreachable!</span>();
+        });
+
+        <span class="comment">// Reconfigure the outer provider to be the default.</span>
+        <span class="kw">let</span> <span class="ident">value</span> <span class="op">=</span> <span class="ident">serde_json::to_value</span>(<span class="ident">TimeoutConfig::default</span>()).<span class="ident">expect</span>(<span class="string">&quot;failed to serialize&quot;</span>);
+        <span class="ident">timeout_provider</span>
+            .<span class="ident">reconfigure</span>(<span class="ident">value</span>, <span class="kw-2">&amp;</span><span class="ident">make_fresh</span>)
+            .<span class="kw">await</span>
+            .<span class="ident">expect</span>(<span class="string">&quot;failed to reconfigure&quot;</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">timeout_provider</span>.<span class="ident">max_time</span>, <span class="ident">TimeoutConfig::default</span>().<span class="ident">max_time</span>);
     }
 }
 </code></pre></div>

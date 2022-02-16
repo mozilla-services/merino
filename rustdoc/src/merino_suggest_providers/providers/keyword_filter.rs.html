@@ -304,6 +304,60 @@
 <span id="303">303</span>
 <span id="304">304</span>
 <span id="305">305</span>
+<span id="306">306</span>
+<span id="307">307</span>
+<span id="308">308</span>
+<span id="309">309</span>
+<span id="310">310</span>
+<span id="311">311</span>
+<span id="312">312</span>
+<span id="313">313</span>
+<span id="314">314</span>
+<span id="315">315</span>
+<span id="316">316</span>
+<span id="317">317</span>
+<span id="318">318</span>
+<span id="319">319</span>
+<span id="320">320</span>
+<span id="321">321</span>
+<span id="322">322</span>
+<span id="323">323</span>
+<span id="324">324</span>
+<span id="325">325</span>
+<span id="326">326</span>
+<span id="327">327</span>
+<span id="328">328</span>
+<span id="329">329</span>
+<span id="330">330</span>
+<span id="331">331</span>
+<span id="332">332</span>
+<span id="333">333</span>
+<span id="334">334</span>
+<span id="335">335</span>
+<span id="336">336</span>
+<span id="337">337</span>
+<span id="338">338</span>
+<span id="339">339</span>
+<span id="340">340</span>
+<span id="341">341</span>
+<span id="342">342</span>
+<span id="343">343</span>
+<span id="344">344</span>
+<span id="345">345</span>
+<span id="346">346</span>
+<span id="347">347</span>
+<span id="348">348</span>
+<span id="349">349</span>
+<span id="350">350</span>
+<span id="351">351</span>
+<span id="352">352</span>
+<span id="353">353</span>
+<span id="354">354</span>
+<span id="355">355</span>
+<span id="356">356</span>
+<span id="357">357</span>
+<span id="358">358</span>
+<span id="359">359</span>
 </pre><pre class="rust"><code><span class="doccomment">//! A suggestion provider that filters suggestions from a subprovider.</span>
 
 <span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
@@ -501,7 +555,8 @@
             <span class="ident">_new_config</span>: <span class="ident">serde_json::Value</span>,
             <span class="ident">_make_fresh</span>: <span class="kw-2">&amp;</span><span class="ident">MakeFreshType</span>,
         ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">SetupError</span><span class="op">&gt;</span> {
-            <span class="macro">unimplemented!</span>()
+            <span class="comment">// No-op</span>
+            <span class="prelude-val">Ok</span>(())
         }
     }
 
@@ -607,6 +662,59 @@
 
         <span class="comment">// Verify that nothing was recorded.</span>
         <span class="macro">assert!</span>(<span class="ident">rx</span>.<span class="ident">is_empty</span>());
+    }
+
+    <span class="attribute">#[<span class="ident">tokio::test</span>]</span>
+    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">test_reconfigure</span>() {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">suggestion_blocklist</span> <span class="op">=</span> <span class="ident">HashMap::new</span>();
+        <span class="ident">suggestion_blocklist</span>.<span class="ident">insert</span>(<span class="string">&quot;filter_1&quot;</span>.<span class="ident">to_string</span>(), <span class="string">&quot;test&quot;</span>.<span class="ident">to_string</span>());
+
+        <span class="kw">let</span> (<span class="ident">rx</span>, <span class="ident">sink</span>) <span class="op">=</span> <span class="ident">SpyMetricSink::new</span>();
+        <span class="kw">let</span> <span class="ident">metrics_client</span> <span class="op">=</span> <span class="ident">StatsdClient::from_sink</span>(<span class="string">&quot;merino-test&quot;</span>, <span class="ident">sink</span>);
+
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">provider</span> <span class="op">=</span> <span class="ident">KeywordFilterProvider::new_boxed</span>(
+            <span class="ident">KeywordFilterConfig</span> {
+                <span class="ident">suggestion_blocklist</span>,
+                <span class="ident">inner</span>: <span class="ident">Box::new</span>(<span class="ident">SuggestionProviderConfig::Null</span>),
+            },
+            <span class="ident">Box::new</span>(<span class="ident">TestSuggestionsProvider</span>()),
+            <span class="ident">metrics_client</span>.<span class="ident">clone</span>(),
+        )
+        .<span class="ident">expect</span>(<span class="string">&quot;failed to create the keyword filter provider&quot;</span>);
+
+        <span class="comment">// This won&#39;t be called as `DelayProvider::reconfigure()` will always succeed.</span>
+        <span class="kw">let</span> <span class="ident">make_fresh</span>: <span class="ident">MakeFreshType</span> <span class="op">=</span> <span class="ident">Box::new</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">_fresh_config</span>: <span class="ident">SuggestionProviderConfig</span><span class="op">|</span> {
+            <span class="macro">unreachable!</span>();
+        });
+
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">suggestion_blocklist</span> <span class="op">=</span> <span class="ident">HashMap::new</span>();
+        <span class="ident">suggestion_blocklist</span>.<span class="ident">insert</span>(<span class="string">&quot;filter_2&quot;</span>.<span class="ident">to_string</span>(), <span class="string">&quot;test&quot;</span>.<span class="ident">to_string</span>());
+        <span class="kw">let</span> <span class="ident">value</span> <span class="op">=</span> <span class="ident">serde_json::to_value</span>(<span class="ident">KeywordFilterConfig</span> {
+            <span class="ident">suggestion_blocklist</span>,
+            <span class="ident">inner</span>: <span class="ident">Box::new</span>(<span class="ident">SuggestionProviderConfig::Null</span>),
+        })
+        .<span class="ident">expect</span>(<span class="string">&quot;failed to serialize&quot;</span>);
+        <span class="ident">provider</span>
+            .<span class="ident">reconfigure</span>(<span class="ident">value</span>, <span class="kw-2">&amp;</span><span class="ident">make_fresh</span>)
+            .<span class="kw">await</span>
+            .<span class="ident">expect</span>(<span class="string">&quot;failed to reconfigure&quot;</span>);
+
+        <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">provider</span>
+            .<span class="ident">suggest</span>(<span class="ident">Faker</span>.<span class="ident">fake</span>())
+            .<span class="kw">await</span>
+            .<span class="ident">expect</span>(<span class="string">&quot;failed to get suggestion&quot;</span>);
+
+        <span class="macro">assert_eq!</span>(<span class="ident">res</span>.<span class="ident">suggestions</span>.<span class="ident">len</span>(), <span class="number">2</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">res</span>.<span class="ident">suggestions</span>[<span class="number">0</span>].<span class="ident">provider</span>, <span class="string">&quot;TestSuggestionsProvider()&quot;</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">res</span>.<span class="ident">suggestions</span>[<span class="number">0</span>].<span class="ident">title</span>, <span class="string">&quot;A suggestion that goes through&quot;</span>);
+
+        <span class="comment">// Verify that the filtering was properly recorded.</span>
+        <span class="macro">assert_eq!</span>(<span class="ident">rx</span>.<span class="ident">len</span>(), <span class="number">1</span>);
+        <span class="kw">let</span> <span class="ident">sent</span> <span class="op">=</span> <span class="ident">rx</span>.<span class="ident">recv</span>().<span class="ident">unwrap</span>();
+        <span class="macro">assert_eq!</span>(
+            <span class="string">&quot;merino-test.keywordfilter.match:1|c|#id:filter_2&quot;</span>,
+            <span class="ident">String::from_utf8</span>(<span class="ident">sent</span>).<span class="ident">unwrap</span>()
+        );
     }
 }
 </code></pre></div>
