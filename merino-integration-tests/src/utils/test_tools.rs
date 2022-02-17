@@ -234,6 +234,15 @@ impl TestReqwestClient {
         let url = format!("http://{}{}", &self.address, path);
         self.client.get(url)
     }
+
+    /// Start building a POST request to the test server with the path specified.
+    ///
+    /// The path should start with `/`, such as `/__heartbeat__`.
+    pub fn post(&self, path: &str) -> RequestBuilder {
+        assert!(path.starts_with('/'));
+        let url = format!("http://{}{}", &self.address, path);
+        self.client.post(url)
+    }
 }
 
 /// Set up Remote Settings with a new bucket and a new collection

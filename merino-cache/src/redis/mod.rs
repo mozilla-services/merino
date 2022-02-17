@@ -429,6 +429,11 @@ impl SuggestionProvider for Suggester {
         Ok(rv)
     }
 
+    /// Reconfigure the Redis provider.
+    ///
+    /// Note that the reconfiguration will _not_ wipe out the Redis cache.
+    /// It only reconfigures the inner provider and other cache settings such
+    /// as `default_ttl` for the subsequent cache operations.
     async fn reconfigure(
         &mut self,
         new_config: serde_json::Value,
