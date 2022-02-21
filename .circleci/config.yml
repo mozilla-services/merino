@@ -57,30 +57,6 @@ workflows:
             - docker-image-build
             - contract-tests
 
-  tag-workflow:
-    jobs:
-      - checks: &tag-filters
-          filters:
-            tags:
-              only: /v.*/
-            branches:
-              ignore: /.*/
-      - build-and-test:
-          <<: *tag-filters
-      - docker-image-build:
-          <<: *tag-filters
-      - contract-tests:
-          <<: *tag-filters
-          requires:
-            - docker-image-build
-      - docker-image-publish:
-          <<: *tag-filters
-          requires:
-            - checks
-            - build-and-test
-            - docker-image-build
-            - contract-tests
-
 jobs:
   checks:
     docker:
