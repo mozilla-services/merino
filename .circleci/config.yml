@@ -166,6 +166,7 @@ jobs:
           password: $DOCKER_PASS
     steps:
       - checkout
+      - skip-if-do-not-deploy
       - setup_remote_docker
       - attach_workspace:
           at: workspace
@@ -270,3 +271,13 @@ commands:
             "$CIRCLE_PROJECT_USERNAME" \
             "$CIRCLE_PROJECT_REPONAME" \
             "$CIRCLE_BUILD_URL" > version.json
+
+  skip-if-do-not-deploy:
+    steps:
+      - run:
+          name: Check if deployment is disallowed
+          command: |
+            if git log -1 "$CIRCLE_SHA1" | grep -q '\[do not deploy\]'; then
+                echo "Skipping this step: deployment was disabled in the last commit."
+                circleci-agent step halt
+            fi
