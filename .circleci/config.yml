@@ -276,8 +276,10 @@ commands:
     steps:
       - run:
           name: Check if deployment is disallowed
+          # This relies on the [do not deploy] text to be available in the
+          # merge commit when merging the PR to 'main'.
           command: |
             if git log -1 "$CIRCLE_SHA1" | grep -q '\[do not deploy\]'; then
-                echo "Skipping this step: deployment was disabled in the last commit."
+                echo "Skipping this step: deployment was disabled in the PR."
                 circleci-agent step halt
             fi

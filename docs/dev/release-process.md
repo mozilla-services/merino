@@ -10,8 +10,8 @@ The commit hash of the deployed code is considered its version identifier.
 
 ## Preventing deployment
 Occasionally developers might want to prevent a commit from triggering the deployment pipeline. While this should be discouraged, there are some legitimate cases for doing so (e.g. docs only changes).
-In order to prevent the deployment of the code from a PR when merging to `main`, the **latest commit in the stack** must contain the `[do not deploy]` text.
-The deployment pipeline will analyse the message of the last commit and make a decision based on it.
+In order to prevent the deployment of the code from a PR when merging to `main`, the **title of that PR** must contain the `[do not deploy]` text.
+The deployment pipeline will analyse the message of the merge commit (which will be contain the PR title) and make a decision based on it.
 
 ## Releasing to production
 The process to promote a build from `stage` to `production` is currently manually initiated by SRE.
