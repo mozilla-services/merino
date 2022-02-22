@@ -80,6 +80,7 @@ mod dockerflow;
 mod general;
 mod logging;
 mod providers;
+mod reconfigure;
 mod suggest;
 mod utils;
 
