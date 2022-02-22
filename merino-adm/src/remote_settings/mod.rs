@@ -11,7 +11,7 @@ use cadence::StatsdClient;
 use deduped_dashmap::DedupedMap;
 use http::Uri;
 use lazy_static::lazy_static;
-use merino_settings::{providers::RemoteSettingsConfig, Settings};
+use merino_settings::{providers::RemoteSettingsConfig, RemoteSettingsGlobalSettings, Settings};
 use merino_suggest_traits::{
     convert_config, metrics::TimedMicros, CacheInputs, MakeFreshType, Proportion, SetupError,
     SuggestError, Suggestion, SuggestionProvider, SuggestionRequest, SuggestionResponse,
@@ -51,15 +51,15 @@ pub struct RemoteSettingsSuggester {
     /// The Statsd client used to record statistics.
     metrics_client: StatsdClient,
 
+    /// The Remote Settings global settings.
+    rs_global_settings: RemoteSettingsGlobalSettings,
+
     /// The current configuration used to check if the reconfiguration is needed.
     config: RemoteSettingsConfig,
 
     /// The control handles for the background re-sync task used for
     /// reconfiguration.
     resync_task: Option<(JoinHandle<()>, Sender<()>)>,
-
-    /// The shared Remote Settings client.
-    rs_client: Arc<remote_settings_client::Client>,
 }
 
 impl RemoteSettingsSuggester {
@@ -73,25 +73,54 @@ impl RemoteSettingsSuggester {
         config: RemoteSettingsConfig,
         metrics_client: StatsdClient,
     ) -> Result<Box<Self>, SetupError> {
+        let mut rs_client = Self::create_rs_client(&settings.remote_settings, &config).await?;
+        let suggestions = Arc::new(DedupedMap::new());
+        let suggestion_score = Self::parse_suggestion_score(config.suggestion_score)?;
+
+        Self::sync(&mut rs_client, &*suggestions, suggestion_score).await?;
+
+        let resync_task = Self::spawn_resync_task(
+            config.resync_interval,
+            suggestion_score,
+            Arc::clone(&suggestions),
+            rs_client,
+        );
+
+        Ok(Box::new(Self {
+            suggestions,
+            metrics_client,
+            config,
+            rs_global_settings: settings.remote_settings,
+            resync_task: Some(resync_task),
+        }))
+    }
+
+    /// Creat a client to Remote Settings.
+    ///
+    /// Error: a [`SetupError`] is returned if the creation fails.
+    async fn create_rs_client(
+        settings: &RemoteSettingsGlobalSettings,
+        config: &RemoteSettingsConfig,
+    ) -> Result<remote_settings_client::Client, SetupError> {
         let reqwest_client = ReqwestClient::try_new()
             .context("Unable to create the Reqwest client")
             .map_err(SetupError::Network)?;
-        let mut remote_settings_client = remote_settings_client::Client::builder()
+        let client = remote_settings_client::Client::builder()
             .bucket_name(
                 config
                     .bucket
                     .as_ref()
-                    .unwrap_or(&settings.remote_settings.default_bucket)
+                    .unwrap_or(&settings.default_bucket)
                     .clone(),
             )
             .collection_name(
                 config
                     .collection
                     .as_ref()
-                    .unwrap_or(&settings.remote_settings.default_collection)
+                    .unwrap_or(&settings.default_collection)
                     .clone(),
             )
-            .server_url(&format!("{}/v1", settings.remote_settings.server))
+            .server_url(&format!("{}/v1", settings.server))
             .sync_if_empty(true)
             .storage(Box::new(remote_settings_client::client::FileStorage {
                 folder: std::env::temp_dir(),
@@ -103,27 +132,7 @@ impl RemoteSettingsSuggester {
             .context("Unable to initialize the Remote Settings client")
             .map_err(SetupError::InvalidConfiguration)?;
 
-        let suggestions = Arc::new(DedupedMap::new());
-        let suggestion_score = Self::parse_suggestion_score(config.suggestion_score)?;
-
-        Self::sync(&mut remote_settings_client, &*suggestions, suggestion_score).await?;
-
-        let rs_client = Arc::new(remote_settings_client);
-
-        let resync_task = Self::spawn_resync_task(
-            config.resync_interval,
-            suggestion_score,
-            Arc::clone(&suggestions),
-            Arc::clone(&rs_client),
-        );
-
-        Ok(Box::new(Self {
-            suggestions,
-            metrics_client,
-            rs_client,
-            config,
-            resync_task: Some(resync_task),
-        }))
+        Ok(client)
     }
 
     /// Parses a [`Proportion`] from the configuration source.
@@ -144,7 +153,7 @@ impl RemoteSettingsSuggester {
         resync_interval: Duration,
         suggestion_score: Proportion,
         suggestions: Arc<DedupedMap<String, (), Suggestion>>,
-        mut remote_settings_client: Arc<remote_settings_client::Client>,
+        mut rs_client: remote_settings_client::Client,
     ) -> (JoinHandle<()>, Sender<()>) {
         // A channel for shutdown notification.
         let (tx, mut rx) = oneshot::channel();
@@ -160,16 +169,14 @@ impl RemoteSettingsSuggester {
                 tokio::select! {
                     _ = timer.tick() => {
                         let loop_suggestions = &*(Arc::clone(&suggestions));
-                        if let Some(loop_client) = Arc::get_mut(&mut remote_settings_client) {
-                            if let Err(error) =
-                                Self::sync(loop_client, loop_suggestions, suggestion_score).await
-                            {
-                                tracing::error!(
-                                    r#type = "adm.remote-settings.sync-failed",
-                                    ?error,
-                                    "Error while syncing remote settings suggestions"
-                                );
-                            }
+                        if let Err(error) =
+                            Self::sync(&mut rs_client, loop_suggestions, suggestion_score).await
+                        {
+                            tracing::error!(
+                                r#type = "adm.remote-settings.sync-failed",
+                                ?error,
+                                "Error while syncing remote settings suggestions"
+                            );
                         }
                     },
                     _ = &mut rx => break,
@@ -184,17 +191,18 @@ impl RemoteSettingsSuggester {
     #[cfg(test)]
     fn with_suggestions(suggestions: HashMap<String, Suggestion>) -> Self {
         let deduped = suggestions.into_iter().collect();
-        let rs_client = remote_settings_client::Client::builder()
-            .collection_name("test")
-            .build()
-            .expect("Failed to create Remote Settings client");
-
+        let rs_global_settings = RemoteSettingsGlobalSettings {
+            server: "test-host".to_owned(),
+            default_bucket: "test_bucket".to_owned(),
+            default_collection: "test_collection".to_owned(),
+            test_changes: None,
+        };
         Self {
+            rs_global_settings,
             suggestions: Arc::new(deduped),
             metrics_client: StatsdClient::builder("merino", cadence::NopMetricSink).build(),
             config: RemoteSettingsConfig::default(),
             resync_task: None,
-            rs_client: Arc::new(rs_client),
         }
     }
 
@@ -441,6 +449,13 @@ impl SuggestionProvider for RemoteSettingsSuggester {
     ///
     /// It only supports reconfiguring the `resync_interval` and `suggestion_score`
     /// now. As updating the other fields on the fly doesn't seem useful in practice.
+    ///
+    /// Also note that it will _not_ issue a sync to Remote Settings during the
+    /// reconfiguration for the performance concerns as reconfigurations will prevent
+    /// Merino from serving incoming requests due to the exclusive lock held on the
+    /// provider state. Excessive reconfigurations could make Merino completely
+    /// irresponsive. Until we find a better way to handle that, let's make these
+    /// reconfigurations call run as fast as possible.
     async fn reconfigure(
         &mut self,
         new_config: serde_json::Value,
@@ -471,11 +486,12 @@ impl SuggestionProvider for RemoteSettingsSuggester {
                 }
             }
 
+            let rs_client = Self::create_rs_client(&self.rs_global_settings, &self.config).await?;
             let resync_task = Self::spawn_resync_task(
                 new_config.resync_interval,
                 suggestion_score,
                 Arc::clone(&self.suggestions),
-                Arc::clone(&self.rs_client),
+                rs_client,
             );
             self.resync_task = Some(resync_task);
         }
