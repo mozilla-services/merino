@@ -235,6 +235,15 @@ where
     pub fn contains_key(&self, key: &K) -> bool {
         self.pointers.contains_key(key)
     }
+
+    /// Clears the map, both the pointer and the storage maps.
+    ///
+    /// It behaves as if `Self::retain(|_, _, _| ControlFlow::Continue(false))`
+    /// except being faster as the predicate checking step is skipped.
+    pub fn clear(&self) {
+        self.storage.clear();
+        self.pointers.clear();
+    }
 }
 
 impl<K, M, V> Default for DedupedMap<K, M, V>
@@ -448,6 +457,22 @@ mod tests {
         assert_eq!(map.len_storage(), 13);
 
         map.retain(|_, _, _| ControlFlow::Continue(false));
+
+        assert_eq!(map.len_pointers(), 0);
+        assert_eq!(map.len_storage(), 0);
+    }
+
+    #[test]
+    fn test_clear() {
+        let map = DedupedMap::<char, (), usize>::new();
+        for (idx, letter) in ('a'..='z').enumerate() {
+            map.insert(letter, (), idx / 2);
+        }
+
+        assert_eq!(map.len_pointers(), 26);
+        assert_eq!(map.len_storage(), 13);
+
+        map.clear();
 
         assert_eq!(map.len_pointers(), 0);
         assert_eq!(map.len_storage(), 0);

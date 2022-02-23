@@ -277,7 +277,7 @@ impl RemoteSettingsSuggester {
             );
         }
 
-        suggestions.retain(|_, _, _| deduped_dashmap::ControlFlow::Continue(false));
+        suggestions.clear();
         for (k, v) in new_suggestions {
             suggestions.insert(k, (), v);
         }
