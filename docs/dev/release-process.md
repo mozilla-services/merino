@@ -5,7 +5,7 @@ This project currently follows a [Continuous Delivery][continuous_delivery] proc
 [continuous_delivery]: https://en.wikipedia.org/wiki/Continuous_delivery
 [continuous_deployment]: https://en.wikipedia.org/wiki/Continuous_deployment
 
-Whenever a commit is merged to this repository's `main` branch, the deployment pipeline kicks in, deploying the changeset to the [`stage` environment](../firefox.md#stage).
+Whenever a commit is pushed to this repository's `main` branch, the deployment pipeline kicks in, deploying the changeset to the [`stage` environment](../firefox.md#stage).
 After the deployment is complete, accessing the [`__version__` endpoint][stage_version] will show the commit hash of the deployed version, which will match to the one of the latest commit on the `main` branch.
 
 [stage_version]: https://stage.merino.nonprod.cloudops.mozgcp.net/__version__
