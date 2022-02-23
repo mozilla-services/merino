@@ -1,16 +1,22 @@
 # The Release Process
 
-This project currently follows a [Continuous Delivery](https://en.wikipedia.org/wiki/Continuous_delivery) process, but it's gradually moving toward [Continuous Deployment](https://en.wikipedia.org/wiki/Continuous_deployment).
+This project currently follows a [Continuous Delivery][continuous_delivery] process, but it's gradually moving toward [Continuous Deployment][continuous_deployment].
+
+[continuous_delivery]: https://en.wikipedia.org/wiki/Continuous_delivery
+[continuous_deployment]: https://en.wikipedia.org/wiki/Continuous_deployment
 
 Whenever a commit is merged to this repository's `main` branch, the deployment pipeline kicks in, deploying the changeset to the [`stage` environment](../firefox.md#stage).
-After the deployment is complete, accessing the [`__version__` endpoint](https://stage.merino.nonprod.cloudops.mozgcp.net/__version__) will show the commit hash of the deployed version, which will match to the one of the latest commit on the `main` branch.
+After the deployment is complete, accessing the [`__version__` endpoint][stage_version] will show the commit hash of the deployed version, which will match to the one of the latest commit on the `main` branch.
+
+[stage_version]: https://stage.merino.nonprod.cloudops.mozgcp.net/__version__
 
 ## Versioning
-The commit hash of the deployed code is considered its version identifier.
+The commit hash of the deployed code is considered its version identifier. The commit hash can be retrieved locally via `git rev-parse HEAD`.
 
 ## Preventing deployment
 Occasionally developers might want to prevent a commit from triggering the deployment pipeline. While this should be discouraged, there are some legitimate cases for doing so (e.g. docs only changes).
-In order to prevent the deployment of the code from a PR when merging to `main`, the **title of that PR** must contain the `[do not deploy]` text. For example:
+In order to prevent the deployment of the code from a PR when merging to `main`, the **title of that PR** must contain the `[do not deploy]` text. Note that, when generating the merge commit for a branch within the GitHub UI, the extened description must not be changed or care must be taken to ensure that `[do not deploy]`  is still present.
+For example:
 
 ```
 # PR title (NOT the commit message)
