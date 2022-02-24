@@ -238,11 +238,17 @@ where
 
     /// Clears the map, both the pointer and the storage maps.
     ///
-    /// It behaves as if `Self::retain(|_, _, _| ControlFlow::Continue(false))`
+    /// It behaves as `Self::retain(|_, _, _| ControlFlow::Continue(false))`
     /// except being faster as the predicate checking step is skipped.
+    ///
+    /// Note that the two underlying maps are cleared sequentially without
+    /// locking, calling this function while other map mutations are done
+    /// concurrently could result in dangling pointers. As a mitigation,
+    /// it clears the pointer map first, followed by the storage map to
+    /// reduce the chance of dangling pointers.
     pub fn clear(&self) {
-        self.storage.clear();
         self.pointers.clear();
+        self.storage.clear();
     }
 }
 
