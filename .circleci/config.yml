@@ -57,30 +57,6 @@ workflows:
             - docker-image-build
             - contract-tests
 
-  tag-workflow:
-    jobs:
-      - checks: &tag-filters
-          filters:
-            tags:
-              only: /v.*/
-            branches:
-              ignore: /.*/
-      - build-and-test:
-          <<: *tag-filters
-      - docker-image-build:
-          <<: *tag-filters
-      - contract-tests:
-          <<: *tag-filters
-          requires:
-            - docker-image-build
-      - docker-image-publish:
-          <<: *tag-filters
-          requires:
-            - checks
-            - build-and-test
-            - docker-image-build
-            - contract-tests
-
 jobs:
   checks:
     docker:
@@ -190,6 +166,7 @@ jobs:
           password: $DOCKER_PASS
     steps:
       - checkout
+      - skip-if-do-not-deploy
       - setup_remote_docker
       - attach_workspace:
           at: workspace
@@ -294,3 +271,15 @@ commands:
             "$CIRCLE_PROJECT_USERNAME" \
             "$CIRCLE_PROJECT_REPONAME" \
             "$CIRCLE_BUILD_URL" > version.json
+
+  skip-if-do-not-deploy:
+    steps:
+      - run:
+          name: Check if deployment is disallowed
+          # This relies on the [do not deploy] text to be available in the
+          # merge commit when merging the PR to 'main'.
+          command: |
+            if git log -1 "$CIRCLE_SHA1" | grep -q '\[do not deploy\]'; then
+                echo "Skipping remaining steps in this job: deployment was disabled for this commit."
+                circleci-agent step halt
+            fi

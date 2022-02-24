@@ -14,6 +14,7 @@
   - [Testing Strategies](./dev/testing.md)
   - [Merino Admin](./dev/admin.md)
   - [Merino Showroom](./dev/showroom.md)
+  - [Release Process](./dev/release-process.md)
 
 # Architecture Decision Records
 
