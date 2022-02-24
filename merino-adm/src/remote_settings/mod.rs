@@ -493,6 +493,8 @@ impl SuggestionProvider for RemoteSettingsSuggester {
                 Arc::clone(&self.suggestions),
                 rs_client,
             );
+            self.config.resync_interval = new_config.resync_interval;
+            self.config.suggestion_score = new_config.suggestion_score;
             self.resync_task = Some(resync_task);
         }
 
