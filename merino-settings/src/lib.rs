@@ -39,8 +39,8 @@ use config::{Config, Environment, File};
 use http::Uri;
 use sentry::internals::Dsn;
 use serde::{Deserialize, Serialize};
-use serde_with::{serde_as, DisplayFromStr};
-use std::{collections::HashMap, net::SocketAddr, path::PathBuf, str::FromStr};
+use serde_with::{serde_as, DisplayFromStr, DurationSeconds};
+use std::{collections::HashMap, net::SocketAddr, path::PathBuf, str::FromStr, time::Duration};
 
 pub use crate::providers::SuggestionProviderConfig;
 use crate::providers::SuggestionProviderSettings;
@@ -192,6 +192,12 @@ pub struct RemoteSettingsGlobalSettings {
     /// The collection to use for Remote Settings providers, if not overridden
     /// by the provider.
     pub default_collection: String,
+
+    /// The interval (in seconds) of the Remote Settings cron job. This should
+    /// be set smaller than `RemoteSettingsConfig::resync_interval`.
+    #[serde_as(as = "DurationSeconds")]
+    #[serde(rename = "cron_interval_sec")]
+    pub cron_interval: Duration,
 
     /// Only used for integration tests.
     /// This field populates the mock returned remote settings collection

@@ -155,6 +155,14 @@ provider below.
   Remote Settings providers if not specified in the provider config. Example:
   "quicksuggest".
 
+- `remote_settings.cron_interval_sec`
+  (`MERINO__REMOTE_SETTINGS__CRON_INTERVAL_SEC`) - The interval of the Remote
+  Settings cron job (in seconds). Following tasks are done in this cron job:
+  - Resync with Remote Settings if needed. The resync interval is configured
+    separately by the provider. Note that this interval should be set smaller
+    than `resync_interval_sec` of the Remote Settings leaf provider.
+  - Retry if the regular resync fails.
+
 ### Location
 
 Configuration for determining the location of users.
