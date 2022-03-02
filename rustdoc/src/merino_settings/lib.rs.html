@@ -416,6 +416,12 @@
 <span id="415">415</span>
 <span id="416">416</span>
 <span id="417">417</span>
+<span id="418">418</span>
+<span id="419">419</span>
+<span id="420">420</span>
+<span id="421">421</span>
+<span id="422">422</span>
+<span id="423">423</span>
 </pre><pre class="rust"><code><span class="doccomment">//! # Merino Settings</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! The top level settings struct is [Settings]. If you are looking for</span>
@@ -457,8 +463,8 @@
 <span class="kw">use</span> <span class="ident">http::Uri</span>;
 <span class="kw">use</span> <span class="ident">sentry::internals::Dsn</span>;
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
-<span class="kw">use</span> <span class="ident">serde_with</span>::{<span class="ident">serde_as</span>, <span class="ident">DisplayFromStr</span>};
-<span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">collections::HashMap</span>, <span class="ident">net::SocketAddr</span>, <span class="ident">path::PathBuf</span>, <span class="ident">str::FromStr</span>};
+<span class="kw">use</span> <span class="ident">serde_with</span>::{<span class="ident">serde_as</span>, <span class="ident">DisplayFromStr</span>, <span class="ident">DurationSeconds</span>};
+<span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">collections::HashMap</span>, <span class="ident">net::SocketAddr</span>, <span class="ident">path::PathBuf</span>, <span class="ident">str::FromStr</span>, <span class="ident">time::Duration</span>};
 
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::providers::SuggestionProviderConfig</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::providers::SuggestionProviderSettings</span>;
@@ -610,6 +616,12 @@
     <span class="doccomment">/// The collection to use for Remote Settings providers, if not overridden</span>
     <span class="doccomment">/// by the provider.</span>
     <span class="kw">pub</span> <span class="ident">default_collection</span>: <span class="ident">String</span>,
+
+    <span class="doccomment">/// The interval (in seconds) of the Remote Settings cron job. This should</span>
+    <span class="doccomment">/// be set smaller than `RemoteSettingsConfig::resync_interval`.</span>
+    <span class="attribute">#[<span class="ident">serde_as</span>(<span class="kw">as</span> <span class="op">=</span> <span class="string">&quot;DurationSeconds&quot;</span>)]</span>
+    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;cron_interval_sec&quot;</span>)]</span>
+    <span class="kw">pub</span> <span class="ident">cron_interval</span>: <span class="ident">Duration</span>,
 
     <span class="doccomment">/// Only used for integration tests.</span>
     <span class="doccomment">/// This field populates the mock returned remote settings collection</span>
