@@ -14,6 +14,7 @@ pub use crate::{
         fixed::FixedProvider,
         id_multi::{IdMulti, ProviderDetails as IdMultiProviderDetails},
         keyword_filter::KeywordFilterProvider,
+        live_query_demo::LiveQuerySuggester,
         multi::Multi,
         stealth::StealthProvider,
         timeout::TimeoutProvider,

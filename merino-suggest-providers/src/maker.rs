@@ -1,8 +1,8 @@
 //! Tools to build providers from configuration.
 
 use crate::{
-    ClientVariantFilterProvider, DebugProvider, FixedProvider, KeywordFilterProvider, Multi,
-    NullProvider, StealthProvider, TimeoutProvider, WikiFruit,
+    ClientVariantFilterProvider, DebugProvider, FixedProvider, KeywordFilterProvider,
+    LiveQuerySuggester, Multi, NullProvider, StealthProvider, TimeoutProvider, WikiFruit,
 };
 use anyhow::Result;
 use async_recursion::async_recursion;
@@ -22,6 +22,10 @@ pub async fn make_provider_tree(
     let provider: Box<dyn SuggestionProvider> = match config {
         SuggestionProviderConfig::RemoteSettings(rs_config) => {
             RemoteSettingsSuggester::new_boxed(settings, rs_config, metrics_client.clone()).await?
+        }
+
+        SuggestionProviderConfig::LiveQueryDemo(demo_config) => {
+            LiveQuerySuggester::new_boxed(settings, demo_config)?
         }
 
         SuggestionProviderConfig::MemoryCache(memory_config) => {

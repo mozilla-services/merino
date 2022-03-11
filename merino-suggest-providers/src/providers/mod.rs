@@ -5,6 +5,7 @@ pub(crate) mod debug;
 pub(crate) mod fixed;
 pub(crate) mod id_multi;
 pub(crate) mod keyword_filter;
+pub(crate) mod live_query_demo;
 pub(crate) mod multi;
 pub(crate) mod stealth;
 pub(crate) mod timeout;

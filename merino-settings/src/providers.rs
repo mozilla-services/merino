@@ -23,6 +23,7 @@ pub enum SuggestionProviderConfig {
     KeywordFilter(KeywordFilterConfig),
     Stealth(StealthConfig),
     ClientVariantSwitch(ClientVariantSwitchConfig),
+    LiveQueryDemo(LiveQueryDemoConfig),
     Debug,
     WikiFruit,
     Null,
@@ -229,6 +230,12 @@ pub struct ClientVariantSwitchConfig {
     pub client_variant: String,
     pub matching_provider: Box<SuggestionProviderConfig>,
     pub default_provider: Box<SuggestionProviderConfig>,
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct LiveQueryDemoConfig {
+    /// The endpoint of the external provider.
+    pub endpoint: String,
 }
 
 /// Settings for Merino suggestion providers.
