@@ -19,6 +19,7 @@ pub use crate::{
         stealth::StealthProvider,
         timeout::TimeoutProvider,
         wikifruit::WikiFruit,
+        wiki_open_search::WikiOpenSearchSuggester,
     },
     reconfigure::reconfigure_provider_tree,
 };

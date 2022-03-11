@@ -24,6 +24,7 @@ pub enum SuggestionProviderConfig {
     Stealth(StealthConfig),
     ClientVariantSwitch(ClientVariantSwitchConfig),
     LiveQueryDemo(LiveQueryDemoConfig),
+    WikiOpenSearch(WikipediaOpenSearchConfig),
     Debug,
     WikiFruit,
     Null,
@@ -234,6 +235,12 @@ pub struct ClientVariantSwitchConfig {
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct LiveQueryDemoConfig {
+    /// The endpoint of the external provider.
+    pub endpoint: String,
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct WikipediaOpenSearchConfig {
     /// The endpoint of the external provider.
     pub endpoint: String,
 }

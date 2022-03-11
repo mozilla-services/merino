@@ -3,6 +3,7 @@
 use crate::{
     ClientVariantFilterProvider, DebugProvider, FixedProvider, KeywordFilterProvider,
     LiveQuerySuggester, Multi, NullProvider, StealthProvider, TimeoutProvider, WikiFruit,
+    WikiOpenSearchSuggester,
 };
 use anyhow::Result;
 use async_recursion::async_recursion;
@@ -26,6 +27,10 @@ pub async fn make_provider_tree(
 
         SuggestionProviderConfig::LiveQueryDemo(demo_config) => {
             LiveQuerySuggester::new_boxed(settings, demo_config)?
+        }
+
+        SuggestionProviderConfig::WikiOpenSearch(os_config) => {
+            WikiOpenSearchSuggester::new_boxed(settings, os_config)?
         }
 
         SuggestionProviderConfig::MemoryCache(memory_config) => {
