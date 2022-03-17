@@ -265,8 +265,7 @@ mod tests {
         // Verify that the filtering was properly recorded.
         assert_eq!(rx.len(), 2);
         let collected_data: Vec<String> = rx
-            .iter()
-            .take(2)
+            .try_iter()
             .map(|x| String::from_utf8(x).unwrap())
             .collect();
         assert!(collected_data
