@@ -49,7 +49,7 @@ workflows:
             - checks
             - build-and-test
             - docker-image-build
-      - docker-image-publish:
+      - docker-image-publish-stage:
           <<: *main-filters
           requires:
             - checks
@@ -158,7 +158,7 @@ jobs:
            docker-compose -f test-engineering/contract-tests/docker-compose.yml build client kinto-setup
            docker-compose -f test-engineering/contract-tests/docker-compose.yml up --abort-on-container-exit
 
-  docker-image-publish:
+  docker-image-publish-stage:
     docker:
       - image: mozilla/cidockerbases:docker-latest
         auth:
@@ -179,10 +179,6 @@ jobs:
           command: |
             if [ "${CIRCLE_BRANCH}" == "main" ]; then
               DOCKER_TAG="${CIRCLE_SHA1}"
-            fi
-
-            if [ -n "${CIRCLE_TAG}" ]; then
-              DOCKER_TAG="$CIRCLE_TAG"
             fi
 
             if [ -n "${DOCKER_TAG}" ]; then
