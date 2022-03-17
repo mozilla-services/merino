@@ -357,7 +357,6 @@
 <span id="356">356</span>
 <span id="357">357</span>
 <span id="358">358</span>
-<span id="359">359</span>
 </pre><pre class="rust"><code><span class="doccomment">//! A suggestion provider that filters suggestions from a subprovider.</span>
 
 <span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
@@ -625,8 +624,7 @@
         <span class="comment">// Verify that the filtering was properly recorded.</span>
         <span class="macro">assert_eq!</span>(<span class="ident">rx</span>.<span class="ident">len</span>(), <span class="number">2</span>);
         <span class="kw">let</span> <span class="ident">collected_data</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">rx</span>
-            .<span class="ident">iter</span>()
-            .<span class="ident">take</span>(<span class="number">2</span>)
+            .<span class="ident">try_iter</span>()
             .<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">String::from_utf8</span>(<span class="ident">x</span>).<span class="ident">unwrap</span>())
             .<span class="ident">collect</span>();
         <span class="macro">assert!</span>(<span class="ident">collected_data</span>
