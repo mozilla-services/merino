@@ -7,7 +7,7 @@
 
 use anyhow::anyhow;
 use async_trait::async_trait;
-use cadence::{CountedExt, Gauged, StatsdClient};
+use cadence::{CountedExt, Gauged, StatsdClient, Timed};
 use deduped_dashmap::{ControlFlow, DedupedMap};
 use lazy_static::lazy_static;
 use merino_settings::providers::MemoryCacheConfig;
@@ -197,6 +197,9 @@ impl Suggester {
                 self.items.len_pointers() as u64,
             )
             .ok();
+        self.metrics_client
+            .time("cache.memory.duration", duration)
+            .ok();
     }
 
     /// It is often useful to have access to most of the fields on this object,
@@ -379,15 +382,24 @@ mod tests {
         assert!(!cache.contains_key(&"expired".to_owned()));
 
         // Verify the reported metric.
-        assert_eq!(rx.len(), 2);
+        assert_eq!(rx.len(), 3);
         let collected_data: Vec<String> = rx
-            .iter()
-            .take(2)
+            .try_iter()
             .map(|x| String::from_utf8(x).unwrap())
             .collect();
+
         dbg!(&collected_data);
-        assert!(collected_data.contains(&"merino-test.cache.memory.storage-len:1|g".to_string()));
-        assert!(collected_data.contains(&"merino-test.cache.memory.pointers-len:1|g".to_string()));
+
+        let mut iter = collected_data.iter();
+        let mut value = iter.next().unwrap();
+        assert_eq!(value, "merino-test.cache.memory.storage-len:1|g");
+
+        value = iter.next().unwrap();
+        assert_eq!(value, "merino-test.cache.memory.pointers-len:1|g");
+
+        value = iter.next().unwrap();
+        assert!(value.starts_with("merino-test.cache.memory.duration:"));
+        assert!(value.ends_with("|ms"));
     }
 
     #[test]

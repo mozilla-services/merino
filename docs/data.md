@@ -13,6 +13,10 @@ Any log containing sensitive data must include a boolean field `sensitive`
 that is set to `true` to exempt it from flowing to the generally accessible
 log inspection interfaces.
 
+- `cache.memory.remove-expired` - A record of expired entries for tracing framework 
+  for structured logging an diagnostics. Logs duration, removed pointers, and removed 
+  storage. 
+
 ### `merino-adm`
 
 - `INFO adm.remote-settings.sync-start` - The Remote Settings provider has
@@ -124,6 +128,9 @@ log inspection interfaces.
 
 - `cache.memory.pointers-len` - A gauge representing the number of entries in
   the first level of hashing in the in-memory deduped hashmap.
+
+- `cache.memory.duration` - A duration in milliseconds representing the time 
+  required for removal of expired entries.
 
 - `cache.memory.storage-len` - A gauge representing the number of entries in the
   second level of hashing in the in-memory deduped hashmap.
