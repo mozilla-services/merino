@@ -28,9 +28,13 @@ While the `[do not deploy]` can be anywhere in the title, it is recommended to p
 The deployment pipeline will analyse the message of the merge commit (which will be contain the PR title) and make a decision based on it.
 
 ## Releasing to production
-Developers with write access to the Merino repository can initiate a deployment to production after a Pull-Request on the Merino GitHub repository is merged to the `main` branch. This can be done by:
+Developers with write access to the Merino repository can initiate a deployment to production after a Pull-Request on the Merino GitHub repository is merged to the `main` branch.
+While any developer with write access can trigger the deployment to production, the _expectation_ is that individual(s) who authored and merged the Pull-Request should do so, as they are the ones most familiar with their changes and who can tell, by looking at the data, if anything looks anomalous.
+In general authors should feel _responsible_ for the changes they make and shepherd throught their deployment.
 
-1. opening the [circleci dashboard][circleci_dashboard];
+Releasing to production can be done by:
+
+1. opening the [CircleCI dashboard][circleci_dashboard];
 2. looking up the pipeline named `merino <PR NUMBER>` running in the `main-workflow`; this pipeline should either be in a running status (if the required test jobs are still running) or in the "on hold" status, with the `unhold-to-deploy-to-prod` being held;
 3. once in the "on hold" status, with all the other jobs successfully completed, clicking on the "thumbs up" action on the `unhold-to-deploy-to-prod` job row will approve it and trigger the deployment, unblocking the `deploy-to-prod` job;
 4. developers **must** monitor the [Merino Application & Infrastructure][merino_app_info] dashboard for any anomaly, for example significant changes in HTTP response codes, increase in latency, cpu/memory usage (most things under the infrastructure heading).
