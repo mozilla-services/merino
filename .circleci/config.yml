@@ -49,13 +49,29 @@ workflows:
             - checks
             - build-and-test
             - docker-image-build
-      - docker-image-publish:
+      - docker-image-publish-stage:
           <<: *main-filters
           requires:
             - checks
             - build-and-test
             - docker-image-build
             - contract-tests
+      # The following job will require manual approval in the CircleCI web application.
+      # Once provided, and when all the requirements are fullfilled (e.g. tests)
+      - unhold-to-deploy-to-prod:
+          <<: *main-filters
+          type: approval
+          requires:
+            - checks
+            - build-and-test
+            - docker-image-build
+            - contract-tests
+      # On approval of the `unhold-to-deploy-to-prod` job, any successive job that requires it
+      # will run. In this case, it's manually triggering deployment to production. 
+      - docker-image-publish-prod:
+          <<: *main-filters
+          requires:
+            - unhold-to-deploy-to-prod
 
 jobs:
   checks:
@@ -158,7 +174,7 @@ jobs:
            docker-compose -f test-engineering/contract-tests/docker-compose.yml build client kinto-setup
            docker-compose -f test-engineering/contract-tests/docker-compose.yml up --abort-on-container-exit
 
-  docker-image-publish:
+  docker-image-publish-stage:
     docker:
       - image: mozilla/cidockerbases:docker-latest
         auth:
@@ -175,14 +191,42 @@ jobs:
           name: Load Docker image from workspace
           command: docker load -i workspace/merino.tar.gz
       - run:
-          name: Push to Dockerhub
+          name: Push to Docker Hub
           command: |
             if [ "${CIRCLE_BRANCH}" == "main" ]; then
               DOCKER_TAG="${CIRCLE_SHA1}"
             fi
 
-            if [ -n "${CIRCLE_TAG}" ]; then
-              DOCKER_TAG="$CIRCLE_TAG"
+            if [ -n "${DOCKER_TAG}" ]; then
+              echo ${DOCKERHUB_REPO}:${DOCKER_TAG}
+              docker tag app:runtime ${DOCKERHUB_REPO}:${DOCKER_TAG}
+              docker images
+              docker push "${DOCKERHUB_REPO}:${DOCKER_TAG}"
+            else
+              echo "Not pushing to dockerhub for tag=${CIRCLE_TAG} branch=${CIRCLE_BRANCH}"
+            fi
+
+  docker-image-publish-prod:
+    docker:
+      - image: mozilla/cidockerbases:docker-latest
+        auth:
+          username: $DOCKER_USER
+          password: $DOCKER_PASS
+    steps:
+      - checkout
+      - skip-if-do-not-deploy
+      - setup_remote_docker
+      - attach_workspace:
+          at: workspace
+      - dockerhub-login
+      - run:
+          name: Load Docker image from workspace
+          command: docker load -i workspace/merino.tar.gz
+      - run:
+          name: Push to Docker Hub (prod)
+          command: |
+            if [ "${CIRCLE_BRANCH}" == "main" ]; then
+              DOCKER_TAG="prod-${CIRCLE_SHA1}"
             fi
 
             if [ -n "${DOCKER_TAG}" ]; then

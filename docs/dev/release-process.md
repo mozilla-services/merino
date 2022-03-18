@@ -28,5 +28,31 @@ While the `[do not deploy]` can be anywhere in the title, it is recommended to p
 The deployment pipeline will analyse the message of the merge commit (which will be contain the PR title) and make a decision based on it.
 
 ## Releasing to production
-The process to promote a build from `stage` to `production` is currently manually initiated by SRE.
-[This ticket](https://mozilla-hub.atlassian.net/browse/CONSVC-1566) (requires LDAP) deals with automating the process.
+Developers with write access to the Merino repository can initiate a deployment to production after a Pull-Request on the Merino GitHub repository is merged to the `main` branch.
+While any developer with write access can trigger the deployment to production, the _expectation_ is that individual(s) who authored and merged the Pull-Request should do so, as they are the ones most familiar with their changes and who can tell, by looking at the data, if anything looks anomalous.
+In general authors should feel _responsible_ for the changes they make and shepherd throught their deployment.
+
+Releasing to production can be done by:
+
+1. opening the [CircleCI dashboard][circleci_dashboard];
+2. looking up the pipeline named `merino <PR NUMBER>` running in the `main-workflow`; this pipeline should either be in a running status (if the required test jobs are still running) or in the "on hold" status, with the `unhold-to-deploy-to-prod` being held;
+3. once in the "on hold" status, with all the other jobs successfully completed, clicking on the "thumbs up" action on the `unhold-to-deploy-to-prod` job row will approve it and trigger the deployment, unblocking the `deploy-to-prod` job;
+4. developers **must** monitor the [Merino Application & Infrastructure][merino_app_info] dashboard for any anomaly, for example significant changes in HTTP response codes, increase in latency, cpu/memory usage (most things under the infrastructure heading).
+
+[circleci_dashboard]: https://app.circleci.com/pipelines/github/mozilla-services/merino?branch=main&filter=all
+[merino_app_info]: https://earthangel-b40313e5.influxcloud.net/d/Cm83vS57z/merino-application-and-infrastructure?orgId=1&refresh=1m
+
+## What to do if production is broken?
+Don't panic and follow the instructions below:
+
+- depending on the severity of the problem, decide if this warrants [kicking off an incident][incident_docs];
+- if the root cause of the problem can be identified in a relatively small time, create a PR for the fix.
+    - verify the fix locally;
+    - verify the fix on `stage`, after it is reviewed by a Merino developer and merged;
+    - [deploy it to production](#releasing-to-production).
+
+**OR**
+
+- if the root cause of the problem is harder to track down, revert the last commit and then [deploy the revert commit to production](#releasing-to-production).
+
+[incident_docs]: https://mana.mozilla.org/wiki/pages/viewpage.action?pageId=150549987
