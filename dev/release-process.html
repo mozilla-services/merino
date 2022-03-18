@@ -158,8 +158,32 @@ doc: Add documentation for the release process [do not deploy]
 <p>While the <code>[do not deploy]</code> can be anywhere in the title, it is recommended to place it at its end in order to better integrate with the current PR title practices.</p>
 <p>The deployment pipeline will analyse the message of the merge commit (which will be contain the PR title) and make a decision based on it.</p>
 <h2 id="releasing-to-production"><a class="header" href="#releasing-to-production">Releasing to production</a></h2>
-<p>The process to promote a build from <code>stage</code> to <code>production</code> is currently manually initiated by SRE.
-<a href="https://mozilla-hub.atlassian.net/browse/CONSVC-1566">This ticket</a> (requires LDAP) deals with automating the process.</p>
+<p>Developers with write access to the Merino repository can initiate a deployment to production after a Pull-Request on the Merino GitHub repository is merged to the <code>main</code> branch.
+While any developer with write access can trigger the deployment to production, the <em>expectation</em> is that individual(s) who authored and merged the Pull-Request should do so, as they are the ones most familiar with their changes and who can tell, by looking at the data, if anything looks anomalous.
+In general authors should feel <em>responsible</em> for the changes they make and shepherd throught their deployment.</p>
+<p>Releasing to production can be done by:</p>
+<ol>
+<li>opening the <a href="https://app.circleci.com/pipelines/github/mozilla-services/merino?branch=main&amp;filter=all">CircleCI dashboard</a>;</li>
+<li>looking up the pipeline named <code>merino &lt;PR NUMBER&gt;</code> running in the <code>main-workflow</code>; this pipeline should either be in a running status (if the required test jobs are still running) or in the &quot;on hold&quot; status, with the <code>unhold-to-deploy-to-prod</code> being held;</li>
+<li>once in the &quot;on hold&quot; status, with all the other jobs successfully completed, clicking on the &quot;thumbs up&quot; action on the <code>unhold-to-deploy-to-prod</code> job row will approve it and trigger the deployment, unblocking the <code>deploy-to-prod</code> job;</li>
+<li>developers <strong>must</strong> monitor the <a href="https://earthangel-b40313e5.influxcloud.net/d/Cm83vS57z/merino-application-and-infrastructure?orgId=1&amp;refresh=1m">Merino Application &amp; Infrastructure</a> dashboard for any anomaly, for example significant changes in HTTP response codes, increase in latency, cpu/memory usage (most things under the infrastructure heading).</li>
+</ol>
+<h2 id="what-to-do-if-production-is-broken"><a class="header" href="#what-to-do-if-production-is-broken">What to do if production is broken?</a></h2>
+<p>Don't panic and follow the instructions below:</p>
+<ul>
+<li>depending on the severity of the problem, decide if this warrants <a href="https://mana.mozilla.org/wiki/pages/viewpage.action?pageId=150549987">kicking off an incident</a>;</li>
+<li>if the root cause of the problem can be identified in a relatively small time, create a PR for the fix.
+<ul>
+<li>verify the fix locally;</li>
+<li>verify the fix on <code>stage</code>, after it is reviewed by a Merino developer and merged;</li>
+<li><a href="#releasing-to-production">deploy it to production</a>.</li>
+</ul>
+</li>
+</ul>
+<p><strong>OR</strong></p>
+<ul>
+<li>if the root cause of the problem is harder to track down, revert the last commit and then <a href="#releasing-to-production">deploy the revert commit to production</a>.</li>
+</ul>
 
                     </main>
 
