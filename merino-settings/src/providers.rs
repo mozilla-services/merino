@@ -25,6 +25,7 @@ pub enum SuggestionProviderConfig {
     ClientVariantSwitch(ClientVariantSwitchConfig),
     LiveQueryDemo(LiveQueryDemoConfig),
     WikiOpenSearch(WikipediaOpenSearchConfig),
+    WikiEsDemo(WikiEsDemoConfig),
     Debug,
     WikiFruit,
     Null,
@@ -243,6 +244,12 @@ pub struct LiveQueryDemoConfig {
 pub struct WikipediaOpenSearchConfig {
     /// The endpoint of the external provider.
     pub endpoint: String,
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct WikiEsDemoConfig {
+    /// The index ID of the Elasticsearch backend.
+    pub index: String,
 }
 
 /// Settings for Merino suggestion providers.

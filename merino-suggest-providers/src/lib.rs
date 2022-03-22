@@ -20,6 +20,7 @@ pub use crate::{
         timeout::TimeoutProvider,
         wikifruit::WikiFruit,
         wiki_open_search::WikiOpenSearchSuggester,
+        wiki_es_demo::WikiEsSuggester,
     },
     reconfigure::reconfigure_provider_tree,
 };

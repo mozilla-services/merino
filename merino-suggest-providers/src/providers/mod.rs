@@ -11,3 +11,4 @@ pub(crate) mod stealth;
 pub(crate) mod timeout;
 pub(crate) mod wikifruit;
 pub(crate) mod wiki_open_search;
+pub(crate) mod wiki_es_demo;
