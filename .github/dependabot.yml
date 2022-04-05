@@ -4,7 +4,12 @@ updates:
   - package-ecosystem: "npm"
     directory: "merino-showroom"
     schedule:
-      interval: "daily"
+      interval: "monthly"
     commit-message:
       # Add `[do not deploy]` to skip the auto deploy for this project
       prefix: "[do not deploy]"
+    ignore:
+      # Ignore all patch updates for all packages
+      # Note this will not affect the security patches
+      - dependency-name: "*"
+        update-types: ["version-update:semver-patch"]
