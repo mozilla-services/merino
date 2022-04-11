@@ -10,7 +10,7 @@ CLUSTER='merino-locust-load-test'
 TARGET='https://stage.merino.nonprod.cloudops.mozgcp.net'
 SCOPE='https://www.googleapis.com/auth/cloud-platform'
 REGION='us-central1'
-WORKER_COUNT=10
+WORKER_COUNT=20
 MACHINE_TYPE='n1-standard-2'
 BOLD=$(tput bold)
 NORM=$(tput sgr0)
@@ -86,7 +86,7 @@ do
     case $response in
         create) #Setup Kubernetes Cluster
             echo -e "==================== Creating the GKE cluster "
-            $GCLOUD container clusters create $CLUSTER --region $REGION --scopes $SCOPE --enable-autoscaling --min-nodes "10" --max-nodes "15" --scopes=logging-write,storage-ro --addons HorizontalPodAutoscaling,HttpLoadBalancing  --machine-type $MACHINE_TYPE
+            $GCLOUD container clusters create $CLUSTER --region $REGION --scopes $SCOPE --scopes=logging-write,storage-ro --addons HorizontalPodAutoscaling,HttpLoadBalancing  --machine-type $MACHINE_TYPE
             SetupGksCluster
             break
             ;;
