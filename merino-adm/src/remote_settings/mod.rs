@@ -296,6 +296,11 @@ impl RemoteSettingsSuggester {
 
                     let icon_key = format!("icon-{}", adm_suggestion.icon);
                     let icon_url = if let Some(u) = icon_urls.get(&icon_key) {
+                        // Suppress the warning as `u` does not live long enough
+                        // since `from_maybe_shared()` expects its argument to
+                        // be either a reference type with static lifetime or an
+                        // owned type.
+                        #[allow(clippy::unnecessary_to_owned)]
                         Uri::from_maybe_shared(u.to_string()).expect("invalid URL")
                     } else {
                         tracing::warn!(
