@@ -20,6 +20,7 @@ use serde::{Deserialize, Serialize};
 use serde_with::{serde_as, DisplayFromStr};
 use std::{
     collections::HashMap,
+    str::FromStr,
     sync::Arc,
     time::{Duration, Instant},
 };
@@ -296,7 +297,7 @@ impl RemoteSettingsSuggester {
 
                     let icon_key = format!("icon-{}", adm_suggestion.icon);
                     let icon_url = if let Some(u) = icon_urls.get(&icon_key) {
-                        Uri::from_maybe_shared(u.to_string()).expect("invalid URL")
+                        Uri::from_str(u).expect("invalid URL")
                     } else {
                         tracing::warn!(
                             r#type = "adm.remote-settings.sync-no-icon",

@@ -79,6 +79,7 @@ impl SimpleRedisLock {
     /// See if a record update is locked for pending update.
     ///
     /// This does not check lock value, only if a lock exists.
+    #[allow(clippy::wrong_self_convention)]
     async fn is_locked(&mut self, key: &str) -> Result<bool, SuggestError> {
         let lock_key = Self::lock_key(key);
 
