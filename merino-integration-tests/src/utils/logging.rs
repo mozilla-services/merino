@@ -36,7 +36,6 @@ impl LogWatcher {
     }
 
     /// Iterate over the events collected so far by this log watcher.
-    #[must_use]
     pub fn events(&mut self) -> std::slice::Iter<TracingJsonEvent> {
         self.convert_events();
         self.events.iter()
