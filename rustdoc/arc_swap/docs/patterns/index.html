@@ -10,13 +10,13 @@ at the right type in the crate, but this lists them at a single place.</p>
 <h2 id="sharing-of-configuration-data"><a href="#sharing-of-configuration-data">Sharing of configuration data</a></h2>
 <p>We want to share configuration from some source with rare updates to some high performance
 worker threads. It can be configuration in its true sense, or a routing table.</p>
-<p>The idea here is, each new version is a newly allocated in its own <a href="https://doc.rust-lang.org/1.60.0/alloc/sync/struct.Arc.html"><code>Arc</code></a>. It is then stored
+<p>The idea here is, each new version is a newly allocated in its own <a href="https://doc.rust-lang.org/1.61.0/alloc/sync/struct.Arc.html"><code>Arc</code></a>. It is then stored
 into a <em>shared</em> <code>ArcSwap</code> instance.</p>
 <p>Each worker then loads the current version before each work chunk. In case a new version is
 stored, the worker keeps using the loaded one until it ends the work chunk and, if it’s the
 last one to have the version, deallocates it automatically by dropping the <a href="../../struct.Guard.html"><code>Guard</code></a></p>
 <p>Note that the configuration needs to be passed through a <em>single shared</em> <a href="../../type.ArcSwap.html"><code>ArcSwap</code></a>. That
-means we need to share that instance and we do so through an <a href="https://doc.rust-lang.org/1.60.0/alloc/sync/struct.Arc.html"><code>Arc</code></a> (one could use a global
+means we need to share that instance and we do so through an <a href="https://doc.rust-lang.org/1.61.0/alloc/sync/struct.Arc.html"><code>Arc</code></a> (one could use a global
 variable instead).</p>
 <p>Therefore, what we have is <code>Arc&lt;ArcSwap&lt;Config&gt;&gt;</code>.</p>
 
@@ -162,7 +162,7 @@ different parts of code, which would be hard to debug.</li>
 <p>We also could have a separate <code>ArcSwap&lt;ComponentConfig&gt;</code> for each component, but that also
 doesn’t feel right, as we would have to push updates to multiple places and they could be
 inconsistent for a while and we would have to decompose the <code>Config</code> structure into the parts,
-because we need our things in <a href="https://doc.rust-lang.org/1.60.0/alloc/sync/struct.Arc.html"><code>Arc</code></a>s to be put into <a href="../../type.ArcSwap.html"><code>ArcSwap</code></a>.</p>
+because we need our things in <a href="https://doc.rust-lang.org/1.61.0/alloc/sync/struct.Arc.html"><code>Arc</code></a>s to be put into <a href="../../type.ArcSwap.html"><code>ArcSwap</code></a>.</p>
 <p>This is where the <a href="../../access/trait.Access.html"><code>Access</code></a> trait comes into play. The trait abstracts over things that can
 give access to up to date version of specific T. That can be a <a href="../../access/struct.Constant.html"><code>Constant</code></a> (which is useful
 mostly for the tests, where one doesn’t care about the updating), it can be an
@@ -190,5 +190,5 @@ more convenient, but a little bit slower.</p>
 };</code></pre></div>
 <p>One would use <code>Box::new(Constant(ComponentConfig))</code> in unittests instead as the <code>config</code> field.</p>
 <p>The <a href="../../cache/struct.Cache.html"><code>Cache</code></a> has its own <a href="../../cache/trait.Access.html" title="crate::cache::Access"><code>Access</code></a> trait for similar purposes.</p>
-</div></details></section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="arc_swap" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.60.0 (7737e0b5c 2022-04-04)" ></div>
+</div></details></section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="arc_swap" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.61.0 (fe5b13d68 2022-05-18)" ></div>
 </body></html>
