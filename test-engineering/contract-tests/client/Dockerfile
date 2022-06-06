@@ -2,8 +2,9 @@ FROM python:3.8-slim-buster
 
 LABEL maintainer "Raphael Pierzina <raphael@hackebrot.de>"
 
-RUN python -m venv venv
-RUN . venv/bin/activate
+ENV PYTHON_VENV=/venv
+RUN python -m venv ${PYTHON_VENV}
+ENV PATH="${PYTHON_VENV}/bin:${PATH}"
 
 RUN python -m pip install --upgrade pip
 
