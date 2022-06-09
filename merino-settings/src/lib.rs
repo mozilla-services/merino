@@ -37,7 +37,7 @@ pub use logging::{LogFormat, LoggingSettings};
 use anyhow::{Context, Result};
 use config::{Config, Environment, File};
 use http::Uri;
-use sentry::internals::Dsn;
+use sentry::types::Dsn;
 use serde::{Deserialize, Serialize};
 use serde_with::{serde_as, DisplayFromStr, DurationSeconds};
 use std::{collections::HashMap, net::SocketAddr, path::PathBuf, str::FromStr, time::Duration};
