@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["DefaultTransportFactory","Creates the default HTTP transport."],["ReqwestHttpTransport","A transport can send events via HTTP to sentry via `reqwest`."]],"type":[["HttpTransport","The default http transport."]]});
+initSidebarItems({"struct":[["DefaultTransportFactory","Creates the default HTTP transport."],["ReqwestHttpTransport","A [`Transport`] that sends events via the `reqwest` library."]],"type":[["HttpTransport","The default http transport."]]});

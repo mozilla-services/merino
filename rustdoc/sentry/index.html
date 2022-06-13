@@ -1,69 +1,98 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="This crate provides support for logging events and errors / panics to the Sentry error logging service.  It integrates with the standard panic system in Rust as well as a few popular error handling setups."><meta name="keywords" content="rust, rustlang, rust-lang, sentry"><title>sentry - Rust</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../normalize.css"><link rel="stylesheet" type="text/css" href="../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../dark.css" disabled><link rel="stylesheet" type="text/css" href="../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../storage.js"></script><script src="../crates.js"></script><script defer src="../main.js"></script>
-    <noscript><link rel="stylesheet" href="../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../favicon.svg"></head><body class="rustdoc mod crate"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../sentry/index.html"><div class="logo-container"><img class="rust-logo" src="../rust-logo.svg" alt="logo"></div>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="This crate provides support for logging events and errors / panics to the Sentry error logging service. It integrates with the standard panic system in Rust as well as a few popular error handling setups."><meta name="keywords" content="rust, rustlang, rust-lang, sentry"><title>sentry - Rust</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../normalize.css"><link rel="stylesheet" type="text/css" href="../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../dark.css" disabled><link rel="stylesheet" type="text/css" href="../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../storage.js"></script><script src="../crates.js"></script><script defer src="../main.js"></script>
+    <noscript><link rel="stylesheet" href="../noscript.css"></noscript><link rel="icon" href="https://sentry-brand.storage.googleapis.com/favicon.ico"></head><body class="rustdoc mod crate"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../sentry/index.html"><div class="logo-container"><img src="https://sentry-brand.storage.googleapis.com/sentry-glyph-black.png" alt="logo"></div>
         </a><h2 class="location"></h2>
     </nav>
-    <nav class="sidebar"><a class="sidebar-logo" href="../sentry/index.html"><div class="logo-container"><img class="rust-logo" src="../rust-logo.svg" alt="logo"></div>
-        </a><h2 class="location"><a href="#">Crate sentry</a></h2><div class="sidebar-elems"><div class="block"><ul><li class="version">Version 0.19.1</li><li><a id="all-types" href="all.html">All Items</a></li></div></ul><section><div class="block"><ul><li><a href="#modules">Modules</a></li><li><a href="#macros">Macros</a></li><li><a href="#structs">Structs</a></li><li><a href="#enums">Enums</a></li><li><a href="#traits">Traits</a></li><li><a href="#functions">Functions</a></li></ul></div></section><div id="sidebar-vars" data-name="sentry" data-ty="mod" data-relpath=""></div><script defer src="sidebar-items.js"></script></div></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../sentry/index.html"><img class="rust-logo" src="../rust-logo.svg" alt="logo"></a><nav class="sub"><div class="theme-picker hidden"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="22" height="22" alt="Pick another theme!" src="../brush.svg"></button><div id="theme-choices" role="menu"></div></div><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../wheel.svg"></a></div></form></nav></div><section id="main-content" class="content"><div class="main-heading">
-    <h1 class="fqn"><span class="in-band">Crate <a class="mod" href="#">sentry</a><button id="copy-path" onclick="copy_path(this)" title="Copy item path to clipboard"><img src="../clipboard.svg" width="19" height="18" alt="Copy item path"></button></span></h1><span class="out-of-band"><a class="srclink" href="../src/sentry/lib.rs.html#1-162">source</a> · <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span></div><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p style="margin: -10px 0 0 15px; padding: 0; float: right;">
-  <a href="https://sentry.io/"><img
-    src="https://sentry-brand.storage.googleapis.com/sentry-logo-black.png"
-    style="width: 260px"></a>
-</p>
-<p>This crate provides support for logging events and errors / panics to the
-<a href="https://sentry.io/">Sentry</a> error logging service.  It integrates with the standard panic
+    <nav class="sidebar"><a class="sidebar-logo" href="../sentry/index.html"><div class="logo-container">
+                    <img src="https://sentry-brand.storage.googleapis.com/sentry-glyph-black.png" alt="logo"></div>
+        </a><h2 class="location"><a href="#">Crate sentry</a></h2><div class="sidebar-elems"><div class="block"><ul><li class="version">Version 0.26.0</li><li><a id="all-types" href="all.html">All Items</a></li></div></ul><section><div class="block"><ul><li><a href="#modules">Modules</a></li><li><a href="#macros">Macros</a></li><li><a href="#structs">Structs</a></li><li><a href="#enums">Enums</a></li><li><a href="#traits">Traits</a></li><li><a href="#functions">Functions</a></li></ul></div></section><div id="sidebar-vars" data-name="sentry" data-ty="mod" data-relpath=""></div><script defer src="sidebar-items.js"></script></div></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../sentry/index.html">
+                        <img src="https://sentry-brand.storage.googleapis.com/sentry-glyph-black.png" alt="logo"></a><nav class="sub"><div class="theme-picker hidden"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="22" height="22" alt="Pick another theme!" src="../brush.svg"></button><div id="theme-choices" role="menu"></div></div><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../wheel.svg"></a></div></form></nav></div><section id="main-content" class="content"><div class="main-heading">
+    <h1 class="fqn"><span class="in-band">Crate <a class="mod" href="#">sentry</a><button id="copy-path" onclick="copy_path(this)" title="Copy item path to clipboard"><img src="../clipboard.svg" width="19" height="18" alt="Copy item path"></button></span></h1><span class="out-of-band"><a class="srclink" href="../src/sentry/lib.rs.html#1-226">source</a> · <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span></div><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>This crate provides support for logging events and errors / panics to the
+<a href="https://sentry.io/">Sentry</a> error logging service. It integrates with the standard panic
 system in Rust as well as a few popular error handling setups.</p>
 <h2 id="quickstart"><a href="#quickstart">Quickstart</a></h2>
-<p>The most convenient way to use this library is the <a href="fn.init.html"><code>sentry::init</code></a> function,
+<p>The most convenient way to use this library is via the <a href="fn.init.html"><code>sentry::init</code></a> function,
 which starts a sentry client with a default set of integrations, and binds
 it to the current <a href="struct.Hub.html"><code>Hub</code></a>.</p>
 <p>The <a href="fn.init.html"><code>sentry::init</code></a> function returns a guard that when dropped will flush Events that were not
-yet sent to the sentry service.  It has a two second deadline for this so shutdown of
-applications might slightly delay as a result of this.  Keep the guard around or sending events
+yet sent to the sentry service. It has a two second deadline for this so shutdown of
+applications might slightly delay as a result of this. Keep the guard around or sending events
 will not work.</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">let</span> <span class="ident">_guard</span> <span class="op">=</span> <span class="ident">sentry::init</span>(<span class="string">&quot;https://key@sentry.io/42&quot;</span>);
 <span class="ident">sentry::capture_message</span>(<span class="string">&quot;Hello World!&quot;</span>, <span class="ident">sentry::Level::Info</span>);
 <span class="comment">// when the guard goes out of scope here, the client will wait up to two</span>
 <span class="comment">// seconds to send remaining events to the service.</span></code></pre></div>
+<p>More complex examples on how to use sentry can also be found in <a href="https://github.com/getsentry/sentry-rust/tree/master/sentry/examples">examples</a>. Extended instructions
+may also be found on <a href="https://docs.sentry.io/platforms/rust">Sentry itself</a>.</p>
 <h2 id="integrations"><a href="#integrations">Integrations</a></h2>
-<p>What makes this crate useful are the various integrations that exist.  Some of them are enabled
-by default, some uncommon ones or for deprecated parts of the ecosystem a feature flag needs to
-be enabled.  For the available integrations and how to use them see
+<p>What makes this crate useful are its various integrations. Some of them are enabled by
+default; See <a href="#features">Features</a>. Uncommon integrations or integrations for deprecated parts of
+the ecosystem require a feature flag. For available integrations and how to use them, see
 <a href="integrations/index.html">integrations</a> and <a href="fn.apply_defaults.html">apply_defaults</a>.</p>
 <h2 id="minimal-api"><a href="#minimal-api">Minimal API</a></h2>
-<p>This crate comes fully featured. If the goal is to instrument libraries for usage
+<p>This crate comes fully-featured. If the goal is to instrument libraries for usage
 with sentry, or to extend sentry with a custom <a href="trait.Integration.html"><code>Integration</code></a> or a <a href="trait.Transport.html"><code>Transport</code></a>,
 one should use the <a href="https://crates.io/crates/sentry-core"><code>sentry-core</code></a> crate instead.</p>
 <h2 id="features"><a href="#features">Features</a></h2>
-<p>Functionality of the crate can be turned on and off by feature flags.  This is the current list
-of feature flags:</p>
-<p>Default features:</p>
+<p>Additional functionality and integrations are enabled via feature flags. Some features require
+extra setup to function properly.</p>
+<div><table><thead><tr><th>Feature</th><th>Default</th><th>Is Integration</th><th>Deprecated</th><th>Additional notes</th></tr></thead><tbody>
+<tr><td><code>backtrace</code></td><td>✅</td><td>🔌</td><td></td><td></td></tr>
+<tr><td><code>contexts</code></td><td>✅</td><td>🔌</td><td></td><td></td></tr>
+<tr><td><code>panic</code></td><td>✅</td><td>🔌</td><td></td><td></td></tr>
+<tr><td><code>transport</code></td><td>✅</td><td></td><td></td><td></td></tr>
+<tr><td><code>anyhow</code></td><td></td><td>🔌</td><td></td><td></td></tr>
+<tr><td><code>test</code></td><td></td><td></td><td></td><td></td></tr>
+<tr><td><code>debug-images</code></td><td></td><td>🔌</td><td></td><td></td></tr>
+<tr><td><code>log</code></td><td></td><td>🔌</td><td></td><td>Requires extra setup; See <a href="https://crates.io/crates/sentry-log"><code>sentry-log</code></a>’s documentation.</td></tr>
+<tr><td><code>debug-logs</code></td><td></td><td></td><td>❗</td><td>Requires extra setup; See <a href="https://crates.io/crates/sentry-log"><code>sentry-log</code></a>’s documentation.</td></tr>
+<tr><td><code>slog</code></td><td></td><td>🔌</td><td></td><td>Requires extra setup; See <a href="https://crates.io/crates/sentry-slog"><code>sentry-slog</code></a>’s documentation.</td></tr>
+<tr><td><code>reqwest</code></td><td>✅</td><td></td><td></td><td></td></tr>
+<tr><td><code>native-tls</code></td><td>✅</td><td></td><td></td><td><code>reqwest</code> must be enabled.</td></tr>
+<tr><td><code>rustls</code></td><td></td><td></td><td></td><td><code>reqwest</code> must be enabled. <code>native-tls</code> must be disabled via <code>default-features = false</code>.</td></tr>
+<tr><td><code>curl</code></td><td></td><td></td><td></td><td></td></tr>
+<tr><td><code>surf</code></td><td></td><td></td><td></td><td></td></tr>
+<tr><td><code>tower</code></td><td></td><td>🔌</td><td></td><td>Requires extra setup; See <a href="https://crates.io/crates/sentry-tower"><code>sentry-tower</code></a>’s documentation.</td></tr>
+<tr><td><code>ureq</code></td><td></td><td></td><td></td><td><code>ureq</code> transport support using <code>rustls</code> by default</td></tr>
+<tr><td><code>ureq-native-tls</code></td><td></td><td></td><td></td><td></td></tr>
+</tbody></table>
+</div><h3 id="default-features"><a href="#default-features">Default features</a></h3>
 <ul>
 <li><code>backtrace</code>: Enables backtrace support.</li>
-<li><code>contexts</code>: Enables capturing device, os, and rust contexts.</li>
-<li><code>failure</code>: Enables support for the <code>failure</code> crate.</li>
+<li><code>contexts</code>: Enables capturing device, OS, and Rust contexts.</li>
 <li><code>panic</code>: Enables support for capturing panics.</li>
 <li><code>transport</code>: Enables the default transport, which is currently <code>reqwest</code> with <code>native-tls</code>.</li>
 </ul>
-<p>Additional features:</p>
+<h3 id="debuggingtesting"><a href="#debuggingtesting">Debugging/Testing</a></h3>
 <ul>
 <li><code>anyhow</code>: Enables support for the <code>anyhow</code> crate.</li>
-<li><code>debug-images</code>: Attaches a list of loaded libraries to events (currently only supported on unix).</li>
-<li><code>error-chain</code>: Enables support for the <code>error-chain</code> crate.</li>
+<li><code>test</code>: Enables testing support.</li>
+<li><code>debug-images</code>: Attaches a list of loaded libraries to events (currently only supported on Unix).</li>
+</ul>
+<h3 id="logging"><a href="#logging">Logging</a></h3>
+<ul>
 <li><code>log</code>: Enables support for the <code>log</code> crate.</li>
 <li><code>slog</code>: Enables support for the <code>slog</code> crate.</li>
-<li><code>test</code>: Enables testing support.</li>
-<li><code>debug-logs</code>: Uses the <code>log</code> crate for internal logging.</li>
-<li><code>reqwest</code>: Enables the <code>reqwest</code> transport, which is currently the default.</li>
-<li><code>curl</code>: Enables the curl transport.</li>
-<li><code>surf</code>: Enables the surf transport.</li>
-<li><code>native-tls</code>: Uses the <code>native-tls</code> crate, which is currently the default.
-This only has an effect on the <code>reqwest</code> transport.</li>
-<li><code>rustls</code>: Enables the <code>rustls</code> support of the <code>reqwest</code> transport.</li>
+<li><code>debug-logs</code>: <strong>Deprecated</strong>. Uses the <code>log</code> crate for internal logging.</li>
+</ul>
+<h3 id="transports"><a href="#transports">Transports</a></h3>
+<ul>
+<li><code>reqwest</code>: <strong>Default</strong>. Enables the <code>reqwest</code> transport.</li>
+<li><code>native-tls</code>: <strong>Default</strong>. Uses the <code>native-tls</code> crate. This only affects the <code>reqwest</code> transport.</li>
+<li><code>rustls</code>: Enables <code>rustls</code> support for <code>reqwest</code>. Please note that <code>native-tls</code> is a default
+feature, and <code>default-features = false</code> must be set to completely disable building <code>native-tls</code>
+dependencies.</li>
+<li><code>curl</code>: Enables the <code>curl</code> transport.</li>
+<li><code>surf</code>: Enables the <code>surf</code> transport.</li>
+<li><code>ureq</code>: Enables the <code>ureq</code> transport using <code>rustls</code>.</li>
+<li><code>ureq-native-tls</code>: Enables the <code>ureq</code> transport using <code>native-tls</code>.</li>
+</ul>
+<h3 id="integrations-1"><a href="#integrations-1">Integrations</a></h3>
+<ul>
+<li><code>tower</code>: Enables support for the <code>tower</code> crate and those using it.</li>
 </ul>
 </div></details><h2 id="modules" class="small-section-header"><a href="#modules">Modules</a></h2>
 <div class="item-table"><div class="item-row"><div class="item-left module-item"><a class="mod" href="integrations/index.html" title="sentry::integrations mod">integrations</a></div><div class="item-right docblock-short"><p>Available Sentry Integrations.</p>
-</div></div><div class="item-row"><div class="item-left module-item"><a class="mod" href="internals/index.html" title="sentry::internals mod">internals</a><span class="stab deprecated" title="">Deprecated</span></div><div class="item-right docblock-short"><p>Useful internals.</p>
 </div></div><div class="item-row"><div class="item-left module-item"><a class="mod" href="protocol/index.html" title="sentry::protocol mod">protocol</a></div><div class="item-right docblock-short"><p>The current latest sentry protocol version.</p>
 </div></div><div class="item-row"><div class="item-left module-item"><a class="mod" href="transports/index.html" title="sentry::transports mod">transports</a></div><div class="item-right docblock-short"><p>The provided transports.</p>
 </div></div><div class="item-row"><div class="item-left module-item"><a class="mod" href="types/index.html" title="sentry::types mod">types</a></div><div class="item-right docblock-short"><p>This crate provides common types for working with the Sentry protocol or the
@@ -76,18 +105,25 @@ rust Sentry client.</p>
 </div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.Client.html" title="sentry::Client struct">Client</a></div><div class="item-right docblock-short"><p>The Sentry Client.</p>
 </div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.ClientInitGuard.html" title="sentry::ClientInitGuard struct">ClientInitGuard</a></div><div class="item-right docblock-short"><p>Helper struct that is returned from <code>init</code>.</p>
 </div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.ClientOptions.html" title="sentry::ClientOptions struct">ClientOptions</a></div><div class="item-right docblock-short"><p>Configuration settings for the client.</p>
-</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.Future.html" title="sentry::Future struct">Future</a></div><div class="item-right docblock-short"><p>A future that binds a <code>Hub</code> to its execution.</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.Envelope.html" title="sentry::Envelope struct">Envelope</a></div><div class="item-right docblock-short"><p>A Sentry Envelope.</p>
 </div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.Hub.html" title="sentry::Hub struct">Hub</a></div><div class="item-right docblock-short"><p>The central object that can manages scopes and clients.</p>
 </div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.Scope.html" title="sentry::Scope struct">Scope</a></div><div class="item-right docblock-short"><p>Holds contextual data for the current scope.</p>
 </div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.ScopeGuard.html" title="sentry::ScopeGuard struct">ScopeGuard</a></div><div class="item-right docblock-short"><p>A scope guard.</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.SentryFuture.html" title="sentry::SentryFuture struct">SentryFuture</a></div><div class="item-right docblock-short"><p>A future that binds a <code>Hub</code> to its execution.</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.Span.html" title="sentry::Span struct">Span</a></div><div class="item-right docblock-short"><p>A running Performance Monitoring Span.</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.TraceHeadersIter.html" title="sentry::TraceHeadersIter struct">TraceHeadersIter</a></div><div class="item-right docblock-short"><p>An Iterator over HTTP header names and values needed for distributed tracing.</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.Transaction.html" title="sentry::Transaction struct">Transaction</a></div><div class="item-right docblock-short"><p>A running Performance Monitoring Transaction.</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.TransactionContext.html" title="sentry::TransactionContext struct">TransactionContext</a></div><div class="item-right docblock-short"><p>The Transaction Context used to start a new Performance Monitoring Transaction.</p>
 </div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.User.html" title="sentry::User struct">User</a></div><div class="item-right docblock-short"><p>Represents user info.</p>
 </div></div></div><h2 id="enums" class="small-section-header"><a href="#enums">Enums</a></h2>
 <div class="item-table"><div class="item-row"><div class="item-left module-item"><a class="enum" href="enum.Level.html" title="sentry::Level enum">Level</a></div><div class="item-right docblock-short"><p>Represents the level of severity of an event or breadcrumb.</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="enum" href="enum.SessionMode.html" title="sentry::SessionMode enum">SessionMode</a></div><div class="item-right docblock-short"><p>The Session Mode of the SDK.</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="enum" href="enum.TransactionOrSpan.html" title="sentry::TransactionOrSpan enum">TransactionOrSpan</a></div><div class="item-right docblock-short"><p>A wrapper that groups a <a href="struct.Transaction.html" title="Transaction"><code>Transaction</code></a> and a <a href="struct.Span.html" title="Span"><code>Span</code></a> together.</p>
 </div></div></div><h2 id="traits" class="small-section-header"><a href="#traits">Traits</a></h2>
-<div class="item-table"><div class="item-row"><div class="item-left module-item"><a class="trait" href="trait.FutureExt.html" title="sentry::FutureExt trait">FutureExt</a></div><div class="item-right docblock-short"><p>Future extensions for Sentry.</p>
-</div></div><div class="item-row"><div class="item-left module-item"><a class="trait" href="trait.Integration.html" title="sentry::Integration trait">Integration</a></div><div class="item-right docblock-short"><p>Integration abstraction.</p>
+<div class="item-table"><div class="item-row"><div class="item-left module-item"><a class="trait" href="trait.Integration.html" title="sentry::Integration trait">Integration</a></div><div class="item-right docblock-short"><p>Integration abstraction.</p>
 </div></div><div class="item-row"><div class="item-left module-item"><a class="trait" href="trait.IntoBreadcrumbs.html" title="sentry::IntoBreadcrumbs trait">IntoBreadcrumbs</a></div><div class="item-right docblock-short"><p>A helper trait that converts self into an Iterator of Breadcrumbs.</p>
 </div></div><div class="item-row"><div class="item-left module-item"><a class="trait" href="trait.IntoDsn.html" title="sentry::IntoDsn trait">IntoDsn</a></div><div class="item-right docblock-short"><p>Helper trait to convert a string into an <code>Option&lt;Dsn&gt;</code>.</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="trait" href="trait.SentryFutureExt.html" title="sentry::SentryFutureExt trait">SentryFutureExt</a></div><div class="item-right docblock-short"><p>Future extensions for Sentry.</p>
 </div></div><div class="item-row"><div class="item-left module-item"><a class="trait" href="trait.Transport.html" title="sentry::Transport trait">Transport</a></div><div class="item-right docblock-short"><p>The trait for transports.</p>
 </div></div><div class="item-row"><div class="item-left module-item"><a class="trait" href="trait.TransportFactory.html" title="sentry::TransportFactory trait">TransportFactory</a></div><div class="item-right docblock-short"><p>A factory creating transport instances.</p>
 </div></div></div><h2 id="functions" class="small-section-header"><a href="#functions">Functions</a></h2>
@@ -97,10 +133,14 @@ rust Sentry client.</p>
 </div></div><div class="item-row"><div class="item-left module-item"><a class="fn" href="fn.capture_event.html" title="sentry::capture_event fn">capture_event</a></div><div class="item-right docblock-short"><p>Captures an event on the currently active client if any.</p>
 </div></div><div class="item-row"><div class="item-left module-item"><a class="fn" href="fn.capture_message.html" title="sentry::capture_message fn">capture_message</a></div><div class="item-right docblock-short"><p>Captures an arbitrary message.</p>
 </div></div><div class="item-row"><div class="item-left module-item"><a class="fn" href="fn.configure_scope.html" title="sentry::configure_scope fn">configure_scope</a></div><div class="item-right docblock-short"><p>Invokes a function that can modify the current scope.</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="fn" href="fn.end_session.html" title="sentry::end_session fn">end_session</a></div><div class="item-right docblock-short"><p>End the current Release Health Session.</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="fn" href="fn.end_session_with_status.html" title="sentry::end_session_with_status fn">end_session_with_status</a></div><div class="item-right docblock-short"><p>End the current Release Health Session with the given <a href="protocol/enum.SessionStatus.html" title="SessionStatus"><code>SessionStatus</code></a>.</p>
 </div></div><div class="item-row"><div class="item-left module-item"><a class="fn" href="fn.event_from_error.html" title="sentry::event_from_error fn">event_from_error</a></div><div class="item-right docblock-short"><p>Create a sentry <code>Event</code> from a <code>std::error::Error</code>.</p>
 </div></div><div class="item-row"><div class="item-left module-item"><a class="fn" href="fn.init.html" title="sentry::init fn">init</a></div><div class="item-right docblock-short"><p>Creates the Sentry client for a given client config and binds it.</p>
 </div></div><div class="item-row"><div class="item-left module-item"><a class="fn" href="fn.last_event_id.html" title="sentry::last_event_id fn">last_event_id</a></div><div class="item-right docblock-short"><p>Returns the last event ID captured.</p>
 </div></div><div class="item-row"><div class="item-left module-item"><a class="fn" href="fn.parse_type_from_debug.html" title="sentry::parse_type_from_debug fn">parse_type_from_debug</a></div><div class="item-right docblock-short"><p>Parse the types name from <code>Debug</code> output.</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="fn" href="fn.start_session.html" title="sentry::start_session fn">start_session</a></div><div class="item-right docblock-short"><p>Start a new session for Release Health.</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="fn" href="fn.start_transaction.html" title="sentry::start_transaction fn">start_transaction</a></div><div class="item-right docblock-short"><p>Start a new Performance Monitoring Transaction.</p>
 </div></div><div class="item-row"><div class="item-left module-item"><a class="fn" href="fn.with_integration.html" title="sentry::with_integration fn">with_integration</a></div><div class="item-right docblock-short"><p>Looks up an integration on the current Hub.</p>
 </div></div><div class="item-row"><div class="item-left module-item"><a class="fn" href="fn.with_scope.html" title="sentry::with_scope fn">with_scope</a></div><div class="item-right docblock-short"><p>Temporarily pushes a scope for a single call optionally reconfiguring it.</p>
 </div></div></div></section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../" data-current-crate="sentry" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.61.0 (fe5b13d68 2022-05-18)" ></div>
