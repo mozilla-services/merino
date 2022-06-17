@@ -125,6 +125,35 @@ scenarios:
                 icon: null
                 score: 0.3
 
+  - name: remote_settings__offline_expansion_orange
+    description: Test that Merino successfully returns a Remote Settings suggestion for Offline Expansion
+    steps:
+      - request:
+          method: GET
+          path: '/api/v1/suggest?q=orange'
+          headers:
+            - name: User-Agent
+              value: 'Mozilla/5.0 (Windows NT 10.0; rv:10.0) Gecko/20100101 Firefox/91.0'
+            - name: Accept-Language
+              value: 'en-US'
+        response:
+          status_code: 200
+          content:
+            client_variants: []
+            server_variants: []
+            request_id: null
+            suggestions:
+              - block_id: 10
+                full_keyword: 'orange'
+                title: 'Orange - Offline Expansion'
+                url: 'https://example.org/target/orange-offline-expansion'
+                provider: 'test_remote_settings'
+                advertiser: 'Example.org'
+                is_sponsored: false
+                # The client test framework knows how to interpret a value of `null` for this field.
+                icon: null
+                score: 0.3
+
   - name: multiple_providers__banana
     description: Test that Merino successfully returns suggestions from multiple providers
     steps:

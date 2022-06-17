@@ -35,6 +35,9 @@ def main(
                 mimetype="application/json",
                 filecontent=data_file.read_bytes(),
             ),
+            data_type="offline-expansion-data"
+            if "offline" in data_file.stem
+            else "data",
         )
         for data_file in kinto_data_dir.glob("*.json")
     ]

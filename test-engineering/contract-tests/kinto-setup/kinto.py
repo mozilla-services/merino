@@ -30,6 +30,7 @@ class KintoRecord:
 
     record_id: str
     attachment: KintoAttachment
+    data_type: str
 
 
 def create_bucket(*, api: str, bucket: str) -> None:
@@ -81,7 +82,7 @@ def upload_attachments(
                     record.attachment.filecontent,
                     record.attachment.mimetype,
                 ),
-                "data": (None, '{"type": "data"}'),
+                "data": (None, f'{{"type": "{record.data_type}"}}'),
             },
         )
         response.raise_for_status()
