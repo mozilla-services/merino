@@ -182,12 +182,14 @@ pub struct Suggestion {
     pub url: Uri,
 
     /// The URL to notify when this keyword is presented to a user.
-    #[serde_as(as = "DisplayFromStr")]
-    pub impression_url: Uri,
+    #[serde_as(as = "Option<DisplayFromStr>")]
+    #[serde(default)]
+    pub impression_url: Option<Uri>,
 
     /// The URL to notify when this keyword is clicked on by a user.
-    #[serde_as(as = "DisplayFromStr")]
-    pub click_url: Uri,
+    #[serde_as(as = "Option<DisplayFromStr>")]
+    #[serde(default)]
+    pub click_url: Option<Uri>,
 
     /// The name of the provider associated with this suggestion.
     pub provider: String,
@@ -218,8 +220,8 @@ impl<'a, F> fake::Dummy<F> for Suggestion {
             full_keyword: Word().fake_with_rng(rng),
             title: Words(3..5).fake_with_rng::<Vec<String>, R>(rng).join(" "),
             url: fake_example_url(rng),
-            impression_url: fake_example_url(rng),
-            click_url: fake_example_url(rng),
+            impression_url: Some(fake_example_url(rng)),
+            click_url: Some(fake_example_url(rng)),
             provider: Words(2..4).fake_with_rng::<Vec<String>, R>(rng).join(" "),
             advertiser: Words(2..4).fake_with_rng::<Vec<String>, R>(rng).join(" "),
             is_sponsored: rng.gen(),

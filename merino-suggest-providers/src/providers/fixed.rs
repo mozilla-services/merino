@@ -58,8 +58,12 @@ impl SuggestionProvider for FixedProvider {
             full_keyword: "".to_string(),
             title: self.value.clone(),
             url: Uri::from_static("https://merino.services.mozilla.com/test/suggestion"),
-            impression_url: Uri::from_static("https://merino.services.mozilla.com/test/impression"),
-            click_url: Uri::from_static("https://merino.services.mozilla.com/test/click"),
+            impression_url: Some(Uri::from_static(
+                "https://merino.services.mozilla.com/test/impression",
+            )),
+            click_url: Some(Uri::from_static(
+                "https://merino.services.mozilla.com/test/click",
+            )),
             is_sponsored: false,
             icon: Uri::from_static("https://mozilla.com/favicon.png"),
         }]))

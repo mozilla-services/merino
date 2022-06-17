@@ -241,8 +241,26 @@ impl RemoteSettingsSuggester {
         }
 
         // Download and process all the attachments.
-        let mut data_records = records.clone();
-        data_records.retain(|r| r.get("type") == Some(&serde_json::json!("data")));
+        let all_data_records = records.clone();
+
+        // Get records whose `type` field is either `data` or `offline-expansion-data`,
+        // prefer `offline-expansion-data` over `data` if the former is present.
+        //
+        // See details: https://mozilla-hub.atlassian.net/browse/CONSVC-1817
+        let (mut data_records, offline_data_records): (Vec<_>, Vec<_>) = all_data_records
+            .into_iter()
+            .filter(|r| match r.get("type") {
+                Some(&serde_json::Value::String(ref value))
+                    if value == "data" || value == "offline-expansion-data" =>
+                {
+                    true
+                }
+                _ => false,
+            })
+            .partition(|r| r.get("type") == Some(&serde_json::json!("data")));
+        if !offline_data_records.is_empty() {
+            data_records = offline_data_records;
+        }
 
         tracing::trace!("loading suggestions from records");
 
@@ -490,10 +508,12 @@ struct AdmSuggestion {
     id: u32,
     #[serde_as(as = "DisplayFromStr")]
     url: Uri,
-    #[serde_as(as = "DisplayFromStr")]
-    click_url: Uri,
-    #[serde_as(as = "DisplayFromStr")]
-    impression_url: Uri,
+    #[serde_as(as = "Option<DisplayFromStr>")]
+    #[serde(default)]
+    click_url: Option<Uri>,
+    #[serde_as(as = "Option<DisplayFromStr>")]
+    #[serde(default)]
+    impression_url: Option<Uri>,
     iab_category: String,
     #[serde_as(as = "DisplayFromStr")]
     icon: u64,
@@ -522,8 +542,8 @@ mod tests {
                 url: Uri::from_static("https://en.wikipedia.org/wiki/Sheep"),
                 id: 1,
                 full_keyword: "sheep".to_string(),
-                impression_url: Uri::from_static("https://127.0.0.1"),
-                click_url: Uri::from_static("https://127.0.0.1"),
+                impression_url: Some(Uri::from_static("https://127.0.0.1")),
+                click_url: Some(Uri::from_static("https://127.0.0.1")),
                 provider: "test".to_string(),
                 advertiser: "test_advertiser".to_string(),
                 is_sponsored: false,
@@ -563,8 +583,8 @@ mod tests {
                 url: Uri::from_static("https://en.wikipedia.org/wiki/Sheep"),
                 id: 1,
                 full_keyword: "sheep".to_string(),
-                impression_url: Uri::from_static("https://127.0.0.1"),
-                click_url: Uri::from_static("https://127.0.0.1"),
+                impression_url: Some(Uri::from_static("https://127.0.0.1")),
+                click_url: Some(Uri::from_static("https://127.0.0.1")),
                 provider: "test".to_string(),
                 advertiser: "test_advertiser".to_string(),
                 is_sponsored: false,
