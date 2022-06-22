@@ -32,6 +32,14 @@ class KintoRecord:
     attachment: KintoAttachment
     data_type: str
 
+    def __post_init__(self):
+        """Ensure the value of `data_type` is valid"""
+        if self.data_type not in ["data", "offline-expansion-data"]:
+            raise ValueError(
+                f"Invlid data type: {self.data_type},"
+                f" should be either 'data' or 'offline-expansion-data'."
+            )
+
 
 def create_bucket(*, api: str, bucket: str) -> None:
     """Create a new bucket in Kinto."""

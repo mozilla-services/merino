@@ -4,7 +4,6 @@ mod connection_pool;
 mod reqwest_client;
 mod soft_verifier;
 
-// use crate::remote_settings::connection_pool::ConnectionPool;
 use crate::remote_settings::connection_pool::ConnectionPool;
 use crate::remote_settings::reqwest_client::ReqwestClient;
 use crate::remote_settings::soft_verifier::SoftVerifier;
@@ -259,13 +258,11 @@ impl RemoteSettingsSuggester {
         // See details: https://mozilla-hub.atlassian.net/browse/CONSVC-1817
         let (mut data_records, offline_data_records): (Vec<_>, Vec<_>) = all_data_records
             .into_iter()
-            .filter(|r| match r.get("type") {
-                Some(&serde_json::Value::String(ref value))
-                    if value == "data" || value == "offline-expansion-data" =>
-                {
-                    true
-                }
-                _ => false,
+            .filter(|r| {
+                matches!(
+                    r.get("type"),
+                    Some(&serde_json::Value::String(ref val)) if val == "data" || val =="offline-expansion-data"
+                )
             })
             .partition(|r| r.get("type") == Some(&serde_json::json!("data")));
         if !offline_data_records.is_empty() {

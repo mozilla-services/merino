@@ -35,7 +35,7 @@ class Suggestion(BaseModel, extra=Extra.allow):
     is_sponsored: bool
     score: float
     icon: Optional[str] = Field(...)
-    # Both impression_url and click_url are optinal. They're absent for
+    # Both impression_url and click_url are optional. They're absent for
     # Mozilla-provided Wikipedia suggestions.
     impression_url: Optional[str]
     click_url: Optional[str]
@@ -83,7 +83,7 @@ class KintoSuggestion(BaseModel):
     advertiser: str
     title: str
     keywords: List[str] = Field(default_factory=list)
-    # Both impression_url and click_url are optinal. They're absent for
+    # Both impression_url and click_url are optional. They're absent for
     # Mozilla-provided Wikipedia suggestions.
     click_url: Optional[str]
     impression_url: Optional[str]
