@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/usr/local/cargo/registry/src/github.com-1ecc6299db9ec823/hyper-0.14.10/src/proto/h1/role.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>role.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script src="../../../../crates.js"></script><script defer src="../../../../main.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/usr/local/cargo/registry/src/github.com-1ecc6299db9ec823/hyper-0.14.16/src/proto/h1/role.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>role.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script src="../../../../crates.js"></script><script defer src="../../../../main.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script>
     <noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../hyper/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div>
         </a><h2 class="location"></h2>
     </nav>
@@ -2590,13 +2590,127 @@
 <span id="2585">2585</span>
 <span id="2586">2586</span>
 <span id="2587">2587</span>
-</pre><pre class="rust"><code><span class="comment">// `mem::uninitialized` replaced with `mem::MaybeUninit`,</span>
-<span class="comment">// can&#39;t upgrade yet</span>
-<span class="attribute">#![<span class="ident">allow</span>(<span class="ident">deprecated</span>)]</span>
+<span id="2588">2588</span>
+<span id="2589">2589</span>
+<span id="2590">2590</span>
+<span id="2591">2591</span>
+<span id="2592">2592</span>
+<span id="2593">2593</span>
+<span id="2594">2594</span>
+<span id="2595">2595</span>
+<span id="2596">2596</span>
+<span id="2597">2597</span>
+<span id="2598">2598</span>
+<span id="2599">2599</span>
+<span id="2600">2600</span>
+<span id="2601">2601</span>
+<span id="2602">2602</span>
+<span id="2603">2603</span>
+<span id="2604">2604</span>
+<span id="2605">2605</span>
+<span id="2606">2606</span>
+<span id="2607">2607</span>
+<span id="2608">2608</span>
+<span id="2609">2609</span>
+<span id="2610">2610</span>
+<span id="2611">2611</span>
+<span id="2612">2612</span>
+<span id="2613">2613</span>
+<span id="2614">2614</span>
+<span id="2615">2615</span>
+<span id="2616">2616</span>
+<span id="2617">2617</span>
+<span id="2618">2618</span>
+<span id="2619">2619</span>
+<span id="2620">2620</span>
+<span id="2621">2621</span>
+<span id="2622">2622</span>
+<span id="2623">2623</span>
+<span id="2624">2624</span>
+<span id="2625">2625</span>
+<span id="2626">2626</span>
+<span id="2627">2627</span>
+<span id="2628">2628</span>
+<span id="2629">2629</span>
+<span id="2630">2630</span>
+<span id="2631">2631</span>
+<span id="2632">2632</span>
+<span id="2633">2633</span>
+<span id="2634">2634</span>
+<span id="2635">2635</span>
+<span id="2636">2636</span>
+<span id="2637">2637</span>
+<span id="2638">2638</span>
+<span id="2639">2639</span>
+<span id="2640">2640</span>
+<span id="2641">2641</span>
+<span id="2642">2642</span>
+<span id="2643">2643</span>
+<span id="2644">2644</span>
+<span id="2645">2645</span>
+<span id="2646">2646</span>
+<span id="2647">2647</span>
+<span id="2648">2648</span>
+<span id="2649">2649</span>
+<span id="2650">2650</span>
+<span id="2651">2651</span>
+<span id="2652">2652</span>
+<span id="2653">2653</span>
+<span id="2654">2654</span>
+<span id="2655">2655</span>
+<span id="2656">2656</span>
+<span id="2657">2657</span>
+<span id="2658">2658</span>
+<span id="2659">2659</span>
+<span id="2660">2660</span>
+<span id="2661">2661</span>
+<span id="2662">2662</span>
+<span id="2663">2663</span>
+<span id="2664">2664</span>
+<span id="2665">2665</span>
+<span id="2666">2666</span>
+<span id="2667">2667</span>
+<span id="2668">2668</span>
+<span id="2669">2669</span>
+<span id="2670">2670</span>
+<span id="2671">2671</span>
+<span id="2672">2672</span>
+<span id="2673">2673</span>
+<span id="2674">2674</span>
+<span id="2675">2675</span>
+<span id="2676">2676</span>
+<span id="2677">2677</span>
+<span id="2678">2678</span>
+<span id="2679">2679</span>
+<span id="2680">2680</span>
+<span id="2681">2681</span>
+<span id="2682">2682</span>
+<span id="2683">2683</span>
+<span id="2684">2684</span>
+<span id="2685">2685</span>
+<span id="2686">2686</span>
+<span id="2687">2687</span>
+<span id="2688">2688</span>
+<span id="2689">2689</span>
+<span id="2690">2690</span>
+<span id="2691">2691</span>
+<span id="2692">2692</span>
+<span id="2693">2693</span>
+<span id="2694">2694</span>
+<span id="2695">2695</span>
+<span id="2696">2696</span>
+<span id="2697">2697</span>
+<span id="2698">2698</span>
+<span id="2699">2699</span>
+<span id="2700">2700</span>
+<span id="2701">2701</span>
+<span id="2702">2702</span>
+<span id="2703">2703</span>
+</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::fmt</span>::{<span class="self">self</span>, <span class="ident">Write</span>};
+<span class="kw">use</span> <span class="ident">std::mem::MaybeUninit</span>;
 
-<span class="kw">use</span> <span class="ident">std::fmt</span>::{<span class="self">self</span>, <span class="ident">Write</span>};
-<span class="kw">use</span> <span class="ident">std::mem</span>;
-
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;server&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;runtime&quot;</span>))]</span>
+<span class="kw">use</span> <span class="ident">tokio::time::Instant</span>;
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">test</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;server&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ffi&quot;</span>))]</span>
 <span class="kw">use</span> <span class="ident">bytes::Bytes</span>;
 <span class="kw">use</span> <span class="ident">bytes::BytesMut</span>;
@@ -2604,6 +2718,7 @@
 <span class="kw">use</span> <span class="ident">http::header::ValueIter</span>;
 <span class="kw">use</span> <span class="ident">http::header</span>::{<span class="self">self</span>, <span class="ident">Entry</span>, <span class="ident">HeaderName</span>, <span class="ident">HeaderValue</span>};
 <span class="kw">use</span> <span class="ident">http</span>::{<span class="ident">HeaderMap</span>, <span class="ident">Method</span>, <span class="ident">StatusCode</span>, <span class="ident">Version</span>};
+<span class="kw">use</span> <span class="ident">tracing</span>::{<span class="ident">debug</span>, <span class="ident">error</span>, <span class="ident">trace</span>, <span class="ident">trace_span</span>, <span class="ident">warn</span>};
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::body::DecodedLength</span>;
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;server&quot;</span>)]</span>
@@ -2618,6 +2733,8 @@
 
 <span class="kw">const</span> <span class="ident">MAX_HEADERS</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">100</span>;
 <span class="kw">const</span> <span class="ident">AVERAGE_HEADER_SIZE</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">30</span>; <span class="comment">// totally scientific</span>
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;server&quot;</span>)]</span>
+<span class="kw">const</span> <span class="ident">MAX_URI_LEN</span>: <span class="ident">usize</span> <span class="op">=</span> (<span class="ident">u16::MAX</span> <span class="op">-</span> <span class="number">1</span>) <span class="kw">as</span> <span class="ident">usize</span>;
 
 <span class="macro">macro_rules!</span> <span class="ident">header_name</span> {
     (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">bytes</span>:<span class="ident">expr</span>) =&gt; {{
@@ -2664,6 +2781,25 @@
 
     <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="macro">trace_span!</span>(<span class="string">&quot;parse_headers&quot;</span>);
     <span class="kw">let</span> <span class="ident">_s</span> <span class="op">=</span> <span class="ident">span</span>.<span class="ident">enter</span>();
+
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;server&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;runtime&quot;</span>))]</span>
+    <span class="kw">if</span> <span class="op">!</span><span class="kw-2">*</span><span class="ident">ctx</span>.<span class="ident">h1_header_read_timeout_running</span> {
+    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">h1_header_read_timeout</span>) <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">h1_header_read_timeout</span> {
+        <span class="kw">let</span> <span class="ident">deadline</span> <span class="op">=</span> <span class="ident">Instant::now</span>() <span class="op">+</span> <span class="ident">h1_header_read_timeout</span>;
+
+        <span class="kw">match</span> <span class="ident">ctx</span>.<span class="ident">h1_header_read_timeout_fut</span> {
+            <span class="prelude-val">Some</span>(<span class="ident">h1_header_read_timeout_fut</span>) =&gt; {
+                <span class="macro">debug!</span>(<span class="string">&quot;resetting h1 header read timeout timer&quot;</span>);
+                <span class="ident">h1_header_read_timeout_fut</span>.<span class="ident">as_mut</span>().<span class="ident">reset</span>(<span class="ident">deadline</span>);
+            },
+            <span class="prelude-val">None</span> =&gt; {
+                <span class="macro">debug!</span>(<span class="string">&quot;setting h1 header read timeout timer&quot;</span>);
+                <span class="kw-2">*</span><span class="ident">ctx</span>.<span class="ident">h1_header_read_timeout_fut</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Box::pin</span>(<span class="ident">tokio::time::sleep_until</span>(<span class="ident">deadline</span>)));
+            }
+        }
+    }
+}
+
     <span class="ident">T::parse</span>(<span class="ident">bytes</span>, <span class="ident">ctx</span>)
 }
 
@@ -2707,23 +2843,28 @@
         <span class="comment">// but we *never* read any of it until after httparse has assigned</span>
         <span class="comment">// values into it. By not zeroing out the stack memory, this saves</span>
         <span class="comment">// a good ~5% on pipeline benchmarks.</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">headers_indices</span>: [<span class="ident">HeaderIndices</span>; <span class="ident">MAX_HEADERS</span>] <span class="op">=</span> <span class="kw">unsafe</span> { <span class="ident">mem::uninitialized</span>() };
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">headers_indices</span>: [<span class="ident">MaybeUninit</span><span class="op">&lt;</span><span class="ident">HeaderIndices</span><span class="op">&gt;</span>; <span class="ident">MAX_HEADERS</span>] <span class="op">=</span> <span class="kw">unsafe</span> {
+            <span class="comment">// SAFETY: We can go safely from MaybeUninit array to array of MaybeUninit</span>
+            <span class="ident">MaybeUninit::uninit</span>().<span class="ident">assume_init</span>()
+        };
         {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">headers</span>: [<span class="ident">httparse::Header</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>; <span class="ident">MAX_HEADERS</span>] <span class="op">=</span> <span class="kw">unsafe</span> { <span class="ident">mem::uninitialized</span>() };
-            <span class="macro">trace!</span>(
-                <span class="string">&quot;Request.parse([Header; {}], [u8; {}])&quot;</span>,
-                <span class="ident">headers</span>.<span class="ident">len</span>(),
-                <span class="ident">buf</span>.<span class="ident">len</span>()
-            );
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">httparse::Request::new</span>(<span class="kw-2">&amp;mut</span> <span class="ident">headers</span>);
+            <span class="comment">/* SAFETY: it is safe to go from MaybeUninit array to array of MaybeUninit */</span>
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">headers</span>: [<span class="ident">MaybeUninit</span><span class="op">&lt;</span><span class="ident">httparse::Header</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span><span class="op">&gt;</span>; <span class="ident">MAX_HEADERS</span>] <span class="op">=</span>
+                <span class="kw">unsafe</span> { <span class="ident">MaybeUninit::uninit</span>().<span class="ident">assume_init</span>() };
+            <span class="macro">trace!</span>(<span class="ident">bytes</span> <span class="op">=</span> <span class="ident">buf</span>.<span class="ident">len</span>(), <span class="string">&quot;Request.parse&quot;</span>);
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">httparse::Request::new</span>(<span class="kw-2">&amp;mut</span> []);
             <span class="kw">let</span> <span class="ident">bytes</span> <span class="op">=</span> <span class="ident">buf</span>.<span class="ident">as_ref</span>();
-            <span class="kw">match</span> <span class="ident">req</span>.<span class="ident">parse</span>(<span class="ident">bytes</span>) {
+            <span class="kw">match</span> <span class="ident">req</span>.<span class="ident">parse_with_uninit_headers</span>(<span class="ident">bytes</span>, <span class="kw-2">&amp;mut</span> <span class="ident">headers</span>) {
                 <span class="prelude-val">Ok</span>(<span class="ident">httparse::Status::Complete</span>(<span class="ident">parsed_len</span>)) =&gt; {
                     <span class="macro">trace!</span>(<span class="string">&quot;Request.parse Complete({})&quot;</span>, <span class="ident">parsed_len</span>);
                     <span class="ident">len</span> <span class="op">=</span> <span class="ident">parsed_len</span>;
+                    <span class="kw">let</span> <span class="ident">uri</span> <span class="op">=</span> <span class="ident">req</span>.<span class="ident">path</span>.<span class="ident">unwrap</span>();
+                    <span class="kw">if</span> <span class="ident">uri</span>.<span class="ident">len</span>() <span class="op">&gt;</span> <span class="ident">MAX_URI_LEN</span> {
+                        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Parse::UriTooLong</span>);
+                    }
                     <span class="ident">subject</span> <span class="op">=</span> <span class="ident">RequestLine</span>(
                         <span class="ident">Method::from_bytes</span>(<span class="ident">req</span>.<span class="ident">method</span>.<span class="ident">unwrap</span>().<span class="ident">as_bytes</span>())<span class="question-mark">?</span>,
-                        <span class="ident">req</span>.<span class="ident">path</span>.<span class="ident">unwrap</span>().<span class="ident">parse</span>()<span class="question-mark">?</span>,
+                        <span class="ident">uri</span>.<span class="ident">parse</span>()<span class="question-mark">?</span>,
                     );
                     <span class="ident">version</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">req</span>.<span class="ident">version</span>.<span class="ident">unwrap</span>() <span class="op">==</span> <span class="number">1</span> {
                         <span class="ident">keep_alive</span> <span class="op">=</span> <span class="bool-val">true</span>;
@@ -2734,7 +2875,6 @@
                         <span class="ident">is_http_11</span> <span class="op">=</span> <span class="bool-val">false</span>;
                         <span class="ident">Version::HTTP_10</span>
                     };
-                    <span class="macro">trace!</span>(<span class="string">&quot;headers: {:?}&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">req</span>.<span class="ident">headers</span>);
 
                     <span class="ident">record_header_indices</span>(<span class="ident">bytes</span>, <span class="kw-2">&amp;</span><span class="ident">req</span>.<span class="ident">headers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">headers_indices</span>)<span class="question-mark">?</span>;
                     <span class="ident">headers_len</span> <span class="op">=</span> <span class="ident">req</span>.<span class="ident">headers</span>.<span class="ident">len</span>();
@@ -2786,6 +2926,8 @@
         <span class="ident">headers</span>.<span class="ident">reserve</span>(<span class="ident">headers_len</span>);
 
         <span class="kw">for</span> <span class="ident">header</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">headers_indices</span>[..<span class="ident">headers_len</span>] {
+            <span class="comment">// SAFETY: array is valid up to `headers_len`</span>
+            <span class="kw">let</span> <span class="ident">header</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">header</span>.<span class="ident">as_ptr</span>() };
             <span class="kw">let</span> <span class="ident">name</span> <span class="op">=</span> <span class="macro">header_name!</span>(<span class="kw-2">&amp;</span><span class="ident">slice</span>[<span class="ident">header</span>.<span class="ident">name</span>.<span class="number">0</span>..<span class="ident">header</span>.<span class="ident">name</span>.<span class="number">1</span>]);
             <span class="kw">let</span> <span class="ident">value</span> <span class="op">=</span> <span class="macro">header_value!</span>(<span class="ident">slice</span>.<span class="ident">slice</span>(<span class="ident">header</span>.<span class="ident">value</span>.<span class="number">0</span>..<span class="ident">header</span>.<span class="ident">value</span>.<span class="number">1</span>));
 
@@ -2838,7 +2980,10 @@
                     }
                 }
                 <span class="ident">header::EXPECT</span> =&gt; {
-                    <span class="ident">expect_continue</span> <span class="op">=</span> <span class="ident">value</span>.<span class="ident">as_bytes</span>() <span class="op">==</span> <span class="string">b&quot;100-continue&quot;</span>;
+                    <span class="comment">// According to https://datatracker.ietf.org/doc/html/rfc2616#section-14.20</span>
+                    <span class="comment">// Comparison of expectation values is case-insensitive for unquoted tokens</span>
+                    <span class="comment">// (including the 100-continue token)</span>
+                    <span class="ident">expect_continue</span> <span class="op">=</span> <span class="ident">value</span>.<span class="ident">as_bytes</span>().<span class="ident">eq_ignore_ascii_case</span>(<span class="string">b&quot;100-continue&quot;</span>);
                 }
                 <span class="ident">header::UPGRADE</span> =&gt; {
                     <span class="comment">// Upgrades are only allowed with HTTP/1.1</span>
@@ -2948,7 +3093,7 @@
         }
 
         <span class="kw">let</span> <span class="ident">orig_headers</span>;
-        <span class="kw">let</span> <span class="ident">extensions</span> <span class="op">=</span> <span class="ident">mem::take</span>(<span class="kw-2">&amp;mut</span> <span class="ident">msg</span>.<span class="ident">head</span>.<span class="ident">extensions</span>);
+        <span class="kw">let</span> <span class="ident">extensions</span> <span class="op">=</span> <span class="ident">std::mem::take</span>(<span class="kw-2">&amp;mut</span> <span class="ident">msg</span>.<span class="ident">head</span>.<span class="ident">extensions</span>);
         <span class="kw">let</span> <span class="ident">orig_headers</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">extensions</span>.<span class="ident">get</span>::<span class="op">&lt;</span><span class="ident">HeaderCaseMap</span><span class="op">&gt;</span>() {
             <span class="prelude-val">None</span> <span class="kw">if</span> <span class="ident">msg</span>.<span class="ident">title_case_headers</span> =&gt; {
                 <span class="ident">orig_headers</span> <span class="op">=</span> <span class="ident">HeaderCaseMap::default</span>();
@@ -2980,6 +3125,7 @@
             <span class="op">|</span> <span class="ident">Kind::Parse</span>(<span class="ident">Parse::Uri</span>)
             <span class="op">|</span> <span class="ident">Kind::Parse</span>(<span class="ident">Parse::Version</span>) =&gt; <span class="ident">StatusCode::BAD_REQUEST</span>,
             <span class="ident">Kind::Parse</span>(<span class="ident">Parse::TooLarge</span>) =&gt; <span class="ident">StatusCode::REQUEST_HEADER_FIELDS_TOO_LARGE</span>,
+            <span class="ident">Kind::Parse</span>(<span class="ident">Parse::UriTooLong</span>) =&gt; <span class="ident">StatusCode::URI_TOO_LONG</span>,
             <span class="kw">_</span> =&gt; <span class="kw">return</span> <span class="prelude-val">None</span>,
         };
 
@@ -3459,18 +3605,22 @@
         <span class="comment">// Loop to skip information status code headers (100 Continue, etc).</span>
         <span class="kw">loop</span> {
             <span class="comment">// Unsafe: see comment in Server Http1Transaction, above.</span>
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">headers_indices</span>: [<span class="ident">HeaderIndices</span>; <span class="ident">MAX_HEADERS</span>] <span class="op">=</span> <span class="kw">unsafe</span> { <span class="ident">mem::uninitialized</span>() };
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">headers_indices</span>: [<span class="ident">MaybeUninit</span><span class="op">&lt;</span><span class="ident">HeaderIndices</span><span class="op">&gt;</span>; <span class="ident">MAX_HEADERS</span>] <span class="op">=</span> <span class="kw">unsafe</span> {
+                <span class="comment">// SAFETY: We can go safely from MaybeUninit array to array of MaybeUninit</span>
+                <span class="ident">MaybeUninit::uninit</span>().<span class="ident">assume_init</span>()
+            };
             <span class="kw">let</span> (<span class="ident">len</span>, <span class="ident">status</span>, <span class="ident">reason</span>, <span class="ident">version</span>, <span class="ident">headers_len</span>) <span class="op">=</span> {
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">headers</span>: [<span class="ident">httparse::Header</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>; <span class="ident">MAX_HEADERS</span>] <span class="op">=</span>
-                    <span class="kw">unsafe</span> { <span class="ident">mem::uninitialized</span>() };
-                <span class="macro">trace!</span>(
-                    <span class="string">&quot;Response.parse([Header; {}], [u8; {}])&quot;</span>,
-                    <span class="ident">headers</span>.<span class="ident">len</span>(),
-                    <span class="ident">buf</span>.<span class="ident">len</span>()
-                );
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">httparse::Response::new</span>(<span class="kw-2">&amp;mut</span> <span class="ident">headers</span>);
+                <span class="comment">// SAFETY: We can go safely from MaybeUninit array to array of MaybeUninit</span>
+                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">headers</span>: [<span class="ident">MaybeUninit</span><span class="op">&lt;</span><span class="ident">httparse::Header</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span><span class="op">&gt;</span>; <span class="ident">MAX_HEADERS</span>] <span class="op">=</span>
+                    <span class="kw">unsafe</span> { <span class="ident">MaybeUninit::uninit</span>().<span class="ident">assume_init</span>() };
+                <span class="macro">trace!</span>(<span class="ident">bytes</span> <span class="op">=</span> <span class="ident">buf</span>.<span class="ident">len</span>(), <span class="string">&quot;Response.parse&quot;</span>);
+                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">httparse::Response::new</span>(<span class="kw-2">&amp;mut</span> []);
                 <span class="kw">let</span> <span class="ident">bytes</span> <span class="op">=</span> <span class="ident">buf</span>.<span class="ident">as_ref</span>();
-                <span class="kw">match</span> <span class="ident">ctx</span>.<span class="ident">h1_parser_config</span>.<span class="ident">parse_response</span>(<span class="kw-2">&amp;mut</span> <span class="ident">res</span>, <span class="ident">bytes</span>) {
+                <span class="kw">match</span> <span class="ident">ctx</span>.<span class="ident">h1_parser_config</span>.<span class="ident">parse_response_with_uninit_headers</span>(
+                    <span class="kw-2">&amp;mut</span> <span class="ident">res</span>,
+                    <span class="ident">bytes</span>,
+                    <span class="kw-2">&amp;mut</span> <span class="ident">headers</span>,
+                ) {
                     <span class="prelude-val">Ok</span>(<span class="ident">httparse::Status::Complete</span>(<span class="ident">len</span>)) =&gt; {
                         <span class="macro">trace!</span>(<span class="string">&quot;Response.parse Complete({})&quot;</span>, <span class="ident">len</span>);
                         <span class="kw">let</span> <span class="ident">status</span> <span class="op">=</span> <span class="ident">StatusCode::from_u16</span>(<span class="ident">res</span>.<span class="ident">code</span>.<span class="ident">unwrap</span>())<span class="question-mark">?</span>;
@@ -3526,6 +3676,8 @@
 
             <span class="ident">headers</span>.<span class="ident">reserve</span>(<span class="ident">headers_len</span>);
             <span class="kw">for</span> <span class="ident">header</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">headers_indices</span>[..<span class="ident">headers_len</span>] {
+                <span class="comment">// SAFETY: array is valid up to `headers_len`</span>
+                <span class="kw">let</span> <span class="ident">header</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">header</span>.<span class="ident">as_ptr</span>() };
                 <span class="kw">let</span> <span class="ident">name</span> <span class="op">=</span> <span class="macro">header_name!</span>(<span class="kw-2">&amp;</span><span class="ident">slice</span>[<span class="ident">header</span>.<span class="ident">name</span>.<span class="number">0</span>..<span class="ident">header</span>.<span class="ident">name</span>.<span class="number">1</span>]);
                 <span class="kw">let</span> <span class="ident">value</span> <span class="op">=</span> <span class="macro">header_value!</span>(<span class="ident">slice</span>.<span class="ident">slice</span>(<span class="ident">header</span>.<span class="ident">value</span>.<span class="number">0</span>..<span class="ident">header</span>.<span class="ident">value</span>.<span class="number">1</span>));
 
@@ -3581,6 +3733,13 @@
                     <span class="ident">keep_alive</span>: <span class="ident">keep_alive</span> <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">is_upgrade</span>,
                     <span class="ident">wants_upgrade</span>: <span class="ident">is_upgrade</span>,
                 }));
+            }
+
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ffi&quot;</span>)]</span>
+            <span class="kw">if</span> <span class="ident">head</span>.<span class="ident">subject</span>.<span class="ident">is_informational</span>() {
+                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">callback</span>) <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">on_informational</span> {
+                    <span class="ident">callback</span>.<span class="ident">call</span>(<span class="ident">head</span>.<span class="ident">into_response</span>(<span class="ident"><span class="kw">crate</span>::Body::empty</span>()));
+                }
             }
 
             <span class="comment">// Parsing a 1xx response could have consumed the buffer, check if</span>
@@ -3873,7 +4032,7 @@
 <span class="kw">fn</span> <span class="ident">record_header_indices</span>(
     <span class="ident">bytes</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
     <span class="ident">headers</span>: <span class="kw-2">&amp;</span>[<span class="ident">httparse::Header</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>],
-    <span class="ident">indices</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">HeaderIndices</span>],
+    <span class="ident">indices</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">MaybeUninit</span><span class="op">&lt;</span><span class="ident">HeaderIndices</span><span class="op">&gt;</span>],
 ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident"><span class="kw">crate</span>::error::Parse</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">bytes_ptr</span> <span class="op">=</span> <span class="ident">bytes</span>.<span class="ident">as_ptr</span>() <span class="kw">as</span> <span class="ident">usize</span>;
 
@@ -3884,45 +4043,36 @@
         }
         <span class="kw">let</span> <span class="ident">name_start</span> <span class="op">=</span> <span class="ident">header</span>.<span class="ident">name</span>.<span class="ident">as_ptr</span>() <span class="kw">as</span> <span class="ident">usize</span> <span class="op">-</span> <span class="ident">bytes_ptr</span>;
         <span class="kw">let</span> <span class="ident">name_end</span> <span class="op">=</span> <span class="ident">name_start</span> <span class="op">+</span> <span class="ident">header</span>.<span class="ident">name</span>.<span class="ident">len</span>();
-        <span class="ident">indices</span>.<span class="ident">name</span> <span class="op">=</span> (<span class="ident">name_start</span>, <span class="ident">name_end</span>);
         <span class="kw">let</span> <span class="ident">value_start</span> <span class="op">=</span> <span class="ident">header</span>.<span class="ident">value</span>.<span class="ident">as_ptr</span>() <span class="kw">as</span> <span class="ident">usize</span> <span class="op">-</span> <span class="ident">bytes_ptr</span>;
         <span class="kw">let</span> <span class="ident">value_end</span> <span class="op">=</span> <span class="ident">value_start</span> <span class="op">+</span> <span class="ident">header</span>.<span class="ident">value</span>.<span class="ident">len</span>();
-        <span class="ident">indices</span>.<span class="ident">value</span> <span class="op">=</span> (<span class="ident">value_start</span>, <span class="ident">value_end</span>);
+
+        <span class="comment">// FIXME(maybe_uninit_extra)</span>
+        <span class="comment">// FIXME(addr_of)</span>
+        <span class="comment">// Currently we don&#39;t have `ptr::addr_of_mut` in stable rust or</span>
+        <span class="comment">// MaybeUninit::write, so this is some way of assigning into a MaybeUninit</span>
+        <span class="comment">// safely</span>
+        <span class="kw">let</span> <span class="ident">new_header_indices</span> <span class="op">=</span> <span class="ident">HeaderIndices</span> {
+            <span class="ident">name</span>: (<span class="ident">name_start</span>, <span class="ident">name_end</span>),
+            <span class="ident">value</span>: (<span class="ident">value_start</span>, <span class="ident">value_end</span>),
+        };
+        <span class="kw-2">*</span><span class="ident">indices</span> <span class="op">=</span> <span class="ident">MaybeUninit::new</span>(<span class="ident">new_header_indices</span>);
     }
 
     <span class="prelude-val">Ok</span>(())
 }
 
-<span class="comment">// Write header names as title case. The header name is assumed to be ASCII,</span>
-<span class="comment">// therefore it is trivial to convert an ASCII character from lowercase to</span>
-<span class="comment">// uppercase. It is as simple as XORing the lowercase character byte with</span>
-<span class="comment">// space.</span>
+<span class="comment">// Write header names as title case. The header name is assumed to be ASCII.</span>
 <span class="kw">fn</span> <span class="ident">title_case</span>(<span class="ident">dst</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) {
     <span class="ident">dst</span>.<span class="ident">reserve</span>(<span class="ident">name</span>.<span class="ident">len</span>());
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">iter</span> <span class="op">=</span> <span class="ident">name</span>.<span class="ident">iter</span>();
-
-    <span class="comment">// Uppercase the first character</span>
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">c</span>) <span class="op">=</span> <span class="ident">iter</span>.<span class="ident">next</span>() {
-        <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">c</span> <span class="op">&gt;</span><span class="op">=</span> <span class="string">b&#39;a&#39;</span> <span class="op">&amp;&amp;</span> <span class="kw-2">*</span><span class="ident">c</span> <span class="op">&lt;</span><span class="op">=</span> <span class="string">b&#39;z&#39;</span> {
-            <span class="ident">dst</span>.<span class="ident">push</span>(<span class="kw-2">*</span><span class="ident">c</span> <span class="op">^</span> <span class="string">b&#39; &#39;</span>);
-        } <span class="kw">else</span> {
-            <span class="ident">dst</span>.<span class="ident">push</span>(<span class="kw-2">*</span><span class="ident">c</span>);
+    <span class="comment">// Ensure first character is uppercased</span>
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">prev</span> <span class="op">=</span> <span class="string">b&#39;-&#39;</span>;
+    <span class="kw">for</span> <span class="kw-2">&amp;</span>(<span class="kw-2">mut</span> <span class="ident">c</span>) <span class="kw">in</span> <span class="ident">name</span> {
+        <span class="kw">if</span> <span class="ident">prev</span> <span class="op">==</span> <span class="string">b&#39;-&#39;</span> {
+            <span class="ident">c</span>.<span class="ident">make_ascii_uppercase</span>();
         }
-    }
-
-    <span class="kw">while</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">c</span>) <span class="op">=</span> <span class="ident">iter</span>.<span class="ident">next</span>() {
-        <span class="ident">dst</span>.<span class="ident">push</span>(<span class="kw-2">*</span><span class="ident">c</span>);
-
-        <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">c</span> <span class="op">==</span> <span class="string">b&#39;-&#39;</span> {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">c</span>) <span class="op">=</span> <span class="ident">iter</span>.<span class="ident">next</span>() {
-                <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">c</span> <span class="op">&gt;</span><span class="op">=</span> <span class="string">b&#39;a&#39;</span> <span class="op">&amp;&amp;</span> <span class="kw-2">*</span><span class="ident">c</span> <span class="op">&lt;</span><span class="op">=</span> <span class="string">b&#39;z&#39;</span> {
-                    <span class="ident">dst</span>.<span class="ident">push</span>(<span class="kw-2">*</span><span class="ident">c</span> <span class="op">^</span> <span class="string">b&#39; &#39;</span>);
-                } <span class="kw">else</span> {
-                    <span class="ident">dst</span>.<span class="ident">push</span>(<span class="kw-2">*</span><span class="ident">c</span>);
-                }
-            }
-        }
+        <span class="ident">dst</span>.<span class="ident">push</span>(<span class="ident">c</span>);
+        <span class="ident">prev</span> <span class="op">=</span> <span class="ident">c</span>;
     }
 }
 
@@ -4017,8 +4167,13 @@
                 <span class="ident">cached_headers</span>: <span class="kw-2">&amp;mut</span> <span class="prelude-val">None</span>,
                 <span class="ident">req_method</span>: <span class="kw-2">&amp;mut</span> <span class="ident">method</span>,
                 <span class="ident">h1_parser_config</span>: <span class="ident">Default::default</span>(),
+                <span class="ident">h1_header_read_timeout</span>: <span class="prelude-val">None</span>,
+                <span class="ident">h1_header_read_timeout_fut</span>: <span class="kw-2">&amp;mut</span> <span class="prelude-val">None</span>,
+                <span class="ident">h1_header_read_timeout_running</span>: <span class="kw-2">&amp;mut</span> <span class="bool-val">false</span>,
                 <span class="ident">preserve_header_case</span>: <span class="bool-val">false</span>,
                 <span class="ident">h09_responses</span>: <span class="bool-val">false</span>,
+                <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ffi&quot;</span>)]</span>
+                <span class="ident">on_informational</span>: <span class="kw-2">&amp;mut</span> <span class="prelude-val">None</span>,
                 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ffi&quot;</span>)]</span>
                 <span class="ident">raw_headers</span>: <span class="bool-val">false</span>,
             },
@@ -4042,8 +4197,13 @@
             <span class="ident">cached_headers</span>: <span class="kw-2">&amp;mut</span> <span class="prelude-val">None</span>,
             <span class="ident">req_method</span>: <span class="kw-2">&amp;mut</span> <span class="prelude-val">Some</span>(<span class="ident"><span class="kw">crate</span>::Method::GET</span>),
             <span class="ident">h1_parser_config</span>: <span class="ident">Default::default</span>(),
+            <span class="ident">h1_header_read_timeout</span>: <span class="prelude-val">None</span>,
+            <span class="ident">h1_header_read_timeout_fut</span>: <span class="kw-2">&amp;mut</span> <span class="prelude-val">None</span>,
+            <span class="ident">h1_header_read_timeout_running</span>: <span class="kw-2">&amp;mut</span> <span class="bool-val">false</span>,
             <span class="ident">preserve_header_case</span>: <span class="bool-val">false</span>,
             <span class="ident">h09_responses</span>: <span class="bool-val">false</span>,
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ffi&quot;</span>)]</span>
+            <span class="ident">on_informational</span>: <span class="kw-2">&amp;mut</span> <span class="prelude-val">None</span>,
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ffi&quot;</span>)]</span>
             <span class="ident">raw_headers</span>: <span class="bool-val">false</span>,
         };
@@ -4062,8 +4222,13 @@
             <span class="ident">cached_headers</span>: <span class="kw-2">&amp;mut</span> <span class="prelude-val">None</span>,
             <span class="ident">req_method</span>: <span class="kw-2">&amp;mut</span> <span class="prelude-val">None</span>,
             <span class="ident">h1_parser_config</span>: <span class="ident">Default::default</span>(),
+            <span class="ident">h1_header_read_timeout</span>: <span class="prelude-val">None</span>,
+            <span class="ident">h1_header_read_timeout_fut</span>: <span class="kw-2">&amp;mut</span> <span class="prelude-val">None</span>,
+            <span class="ident">h1_header_read_timeout_running</span>: <span class="kw-2">&amp;mut</span> <span class="bool-val">false</span>,
             <span class="ident">preserve_header_case</span>: <span class="bool-val">false</span>,
             <span class="ident">h09_responses</span>: <span class="bool-val">false</span>,
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ffi&quot;</span>)]</span>
+            <span class="ident">on_informational</span>: <span class="kw-2">&amp;mut</span> <span class="prelude-val">None</span>,
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ffi&quot;</span>)]</span>
             <span class="ident">raw_headers</span>: <span class="bool-val">false</span>,
         };
@@ -4080,8 +4245,13 @@
             <span class="ident">cached_headers</span>: <span class="kw-2">&amp;mut</span> <span class="prelude-val">None</span>,
             <span class="ident">req_method</span>: <span class="kw-2">&amp;mut</span> <span class="prelude-val">Some</span>(<span class="ident"><span class="kw">crate</span>::Method::GET</span>),
             <span class="ident">h1_parser_config</span>: <span class="ident">Default::default</span>(),
+            <span class="ident">h1_header_read_timeout</span>: <span class="prelude-val">None</span>,
+            <span class="ident">h1_header_read_timeout_fut</span>: <span class="kw-2">&amp;mut</span> <span class="prelude-val">None</span>,
+            <span class="ident">h1_header_read_timeout_running</span>: <span class="kw-2">&amp;mut</span> <span class="bool-val">false</span>,
             <span class="ident">preserve_header_case</span>: <span class="bool-val">false</span>,
             <span class="ident">h09_responses</span>: <span class="bool-val">true</span>,
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ffi&quot;</span>)]</span>
+            <span class="ident">on_informational</span>: <span class="kw-2">&amp;mut</span> <span class="prelude-val">None</span>,
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ffi&quot;</span>)]</span>
             <span class="ident">raw_headers</span>: <span class="bool-val">false</span>,
         };
@@ -4100,8 +4270,13 @@
             <span class="ident">cached_headers</span>: <span class="kw-2">&amp;mut</span> <span class="prelude-val">None</span>,
             <span class="ident">req_method</span>: <span class="kw-2">&amp;mut</span> <span class="prelude-val">Some</span>(<span class="ident"><span class="kw">crate</span>::Method::GET</span>),
             <span class="ident">h1_parser_config</span>: <span class="ident">Default::default</span>(),
+            <span class="ident">h1_header_read_timeout</span>: <span class="prelude-val">None</span>,
+            <span class="ident">h1_header_read_timeout_fut</span>: <span class="kw-2">&amp;mut</span> <span class="prelude-val">None</span>,
+            <span class="ident">h1_header_read_timeout_running</span>: <span class="kw-2">&amp;mut</span> <span class="bool-val">false</span>,
             <span class="ident">preserve_header_case</span>: <span class="bool-val">false</span>,
             <span class="ident">h09_responses</span>: <span class="bool-val">false</span>,
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ffi&quot;</span>)]</span>
+            <span class="ident">on_informational</span>: <span class="kw-2">&amp;mut</span> <span class="prelude-val">None</span>,
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ffi&quot;</span>)]</span>
             <span class="ident">raw_headers</span>: <span class="bool-val">false</span>,
         };
@@ -4124,8 +4299,13 @@
             <span class="ident">cached_headers</span>: <span class="kw-2">&amp;mut</span> <span class="prelude-val">None</span>,
             <span class="ident">req_method</span>: <span class="kw-2">&amp;mut</span> <span class="prelude-val">Some</span>(<span class="ident"><span class="kw">crate</span>::Method::GET</span>),
             <span class="ident">h1_parser_config</span>,
+            <span class="ident">h1_header_read_timeout</span>: <span class="prelude-val">None</span>,
+            <span class="ident">h1_header_read_timeout_fut</span>: <span class="kw-2">&amp;mut</span> <span class="prelude-val">None</span>,
+            <span class="ident">h1_header_read_timeout_running</span>: <span class="kw-2">&amp;mut</span> <span class="bool-val">false</span>,
             <span class="ident">preserve_header_case</span>: <span class="bool-val">false</span>,
             <span class="ident">h09_responses</span>: <span class="bool-val">false</span>,
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ffi&quot;</span>)]</span>
+            <span class="ident">on_informational</span>: <span class="kw-2">&amp;mut</span> <span class="prelude-val">None</span>,
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ffi&quot;</span>)]</span>
             <span class="ident">raw_headers</span>: <span class="bool-val">false</span>,
         };
@@ -4145,8 +4325,13 @@
             <span class="ident">cached_headers</span>: <span class="kw-2">&amp;mut</span> <span class="prelude-val">None</span>,
             <span class="ident">req_method</span>: <span class="kw-2">&amp;mut</span> <span class="prelude-val">Some</span>(<span class="ident"><span class="kw">crate</span>::Method::GET</span>),
             <span class="ident">h1_parser_config</span>: <span class="ident">Default::default</span>(),
+            <span class="ident">h1_header_read_timeout</span>: <span class="prelude-val">None</span>,
+            <span class="ident">h1_header_read_timeout_fut</span>: <span class="kw-2">&amp;mut</span> <span class="prelude-val">None</span>,
+            <span class="ident">h1_header_read_timeout_running</span>: <span class="kw-2">&amp;mut</span> <span class="bool-val">false</span>,
             <span class="ident">preserve_header_case</span>: <span class="bool-val">false</span>,
             <span class="ident">h09_responses</span>: <span class="bool-val">false</span>,
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ffi&quot;</span>)]</span>
+            <span class="ident">on_informational</span>: <span class="kw-2">&amp;mut</span> <span class="prelude-val">None</span>,
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ffi&quot;</span>)]</span>
             <span class="ident">raw_headers</span>: <span class="bool-val">false</span>,
         };
@@ -4161,8 +4346,13 @@
             <span class="ident">cached_headers</span>: <span class="kw-2">&amp;mut</span> <span class="prelude-val">None</span>,
             <span class="ident">req_method</span>: <span class="kw-2">&amp;mut</span> <span class="prelude-val">None</span>,
             <span class="ident">h1_parser_config</span>: <span class="ident">Default::default</span>(),
+            <span class="ident">h1_header_read_timeout</span>: <span class="prelude-val">None</span>,
+            <span class="ident">h1_header_read_timeout_fut</span>: <span class="kw-2">&amp;mut</span> <span class="prelude-val">None</span>,
+            <span class="ident">h1_header_read_timeout_running</span>: <span class="kw-2">&amp;mut</span> <span class="bool-val">false</span>,
             <span class="ident">preserve_header_case</span>: <span class="bool-val">true</span>,
             <span class="ident">h09_responses</span>: <span class="bool-val">false</span>,
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ffi&quot;</span>)]</span>
+            <span class="ident">on_informational</span>: <span class="kw-2">&amp;mut</span> <span class="prelude-val">None</span>,
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ffi&quot;</span>)]</span>
             <span class="ident">raw_headers</span>: <span class="bool-val">false</span>,
         };
@@ -4198,8 +4388,13 @@
                     <span class="ident">cached_headers</span>: <span class="kw-2">&amp;mut</span> <span class="prelude-val">None</span>,
                     <span class="ident">req_method</span>: <span class="kw-2">&amp;mut</span> <span class="prelude-val">None</span>,
                     <span class="ident">h1_parser_config</span>: <span class="ident">Default::default</span>(),
+                    <span class="ident">h1_header_read_timeout</span>: <span class="prelude-val">None</span>,
+                    <span class="ident">h1_header_read_timeout_fut</span>: <span class="kw-2">&amp;mut</span> <span class="prelude-val">None</span>,
+                    <span class="ident">h1_header_read_timeout_running</span>: <span class="kw-2">&amp;mut</span> <span class="bool-val">false</span>,
                     <span class="ident">preserve_header_case</span>: <span class="bool-val">false</span>,
                     <span class="ident">h09_responses</span>: <span class="bool-val">false</span>,
+                    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ffi&quot;</span>)]</span>
+                    <span class="ident">on_informational</span>: <span class="kw-2">&amp;mut</span> <span class="prelude-val">None</span>,
                     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ffi&quot;</span>)]</span>
                     <span class="ident">raw_headers</span>: <span class="bool-val">false</span>,
                 },
@@ -4216,8 +4411,13 @@
                     <span class="ident">cached_headers</span>: <span class="kw-2">&amp;mut</span> <span class="prelude-val">None</span>,
                     <span class="ident">req_method</span>: <span class="kw-2">&amp;mut</span> <span class="prelude-val">None</span>,
                     <span class="ident">h1_parser_config</span>: <span class="ident">Default::default</span>(),
+                    <span class="ident">h1_header_read_timeout</span>: <span class="prelude-val">None</span>,
+                    <span class="ident">h1_header_read_timeout_fut</span>: <span class="kw-2">&amp;mut</span> <span class="prelude-val">None</span>,
+                    <span class="ident">h1_header_read_timeout_running</span>: <span class="kw-2">&amp;mut</span> <span class="bool-val">false</span>,
                     <span class="ident">preserve_header_case</span>: <span class="bool-val">false</span>,
                     <span class="ident">h09_responses</span>: <span class="bool-val">false</span>,
+                    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ffi&quot;</span>)]</span>
+                    <span class="ident">on_informational</span>: <span class="kw-2">&amp;mut</span> <span class="prelude-val">None</span>,
                     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ffi&quot;</span>)]</span>
                     <span class="ident">raw_headers</span>: <span class="bool-val">false</span>,
                 },
@@ -4443,8 +4643,13 @@
                     <span class="ident">cached_headers</span>: <span class="kw-2">&amp;mut</span> <span class="prelude-val">None</span>,
                     <span class="ident">req_method</span>: <span class="kw-2">&amp;mut</span> <span class="prelude-val">Some</span>(<span class="ident">Method::GET</span>),
                     <span class="ident">h1_parser_config</span>: <span class="ident">Default::default</span>(),
+                    <span class="ident">h1_header_read_timeout</span>: <span class="prelude-val">None</span>,
+                    <span class="ident">h1_header_read_timeout_fut</span>: <span class="kw-2">&amp;mut</span> <span class="prelude-val">None</span>,
+                    <span class="ident">h1_header_read_timeout_running</span>: <span class="kw-2">&amp;mut</span> <span class="bool-val">false</span>,
                     <span class="ident">preserve_header_case</span>: <span class="bool-val">false</span>,
                     <span class="ident">h09_responses</span>: <span class="bool-val">false</span>,
+                    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ffi&quot;</span>)]</span>
+                    <span class="ident">on_informational</span>: <span class="kw-2">&amp;mut</span> <span class="prelude-val">None</span>,
                     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ffi&quot;</span>)]</span>
                     <span class="ident">raw_headers</span>: <span class="bool-val">false</span>,
                 }
@@ -4461,8 +4666,13 @@
                     <span class="ident">cached_headers</span>: <span class="kw-2">&amp;mut</span> <span class="prelude-val">None</span>,
                     <span class="ident">req_method</span>: <span class="kw-2">&amp;mut</span> <span class="prelude-val">Some</span>(<span class="ident">m</span>),
                     <span class="ident">h1_parser_config</span>: <span class="ident">Default::default</span>(),
+                    <span class="ident">h1_header_read_timeout</span>: <span class="prelude-val">None</span>,
+                    <span class="ident">h1_header_read_timeout_fut</span>: <span class="kw-2">&amp;mut</span> <span class="prelude-val">None</span>,
+                    <span class="ident">h1_header_read_timeout_running</span>: <span class="kw-2">&amp;mut</span> <span class="bool-val">false</span>,
                     <span class="ident">preserve_header_case</span>: <span class="bool-val">false</span>,
                     <span class="ident">h09_responses</span>: <span class="bool-val">false</span>,
+                    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ffi&quot;</span>)]</span>
+                    <span class="ident">on_informational</span>: <span class="kw-2">&amp;mut</span> <span class="prelude-val">None</span>,
                     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ffi&quot;</span>)]</span>
                     <span class="ident">raw_headers</span>: <span class="bool-val">false</span>,
                 },
@@ -4479,8 +4689,13 @@
                     <span class="ident">cached_headers</span>: <span class="kw-2">&amp;mut</span> <span class="prelude-val">None</span>,
                     <span class="ident">req_method</span>: <span class="kw-2">&amp;mut</span> <span class="prelude-val">Some</span>(<span class="ident">Method::GET</span>),
                     <span class="ident">h1_parser_config</span>: <span class="ident">Default::default</span>(),
+                    <span class="ident">h1_header_read_timeout</span>: <span class="prelude-val">None</span>,
+                    <span class="ident">h1_header_read_timeout_fut</span>: <span class="kw-2">&amp;mut</span> <span class="prelude-val">None</span>,
+                    <span class="ident">h1_header_read_timeout_running</span>: <span class="kw-2">&amp;mut</span> <span class="bool-val">false</span>,
                     <span class="ident">preserve_header_case</span>: <span class="bool-val">false</span>,
                     <span class="ident">h09_responses</span>: <span class="bool-val">false</span>,
+                    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ffi&quot;</span>)]</span>
+                    <span class="ident">on_informational</span>: <span class="kw-2">&amp;mut</span> <span class="prelude-val">None</span>,
                     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ffi&quot;</span>)]</span>
                     <span class="ident">raw_headers</span>: <span class="bool-val">false</span>,
                 },
@@ -4875,6 +5090,8 @@
             .<span class="ident">insert</span>(<span class="string">&quot;content-length&quot;</span>, <span class="ident">HeaderValue::from_static</span>(<span class="string">&quot;10&quot;</span>));
         <span class="ident">head</span>.<span class="ident">headers</span>
             .<span class="ident">insert</span>(<span class="string">&quot;content-type&quot;</span>, <span class="ident">HeaderValue::from_static</span>(<span class="string">&quot;application/json&quot;</span>));
+        <span class="ident">head</span>.<span class="ident">headers</span>
+            .<span class="ident">insert</span>(<span class="string">&quot;weird--header&quot;</span>, <span class="ident">HeaderValue::from_static</span>(<span class="string">&quot;&quot;</span>));
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">vec</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
         <span class="ident">Server::encode</span>(
@@ -4890,7 +5107,7 @@
         .<span class="ident">unwrap</span>();
 
         <span class="kw">let</span> <span class="ident">expected_response</span> <span class="op">=</span>
-            <span class="string">b&quot;HTTP/1.1 200 OK\r\nContent-Length: 10\r\nContent-Type: application/json\r\n&quot;</span>;
+            <span class="string">b&quot;HTTP/1.1 200 OK\r\nContent-Length: 10\r\nContent-Type: application/json\r\nWeird--Header: \r\n&quot;</span>;
 
         <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span><span class="ident">vec</span>[..<span class="ident">expected_response</span>.<span class="ident">len</span>()], <span class="kw-2">&amp;</span><span class="ident">expected_response</span>[..]);
     }
@@ -4972,8 +5189,13 @@
                 <span class="ident">cached_headers</span>: <span class="kw-2">&amp;mut</span> <span class="prelude-val">None</span>,
                 <span class="ident">req_method</span>: <span class="kw-2">&amp;mut</span> <span class="prelude-val">Some</span>(<span class="ident">Method::GET</span>),
                 <span class="ident">h1_parser_config</span>: <span class="ident">Default::default</span>(),
+                <span class="ident">h1_header_read_timeout</span>: <span class="prelude-val">None</span>,
+                <span class="ident">h1_header_read_timeout_fut</span>: <span class="kw-2">&amp;mut</span> <span class="prelude-val">None</span>,
+                <span class="ident">h1_header_read_timeout_running</span>: <span class="kw-2">&amp;mut</span> <span class="bool-val">false</span>,
                 <span class="ident">preserve_header_case</span>: <span class="bool-val">false</span>,
                 <span class="ident">h09_responses</span>: <span class="bool-val">false</span>,
+                <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ffi&quot;</span>)]</span>
+                <span class="ident">on_informational</span>: <span class="kw-2">&amp;mut</span> <span class="prelude-val">None</span>,
                 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ffi&quot;</span>)]</span>
                 <span class="ident">raw_headers</span>: <span class="bool-val">false</span>,
             },
@@ -5054,8 +5276,13 @@
                     <span class="ident">cached_headers</span>: <span class="kw-2">&amp;mut</span> <span class="ident">headers</span>,
                     <span class="ident">req_method</span>: <span class="kw-2">&amp;mut</span> <span class="prelude-val">None</span>,
                     <span class="ident">h1_parser_config</span>: <span class="ident">Default::default</span>(),
+                    <span class="ident">h1_header_read_timeout</span>: <span class="prelude-val">None</span>,
+                    <span class="ident">h1_header_read_timeout_fut</span>: <span class="kw-2">&amp;mut</span> <span class="prelude-val">None</span>,
+                    <span class="ident">h1_header_read_timeout_running</span>: <span class="kw-2">&amp;mut</span> <span class="bool-val">false</span>,
                     <span class="ident">preserve_header_case</span>: <span class="bool-val">false</span>,
                     <span class="ident">h09_responses</span>: <span class="bool-val">false</span>,
+                    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ffi&quot;</span>)]</span>
+                    <span class="ident">on_informational</span>: <span class="kw-2">&amp;mut</span> <span class="prelude-val">None</span>,
                     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ffi&quot;</span>)]</span>
                     <span class="ident">raw_headers</span>: <span class="bool-val">false</span>,
                 },
@@ -5092,8 +5319,13 @@
                     <span class="ident">cached_headers</span>: <span class="kw-2">&amp;mut</span> <span class="ident">headers</span>,
                     <span class="ident">req_method</span>: <span class="kw-2">&amp;mut</span> <span class="prelude-val">None</span>,
                     <span class="ident">h1_parser_config</span>: <span class="ident">Default::default</span>(),
+                    <span class="ident">h1_header_read_timeout</span>: <span class="prelude-val">None</span>,
+                    <span class="ident">h1_header_read_timeout_fut</span>: <span class="kw-2">&amp;mut</span> <span class="prelude-val">None</span>,
+                    <span class="ident">h1_header_read_timeout_running</span>: <span class="kw-2">&amp;mut</span> <span class="bool-val">false</span>,
                     <span class="ident">preserve_header_case</span>: <span class="bool-val">false</span>,
                     <span class="ident">h09_responses</span>: <span class="bool-val">false</span>,
+                    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ffi&quot;</span>)]</span>
+                    <span class="ident">on_informational</span>: <span class="kw-2">&amp;mut</span> <span class="prelude-val">None</span>,
                     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ffi&quot;</span>)]</span>
                     <span class="ident">raw_headers</span>: <span class="bool-val">false</span>,
                 },
