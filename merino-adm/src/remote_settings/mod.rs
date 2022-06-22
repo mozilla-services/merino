@@ -1,14 +1,17 @@
 //! AdM integration that uses the remote-settings provided data.
 
+mod connection_pool;
 mod reqwest_client;
 mod soft_verifier;
 
+use crate::remote_settings::connection_pool::ConnectionPool;
 use crate::remote_settings::reqwest_client::ReqwestClient;
 use crate::remote_settings::soft_verifier::SoftVerifier;
 use anyhow::{anyhow, Context};
 use async_trait::async_trait;
 use cadence::StatsdClient;
 use deduped_dashmap::DedupedMap;
+use futures::stream::{FuturesUnordered, StreamExt};
 use http::Uri;
 use lazy_static::lazy_static;
 use merino_settings::{providers::RemoteSettingsConfig, RemoteSettingsGlobalSettings, Settings};
@@ -57,17 +60,22 @@ impl RemoteSettingsSuggester {
         config: RemoteSettingsConfig,
         metrics_client: StatsdClient,
     ) -> Result<Box<Self>, SetupError> {
-        let mut rs_client = Self::create_rs_client(&settings.remote_settings, &config).await?;
+        let mut clients = Vec::new();
+        // Spawn (2 x number_cpu) Remote Settings clients for the connection pool.
+        for _ in 0..(num_cpus::get() * 2) {
+            clients.push(Self::create_rs_client(&settings.remote_settings, &config).await?);
+        }
+        let pool = Arc::new(ConnectionPool::new(clients));
         let suggestions = Arc::new(DedupedMap::new());
         let suggestion_score = Self::parse_suggestion_score(config.suggestion_score)?;
 
-        Self::sync(&mut rs_client, &*suggestions, suggestion_score).await?;
+        Self::sync(pool.clone(), &*suggestions, suggestion_score).await?;
 
         let resync_task = Self::spawn_resync_task(
             settings.remote_settings.cron_interval,
             config,
             Arc::clone(&suggestions),
-            rs_client,
+            pool,
         );
 
         Ok(Box::new(Self {
@@ -139,7 +147,7 @@ impl RemoteSettingsSuggester {
         cron_interval: Duration,
         mut rs_config: RemoteSettingsConfig,
         suggestions: Arc<DedupedMap<String, (), Suggestion>>,
-        mut rs_client: remote_settings_client::Client,
+        pool: Arc<ConnectionPool>,
     ) -> (JoinHandle<()>, Sender<RemoteSettingsConfig>) {
         // A channel for reconfiguration. Setting the channel capacity to 1 to
         // handle the backpressure.
@@ -165,7 +173,7 @@ impl RemoteSettingsSuggester {
                         // Unwrap is OK here as `rs_config` is already verified elsewhere.
                         let suggestion_score = Self::parse_suggestion_score(rs_config.suggestion_score).unwrap();
                         if let Err(error) =
-                            Self::sync(&mut rs_client, loop_suggestions, suggestion_score).await
+                            Self::sync(pool.clone(), loop_suggestions, suggestion_score).await
                         {
                             tracing::error!(
                                 r#type = "adm.remote-settings.sync-failed",
@@ -198,9 +206,9 @@ impl RemoteSettingsSuggester {
     /// Download suggestions from Remote Settings
     ///
     /// This must be called at least once before any suggestions will be provided
-    #[tracing::instrument(skip(remote_settings_client, suggestions))]
+    #[tracing::instrument(skip(connection_pool, suggestions))]
     pub async fn sync(
-        remote_settings_client: &mut remote_settings_client::Client,
+        connection_pool: Arc<ConnectionPool>,
         suggestions: &DedupedMap<String, (), Suggestion>,
         suggestion_score: Proportion,
     ) -> Result<(), SetupError> {
@@ -209,7 +217,8 @@ impl RemoteSettingsSuggester {
             "Syncing quicksuggest records from Remote Settings"
         );
 
-        let collection = remote_settings_client
+        let mut connection = connection_pool.acquire().await;
+        let collection = connection
             .sync(None)
             .await
             .context("Fetching records from remote settings")
@@ -241,12 +250,28 @@ impl RemoteSettingsSuggester {
         }
 
         // Download and process all the attachments.
-        let mut data_records = records.clone();
-        data_records.retain(|r| r.get("type") == Some(&serde_json::json!("data")));
+        let all_data_records = records.clone();
+
+        // Get records whose `type` field is either `data` or `offline-expansion-data`,
+        // prefer `offline-expansion-data` over `data` if the former is present.
+        //
+        // See details: https://mozilla-hub.atlassian.net/browse/CONSVC-1817
+        let (mut data_records, offline_data_records): (Vec<_>, Vec<_>) = all_data_records
+            .into_iter()
+            .filter(|r| {
+                matches!(
+                    r.get("type"),
+                    Some(&serde_json::Value::String(ref val)) if val == "data" || val == "offline-expansion-data"
+                )
+            })
+            .partition(|r| r.get("type") == Some(&serde_json::json!("data")));
+        if !offline_data_records.is_empty() {
+            data_records = offline_data_records;
+        }
 
         tracing::trace!("loading suggestions from records");
 
-        let server_info = remote_settings_client
+        let server_info = connection
             .server_info()
             .await
             .context("Fetching server information")
@@ -271,68 +296,95 @@ impl RemoteSettingsSuggester {
             }
         }
 
+        // Drop the Remote Settings connection now as its use is done.
+        drop(connection);
+
         // Convert the collection of adM suggestion attachments into a lookup
         // table of keyword -> merino suggestion.
-        let mut new_suggestions = HashMap::new();
-        for record in data_records.iter_mut() {
-            if let Ok(Some(parsed_data)) = remote_settings_client
-                .fetch_attachment::<VecAdm, serde_json::Error>(record)
-                .await
-            {
-                let attachment_hash = match record.attachment_metadata() {
-                    Ok(Some(meta)) => &meta.hash,
-                    _ => continue,
-                };
+        //
+        // To reduce the overall sync duration, the attachments are downloaded
+        // and processed in separate tasks.
 
-                tracing::trace!(%attachment_hash, suggestion_count = ?parsed_data.suggestions.len(), "processing attachment");
-                for adm_suggestion in parsed_data.suggestions {
-                    if adm_suggestion.keywords.is_empty() {
-                        tracing::warn!(
-                            r#type = "adm.remote-settings.sync-no-keywords",
-                            ?adm_suggestion,
-                            "Suggestion from remote settings has no keywords"
-                        );
-                        continue;
-                    }
+        let mut tasks = FuturesUnordered::new();
+        let icon_urls = Arc::new(icon_urls);
+        for mut record in data_records.into_iter() {
+            let mut new_suggestions = HashMap::new();
+            let pool = connection_pool.clone();
+            let icon_urls_clone = Arc::clone(&icon_urls);
+            tasks.push(tokio::spawn(async move {
+                // Downloading the attachment inside a scope to release the
+                // connection when its use is done.
+                if let Ok(Some(parsed_data)) = {
+                    let mut connection = pool.acquire().await;
+                    connection
+                        .fetch_attachment::<VecAdm, serde_json::Error>(&mut record)
+                        .await
 
-                    let icon_key = format!("icon-{}", adm_suggestion.icon);
-                    let icon_url = if let Some(u) = icon_urls.get(&icon_key) {
-                        Uri::from_str(u).expect("invalid URL")
-                    } else {
-                        tracing::warn!(
-                            r#type = "adm.remote-settings.sync-no-icon",
-                            suggestion_id = %adm_suggestion.id, "ADM suggestion has no icon");
-                        continue;
+                }
+                {
+                    let attachment_hash = match record.attachment_metadata() {
+                        Ok(Some(meta)) => &meta.hash,
+                        _ => return None,
                     };
 
-                    let merino_suggestion = Suggestion {
-                        id: adm_suggestion.id,
-                        title: adm_suggestion.title.clone(),
-                        url: adm_suggestion.url.clone(),
-                        impression_url: adm_suggestion.impression_url.clone(),
-                        click_url: adm_suggestion.click_url.clone(),
-                        full_keyword: String::new(),
-                        provider: adm_suggestion.advertiser.clone(),
-                        advertiser: adm_suggestion.advertiser.clone(),
-                        is_sponsored: !NON_SPONSORED_IAB_CATEGORIES
-                            .contains(&adm_suggestion.iab_category.as_str()),
-                        icon: icon_url,
-                        score: suggestion_score,
-                    };
+                    tracing::trace!(%attachment_hash, suggestion_count = ?parsed_data.suggestions.len(), "processing attachment");
+                    for adm_suggestion in parsed_data.suggestions {
+                        if adm_suggestion.keywords.is_empty() {
+                            tracing::warn!(
+                                r#type = "adm.remote-settings.sync-no-keywords",
+                                ?adm_suggestion,
+                                "Suggestion from remote settings has no keywords"
+                            );
+                            continue;
+                        }
 
-                    for keyword in &adm_suggestion.keywords {
-                        let full_keyword =
-                            Self::get_full_keyword(keyword, &adm_suggestion.keywords);
+                        let icon_key = format!("icon-{}", adm_suggestion.icon);
+                        let icon_url = if let Some(u) = icon_urls_clone.get(&icon_key) {
+                            Uri::from_str(u).expect("invalid URL")
+                        } else {
+                            tracing::warn!(
+                                r#type = "adm.remote-settings.sync-no-icon",
+                                suggestion_id = %adm_suggestion.id, "ADM suggestion has no icon");
+                            continue;
+                        };
 
-                        new_suggestions.insert(
-                            keyword.clone(),
-                            Suggestion {
-                                full_keyword,
-                                ..merino_suggestion.clone()
-                            },
-                        );
+                        let merino_suggestion = Suggestion {
+                            id: adm_suggestion.id,
+                            title: adm_suggestion.title.clone(),
+                            url: adm_suggestion.url.clone(),
+                            impression_url: adm_suggestion.impression_url.clone(),
+                            click_url: adm_suggestion.click_url.clone(),
+                            full_keyword: String::new(),
+                            provider: adm_suggestion.advertiser.clone(),
+                            advertiser: adm_suggestion.advertiser.clone(),
+                            is_sponsored: !NON_SPONSORED_IAB_CATEGORIES
+                                .contains(&adm_suggestion.iab_category.as_str()),
+                            icon: icon_url,
+                            score: suggestion_score,
+                        };
+
+                        for keyword in &adm_suggestion.keywords {
+                            let full_keyword =
+                                Self::get_full_keyword(keyword, &adm_suggestion.keywords);
+
+                            new_suggestions.insert(
+                                keyword.clone(),
+                                Suggestion {
+                                    full_keyword,
+                                    ..merino_suggestion.clone()
+                                },
+                            );
+                        }
                     }
                 }
+                Some(new_suggestions)
+            }));
+        }
+
+        let mut new_suggestions = HashMap::new();
+        while let Some(res) = tasks.next().await {
+            if let Ok(Some(suggestions)) = res {
+                new_suggestions.extend(suggestions.into_iter());
             }
         }
 
@@ -490,10 +542,12 @@ struct AdmSuggestion {
     id: u32,
     #[serde_as(as = "DisplayFromStr")]
     url: Uri,
-    #[serde_as(as = "DisplayFromStr")]
-    click_url: Uri,
-    #[serde_as(as = "DisplayFromStr")]
-    impression_url: Uri,
+    #[serde_as(as = "Option<DisplayFromStr>")]
+    #[serde(default)]
+    click_url: Option<Uri>,
+    #[serde_as(as = "Option<DisplayFromStr>")]
+    #[serde(default)]
+    impression_url: Option<Uri>,
     iab_category: String,
     #[serde_as(as = "DisplayFromStr")]
     icon: u64,
@@ -522,8 +576,8 @@ mod tests {
                 url: Uri::from_static("https://en.wikipedia.org/wiki/Sheep"),
                 id: 1,
                 full_keyword: "sheep".to_string(),
-                impression_url: Uri::from_static("https://127.0.0.1"),
-                click_url: Uri::from_static("https://127.0.0.1"),
+                impression_url: Some(Uri::from_static("https://127.0.0.1")),
+                click_url: Some(Uri::from_static("https://127.0.0.1")),
                 provider: "test".to_string(),
                 advertiser: "test_advertiser".to_string(),
                 is_sponsored: false,
@@ -563,8 +617,8 @@ mod tests {
                 url: Uri::from_static("https://en.wikipedia.org/wiki/Sheep"),
                 id: 1,
                 full_keyword: "sheep".to_string(),
-                impression_url: Uri::from_static("https://127.0.0.1"),
-                click_url: Uri::from_static("https://127.0.0.1"),
+                impression_url: Some(Uri::from_static("https://127.0.0.1")),
+                click_url: Some(Uri::from_static("https://127.0.0.1")),
                 provider: "test".to_string(),
                 advertiser: "test_advertiser".to_string(),
                 is_sponsored: false,

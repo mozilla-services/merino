@@ -5,6 +5,7 @@
 from pathlib import Path
 from time import sleep
 
+import re
 import requests
 import typer
 from kinto import (
@@ -16,6 +17,10 @@ from kinto import (
     upload_icons,
 )
 from requests import HTTPError
+
+
+# Pattern to extract data types of Kinto attachment files.
+PATTERN_DATA_TYPE = re.compile(r"^(?P<data_type>.*)-\d{2}$")
 
 
 def main(
@@ -35,6 +40,7 @@ def main(
                 mimetype="application/json",
                 filecontent=data_file.read_bytes(),
             ),
+            data_type=re.match(PATTERN_DATA_TYPE, data_file.stem).group("data_type"),
         )
         for data_file in kinto_data_dir.glob("*.json")
     ]

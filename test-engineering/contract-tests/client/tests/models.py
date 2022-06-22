@@ -30,13 +30,15 @@ class Suggestion(BaseModel, extra=Extra.allow):
     full_keyword: str
     title: str
     url: str
-    impression_url: str
-    click_url: str
     provider: str
     advertiser: str
     is_sponsored: bool
     score: float
     icon: Optional[str] = Field(...)
+    # Both impression_url and click_url are optional. They're absent for
+    # Mozilla-provided Wikipedia suggestions.
+    impression_url: Optional[str]
+    click_url: Optional[str]
 
 
 class ResponseContent(BaseModel):
@@ -76,10 +78,12 @@ class KintoSuggestion(BaseModel):
 
     id: int
     url: str
-    click_url: str
-    impression_url: str
     iab_category: str
     icon: str
     advertiser: str
     title: str
     keywords: List[str] = Field(default_factory=list)
+    # Both impression_url and click_url are optional. They're absent for
+    # Mozilla-provided Wikipedia suggestions.
+    click_url: Optional[str]
+    impression_url: Optional[str]
