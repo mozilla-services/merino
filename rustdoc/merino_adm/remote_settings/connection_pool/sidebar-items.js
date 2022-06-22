@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["Connection","The connection to Remote Settings"],["ConnectionPool","The connection pool for Remote Settings."]]});

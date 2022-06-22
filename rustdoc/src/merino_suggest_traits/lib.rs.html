@@ -547,6 +547,8 @@
 <span id="542">542</span>
 <span id="543">543</span>
 <span id="544">544</span>
+<span id="545">545</span>
+<span id="546">546</span>
 </pre><pre class="rust"><code><span class="attribute">#![<span class="ident">warn</span>(<span class="ident">missing_docs</span>, <span class="ident">clippy::missing_docs_in_private_items</span>)]</span>
 
 <span class="doccomment">//! Suggestion backends for [Merino](../merino/index.html).</span>
@@ -731,12 +733,14 @@
     <span class="kw">pub</span> <span class="ident">url</span>: <span class="ident">Uri</span>,
 
     <span class="doccomment">/// The URL to notify when this keyword is presented to a user.</span>
-    <span class="attribute">#[<span class="ident">serde_as</span>(<span class="kw">as</span> <span class="op">=</span> <span class="string">&quot;DisplayFromStr&quot;</span>)]</span>
-    <span class="kw">pub</span> <span class="ident">impression_url</span>: <span class="ident">Uri</span>,
+    <span class="attribute">#[<span class="ident">serde_as</span>(<span class="kw">as</span> <span class="op">=</span> <span class="string">&quot;Option&lt;DisplayFromStr&gt;&quot;</span>)]</span>
+    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">default</span>)]</span>
+    <span class="kw">pub</span> <span class="ident">impression_url</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uri</span><span class="op">&gt;</span>,
 
     <span class="doccomment">/// The URL to notify when this keyword is clicked on by a user.</span>
-    <span class="attribute">#[<span class="ident">serde_as</span>(<span class="kw">as</span> <span class="op">=</span> <span class="string">&quot;DisplayFromStr&quot;</span>)]</span>
-    <span class="kw">pub</span> <span class="ident">click_url</span>: <span class="ident">Uri</span>,
+    <span class="attribute">#[<span class="ident">serde_as</span>(<span class="kw">as</span> <span class="op">=</span> <span class="string">&quot;Option&lt;DisplayFromStr&gt;&quot;</span>)]</span>
+    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">default</span>)]</span>
+    <span class="kw">pub</span> <span class="ident">click_url</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uri</span><span class="op">&gt;</span>,
 
     <span class="doccomment">/// The name of the provider associated with this suggestion.</span>
     <span class="kw">pub</span> <span class="ident">provider</span>: <span class="ident">String</span>,
@@ -767,8 +771,8 @@
             <span class="ident">full_keyword</span>: <span class="ident">Word</span>().<span class="ident">fake_with_rng</span>(<span class="ident">rng</span>),
             <span class="ident">title</span>: <span class="ident">Words</span>(<span class="number">3</span>..<span class="number">5</span>).<span class="ident">fake_with_rng</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>, <span class="ident">R</span><span class="op">&gt;</span>(<span class="ident">rng</span>).<span class="ident">join</span>(<span class="string">&quot; &quot;</span>),
             <span class="ident">url</span>: <span class="ident">fake_example_url</span>(<span class="ident">rng</span>),
-            <span class="ident">impression_url</span>: <span class="ident">fake_example_url</span>(<span class="ident">rng</span>),
-            <span class="ident">click_url</span>: <span class="ident">fake_example_url</span>(<span class="ident">rng</span>),
+            <span class="ident">impression_url</span>: <span class="prelude-val">Some</span>(<span class="ident">fake_example_url</span>(<span class="ident">rng</span>)),
+            <span class="ident">click_url</span>: <span class="prelude-val">Some</span>(<span class="ident">fake_example_url</span>(<span class="ident">rng</span>)),
             <span class="ident">provider</span>: <span class="ident">Words</span>(<span class="number">2</span>..<span class="number">4</span>).<span class="ident">fake_with_rng</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>, <span class="ident">R</span><span class="op">&gt;</span>(<span class="ident">rng</span>).<span class="ident">join</span>(<span class="string">&quot; &quot;</span>),
             <span class="ident">advertiser</span>: <span class="ident">Words</span>(<span class="number">2</span>..<span class="number">4</span>).<span class="ident">fake_with_rng</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>, <span class="ident">R</span><span class="op">&gt;</span>(<span class="ident">rng</span>).<span class="ident">join</span>(<span class="string">&quot; &quot;</span>),
             <span class="ident">is_sponsored</span>: <span class="ident">rng</span>.<span class="ident">gen</span>(),

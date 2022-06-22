@@ -740,17 +740,74 @@
 <span id="735">735</span>
 <span id="736">736</span>
 <span id="737">737</span>
+<span id="738">738</span>
+<span id="739">739</span>
+<span id="740">740</span>
+<span id="741">741</span>
+<span id="742">742</span>
+<span id="743">743</span>
+<span id="744">744</span>
+<span id="745">745</span>
+<span id="746">746</span>
+<span id="747">747</span>
+<span id="748">748</span>
+<span id="749">749</span>
+<span id="750">750</span>
+<span id="751">751</span>
+<span id="752">752</span>
+<span id="753">753</span>
+<span id="754">754</span>
+<span id="755">755</span>
+<span id="756">756</span>
+<span id="757">757</span>
+<span id="758">758</span>
+<span id="759">759</span>
+<span id="760">760</span>
+<span id="761">761</span>
+<span id="762">762</span>
+<span id="763">763</span>
+<span id="764">764</span>
+<span id="765">765</span>
+<span id="766">766</span>
+<span id="767">767</span>
+<span id="768">768</span>
+<span id="769">769</span>
+<span id="770">770</span>
+<span id="771">771</span>
+<span id="772">772</span>
+<span id="773">773</span>
+<span id="774">774</span>
+<span id="775">775</span>
+<span id="776">776</span>
+<span id="777">777</span>
+<span id="778">778</span>
+<span id="779">779</span>
+<span id="780">780</span>
+<span id="781">781</span>
+<span id="782">782</span>
+<span id="783">783</span>
+<span id="784">784</span>
+<span id="785">785</span>
+<span id="786">786</span>
+<span id="787">787</span>
+<span id="788">788</span>
+<span id="789">789</span>
+<span id="790">790</span>
+<span id="791">791</span>
 </pre><pre class="rust"><code><span class="doccomment">//! AdM integration that uses the remote-settings provided data.</span>
 
+<span class="kw">mod</span> <span class="ident">connection_pool</span>;
 <span class="kw">mod</span> <span class="ident">reqwest_client</span>;
 <span class="kw">mod</span> <span class="ident">soft_verifier</span>;
 
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::remote_settings::connection_pool::ConnectionPool</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::remote_settings::reqwest_client::ReqwestClient</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::remote_settings::soft_verifier::SoftVerifier</span>;
 <span class="kw">use</span> <span class="ident">anyhow</span>::{<span class="ident">anyhow</span>, <span class="ident">Context</span>};
 <span class="kw">use</span> <span class="ident">async_trait::async_trait</span>;
 <span class="kw">use</span> <span class="ident">cadence::StatsdClient</span>;
 <span class="kw">use</span> <span class="ident">deduped_dashmap::DedupedMap</span>;
+<span class="kw">use</span> <span class="ident">futures::stream</span>::{<span class="ident">FuturesUnordered</span>, <span class="ident">StreamExt</span>};
 <span class="kw">use</span> <span class="ident">http::Uri</span>;
 <span class="kw">use</span> <span class="ident">lazy_static::lazy_static</span>;
 <span class="kw">use</span> <span class="ident">merino_settings</span>::{<span class="ident">providers::RemoteSettingsConfig</span>, <span class="ident">RemoteSettingsGlobalSettings</span>, <span class="ident">Settings</span>};
@@ -799,17 +856,22 @@
         <span class="ident">config</span>: <span class="ident">RemoteSettingsConfig</span>,
         <span class="ident">metrics_client</span>: <span class="ident">StatsdClient</span>,
     ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>, <span class="ident">SetupError</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rs_client</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::create_rs_client</span>(<span class="kw-2">&amp;</span><span class="ident">settings</span>.<span class="ident">remote_settings</span>, <span class="kw-2">&amp;</span><span class="ident">config</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">clients</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
+        <span class="comment">// Spawn (2 x number_cpu) Remote Settings clients for the connection pool.</span>
+        <span class="kw">for</span> <span class="kw">_</span> <span class="kw">in</span> <span class="number">0</span>..(<span class="ident">num_cpus::get</span>() <span class="op">*</span> <span class="number">2</span>) {
+            <span class="ident">clients</span>.<span class="ident">push</span>(<span class="ident"><span class="self">Self</span>::create_rs_client</span>(<span class="kw-2">&amp;</span><span class="ident">settings</span>.<span class="ident">remote_settings</span>, <span class="kw-2">&amp;</span><span class="ident">config</span>).<span class="kw">await</span><span class="question-mark">?</span>);
+        }
+        <span class="kw">let</span> <span class="ident">pool</span> <span class="op">=</span> <span class="ident">Arc::new</span>(<span class="ident">ConnectionPool::new</span>(<span class="ident">clients</span>));
         <span class="kw">let</span> <span class="ident">suggestions</span> <span class="op">=</span> <span class="ident">Arc::new</span>(<span class="ident">DedupedMap::new</span>());
         <span class="kw">let</span> <span class="ident">suggestion_score</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::parse_suggestion_score</span>(<span class="ident">config</span>.<span class="ident">suggestion_score</span>)<span class="question-mark">?</span>;
 
-        <span class="ident"><span class="self">Self</span>::sync</span>(<span class="kw-2">&amp;mut</span> <span class="ident">rs_client</span>, <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">suggestions</span>, <span class="ident">suggestion_score</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="ident"><span class="self">Self</span>::sync</span>(<span class="ident">pool</span>.<span class="ident">clone</span>(), <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">suggestions</span>, <span class="ident">suggestion_score</span>).<span class="kw">await</span><span class="question-mark">?</span>;
 
         <span class="kw">let</span> <span class="ident">resync_task</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::spawn_resync_task</span>(
             <span class="ident">settings</span>.<span class="ident">remote_settings</span>.<span class="ident">cron_interval</span>,
             <span class="ident">config</span>,
             <span class="ident">Arc::clone</span>(<span class="kw-2">&amp;</span><span class="ident">suggestions</span>),
-            <span class="ident">rs_client</span>,
+            <span class="ident">pool</span>,
         );
 
         <span class="prelude-val">Ok</span>(<span class="ident">Box::new</span>(<span class="self">Self</span> {
@@ -881,7 +943,7 @@
         <span class="ident">cron_interval</span>: <span class="ident">Duration</span>,
         <span class="kw-2">mut</span> <span class="ident">rs_config</span>: <span class="ident">RemoteSettingsConfig</span>,
         <span class="ident">suggestions</span>: <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">DedupedMap</span><span class="op">&lt;</span><span class="ident">String</span>, (), <span class="ident">Suggestion</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-        <span class="kw-2">mut</span> <span class="ident">rs_client</span>: <span class="ident">remote_settings_client::Client</span>,
+        <span class="ident">pool</span>: <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">ConnectionPool</span><span class="op">&gt;</span>,
     ) -&gt; (<span class="ident">JoinHandle</span><span class="op">&lt;</span>()<span class="op">&gt;</span>, <span class="ident">Sender</span><span class="op">&lt;</span><span class="ident">RemoteSettingsConfig</span><span class="op">&gt;</span>) {
         <span class="comment">// A channel for reconfiguration. Setting the channel capacity to 1 to</span>
         <span class="comment">// handle the backpressure.</span>
@@ -907,7 +969,7 @@
                         <span class="comment">// Unwrap is OK here as `rs_config` is already verified elsewhere.</span>
                         <span class="kw">let</span> <span class="ident">suggestion_score</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::parse_suggestion_score</span>(<span class="ident">rs_config</span>.<span class="ident">suggestion_score</span>).<span class="ident">unwrap</span>();
                         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Err</span>(<span class="ident">error</span>) <span class="op">=</span>
-                            <span class="ident"><span class="self">Self</span>::sync</span>(<span class="kw-2">&amp;mut</span> <span class="ident">rs_client</span>, <span class="ident">loop_suggestions</span>, <span class="ident">suggestion_score</span>).<span class="kw">await</span>
+                            <span class="ident"><span class="self">Self</span>::sync</span>(<span class="ident">pool</span>.<span class="ident">clone</span>(), <span class="ident">loop_suggestions</span>, <span class="ident">suggestion_score</span>).<span class="kw">await</span>
                         {
                             <span class="macro">tracing::error!</span>(
                                 <span class="ident">r#type</span> <span class="op">=</span> <span class="string">&quot;adm.remote-settings.sync-failed&quot;</span>,
@@ -940,9 +1002,9 @@
     <span class="doccomment">/// Download suggestions from Remote Settings</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// This must be called at least once before any suggestions will be provided</span>
-    <span class="attribute">#[<span class="ident">tracing::instrument</span>(<span class="ident">skip</span>(<span class="ident">remote_settings_client</span>, <span class="ident">suggestions</span>))]</span>
+    <span class="attribute">#[<span class="ident">tracing::instrument</span>(<span class="ident">skip</span>(<span class="ident">connection_pool</span>, <span class="ident">suggestions</span>))]</span>
     <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">sync</span>(
-        <span class="ident">remote_settings_client</span>: <span class="kw-2">&amp;mut</span> <span class="ident">remote_settings_client::Client</span>,
+        <span class="ident">connection_pool</span>: <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">ConnectionPool</span><span class="op">&gt;</span>,
         <span class="ident">suggestions</span>: <span class="kw-2">&amp;</span><span class="ident">DedupedMap</span><span class="op">&lt;</span><span class="ident">String</span>, (), <span class="ident">Suggestion</span><span class="op">&gt;</span>,
         <span class="ident">suggestion_score</span>: <span class="ident">Proportion</span>,
     ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">SetupError</span><span class="op">&gt;</span> {
@@ -951,7 +1013,8 @@
             <span class="string">&quot;Syncing quicksuggest records from Remote Settings&quot;</span>
         );
 
-        <span class="kw">let</span> <span class="ident">collection</span> <span class="op">=</span> <span class="ident">remote_settings_client</span>
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">connection</span> <span class="op">=</span> <span class="ident">connection_pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span>;
+        <span class="kw">let</span> <span class="ident">collection</span> <span class="op">=</span> <span class="ident">connection</span>
             .<span class="ident">sync</span>(<span class="prelude-val">None</span>)
             .<span class="kw">await</span>
             .<span class="ident">context</span>(<span class="string">&quot;Fetching records from remote settings&quot;</span>)
@@ -983,12 +1046,28 @@
         }
 
         <span class="comment">// Download and process all the attachments.</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">data_records</span> <span class="op">=</span> <span class="ident">records</span>.<span class="ident">clone</span>();
-        <span class="ident">data_records</span>.<span class="ident">retain</span>(<span class="op">|</span><span class="ident">r</span><span class="op">|</span> <span class="ident">r</span>.<span class="ident">get</span>(<span class="string">&quot;type&quot;</span>) <span class="op">==</span> <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="macro">serde_json::json!</span>(<span class="string">&quot;data&quot;</span>)));
+        <span class="kw">let</span> <span class="ident">all_data_records</span> <span class="op">=</span> <span class="ident">records</span>.<span class="ident">clone</span>();
+
+        <span class="comment">// Get records whose `type` field is either `data` or `offline-expansion-data`,</span>
+        <span class="comment">// prefer `offline-expansion-data` over `data` if the former is present.</span>
+        <span class="comment">//</span>
+        <span class="comment">// See details: https://mozilla-hub.atlassian.net/browse/CONSVC-1817</span>
+        <span class="kw">let</span> (<span class="kw-2">mut</span> <span class="ident">data_records</span>, <span class="ident">offline_data_records</span>): (<span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span>) <span class="op">=</span> <span class="ident">all_data_records</span>
+            .<span class="ident">into_iter</span>()
+            .<span class="ident">filter</span>(<span class="op">|</span><span class="ident">r</span><span class="op">|</span> {
+                <span class="macro">matches!</span>(
+                    <span class="ident">r</span>.<span class="ident">get</span>(<span class="string">&quot;type&quot;</span>),
+                    <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="ident">serde_json::Value::String</span>(<span class="kw-2">ref</span> <span class="ident">val</span>)) <span class="kw">if</span> <span class="ident">val</span> <span class="op">==</span> <span class="string">&quot;data&quot;</span> <span class="op">|</span><span class="op">|</span> <span class="ident">val</span> <span class="op">==</span> <span class="string">&quot;offline-expansion-data&quot;</span>
+                )
+            })
+            .<span class="ident">partition</span>(<span class="op">|</span><span class="ident">r</span><span class="op">|</span> <span class="ident">r</span>.<span class="ident">get</span>(<span class="string">&quot;type&quot;</span>) <span class="op">==</span> <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="macro">serde_json::json!</span>(<span class="string">&quot;data&quot;</span>)));
+        <span class="kw">if</span> <span class="op">!</span><span class="ident">offline_data_records</span>.<span class="ident">is_empty</span>() {
+            <span class="ident">data_records</span> <span class="op">=</span> <span class="ident">offline_data_records</span>;
+        }
 
         <span class="macro">tracing::trace!</span>(<span class="string">&quot;loading suggestions from records&quot;</span>);
 
-        <span class="kw">let</span> <span class="ident">server_info</span> <span class="op">=</span> <span class="ident">remote_settings_client</span>
+        <span class="kw">let</span> <span class="ident">server_info</span> <span class="op">=</span> <span class="ident">connection</span>
             .<span class="ident">server_info</span>()
             .<span class="kw">await</span>
             .<span class="ident">context</span>(<span class="string">&quot;Fetching server information&quot;</span>)
@@ -1013,68 +1092,95 @@
             }
         }
 
+        <span class="comment">// Drop the Remote Settings connection now as its use is done.</span>
+        <span class="ident">drop</span>(<span class="ident">connection</span>);
+
         <span class="comment">// Convert the collection of adM suggestion attachments into a lookup</span>
         <span class="comment">// table of keyword -&gt; merino suggestion.</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">new_suggestions</span> <span class="op">=</span> <span class="ident">HashMap::new</span>();
-        <span class="kw">for</span> <span class="ident">record</span> <span class="kw">in</span> <span class="ident">data_records</span>.<span class="ident">iter_mut</span>() {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="ident">parsed_data</span>)) <span class="op">=</span> <span class="ident">remote_settings_client</span>
-                .<span class="ident">fetch_attachment</span>::<span class="op">&lt;</span><span class="ident">VecAdm</span>, <span class="ident">serde_json::Error</span><span class="op">&gt;</span>(<span class="ident">record</span>)
-                .<span class="kw">await</span>
-            {
-                <span class="kw">let</span> <span class="ident">attachment_hash</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">record</span>.<span class="ident">attachment_metadata</span>() {
-                    <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="ident">meta</span>)) =&gt; <span class="kw-2">&amp;</span><span class="ident">meta</span>.<span class="ident">hash</span>,
-                    <span class="kw">_</span> =&gt; <span class="kw">continue</span>,
-                };
+        <span class="comment">//</span>
+        <span class="comment">// To reduce the overall sync duration, the attachments are downloaded</span>
+        <span class="comment">// and processed in separate tasks.</span>
 
-                <span class="macro">tracing::trace!</span>(<span class="op">%</span><span class="ident">attachment_hash</span>, <span class="ident">suggestion_count</span> <span class="op">=</span> <span class="question-mark">?</span><span class="ident">parsed_data</span>.<span class="ident">suggestions</span>.<span class="ident">len</span>(), <span class="string">&quot;processing attachment&quot;</span>);
-                <span class="kw">for</span> <span class="ident">adm_suggestion</span> <span class="kw">in</span> <span class="ident">parsed_data</span>.<span class="ident">suggestions</span> {
-                    <span class="kw">if</span> <span class="ident">adm_suggestion</span>.<span class="ident">keywords</span>.<span class="ident">is_empty</span>() {
-                        <span class="macro">tracing::warn!</span>(
-                            <span class="ident">r#type</span> <span class="op">=</span> <span class="string">&quot;adm.remote-settings.sync-no-keywords&quot;</span>,
-                            <span class="question-mark">?</span><span class="ident">adm_suggestion</span>,
-                            <span class="string">&quot;Suggestion from remote settings has no keywords&quot;</span>
-                        );
-                        <span class="kw">continue</span>;
-                    }
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tasks</span> <span class="op">=</span> <span class="ident">FuturesUnordered::new</span>();
+        <span class="kw">let</span> <span class="ident">icon_urls</span> <span class="op">=</span> <span class="ident">Arc::new</span>(<span class="ident">icon_urls</span>);
+        <span class="kw">for</span> <span class="kw-2">mut</span> <span class="ident">record</span> <span class="kw">in</span> <span class="ident">data_records</span>.<span class="ident">into_iter</span>() {
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">new_suggestions</span> <span class="op">=</span> <span class="ident">HashMap::new</span>();
+            <span class="kw">let</span> <span class="ident">pool</span> <span class="op">=</span> <span class="ident">connection_pool</span>.<span class="ident">clone</span>();
+            <span class="kw">let</span> <span class="ident">icon_urls_clone</span> <span class="op">=</span> <span class="ident">Arc::clone</span>(<span class="kw-2">&amp;</span><span class="ident">icon_urls</span>);
+            <span class="ident">tasks</span>.<span class="ident">push</span>(<span class="ident">tokio::spawn</span>(<span class="kw">async</span> <span class="kw">move</span> {
+                <span class="comment">// Downloading the attachment inside a scope to release the</span>
+                <span class="comment">// connection when its use is done.</span>
+                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="ident">parsed_data</span>)) <span class="op">=</span> {
+                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">connection</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span>;
+                    <span class="ident">connection</span>
+                        .<span class="ident">fetch_attachment</span>::<span class="op">&lt;</span><span class="ident">VecAdm</span>, <span class="ident">serde_json::Error</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="ident">record</span>)
+                        .<span class="kw">await</span>
 
-                    <span class="kw">let</span> <span class="ident">icon_key</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;icon-{}&quot;</span>, <span class="ident">adm_suggestion</span>.<span class="ident">icon</span>);
-                    <span class="kw">let</span> <span class="ident">icon_url</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">u</span>) <span class="op">=</span> <span class="ident">icon_urls</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">icon_key</span>) {
-                        <span class="ident">Uri::from_str</span>(<span class="ident">u</span>).<span class="ident">expect</span>(<span class="string">&quot;invalid URL&quot;</span>)
-                    } <span class="kw">else</span> {
-                        <span class="macro">tracing::warn!</span>(
-                            <span class="ident">r#type</span> <span class="op">=</span> <span class="string">&quot;adm.remote-settings.sync-no-icon&quot;</span>,
-                            <span class="ident">suggestion_id</span> <span class="op">=</span> <span class="op">%</span><span class="ident">adm_suggestion</span>.<span class="ident">id</span>, <span class="string">&quot;ADM suggestion has no icon&quot;</span>);
-                        <span class="kw">continue</span>;
+                }
+                {
+                    <span class="kw">let</span> <span class="ident">attachment_hash</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">record</span>.<span class="ident">attachment_metadata</span>() {
+                        <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="ident">meta</span>)) =&gt; <span class="kw-2">&amp;</span><span class="ident">meta</span>.<span class="ident">hash</span>,
+                        <span class="kw">_</span> =&gt; <span class="kw">return</span> <span class="prelude-val">None</span>,
                     };
 
-                    <span class="kw">let</span> <span class="ident">merino_suggestion</span> <span class="op">=</span> <span class="ident">Suggestion</span> {
-                        <span class="ident">id</span>: <span class="ident">adm_suggestion</span>.<span class="ident">id</span>,
-                        <span class="ident">title</span>: <span class="ident">adm_suggestion</span>.<span class="ident">title</span>.<span class="ident">clone</span>(),
-                        <span class="ident">url</span>: <span class="ident">adm_suggestion</span>.<span class="ident">url</span>.<span class="ident">clone</span>(),
-                        <span class="ident">impression_url</span>: <span class="ident">adm_suggestion</span>.<span class="ident">impression_url</span>.<span class="ident">clone</span>(),
-                        <span class="ident">click_url</span>: <span class="ident">adm_suggestion</span>.<span class="ident">click_url</span>.<span class="ident">clone</span>(),
-                        <span class="ident">full_keyword</span>: <span class="ident">String::new</span>(),
-                        <span class="ident">provider</span>: <span class="ident">adm_suggestion</span>.<span class="ident">advertiser</span>.<span class="ident">clone</span>(),
-                        <span class="ident">advertiser</span>: <span class="ident">adm_suggestion</span>.<span class="ident">advertiser</span>.<span class="ident">clone</span>(),
-                        <span class="ident">is_sponsored</span>: <span class="op">!</span><span class="ident">NON_SPONSORED_IAB_CATEGORIES</span>
-                            .<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">adm_suggestion</span>.<span class="ident">iab_category</span>.<span class="ident">as_str</span>()),
-                        <span class="ident">icon</span>: <span class="ident">icon_url</span>,
-                        <span class="ident">score</span>: <span class="ident">suggestion_score</span>,
-                    };
+                    <span class="macro">tracing::trace!</span>(<span class="op">%</span><span class="ident">attachment_hash</span>, <span class="ident">suggestion_count</span> <span class="op">=</span> <span class="question-mark">?</span><span class="ident">parsed_data</span>.<span class="ident">suggestions</span>.<span class="ident">len</span>(), <span class="string">&quot;processing attachment&quot;</span>);
+                    <span class="kw">for</span> <span class="ident">adm_suggestion</span> <span class="kw">in</span> <span class="ident">parsed_data</span>.<span class="ident">suggestions</span> {
+                        <span class="kw">if</span> <span class="ident">adm_suggestion</span>.<span class="ident">keywords</span>.<span class="ident">is_empty</span>() {
+                            <span class="macro">tracing::warn!</span>(
+                                <span class="ident">r#type</span> <span class="op">=</span> <span class="string">&quot;adm.remote-settings.sync-no-keywords&quot;</span>,
+                                <span class="question-mark">?</span><span class="ident">adm_suggestion</span>,
+                                <span class="string">&quot;Suggestion from remote settings has no keywords&quot;</span>
+                            );
+                            <span class="kw">continue</span>;
+                        }
 
-                    <span class="kw">for</span> <span class="ident">keyword</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">adm_suggestion</span>.<span class="ident">keywords</span> {
-                        <span class="kw">let</span> <span class="ident">full_keyword</span> <span class="op">=</span>
-                            <span class="ident"><span class="self">Self</span>::get_full_keyword</span>(<span class="ident">keyword</span>, <span class="kw-2">&amp;</span><span class="ident">adm_suggestion</span>.<span class="ident">keywords</span>);
+                        <span class="kw">let</span> <span class="ident">icon_key</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;icon-{}&quot;</span>, <span class="ident">adm_suggestion</span>.<span class="ident">icon</span>);
+                        <span class="kw">let</span> <span class="ident">icon_url</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">u</span>) <span class="op">=</span> <span class="ident">icon_urls_clone</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">icon_key</span>) {
+                            <span class="ident">Uri::from_str</span>(<span class="ident">u</span>).<span class="ident">expect</span>(<span class="string">&quot;invalid URL&quot;</span>)
+                        } <span class="kw">else</span> {
+                            <span class="macro">tracing::warn!</span>(
+                                <span class="ident">r#type</span> <span class="op">=</span> <span class="string">&quot;adm.remote-settings.sync-no-icon&quot;</span>,
+                                <span class="ident">suggestion_id</span> <span class="op">=</span> <span class="op">%</span><span class="ident">adm_suggestion</span>.<span class="ident">id</span>, <span class="string">&quot;ADM suggestion has no icon&quot;</span>);
+                            <span class="kw">continue</span>;
+                        };
 
-                        <span class="ident">new_suggestions</span>.<span class="ident">insert</span>(
-                            <span class="ident">keyword</span>.<span class="ident">clone</span>(),
-                            <span class="ident">Suggestion</span> {
-                                <span class="ident">full_keyword</span>,
-                                ..<span class="ident">merino_suggestion</span>.<span class="ident">clone</span>()
-                            },
-                        );
+                        <span class="kw">let</span> <span class="ident">merino_suggestion</span> <span class="op">=</span> <span class="ident">Suggestion</span> {
+                            <span class="ident">id</span>: <span class="ident">adm_suggestion</span>.<span class="ident">id</span>,
+                            <span class="ident">title</span>: <span class="ident">adm_suggestion</span>.<span class="ident">title</span>.<span class="ident">clone</span>(),
+                            <span class="ident">url</span>: <span class="ident">adm_suggestion</span>.<span class="ident">url</span>.<span class="ident">clone</span>(),
+                            <span class="ident">impression_url</span>: <span class="ident">adm_suggestion</span>.<span class="ident">impression_url</span>.<span class="ident">clone</span>(),
+                            <span class="ident">click_url</span>: <span class="ident">adm_suggestion</span>.<span class="ident">click_url</span>.<span class="ident">clone</span>(),
+                            <span class="ident">full_keyword</span>: <span class="ident">String::new</span>(),
+                            <span class="ident">provider</span>: <span class="ident">adm_suggestion</span>.<span class="ident">advertiser</span>.<span class="ident">clone</span>(),
+                            <span class="ident">advertiser</span>: <span class="ident">adm_suggestion</span>.<span class="ident">advertiser</span>.<span class="ident">clone</span>(),
+                            <span class="ident">is_sponsored</span>: <span class="op">!</span><span class="ident">NON_SPONSORED_IAB_CATEGORIES</span>
+                                .<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">adm_suggestion</span>.<span class="ident">iab_category</span>.<span class="ident">as_str</span>()),
+                            <span class="ident">icon</span>: <span class="ident">icon_url</span>,
+                            <span class="ident">score</span>: <span class="ident">suggestion_score</span>,
+                        };
+
+                        <span class="kw">for</span> <span class="ident">keyword</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">adm_suggestion</span>.<span class="ident">keywords</span> {
+                            <span class="kw">let</span> <span class="ident">full_keyword</span> <span class="op">=</span>
+                                <span class="ident"><span class="self">Self</span>::get_full_keyword</span>(<span class="ident">keyword</span>, <span class="kw-2">&amp;</span><span class="ident">adm_suggestion</span>.<span class="ident">keywords</span>);
+
+                            <span class="ident">new_suggestions</span>.<span class="ident">insert</span>(
+                                <span class="ident">keyword</span>.<span class="ident">clone</span>(),
+                                <span class="ident">Suggestion</span> {
+                                    <span class="ident">full_keyword</span>,
+                                    ..<span class="ident">merino_suggestion</span>.<span class="ident">clone</span>()
+                                },
+                            );
+                        }
                     }
                 }
+                <span class="prelude-val">Some</span>(<span class="ident">new_suggestions</span>)
+            }));
+        }
+
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">new_suggestions</span> <span class="op">=</span> <span class="ident">HashMap::new</span>();
+        <span class="kw">while</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">res</span>) <span class="op">=</span> <span class="ident">tasks</span>.<span class="ident">next</span>().<span class="kw">await</span> {
+            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="ident">suggestions</span>)) <span class="op">=</span> <span class="ident">res</span> {
+                <span class="ident">new_suggestions</span>.<span class="ident">extend</span>(<span class="ident">suggestions</span>.<span class="ident">into_iter</span>());
             }
         }
 
@@ -1232,10 +1338,12 @@
     <span class="ident">id</span>: <span class="ident">u32</span>,
     <span class="attribute">#[<span class="ident">serde_as</span>(<span class="kw">as</span> <span class="op">=</span> <span class="string">&quot;DisplayFromStr&quot;</span>)]</span>
     <span class="ident">url</span>: <span class="ident">Uri</span>,
-    <span class="attribute">#[<span class="ident">serde_as</span>(<span class="kw">as</span> <span class="op">=</span> <span class="string">&quot;DisplayFromStr&quot;</span>)]</span>
-    <span class="ident">click_url</span>: <span class="ident">Uri</span>,
-    <span class="attribute">#[<span class="ident">serde_as</span>(<span class="kw">as</span> <span class="op">=</span> <span class="string">&quot;DisplayFromStr&quot;</span>)]</span>
-    <span class="ident">impression_url</span>: <span class="ident">Uri</span>,
+    <span class="attribute">#[<span class="ident">serde_as</span>(<span class="kw">as</span> <span class="op">=</span> <span class="string">&quot;Option&lt;DisplayFromStr&gt;&quot;</span>)]</span>
+    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">default</span>)]</span>
+    <span class="ident">click_url</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uri</span><span class="op">&gt;</span>,
+    <span class="attribute">#[<span class="ident">serde_as</span>(<span class="kw">as</span> <span class="op">=</span> <span class="string">&quot;Option&lt;DisplayFromStr&gt;&quot;</span>)]</span>
+    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">default</span>)]</span>
+    <span class="ident">impression_url</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uri</span><span class="op">&gt;</span>,
     <span class="ident">iab_category</span>: <span class="ident">String</span>,
     <span class="attribute">#[<span class="ident">serde_as</span>(<span class="kw">as</span> <span class="op">=</span> <span class="string">&quot;DisplayFromStr&quot;</span>)]</span>
     <span class="ident">icon</span>: <span class="ident">u64</span>,
@@ -1264,8 +1372,8 @@
                 <span class="ident">url</span>: <span class="ident">Uri::from_static</span>(<span class="string">&quot;https://en.wikipedia.org/wiki/Sheep&quot;</span>),
                 <span class="ident">id</span>: <span class="number">1</span>,
                 <span class="ident">full_keyword</span>: <span class="string">&quot;sheep&quot;</span>.<span class="ident">to_string</span>(),
-                <span class="ident">impression_url</span>: <span class="ident">Uri::from_static</span>(<span class="string">&quot;https://127.0.0.1&quot;</span>),
-                <span class="ident">click_url</span>: <span class="ident">Uri::from_static</span>(<span class="string">&quot;https://127.0.0.1&quot;</span>),
+                <span class="ident">impression_url</span>: <span class="prelude-val">Some</span>(<span class="ident">Uri::from_static</span>(<span class="string">&quot;https://127.0.0.1&quot;</span>)),
+                <span class="ident">click_url</span>: <span class="prelude-val">Some</span>(<span class="ident">Uri::from_static</span>(<span class="string">&quot;https://127.0.0.1&quot;</span>)),
                 <span class="ident">provider</span>: <span class="string">&quot;test&quot;</span>.<span class="ident">to_string</span>(),
                 <span class="ident">advertiser</span>: <span class="string">&quot;test_advertiser&quot;</span>.<span class="ident">to_string</span>(),
                 <span class="ident">is_sponsored</span>: <span class="bool-val">false</span>,
@@ -1305,8 +1413,8 @@
                 <span class="ident">url</span>: <span class="ident">Uri::from_static</span>(<span class="string">&quot;https://en.wikipedia.org/wiki/Sheep&quot;</span>),
                 <span class="ident">id</span>: <span class="number">1</span>,
                 <span class="ident">full_keyword</span>: <span class="string">&quot;sheep&quot;</span>.<span class="ident">to_string</span>(),
-                <span class="ident">impression_url</span>: <span class="ident">Uri::from_static</span>(<span class="string">&quot;https://127.0.0.1&quot;</span>),
-                <span class="ident">click_url</span>: <span class="ident">Uri::from_static</span>(<span class="string">&quot;https://127.0.0.1&quot;</span>),
+                <span class="ident">impression_url</span>: <span class="prelude-val">Some</span>(<span class="ident">Uri::from_static</span>(<span class="string">&quot;https://127.0.0.1&quot;</span>)),
+                <span class="ident">click_url</span>: <span class="prelude-val">Some</span>(<span class="ident">Uri::from_static</span>(<span class="string">&quot;https://127.0.0.1&quot;</span>)),
                 <span class="ident">provider</span>: <span class="string">&quot;test&quot;</span>.<span class="ident">to_string</span>(),
                 <span class="ident">advertiser</span>: <span class="string">&quot;test_advertiser&quot;</span>.<span class="ident">to_string</span>(),
                 <span class="ident">is_sponsored</span>: <span class="bool-val">false</span>,
