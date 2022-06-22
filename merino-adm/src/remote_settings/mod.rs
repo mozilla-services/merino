@@ -261,7 +261,7 @@ impl RemoteSettingsSuggester {
             .filter(|r| {
                 matches!(
                     r.get("type"),
-                    Some(&serde_json::Value::String(ref val)) if val == "data" || val =="offline-expansion-data"
+                    Some(&serde_json::Value::String(ref val)) if val == "data" || val == "offline-expansion-data"
                 )
             })
             .partition(|r| r.get("type") == Some(&serde_json::json!("data")));
