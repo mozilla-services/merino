@@ -416,6 +416,93 @@ async fn suggest_logs_searches_when_requested(
 #[merino_test_macro(|settings| {
     // This test is valid even with no providers specified.
     settings.suggestion_providers = HashMap::new();
+    settings.log_full_request = true;
+})]
+async fn suggest_logs_includes_session_id_and_seq_num_when_provided_in_query(
+    TestingTools {
+        mut log_watcher,
+        test_client,
+        ..
+    }: TestingTools,
+) -> Result<()> {
+    // Just a long random value, nothing special.
+    let session_id = "eec7c3d8-3bf6-11ec-a29b-bbdf015cc865";
+    let seq = "11";
+    let query = "hello";
+    test_client
+        .get(&format!(
+            "/api/v1/suggest?q={}&sid={}&seq={}",
+            query, session_id, seq
+        ))
+        .send()
+        .await?;
+
+    assert!(log_watcher.has(|event| {
+        event.level == Level::INFO
+            && event.fields.get("r#type").and_then(Value::as_str) == Some("web.suggest.request")
+            && event.fields.get("query").and_then(Value::as_str) == Some(query)
+    }));
+
+    // Only log lines tagged with the specified type contain the query
+    for event in log_watcher.events() {
+        // Levels above INFO aren't included in production logging
+        if event.level == Level::DEBUG || event.level == Level::TRACE {
+            continue;
+        }
+        // If the type is correct, the `has` assertion above ensures everything is ok
+        if event.fields.get("r#type") == Some(&json!("web.suggest.request")) {
+            assert_eq!(event.fields.get("sid"), Some(&json!(session_id)));
+            assert_eq!(event.fields.get("seq"), Some(&json!(seq)));
+            continue;
+        }
+    }
+    Ok(())
+}
+
+#[merino_test_macro(|settings| {
+    // This test is valid even with no providers specified.
+    settings.suggestion_providers = HashMap::new();
+    settings.log_full_request = true;
+})]
+async fn suggest_logs_includes_session_id_and_seq_num_are_none_when_not_provided_in_query(
+    TestingTools {
+        mut log_watcher,
+        test_client,
+        ..
+    }: TestingTools,
+) -> Result<()> {
+    // Just a long random value, nothing special.
+    let query = "eec7c3d8-3bf6-11ec-a29b-bbdf015cc865";
+
+    test_client
+        .get(&format!("/api/v1/suggest?q={}", query))
+        .send()
+        .await?;
+
+    assert!(log_watcher.has(|event| {
+        event.level == Level::INFO
+            && event.fields.get("r#type").and_then(Value::as_str) == Some("web.suggest.request")
+            && event.fields.get("query").and_then(Value::as_str) == Some(query)
+    }));
+
+    // Only log lines tagged with the specified type contain the query
+    for event in log_watcher.events() {
+        // Levels above INFO aren't included in production logging
+        if event.level == Level::DEBUG || event.level == Level::TRACE {
+            continue;
+        }
+        // If the type is correct, the `has` assertion above ensures everything is ok
+        if event.fields.get("r#type") == Some(&json!("web.suggest.request")) {
+            assert_eq!(event.fields.get("sid"), Some(&json!("")));
+            assert_eq!(event.fields.get("seq"), Some(&json!("")));
+            continue;
+        }
+    }
+    Ok(())
+}
+#[merino_test_macro(|settings| {
+    // This test is valid even with no providers specified.
+    settings.suggestion_providers = HashMap::new();
     settings.log_full_request = false;
 })]
 async fn suggest_redacts_queries_when_requested(

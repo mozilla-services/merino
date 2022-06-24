@@ -104,6 +104,12 @@ struct SuggestQueryParameters {
     /// Providers to use for this request
     #[serde_as(as = "Option<StringWithSeparator::<CommaSeparator, String>>")]
     providers: Option<HashSet<String>>,
+    /// Session ID from the client
+    #[serde(rename = "sid")]
+    session_id: Option<Uuid>,
+    /// Sequence number from the client
+    #[serde(rename = "seq")]
+    sequence: Option<i32>,
 }
 
 /// The response the API generates.
@@ -187,6 +193,14 @@ fn safe_log_request(
                 .join(",")
         },
     );
+    let mut seq = "".to_string();
+    if let Some(sequence) = query_params.sequence {
+        seq = sequence.to_string();
+    }
+    let mut sid = "".to_string();
+    if let Some(session_id) = query_params.session_id {
+        sid = session_id.to_string();
+    }
 
     tracing::info!(
         r#type = "web.suggest.request",
@@ -201,6 +215,8 @@ fn safe_log_request(
         region = request.region.as_deref(),
         %query,
         client_variants = %query_params.client_variants.join(","),
+        %sid,
+        %seq,
         %requested_providers,
         // Also includes fields from tracing-actix-web-mozlog, including `rid`
         // (request ID), `useragent` and `path` (which does not include query
