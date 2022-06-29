@@ -426,13 +426,13 @@ async fn suggest_logs_includes_session_id_and_seq_num_when_provided_in_query(
     }: TestingTools,
 ) -> Result<()> {
     // Just a long random value, nothing special.
-    let session_id = "eec7c3d8-3bf6-11ec-a29b-bbdf015cc865";
-    let seq = "11";
-    let query = "hello";
+    let session_id = "deadbeef-0000-1111-2222-333344445555";
+    let sequence_no = 11;
+    let query = "hello_test_query";
     test_client
         .get(&format!(
             "/api/v1/suggest?q={}&sid={}&seq={}",
-            query, session_id, seq
+            query, session_id, sequence_no
         ))
         .send()
         .await?;
@@ -451,8 +451,14 @@ async fn suggest_logs_includes_session_id_and_seq_num_when_provided_in_query(
         }
         // If the type is correct, the `has` assertion above ensures everything is ok
         if event.fields.get("r#type") == Some(&json!("web.suggest.request")) {
-            assert_eq!(event.fields.get("sid"), Some(&json!(session_id)));
-            assert_eq!(event.fields.get("seq"), Some(&json!(seq)));
+            assert_eq!(
+                event.fields.get("session_id").and_then(Value::as_str),
+                Some(session_id)
+            );
+            assert_eq!(
+                event.fields.get("sequence_no").and_then(Value::as_i64),
+                Some(sequence_no)
+            );
             continue;
         }
     }
@@ -472,7 +478,7 @@ async fn suggest_logs_includes_session_id_and_seq_num_are_none_when_not_provided
     }: TestingTools,
 ) -> Result<()> {
     // Just a long random value, nothing special.
-    let query = "eec7c3d8-3bf6-11ec-a29b-bbdf015cc865";
+    let query = "apple_test_query";
 
     test_client
         .get(&format!("/api/v1/suggest?q={}", query))
@@ -493,8 +499,8 @@ async fn suggest_logs_includes_session_id_and_seq_num_are_none_when_not_provided
         }
         // If the type is correct, the `has` assertion above ensures everything is ok
         if event.fields.get("r#type") == Some(&json!("web.suggest.request")) {
-            assert_eq!(event.fields.get("sid"), Some(&json!("")));
-            assert_eq!(event.fields.get("seq"), Some(&json!("")));
+            assert!(event.fields.get("session_id").is_none());
+            assert!(event.fields.get("sequence_no").is_none());
             continue;
         }
     }
