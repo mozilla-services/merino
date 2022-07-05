@@ -55,8 +55,8 @@ pub async fn get_temp_db(
 
     let mut client =
         redis::Client::open(connection_info.clone()).expect("Couldn't open Redis connection");
-    let _: () = redis::cmd("FLUSHDB")
-        .query(&mut client)
+    redis::cmd("FLUSHDB")
+        .query::<()>(&mut client)
         .expect("Couldn't clear test Redis DB");
 
     Ok((connection_info, guard))

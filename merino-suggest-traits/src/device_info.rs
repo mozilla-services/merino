@@ -33,7 +33,7 @@ impl fmt::Display for FormFactor {
     }
 }
 
-impl<'a, F> fake::Dummy<F> for FormFactor {
+impl<F> fake::Dummy<F> for FormFactor {
     fn dummy_with_rng<R: rand::Rng + ?Sized>(_config: &F, rng: &mut R) -> Self {
         match rng.gen_range(0..4) {
             0 => Self::Desktop,
@@ -81,7 +81,7 @@ impl fmt::Display for OsFamily {
     }
 }
 
-impl<'a, F> fake::Dummy<F> for OsFamily {
+impl<F> fake::Dummy<F> for OsFamily {
     fn dummy_with_rng<R: rand::Rng + ?Sized>(_config: &F, rng: &mut R) -> Self {
         match rng.gen_range(0..8) {
             0 => Self::Windows,
@@ -114,7 +114,7 @@ impl fmt::Display for Browser {
     }
 }
 
-impl<'a, F> fake::Dummy<F> for Browser {
+impl<F> fake::Dummy<F> for Browser {
     fn dummy_with_rng<R: rand::Rng + ?Sized>(_config: &F, rng: &mut R) -> Self {
         match rng.gen_range(0..2) {
             0 => Self::Firefox(rng.gen_range(FIREFOX_TEST_VERSIONS)),
@@ -144,7 +144,7 @@ impl fmt::Display for DeviceInfo {
     }
 }
 
-impl<'a, F> fake::Dummy<F> for DeviceInfo {
+impl<F> fake::Dummy<F> for DeviceInfo {
     fn dummy_with_rng<R: rand::Rng + ?Sized>(_config: &F, _rng: &mut R) -> Self {
         DeviceInfo {
             os_family: Faker.fake(),
