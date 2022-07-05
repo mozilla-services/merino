@@ -68,7 +68,7 @@ pub struct SuggestionRequest {
     pub client_variants: Option<Vec<String>>,
 }
 
-impl<'a, F> fake::Dummy<F> for SuggestionRequest {
+impl<F> fake::Dummy<F> for SuggestionRequest {
     fn dummy_with_rng<R: rand::Rng + ?Sized>(_config: &F, rng: &mut R) -> Self {
         Self {
             query: Words(1..10).fake_with_rng::<Vec<String>, R>(rng).join(" "),
@@ -123,7 +123,7 @@ impl SuggestionResponse {
     }
 }
 
-impl<'a, F> fake::Dummy<F> for SuggestionResponse {
+impl<F> fake::Dummy<F> for SuggestionResponse {
     fn dummy_with_rng<R: rand::Rng + ?Sized>(_config: &F, rng: &mut R) -> Self {
         SuggestionResponse {
             cache_status: CacheStatus::NoCache,
@@ -213,7 +213,7 @@ pub struct Suggestion {
     pub score: Proportion,
 }
 
-impl<'a, F> fake::Dummy<F> for Suggestion {
+impl<F> fake::Dummy<F> for Suggestion {
     fn dummy_with_rng<R: rand::Rng + ?Sized>(_config: &F, rng: &mut R) -> Self {
         Self {
             id: Faker.fake(),
