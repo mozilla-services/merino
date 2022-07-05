@@ -1,3 +1,4 @@
 (function() {var implementors = {};
 implementors["merino_suggest_traits"] = [{"text":"impl <a class=\"trait\" href=\"rand/distributions/distribution/trait.Distribution.html\" title=\"trait rand::distributions::distribution::Distribution\">Distribution</a>&lt;<a class=\"struct\" href=\"merino_suggest_traits/domain/struct.Proportion.html\" title=\"struct merino_suggest_traits::domain::Proportion\">Proportion</a>&gt; for <a class=\"struct\" href=\"rand/distributions/struct.Standard.html\" title=\"struct rand::distributions::Standard\">Standard</a>","synthetic":false,"types":["rand::distributions::Standard"]}];
+implementors["rand"] = [];
 if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()

@@ -1,3 +1,4 @@
 (function() {var implementors = {};
 implementors["merino_adm"] = [{"text":"impl <a class=\"trait\" href=\"remote_settings_client/client/signatures/trait.Verification.html\" title=\"trait remote_settings_client::client::signatures::Verification\">Verification</a> for <a class=\"struct\" href=\"merino_adm/remote_settings/soft_verifier/struct.SoftVerifier.html\" title=\"struct merino_adm::remote_settings::soft_verifier::SoftVerifier\">SoftVerifier</a>","synthetic":false,"types":["merino_adm::remote_settings::soft_verifier::SoftVerifier"]}];
+implementors["remote_settings_client"] = [];
 if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()
