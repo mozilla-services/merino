@@ -67,7 +67,7 @@ workflows:
             - docker-image-build
             - contract-tests
       # On approval of the `unhold-to-deploy-to-prod` job, any successive job that requires it
-      # will run. In this case, it's manually triggering deployment to production. 
+      # will run. In this case, it's manually triggering deployment to production.
       - docker-image-publish-prod:
           <<: *main-filters
           requires:
@@ -326,4 +326,11 @@ commands:
             if git log -1 "$CIRCLE_SHA1" | grep -q '\[do not deploy\]'; then
                 echo "Skipping remaining steps in this job: deployment was disabled for this commit."
                 circleci-agent step halt
+
+                # No need to deploy, just cancel the rest of jobs of the workflow.
+                # See API detail: https://circleci.com/docs/api/v2/index.html#operation/cancelWorkflow
+
+                curl -X POST https://circleci.com/api/v2/workflow/${CIRCLE_WORKFLOW_ID}/cancel \
+                -H 'Accept: application/json' \
+                -H 'Circle-Token: ${SKIP_DEPLOY_API_TOKEN}'
             fi
