@@ -213,6 +213,14 @@
 <span id="208">208</span>
 <span id="209">209</span>
 <span id="210">210</span>
+<span id="211">211</span>
+<span id="212">212</span>
+<span id="213">213</span>
+<span id="214">214</span>
+<span id="215">215</span>
+<span id="216">216</span>
+<span id="217">217</span>
+<span id="218">218</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Web handlers for the suggestions API.</span>
 
 <span class="kw">use</span> <span class="ident">std::collections::HashSet</span>;
@@ -319,6 +327,12 @@
     <span class="doccomment">/// Providers to use for this request</span>
     <span class="attribute">#[<span class="ident">serde_as</span>(<span class="kw">as</span> <span class="op">=</span> <span class="string">&quot;Option&lt;StringWithSeparator::&lt;CommaSeparator, String&gt;&gt;&quot;</span>)]</span>
     <span class="ident">providers</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">HashSet</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    <span class="doccomment">/// Session ID from the client</span>
+    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;sid&quot;</span>)]</span>
+    <span class="ident">session_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
+    <span class="doccomment">/// Sequence number from the client</span>
+    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;seq&quot;</span>)]</span>
+    <span class="ident">sequence_no</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span>,
 }
 
 <span class="doccomment">/// The response the API generates.</span>
@@ -416,6 +430,8 @@
         <span class="ident">region</span> <span class="op">=</span> <span class="ident">request</span>.<span class="ident">region</span>.<span class="ident">as_deref</span>(),
         <span class="op">%</span><span class="ident">query</span>,
         <span class="ident">client_variants</span> <span class="op">=</span> <span class="op">%</span><span class="ident">query_params</span>.<span class="ident">client_variants</span>.<span class="ident">join</span>(<span class="string">&quot;,&quot;</span>),
+        <span class="ident">session_id</span> <span class="op">=</span> <span class="ident">query_params</span>.<span class="ident">session_id</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">uuid</span><span class="op">|</span> <span class="ident">uuid</span>.<span class="ident">to_string</span>()),
+        <span class="ident">sequence_no</span> <span class="op">=</span> <span class="ident">query_params</span>.<span class="ident">sequence_no</span>,
         <span class="op">%</span><span class="ident">requested_providers</span>,
         <span class="comment">// Also includes fields from tracing-actix-web-mozlog, including `rid`</span>
         <span class="comment">// (request ID), `useragent` and `path` (which does not include query</span>
