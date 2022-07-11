@@ -124,7 +124,7 @@ with Sentry. Sentry integration and debug logging will be activated. It is
 recommended to use the [merino-local][sentry-merino-local] sentry environment.
 See that page for DSN information. The following two settings are required:
 
-[sentry-merino-local]: https://sentry.prod.mozaws.net/operations/merino-local
+[sentry-merino-local]: https://sentry.io/organizations/mozilla/projects/merino-local/
 
 - `sentry.dsn` - Configuration to connect to the Sentry project. A testing
   project should be used.
