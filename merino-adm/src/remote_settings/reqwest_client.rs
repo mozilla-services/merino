@@ -7,9 +7,10 @@
 use anyhow::{Context, Error};
 use async_trait::async_trait;
 use remote_settings_client::client::net::{
-    Headers as RsHeaders, Requester as RsRequester, Response as RsResponse, Url as RsUrl,
+    Headers as RsHeaders, Method as RsMethod, Requester as RsRequester, Response as RsResponse,
+    Url as RsUrl,
 };
-use reqwest::Response;
+use reqwest::{Method, Response};
 
 /// An remote-settings-client HTTP client that uses Reqwest.
 #[derive(Debug)]
@@ -33,9 +34,37 @@ impl ReqwestClient {
 #[async_trait]
 impl RsRequester for ReqwestClient {
     async fn get(&self, url: RsUrl) -> Result<RsResponse, ()> {
+        self.request_json(RsMethod::GET, url, vec![], RsHeaders::default())
+            .await
+    }
+
+    async fn request_json(
+        &self,
+        method: RsMethod,
+        url: RsUrl,
+        data: Vec<u8>,
+        headers: RsHeaders,
+    ) -> Result<RsResponse, ()> {
+        let method = match method {
+            RsMethod::GET => Method::GET,
+            RsMethod::PATCH => Method::PATCH,
+            RsMethod::POST => Method::POST,
+            RsMethod::PUT => Method::PUT,
+            RsMethod::DELETE => Method::DELETE,
+        };
+        let headers = (&headers).try_into().map_err(|e| {
+            tracing::error!(
+                r#type = "adm.remote-settings.reqwest.headers-conversion-failed",
+                "ReqwestClient - unable to try_into headers. {:#?}",
+                e
+            );
+        })?;
+
         match self
             .reqwest_client
-            .get(url.clone())
+            .request(method.clone(), url.clone())
+            .headers(headers)
+            .body(data)
             .timeout(std::time::Duration::from_secs(3))
             .send()
             .await
@@ -47,7 +76,8 @@ impl RsRequester for ReqwestClient {
             Err(e) => {
                 tracing::error!(
                     r#type = "adm.remote-settings.reqwest.get-failed",
-                    "ReqwestClient - unable to submit GET request. {:#?}",
+                    "ReqwestClient - unable to submit {} request. {:#?}",
+                    method,
                     e
                 );
                 Err(())

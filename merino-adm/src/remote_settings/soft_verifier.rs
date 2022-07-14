@@ -63,7 +63,7 @@ impl Verification for SoftVerifier {
 
     async fn verify(
         &self,
-        requester: &Box<dyn Requester + 'static>,
+        requester: &'_ (dyn Requester + 'static),
         collection: &Collection,
         root_hash: &str,
     ) -> Result<(), SignatureError> {
