@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/usr/local/cargo/registry/src/github.com-1ecc6299db9ec823/derive_builder_core-0.10.2/src/builder_field.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>builder_field.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><script defer src="../../main.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/usr/local/cargo/registry/src/github.com-1ecc6299db9ec823/derive_builder_core-0.11.2/src/builder_field.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>builder_field.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><script defer src="../../main.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script>
     <noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../derive_builder_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
         </a><h2 class="location"></h2>
     </nav>
@@ -148,7 +148,45 @@
 <span id="143">143</span>
 <span id="144">144</span>
 <span id="145">145</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">proc_macro2::TokenStream</span>;
+<span id="146">146</span>
+<span id="147">147</span>
+<span id="148">148</span>
+<span id="149">149</span>
+<span id="150">150</span>
+<span id="151">151</span>
+<span id="152">152</span>
+<span id="153">153</span>
+<span id="154">154</span>
+<span id="155">155</span>
+<span id="156">156</span>
+<span id="157">157</span>
+<span id="158">158</span>
+<span id="159">159</span>
+<span id="160">160</span>
+<span id="161">161</span>
+<span id="162">162</span>
+<span id="163">163</span>
+<span id="164">164</span>
+<span id="165">165</span>
+<span id="166">166</span>
+<span id="167">167</span>
+<span id="168">168</span>
+<span id="169">169</span>
+<span id="170">170</span>
+<span id="171">171</span>
+<span id="172">172</span>
+<span id="173">173</span>
+<span id="174">174</span>
+<span id="175">175</span>
+<span id="176">176</span>
+<span id="177">177</span>
+<span id="178">178</span>
+<span id="179">179</span>
+<span id="180">180</span>
+<span id="181">181</span>
+</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::borrow::Cow</span>;
+
+<span class="kw">use</span> <span class="ident">proc_macro2::TokenStream</span>;
 <span class="kw">use</span> <span class="ident">quote</span>::{<span class="ident">ToTokens</span>, <span class="ident">TokenStreamExt</span>};
 <span class="kw">use</span> <span class="ident">syn</span>;
 
@@ -181,42 +219,23 @@
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">BuilderField</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="doccomment">/// Name of the target field.</span>
     <span class="kw">pub</span> <span class="ident">field_ident</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">syn::Ident</span>,
-    <span class="doccomment">/// Type of the target field.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The corresonding builder field will be `Option&lt;field_type&gt;`.</span>
-    <span class="kw">pub</span> <span class="ident">field_type</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">syn::Type</span>,
-    <span class="doccomment">/// Whether the builder implements a setter for this field.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Note: We will fallback to `PhantomData` if the setter is disabled</span>
-    <span class="doccomment">///       to hack around issues with unused generic type parameters - at</span>
-    <span class="doccomment">///       least for now.</span>
-    <span class="kw">pub</span> <span class="ident">field_enabled</span>: <span class="ident">bool</span>,
+    <span class="doccomment">/// Type of the builder field.</span>
+    <span class="kw">pub</span> <span class="ident">field_type</span>: <span class="ident">BuilderFieldType</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
     <span class="doccomment">/// Visibility of this builder field, e.g. `syn::Visibility::Public`.</span>
-    <span class="kw">pub</span> <span class="ident">field_visibility</span>: <span class="ident">syn::Visibility</span>,
+    <span class="kw">pub</span> <span class="ident">field_visibility</span>: <span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">syn::Visibility</span><span class="op">&gt;</span>,
     <span class="doccomment">/// Attributes which will be attached to this builder field.</span>
     <span class="kw">pub</span> <span class="ident">attrs</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">syn::Attribute</span>],
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">ToTokens</span> <span class="kw">for</span> <span class="ident">BuilderField</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="kw">fn</span> <span class="ident">to_tokens</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">tokens</span>: <span class="kw-2">&amp;mut</span> <span class="ident">TokenStream</span>) {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">field_enabled</span> {
-            <span class="kw">let</span> <span class="ident">vis</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">field_visibility</span>;
-            <span class="kw">let</span> <span class="ident">ident</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">field_ident</span>;
-            <span class="kw">let</span> <span class="ident">ty</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">field_type</span>;
-            <span class="kw">let</span> <span class="ident">attrs</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">attrs</span>;
-
-            <span class="ident">tokens</span>.<span class="ident">append_all</span>(<span class="macro">quote!</span>(
-                #(#<span class="ident">attrs</span>)<span class="op">*</span> #<span class="ident">vis</span> #<span class="ident">ident</span>: <span class="ident">::derive_builder::export::core::option::Option</span><span class="op">&lt;</span>#<span class="ident">ty</span><span class="op">&gt;</span>,
-            ));
-        } <span class="kw">else</span> {
-            <span class="kw">let</span> <span class="ident">ident</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">field_ident</span>;
-            <span class="kw">let</span> <span class="ident">ty</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">field_type</span>;
-            <span class="kw">let</span> <span class="ident">attrs</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">attrs</span>;
-
-            <span class="ident">tokens</span>.<span class="ident">append_all</span>(<span class="macro">quote!</span>(
-                #(#<span class="ident">attrs</span>)<span class="op">*</span> #<span class="ident">ident</span>: <span class="ident">::derive_builder::export::core::marker::PhantomData</span><span class="op">&lt;</span>#<span class="ident">ty</span><span class="op">&gt;</span>,
-            ));
-        }
+        <span class="kw">let</span> <span class="ident">ident</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">field_ident</span>;
+        <span class="kw">let</span> <span class="ident">vis</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">field_visibility</span>;
+        <span class="kw">let</span> <span class="ident">ty</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">field_type</span>;
+        <span class="kw">let</span> <span class="ident">attrs</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">attrs</span>;
+        <span class="ident">tokens</span>.<span class="ident">append_all</span>(<span class="macro">quote!</span>(
+            #(#<span class="ident">attrs</span>)<span class="op">*</span> #<span class="ident">vis</span> #<span class="ident">ident</span>: #<span class="ident">ty</span>,
+        ));
     }
 }
 
@@ -228,17 +247,66 @@
     }
 }
 
+<span class="doccomment">/// The type of a field in the builder struct</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>)]</span>
+<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">BuilderFieldType</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+    <span class="doccomment">/// The corresonding builder field will be `Option&lt;field_type&gt;`.</span>
+    <span class="ident">Optional</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">syn::Type</span>),
+    <span class="doccomment">/// The corresponding builder field will be just this type</span>
+    <span class="ident">Precise</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">syn::Type</span>),
+    <span class="doccomment">/// The corresponding builder field will be a PhantomData</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// We do this if if the field is disabled.  We mustn&#39;t just completely omit the field from the builder:</span>
+    <span class="doccomment">/// if we did that, the builder might have unused generic parameters (since we copy the generics from</span>
+    <span class="doccomment">/// the target struct).   Using a PhantomData of the original field type provides the right generic usage</span>
+    <span class="doccomment">/// (and the right variance).  The alternative would be to give the user a way to separately control</span>
+    <span class="doccomment">/// the generics of the builder struct, which would be very awkward to use and complex to document.</span>
+    <span class="doccomment">/// We could just include the field anyway, as `Option&lt;T&gt;`, but this is wasteful of space, and it</span>
+    <span class="doccomment">/// seems good to explicitly suppress the existence of a variable that won&#39;t be set or read.</span>
+    <span class="ident">Phantom</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">syn::Type</span>),
+}
+
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">BuilderFieldType</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+    <span class="doccomment">/// Obtain type information for the builder field setter</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Return value:</span>
+    <span class="doccomment">///  * `.0`: type of the argument to the setter function</span>
+    <span class="doccomment">///          (before application of `strip_option`, `into`)</span>
+    <span class="doccomment">///  * `.1`: whether the builder field is `Option&lt;type&gt;` rather than just `type`</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">setter_type_info</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="self">self</span>) -&gt; (<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">syn::Type</span>, <span class="ident">bool</span>) {
+        <span class="kw">match</span> <span class="self">self</span> {
+            <span class="ident">BuilderFieldType::Optional</span>(<span class="ident">ty</span>) =&gt; (<span class="ident">ty</span>, <span class="bool-val">true</span>),
+            <span class="ident">BuilderFieldType::Precise</span>(<span class="ident">ty</span>) =&gt; (<span class="ident">ty</span>, <span class="bool-val">false</span>),
+            <span class="ident">BuilderFieldType::Phantom</span>(<span class="ident">_ty</span>) =&gt; <span class="macro">panic!</span>(<span class="string">&quot;phantom fields should never have setters&quot;</span>),
+        }
+    }
+}
+
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">ToTokens</span> <span class="kw">for</span> <span class="ident">BuilderFieldType</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">to_tokens</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">tokens</span>: <span class="kw-2">&amp;mut</span> <span class="ident">TokenStream</span>) {
+        <span class="kw">match</span> <span class="self">self</span> {
+            <span class="ident">BuilderFieldType::Optional</span>(<span class="ident">ty</span>) =&gt; <span class="ident">tokens</span>.<span class="ident">append_all</span>(<span class="macro">quote!</span>(
+                <span class="ident">::derive_builder::export::core::option::Option</span><span class="op">&lt;</span>#<span class="ident">ty</span><span class="op">&gt;</span>
+            )),
+            <span class="ident">BuilderFieldType::Precise</span>(<span class="ident">ty</span>) =&gt; <span class="ident">ty</span>.<span class="ident">to_tokens</span>(<span class="ident">tokens</span>),
+            <span class="ident">BuilderFieldType::Phantom</span>(<span class="ident">ty</span>) =&gt; <span class="ident">tokens</span>.<span class="ident">append_all</span>(<span class="macro">quote!</span>(
+                <span class="ident">::derive_builder::export::core::marker::PhantomData</span><span class="op">&lt;</span>#<span class="ident">ty</span><span class="op">&gt;</span>
+            )),
+        }
+    }
+}
+
 <span class="doccomment">/// Helper macro for unit tests. This is _only_ public in order to be accessible</span>
 <span class="doccomment">/// from doc-tests too.</span>
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span> <span class="comment">// This contains a Box::leak, so is suitable only for tests</span>
 <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
 <span class="attribute">#[<span class="ident">macro_export</span>]</span>
 <span class="macro">macro_rules!</span> <span class="ident">default_builder_field</span> {
     () =&gt; {{
         <span class="ident">BuilderField</span> {
             <span class="ident">field_ident</span>: <span class="kw-2">&amp;</span><span class="ident">syn::Ident::new</span>(<span class="string">&quot;foo&quot;</span>, <span class="ident">::proc_macro2::Span::call_site</span>()),
-            <span class="ident">field_type</span>: <span class="kw-2">&amp;</span><span class="ident">syn::parse_str</span>(<span class="string">&quot;String&quot;</span>).<span class="ident">unwrap</span>(),
-            <span class="ident">field_enabled</span>: <span class="bool-val">true</span>,
-            <span class="ident">field_visibility</span>: <span class="ident">syn::parse_str</span>(<span class="string">&quot;pub&quot;</span>).<span class="ident">unwrap</span>(),
+            <span class="ident">field_type</span>: <span class="ident">BuilderFieldType::Optional</span>(<span class="ident">Box::leak</span>(<span class="ident">Box::new</span>(<span class="macro">parse_quote!</span>(<span class="ident">String</span>)))),
+            <span class="ident">field_visibility</span>: <span class="ident">::std::borrow::Cow::Owned</span>(<span class="macro">parse_quote!</span>(<span class="kw">pub</span>)),
             <span class="ident">attrs</span>: <span class="kw-2">&amp;</span>[<span class="macro">parse_quote!</span>(<span class="attribute">#[<span class="ident">some_attr</span>]</span>)],
         }
     }};
@@ -265,7 +333,11 @@
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">setter_disabled</span>() {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">field</span> <span class="op">=</span> <span class="macro">default_builder_field!</span>();
-        <span class="ident">field</span>.<span class="ident">field_enabled</span> <span class="op">=</span> <span class="bool-val">false</span>;
+        <span class="ident">field</span>.<span class="ident">field_visibility</span> <span class="op">=</span> <span class="ident">Cow::Owned</span>(<span class="ident">syn::Visibility::Inherited</span>);
+        <span class="ident">field</span>.<span class="ident">field_type</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">field</span>.<span class="ident">field_type</span> {
+            <span class="ident">BuilderFieldType::Optional</span>(<span class="ident">ty</span>) =&gt; <span class="ident">BuilderFieldType::Phantom</span>(<span class="ident">ty</span>),
+            <span class="kw">_</span> =&gt; <span class="macro">panic!</span>(),
+        };
 
         <span class="macro">assert_eq!</span>(
             <span class="macro">quote!</span>(#<span class="ident">field</span>).<span class="ident">to_string</span>(),
@@ -279,7 +351,7 @@
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">private_field</span>() {
-        <span class="kw">let</span> <span class="ident">private</span> <span class="op">=</span> <span class="ident">syn::Visibility::Inherited</span>;
+        <span class="kw">let</span> <span class="ident">private</span> <span class="op">=</span> <span class="ident">Cow::Owned</span>(<span class="ident">syn::Visibility::Inherited</span>);
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">field</span> <span class="op">=</span> <span class="macro">default_builder_field!</span>();
         <span class="ident">field</span>.<span class="ident">field_visibility</span> <span class="op">=</span> <span class="ident">private</span>;
 

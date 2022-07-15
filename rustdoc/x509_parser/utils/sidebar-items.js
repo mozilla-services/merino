@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["format_serial","Formats a slice to a colon-separated hex string (for ex `01:02:ff:ff`)"]]});

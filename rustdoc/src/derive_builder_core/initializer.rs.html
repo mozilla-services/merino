@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/usr/local/cargo/registry/src/github.com-1ecc6299db9ec823/derive_builder_core-0.10.2/src/initializer.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>initializer.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><script defer src="../../main.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/usr/local/cargo/registry/src/github.com-1ecc6299db9ec823/derive_builder_core-0.11.2/src/initializer.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>initializer.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><script defer src="../../main.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script>
     <noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../derive_builder_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
         </a><h2 class="location"></h2>
     </nav>
@@ -325,12 +325,45 @@
 <span id="320">320</span>
 <span id="321">321</span>
 <span id="322">322</span>
+<span id="323">323</span>
+<span id="324">324</span>
+<span id="325">325</span>
+<span id="326">326</span>
+<span id="327">327</span>
+<span id="328">328</span>
+<span id="329">329</span>
+<span id="330">330</span>
+<span id="331">331</span>
+<span id="332">332</span>
+<span id="333">333</span>
+<span id="334">334</span>
+<span id="335">335</span>
+<span id="336">336</span>
+<span id="337">337</span>
+<span id="338">338</span>
+<span id="339">339</span>
+<span id="340">340</span>
+<span id="341">341</span>
+<span id="342">342</span>
+<span id="343">343</span>
+<span id="344">344</span>
+<span id="345">345</span>
+<span id="346">346</span>
+<span id="347">347</span>
+<span id="348">348</span>
+<span id="349">349</span>
+<span id="350">350</span>
+<span id="351">351</span>
+<span id="352">352</span>
+<span id="353">353</span>
+<span id="354">354</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">proc_macro2</span>::{<span class="ident">Span</span>, <span class="ident">TokenStream</span>};
 <span class="kw">use</span> <span class="ident">quote</span>::{<span class="ident">ToTokens</span>, <span class="ident">TokenStreamExt</span>};
 <span class="kw">use</span> <span class="ident">syn</span>;
-<span class="kw">use</span> <span class="ident">Block</span>;
 <span class="kw">use</span> <span class="ident">BuilderPattern</span>;
 <span class="kw">use</span> <span class="ident">DEFAULT_STRUCT_NAME</span>;
+
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">BlockContents</span>, <span class="ident">DefaultExpression</span>};
 
 <span class="doccomment">/// Initializer for the target struct fields, implementing `quote::ToTokens`.</span>
 <span class="doccomment">///</span>
@@ -372,7 +405,7 @@
     <span class="doccomment">/// Default value for the target field.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// This takes precedence over a default struct identifier.</span>
-    <span class="kw">pub</span> <span class="ident">default_value</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Block</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">default_value</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">DefaultExpression</span><span class="op">&gt;</span>,
     <span class="doccomment">/// Whether the build_method defines a default struct.</span>
     <span class="kw">pub</span> <span class="ident">use_default_struct</span>: <span class="ident">bool</span>,
     <span class="doccomment">/// Span where the macro was told to use a preexisting error type, instead of creating one,</span>
@@ -385,28 +418,47 @@
     <span class="doccomment">/// they may have forgotten the conversion from `UninitializedFieldError` into their specified</span>
     <span class="doccomment">/// error type.</span>
     <span class="kw">pub</span> <span class="ident">custom_error_type_span</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Span</span><span class="op">&gt;</span>,
+    <span class="doccomment">/// Method to use to to convert the builder&#39;s field to the target field</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// For sub-builder fields, this will be `build` (or similar)</span>
+    <span class="kw">pub</span> <span class="ident">conversion</span>: <span class="ident">FieldConversion</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">ToTokens</span> <span class="kw">for</span> <span class="ident">Initializer</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="kw">fn</span> <span class="ident">to_tokens</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">tokens</span>: <span class="kw-2">&amp;mut</span> <span class="ident">TokenStream</span>) {
         <span class="kw">let</span> <span class="ident">struct_field</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">field_ident</span>;
+        <span class="kw">let</span> <span class="ident">builder_field</span> <span class="op">=</span> <span class="ident">struct_field</span>;
 
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">field_enabled</span> {
-            <span class="kw">let</span> <span class="ident">match_some</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">match_some</span>();
-            <span class="kw">let</span> <span class="ident">match_none</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">match_none</span>();
-            <span class="kw">let</span> <span class="ident">builder_field</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">struct_field</span>;
-            <span class="ident">tokens</span>.<span class="ident">append_all</span>(<span class="macro">quote!</span>(
-                #<span class="ident">struct_field</span>: <span class="kw">match</span> <span class="self">self</span>.#<span class="ident">builder_field</span> {
-                    #<span class="ident">match_some</span>,
-                    #<span class="ident">match_none</span>,
-                },
-            ));
-        } <span class="kw">else</span> {
-            <span class="kw">let</span> <span class="ident">default</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">default</span>();
-            <span class="ident">tokens</span>.<span class="ident">append_all</span>(<span class="macro">quote!</span>(
-                #<span class="ident">struct_field</span>: #<span class="ident">default</span>,
-            ));
-        }
+        <span class="comment">// This structure prevents accidental failure to add the trailing `,` due to incautious `return`</span>
+        <span class="kw">let</span> <span class="ident">append_rhs</span> <span class="op">=</span> <span class="op">|</span><span class="ident">tokens</span>: <span class="kw-2">&amp;mut</span> <span class="ident">TokenStream</span><span class="op">|</span> {
+            <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">field_enabled</span> {
+                <span class="kw">let</span> <span class="ident">default</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">default</span>();
+                <span class="ident">tokens</span>.<span class="ident">append_all</span>(<span class="macro">quote!</span>(
+                    #<span class="ident">default</span>
+                ));
+            } <span class="kw">else</span> {
+                <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">conversion</span> {
+                    <span class="ident">FieldConversion::Block</span>(<span class="ident">conv</span>) =&gt; {
+                        <span class="ident">conv</span>.<span class="ident">to_tokens</span>(<span class="ident">tokens</span>);
+                    }
+                    <span class="ident">FieldConversion::Move</span> =&gt; <span class="ident">tokens</span>.<span class="ident">append_all</span>(<span class="macro">quote!</span>( <span class="self">self</span>.#<span class="ident">builder_field</span> )),
+                    <span class="ident">FieldConversion::OptionOrDefault</span> =&gt; {
+                        <span class="kw">let</span> <span class="ident">match_some</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">match_some</span>();
+                        <span class="kw">let</span> <span class="ident">match_none</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">match_none</span>();
+                        <span class="ident">tokens</span>.<span class="ident">append_all</span>(<span class="macro">quote!</span>(
+                            <span class="kw">match</span> <span class="self">self</span>.#<span class="ident">builder_field</span> {
+                                #<span class="ident">match_some</span>,
+                                #<span class="ident">match_none</span>,
+                            }
+                        ));
+                    }
+                }
+            }
+        };
+
+        <span class="ident">tokens</span>.<span class="ident">append_all</span>(<span class="macro">quote!</span>(#<span class="ident">struct_field</span>:));
+        <span class="ident">append_rhs</span>(<span class="ident">tokens</span>);
+        <span class="ident">tokens</span>.<span class="ident">append_all</span>(<span class="macro">quote!</span>(,));
     }
 }
 
@@ -422,7 +474,7 @@
     <span class="doccomment">/// To be used inside of `#struct_field: match self.#builder_field { ... }`</span>
     <span class="kw">fn</span> <span class="ident">match_none</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="self">self</span>) -&gt; <span class="ident">MatchNone</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">default_value</span> {
-            <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">expr</span>) =&gt; <span class="ident">MatchNone::DefaultTo</span>(<span class="ident">expr</span>),
+            <span class="prelude-val">Some</span>(<span class="ident">expr</span>) =&gt; <span class="ident">MatchNone::DefaultTo</span>(<span class="ident">expr</span>),
             <span class="prelude-val">None</span> =&gt; {
                 <span class="kw">if</span> <span class="self">self</span>.<span class="ident">use_default_struct</span> {
                     <span class="ident">MatchNone::UseDefaultStructField</span>(<span class="self">self</span>.<span class="ident">field_ident</span>)
@@ -449,10 +501,20 @@
     }
 }
 
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>)]</span>
+<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">FieldConversion</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+    <span class="doccomment">/// Usual conversion: unwrap the Option from the builder, or (hope to) use a default value</span>
+    <span class="ident">OptionOrDefault</span>,
+    <span class="doccomment">/// Custom conversion is a block contents expression</span>
+    <span class="ident">Block</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">BlockContents</span>),
+    <span class="doccomment">/// Custom conversion is just to move the field from the builder</span>
+    <span class="ident">Move</span>,
+}
+
 <span class="doccomment">/// To be used inside of `#struct_field: match self.#builder_field { ... }`</span>
 <span class="kw">enum</span> <span class="ident">MatchNone</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="doccomment">/// Inner value must be a valid Rust expression</span>
-    <span class="ident">DefaultTo</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Block</span>),
+    <span class="ident">DefaultTo</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">DefaultExpression</span>),
     <span class="doccomment">/// Inner value must be the field identifier</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// The default struct must be in scope in the build_method.</span>
@@ -517,6 +579,7 @@
             <span class="ident">builder_pattern</span>: <span class="ident">BuilderPattern::Mutable</span>,
             <span class="ident">default_value</span>: <span class="prelude-val">None</span>,
             <span class="ident">use_default_struct</span>: <span class="bool-val">false</span>,
+            <span class="ident">conversion</span>: <span class="ident">FieldConversion::OptionOrDefault</span>,
             <span class="ident">custom_error_type_span</span>: <span class="prelude-val">None</span>,
         }
     };
@@ -587,7 +650,8 @@
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">default_value</span>() {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">initializer</span> <span class="op">=</span> <span class="macro">default_initializer!</span>();
-        <span class="ident">initializer</span>.<span class="ident">default_value</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="string">&quot;42&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>());
+        <span class="kw">let</span> <span class="ident">default_value</span> <span class="op">=</span> <span class="ident">DefaultExpression::explicit</span>::<span class="op">&lt;</span><span class="ident">syn::Expr</span><span class="op">&gt;</span>(<span class="macro">parse_quote!</span>(<span class="number">42</span>));
+        <span class="ident">initializer</span>.<span class="ident">default_value</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="ident">default_value</span>);
 
         <span class="macro">assert_eq!</span>(
             <span class="macro">quote!</span>(#<span class="ident">initializer</span>).<span class="ident">to_string</span>(),

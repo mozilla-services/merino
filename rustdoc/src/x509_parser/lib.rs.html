@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/usr/local/cargo/registry/src/github.com-1ecc6299db9ec823/x509-parser-0.12.0/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><script defer src="../../main.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/usr/local/cargo/registry/src/github.com-1ecc6299db9ec823/x509-parser-0.14.0/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><script defer src="../../main.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script>
     <noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../x509_parser/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
         </a><h2 class="location"></h2>
     </nav>
@@ -206,13 +206,20 @@
 <span id="201">201</span>
 <span id="202">202</span>
 <span id="203">203</span>
+<span id="204">204</span>
+<span id="205">205</span>
+<span id="206">206</span>
+<span id="207">207</span>
+<span id="208">208</span>
+<span id="209">209</span>
+<span id="210">210</span>
 </pre><pre class="rust"><code><span class="doccomment">//! [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE-MIT)</span>
 <span class="doccomment">//! [![Apache License 2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](./LICENSE-APACHE)</span>
 <span class="doccomment">//! [![docs.rs](https://docs.rs/x509-parser/badge.svg)](https://docs.rs/x509-parser)</span>
 <span class="doccomment">//! [![crates.io](https://img.shields.io/crates/v/x509-parser.svg)](https://crates.io/crates/x509-parser)</span>
 <span class="doccomment">//! [![Download numbers](https://img.shields.io/crates/d/x509-parser.svg)](https://crates.io/crates/x509-parser)</span>
 <span class="doccomment">//! [![Github CI](https://github.com/rusticata/x509-parser/workflows/Continuous%20integration/badge.svg)](https://github.com/rusticata/x509-parser/actions)</span>
-<span class="doccomment">//! [![Minimum rustc version](https://img.shields.io/badge/rustc-1.46.0+-lightgray.svg)](#rust-version-requirements)</span>
+<span class="doccomment">//! [![Minimum rustc version](https://img.shields.io/badge/rustc-1.53.0+-lightgray.svg)](#rust-version-requirements)</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! # X.509 Parser</span>
 <span class="doccomment">//!</span>
@@ -317,8 +324,12 @@
 <span class="doccomment">//!</span>
 <span class="doccomment">//! ## Rust version requirements</span>
 <span class="doccomment">//!</span>
-<span class="doccomment">//! `x509-parser` requires **Rustc version 1.46 or greater**, based on nom 7</span>
+<span class="doccomment">//! `x509-parser` requires **Rustc version 1.53 or greater**, based on der-parser</span>
 <span class="doccomment">//! dependencies and for proc-macro attributes support.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! Note that due to breaking changes in the `time` crate, a specific version of this</span>
+<span class="doccomment">//! crate must be specified for compiler versions &lt;= 1.57:</span>
+<span class="doccomment">//! `cargo update -p time --precise 0.3.9`</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! [RFC5280]: https://tools.ietf.org/html/rfc5280</span>
 
@@ -347,9 +358,12 @@
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">objects</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">pem</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">prelude</span>;
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">public_key</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">revocation_list</span>;
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">signature_algorithm</span>;
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">signature_value</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">time</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">traits</span>;
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">utils</span>;
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;validate&quot;</span>)]</span>
 <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;validate&quot;</span>)))]</span>
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">validate</span>;
@@ -361,10 +375,10 @@
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">nom</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">oid_registry</span>;
 
+<span class="kw">use</span> <span class="ident">asn1_rs::FromDer</span>;
 <span class="kw">use</span> <span class="ident">certificate::X509Certificate</span>;
 <span class="kw">use</span> <span class="ident">error::X509Result</span>;
 <span class="kw">use</span> <span class="ident">revocation_list::CertificateRevocationList</span>;
-<span class="kw">use</span> <span class="ident">traits::FromDer</span>;
 
 <span class="doccomment">/// Parse a **DER-encoded** X.509 Certificate, and return the remaining of the input and the built</span>
 <span class="doccomment">/// object.</span>

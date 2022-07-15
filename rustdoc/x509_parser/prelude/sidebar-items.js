@@ -1,1 +1,1 @@
-initSidebarItems({});
+initSidebarItems({"trait":[["FromDer","Base trait for DER object parsers"]]});

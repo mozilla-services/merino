@@ -1,0 +1,436 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/usr/local/cargo/registry/src/github.com-1ecc6299db9ec823/asn1-rs-0.5.1/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><script defer src="../../main.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script>
+    <noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../asn1_rs/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
+        </a><h2 class="location"></h2>
+    </nav>
+    <nav class="sidebar"><a class="sidebar-logo" href="../../asn1_rs/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
+        </a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../asn1_rs/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><div class="theme-picker hidden"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="22" height="22" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<span id="2">2</span>
+<span id="3">3</span>
+<span id="4">4</span>
+<span id="5">5</span>
+<span id="6">6</span>
+<span id="7">7</span>
+<span id="8">8</span>
+<span id="9">9</span>
+<span id="10">10</span>
+<span id="11">11</span>
+<span id="12">12</span>
+<span id="13">13</span>
+<span id="14">14</span>
+<span id="15">15</span>
+<span id="16">16</span>
+<span id="17">17</span>
+<span id="18">18</span>
+<span id="19">19</span>
+<span id="20">20</span>
+<span id="21">21</span>
+<span id="22">22</span>
+<span id="23">23</span>
+<span id="24">24</span>
+<span id="25">25</span>
+<span id="26">26</span>
+<span id="27">27</span>
+<span id="28">28</span>
+<span id="29">29</span>
+<span id="30">30</span>
+<span id="31">31</span>
+<span id="32">32</span>
+<span id="33">33</span>
+<span id="34">34</span>
+<span id="35">35</span>
+<span id="36">36</span>
+<span id="37">37</span>
+<span id="38">38</span>
+<span id="39">39</span>
+<span id="40">40</span>
+<span id="41">41</span>
+<span id="42">42</span>
+<span id="43">43</span>
+<span id="44">44</span>
+<span id="45">45</span>
+<span id="46">46</span>
+<span id="47">47</span>
+<span id="48">48</span>
+<span id="49">49</span>
+<span id="50">50</span>
+<span id="51">51</span>
+<span id="52">52</span>
+<span id="53">53</span>
+<span id="54">54</span>
+<span id="55">55</span>
+<span id="56">56</span>
+<span id="57">57</span>
+<span id="58">58</span>
+<span id="59">59</span>
+<span id="60">60</span>
+<span id="61">61</span>
+<span id="62">62</span>
+<span id="63">63</span>
+<span id="64">64</span>
+<span id="65">65</span>
+<span id="66">66</span>
+<span id="67">67</span>
+<span id="68">68</span>
+<span id="69">69</span>
+<span id="70">70</span>
+<span id="71">71</span>
+<span id="72">72</span>
+<span id="73">73</span>
+<span id="74">74</span>
+<span id="75">75</span>
+<span id="76">76</span>
+<span id="77">77</span>
+<span id="78">78</span>
+<span id="79">79</span>
+<span id="80">80</span>
+<span id="81">81</span>
+<span id="82">82</span>
+<span id="83">83</span>
+<span id="84">84</span>
+<span id="85">85</span>
+<span id="86">86</span>
+<span id="87">87</span>
+<span id="88">88</span>
+<span id="89">89</span>
+<span id="90">90</span>
+<span id="91">91</span>
+<span id="92">92</span>
+<span id="93">93</span>
+<span id="94">94</span>
+<span id="95">95</span>
+<span id="96">96</span>
+<span id="97">97</span>
+<span id="98">98</span>
+<span id="99">99</span>
+<span id="100">100</span>
+<span id="101">101</span>
+<span id="102">102</span>
+<span id="103">103</span>
+<span id="104">104</span>
+<span id="105">105</span>
+<span id="106">106</span>
+<span id="107">107</span>
+<span id="108">108</span>
+<span id="109">109</span>
+<span id="110">110</span>
+<span id="111">111</span>
+<span id="112">112</span>
+<span id="113">113</span>
+<span id="114">114</span>
+<span id="115">115</span>
+<span id="116">116</span>
+<span id="117">117</span>
+<span id="118">118</span>
+<span id="119">119</span>
+<span id="120">120</span>
+<span id="121">121</span>
+<span id="122">122</span>
+<span id="123">123</span>
+<span id="124">124</span>
+<span id="125">125</span>
+<span id="126">126</span>
+<span id="127">127</span>
+<span id="128">128</span>
+<span id="129">129</span>
+<span id="130">130</span>
+<span id="131">131</span>
+<span id="132">132</span>
+<span id="133">133</span>
+<span id="134">134</span>
+<span id="135">135</span>
+<span id="136">136</span>
+<span id="137">137</span>
+<span id="138">138</span>
+<span id="139">139</span>
+<span id="140">140</span>
+<span id="141">141</span>
+<span id="142">142</span>
+<span id="143">143</span>
+<span id="144">144</span>
+<span id="145">145</span>
+<span id="146">146</span>
+<span id="147">147</span>
+<span id="148">148</span>
+<span id="149">149</span>
+<span id="150">150</span>
+<span id="151">151</span>
+<span id="152">152</span>
+<span id="153">153</span>
+<span id="154">154</span>
+<span id="155">155</span>
+<span id="156">156</span>
+<span id="157">157</span>
+<span id="158">158</span>
+<span id="159">159</span>
+<span id="160">160</span>
+<span id="161">161</span>
+<span id="162">162</span>
+<span id="163">163</span>
+<span id="164">164</span>
+<span id="165">165</span>
+<span id="166">166</span>
+<span id="167">167</span>
+<span id="168">168</span>
+<span id="169">169</span>
+<span id="170">170</span>
+<span id="171">171</span>
+<span id="172">172</span>
+<span id="173">173</span>
+<span id="174">174</span>
+<span id="175">175</span>
+<span id="176">176</span>
+<span id="177">177</span>
+<span id="178">178</span>
+<span id="179">179</span>
+<span id="180">180</span>
+<span id="181">181</span>
+<span id="182">182</span>
+<span id="183">183</span>
+<span id="184">184</span>
+<span id="185">185</span>
+<span id="186">186</span>
+<span id="187">187</span>
+<span id="188">188</span>
+<span id="189">189</span>
+<span id="190">190</span>
+<span id="191">191</span>
+<span id="192">192</span>
+<span id="193">193</span>
+<span id="194">194</span>
+<span id="195">195</span>
+<span id="196">196</span>
+<span id="197">197</span>
+<span id="198">198</span>
+<span id="199">199</span>
+<span id="200">200</span>
+<span id="201">201</span>
+<span id="202">202</span>
+<span id="203">203</span>
+<span id="204">204</span>
+<span id="205">205</span>
+<span id="206">206</span>
+<span id="207">207</span>
+<span id="208">208</span>
+<span id="209">209</span>
+<span id="210">210</span>
+<span id="211">211</span>
+<span id="212">212</span>
+<span id="213">213</span>
+<span id="214">214</span>
+</pre><pre class="rust"><code><span class="doccomment">//! [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE-MIT)</span>
+<span class="doccomment">//! [![Apache License 2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](./LICENSE-APACHE)</span>
+<span class="doccomment">//! [![docs.rs](https://docs.rs/asn1-rs/badge.svg)](https://docs.rs/asn1-rs)</span>
+<span class="doccomment">//! [![crates.io](https://img.shields.io/crates/v/asn1-rs.svg)](https://crates.io/crates/asn1-rs)</span>
+<span class="doccomment">//! [![Download numbers](https://img.shields.io/crates/d/asn1-rs.svg)](https://crates.io/crates/asn1-rs)</span>
+<span class="doccomment">//! [![Github CI](https://github.com/rusticata/asn1-rs/workflows/Continuous%20integration/badge.svg)](https://github.com/rusticata/asn1-rs/actions)</span>
+<span class="doccomment">//! [![Minimum rustc version](https://img.shields.io/badge/rustc-1.53.0+-lightgray.svg)](#rust-version-requirements)</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! # BER/DER Parsers/Encoders</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! A set of parsers/encoders for Basic Encoding Rules (BER [[X.690]]) and Distinguished Encoding Rules(DER</span>
+<span class="doccomment">//! [[X.690]]) formats, implemented with the [nom] parser combinator framework.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! It is written in pure Rust, fast, and makes extensive use of zero-copy. A lot of care is taken</span>
+<span class="doccomment">//! to ensure security and safety of this crate, including design (recursion limit, defensive</span>
+<span class="doccomment">//! programming), tests, and fuzzing. It also aims to be panic-free.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! This crate is a rewrite of [der-parser](https://crates.io/crates/der-parser) to propose a more data-oriented API,</span>
+<span class="doccomment">//! and add generalized support for serialization.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! Many ideas were borrowed from the [crypto/utils/der](https://github.com/RustCrypto/utils/tree/master/der) crate (like</span>
+<span class="doccomment">//! the `Any`/`TryFrom`/`FromDer` mechanism), adapted and merged into a generalized BER/DER crate.</span>
+<span class="doccomment">//! Credits (and many thanks) go to Tony Arcieri for writing the original crate.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! # BER/DER parsers</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! BER stands for Basic Encoding Rules, and is defined in [[X.690]]. It defines a set of rules to</span>
+<span class="doccomment">//! encode and decode ASN.1 [[X.680]] objects in binary.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! [[X.690]] also defines Distinguished Encoding Rules (DER), which is BER with added rules to</span>
+<span class="doccomment">//! ensure canonical and unequivocal binary representation of objects.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! The choice of which one to use is usually guided by the speficication of the data format based</span>
+<span class="doccomment">//! on BER or DER: for example, X.509 uses DER as encoding representation.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! The main traits for parsing are the [`FromBer`] and [`FromDer`] traits.</span>
+<span class="doccomment">//! These traits provide methods to parse binary input, and return either the remaining (unparsed) bytes</span>
+<span class="doccomment">//! and the parsed object, or an error.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! The parsers follow the interface from [nom], and the [`ParseResult`] object is a specialized version</span>
+<span class="doccomment">//! of `nom::IResult`. This means that most `nom` combinators (`map`, `many0`, etc.) can be used in</span>
+<span class="doccomment">//! combination to objects and methods from this crate. Reading the nom documentation may</span>
+<span class="doccomment">//! help understanding how to write and combine parsers and use the output.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! **Minimum Supported Rust Version**: 1.53.0</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! Note: if the `bits` feature is enabled, MSRV is 1.56.0 (due to `bitvec` 1.0)</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! # Recipes</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! See [doc::recipes] and [doc::derive] for more examples and recipes.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! ## Examples</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! Parse 2 BER integers:</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! ```rust</span>
+<span class="doccomment">//! use asn1_rs::{Integer, FromBer};</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! let bytes = [ 0x02, 0x03, 0x01, 0x00, 0x01,</span>
+<span class="doccomment">//!               0x02, 0x03, 0x01, 0x00, 0x00,</span>
+<span class="doccomment">//! ];</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! let (rem, obj1) = Integer::from_ber(&amp;bytes).expect(&quot;parsing failed&quot;);</span>
+<span class="doccomment">//! let (rem, obj2) = Integer::from_ber(&amp;bytes).expect(&quot;parsing failed&quot;);</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! assert_eq!(obj1, Integer::from_u32(65537));</span>
+<span class="doccomment">//! ```</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! In the above example, the generic [`Integer`] type is used. This type can contain integers of any</span>
+<span class="doccomment">//! size, but do not provide a simple API to manipulate the numbers.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! In most cases, the integer either has a limit, or is expected to fit into a primitive type.</span>
+<span class="doccomment">//! To get a simple value, just use the `from_ber`/`from_der` methods on the primitive types:</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! ```rust</span>
+<span class="doccomment">//! use asn1_rs::FromBer;</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! let bytes = [ 0x02, 0x03, 0x01, 0x00, 0x01,</span>
+<span class="doccomment">//!               0x02, 0x03, 0x01, 0x00, 0x00,</span>
+<span class="doccomment">//! ];</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! let (rem, obj1) = u32::from_ber(&amp;bytes).expect(&quot;parsing failed&quot;);</span>
+<span class="doccomment">//! let (rem, obj2) = u32::from_ber(&amp;rem).expect(&quot;parsing failed&quot;);</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! assert_eq!(obj1, 65537);</span>
+<span class="doccomment">//! assert_eq!(obj2, 65536);</span>
+<span class="doccomment">//! ```</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! If the parsing succeeds, but the integer cannot fit into the expected type, the method will return</span>
+<span class="doccomment">//! an `IntegerTooLarge` error.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! # BER/DER encoders</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! BER/DER encoding is symmetrical to decoding, using the traits `ToBer` and [`ToDer`] traits.</span>
+<span class="doccomment">//! These traits provide methods to write encoded content to objects with the `io::Write` trait,</span>
+<span class="doccomment">//! or return an allocated `Vec&lt;u8&gt;` with the encoded data.</span>
+<span class="doccomment">//! If the serialization fails, an error is returned.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! ## Examples</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! Writing 2 BER integers:</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! ```rust</span>
+<span class="doccomment">//! use asn1_rs::{Integer, ToDer};</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! let mut writer = Vec::new();</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! let obj1 = Integer::from_u32(65537);</span>
+<span class="doccomment">//! let obj2 = Integer::from_u32(65536);</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! let _ = obj1.write_der(&amp;mut writer).expect(&quot;serialization failed&quot;);</span>
+<span class="doccomment">//! let _ = obj2.write_der(&amp;mut writer).expect(&quot;serialization failed&quot;);</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! let bytes = &amp;[ 0x02, 0x03, 0x01, 0x00, 0x01,</span>
+<span class="doccomment">//!                0x02, 0x03, 0x01, 0x00, 0x00,</span>
+<span class="doccomment">//! ];</span>
+<span class="doccomment">//! assert_eq!(&amp;writer, bytes);</span>
+<span class="doccomment">//! ```</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! Similarly to `FromBer`/`FromDer`, serialization methods are also implemented for primitive types:</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! ```rust</span>
+<span class="doccomment">//! use asn1_rs::ToDer;</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! let mut writer = Vec::new();</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! let _ = 65537.write_der(&amp;mut writer).expect(&quot;serialization failed&quot;);</span>
+<span class="doccomment">//! let _ = 65536.write_der(&amp;mut writer).expect(&quot;serialization failed&quot;);</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! let bytes = &amp;[ 0x02, 0x03, 0x01, 0x00, 0x01,</span>
+<span class="doccomment">//!                0x02, 0x03, 0x01, 0x00, 0x00,</span>
+<span class="doccomment">//! ];</span>
+<span class="doccomment">//! assert_eq!(&amp;writer, bytes);</span>
+<span class="doccomment">//! ```</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! If the parsing succeeds, but the integer cannot fit into the expected type, the method will return</span>
+<span class="doccomment">//! an `IntegerTooLarge` error.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! ## Changes</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! See `CHANGELOG.md`.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! # References</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! - [[X.680]] Abstract Syntax Notation One (ASN.1): Specification of basic notation.</span>
+<span class="doccomment">//! - [[X.690]] ASN.1 encoding rules: Specification of Basic Encoding Rules (BER), Canonical</span>
+<span class="doccomment">//!   Encoding Rules (CER) and Distinguished Encoding Rules (DER).</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! [X.680]: http://www.itu.int/rec/T-REC-X.680/en &quot;Abstract Syntax Notation One (ASN.1):</span>
+<span class="doccomment">//!   Specification of basic notation.&quot;</span>
+<span class="doccomment">//! [X.690]: https://www.itu.int/rec/T-REC-X.690/en &quot;ASN.1 encoding rules: Specification of</span>
+<span class="doccomment">//!   Basic Encoding Rules (BER), Canonical Encoding Rules (CER) and Distinguished Encoding Rules</span>
+<span class="doccomment">//!   (DER).&quot;</span>
+<span class="doccomment">//! [nom]: https://github.com/Geal/nom &quot;Nom parser combinator framework&quot;</span>
+<span class="attribute">#![<span class="ident">deny</span>(<span class="comment">/*missing_docs,*/</span>
+    <span class="ident">unstable_features</span>,
+    <span class="ident">unused_import_braces</span>,
+    <span class="ident">unused_qualifications</span>,
+    <span class="comment">// unreachable_pub</span>
+)]</span>
+<span class="attribute">#![<span class="ident">forbid</span>(<span class="ident">unsafe_code</span>)]</span>
+<span class="attribute">#![<span class="ident">warn</span>(
+<span class="comment">/* missing_docs,
+rust_2018_idioms,*/</span>
+<span class="ident">missing_debug_implementations</span>,
+)]</span>
+<span class="comment">// pragmas for doc</span>
+<span class="attribute">#![<span class="ident">deny</span>(<span class="ident">rustdoc::broken_intra_doc_links</span>)]</span>
+<span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">feature</span>(<span class="ident">doc_cfg</span>))]</span>
+<span class="attribute">#![<span class="ident">doc</span>(<span class="ident">test</span>(
+<span class="ident">no_crate_inject</span>,
+<span class="ident">attr</span>(<span class="ident">deny</span>(<span class="ident">warnings</span><span class="comment">/*, rust_2018_idioms*/</span>), <span class="ident">allow</span>(<span class="ident">dead_code</span>, <span class="ident">unused_variables</span>))
+))]</span>
+<span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>), <span class="ident">no_std</span>)]</span>
+
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>)]</span>
+<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">core</span>;
+
+<span class="comment">// #[cfg(feature = &quot;alloc&quot;)]</span>
+<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">alloc</span>;
+
+<span class="kw">mod</span> <span class="ident">asn1_types</span>;
+<span class="kw">mod</span> <span class="ident">ber</span>;
+<span class="kw">mod</span> <span class="ident">class</span>;
+<span class="kw">mod</span> <span class="ident">datetime</span>;
+<span class="kw">mod</span> <span class="ident">derive</span>;
+<span class="kw">mod</span> <span class="ident">error</span>;
+<span class="kw">mod</span> <span class="ident">header</span>;
+<span class="kw">mod</span> <span class="ident">length</span>;
+<span class="kw">mod</span> <span class="ident">tag</span>;
+<span class="kw">mod</span> <span class="ident">traits</span>;
+
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">asn1_types</span>::<span class="kw-2">*</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">class</span>::<span class="kw-2">*</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">datetime</span>::<span class="kw-2">*</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">derive</span>::<span class="kw-2">*</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">error</span>::<span class="kw-2">*</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">header</span>::<span class="kw-2">*</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">length</span>::<span class="kw-2">*</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">tag</span>::<span class="kw-2">*</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">traits</span>::<span class="kw-2">*</span>;
+
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">nom</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">nom</span>::{<span class="prelude-val">Err</span>, <span class="ident">IResult</span>, <span class="ident">Needed</span>};
+
+<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">exports</span> {
+    <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">alloc::borrow</span>;
+    <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">asn1_rs_impl</span>;
+}
+
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">doc</span>)]</span>
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">doc</span>;
+</code></pre></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="asn1_rs" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0 (a8314ef7d 2022-06-27)" ></div>
+</body></html>

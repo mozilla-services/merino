@@ -1,1 +1,1 @@
-initSidebarItems({"enum":[["BerError","Error for BER/DER parsers"]],"type":[["BerResult","Holds the result of parsing functions"],["DerResult","Holds the result of parsing functions (DER)"]]});
+initSidebarItems({"enum":[["DerConstraint","Error types for DER constraints"],["Error","The error type for operations of the `FromBer`, `FromDer`, and associated traits."]],"type":[["BerError",""],["BerResult","Holds the result of parsing functions"],["DerResult","Holds the result of parsing functions (DER)"]]});

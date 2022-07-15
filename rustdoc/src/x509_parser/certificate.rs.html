@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/usr/local/cargo/registry/src/github.com-1ecc6299db9ec823/x509-parser-0.12.0/src/certificate.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>certificate.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><script defer src="../../main.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/usr/local/cargo/registry/src/github.com-1ecc6299db9ec823/x509-parser-0.14.0/src/certificate.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>certificate.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><script defer src="../../main.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script>
     <noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../x509_parser/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
         </a><h2 class="location"></h2>
     </nav>
@@ -759,30 +759,108 @@
 <span id="754">754</span>
 <span id="755">755</span>
 <span id="756">756</span>
+<span id="757">757</span>
+<span id="758">758</span>
+<span id="759">759</span>
+<span id="760">760</span>
+<span id="761">761</span>
+<span id="762">762</span>
+<span id="763">763</span>
+<span id="764">764</span>
+<span id="765">765</span>
+<span id="766">766</span>
+<span id="767">767</span>
+<span id="768">768</span>
+<span id="769">769</span>
+<span id="770">770</span>
+<span id="771">771</span>
+<span id="772">772</span>
+<span id="773">773</span>
+<span id="774">774</span>
+<span id="775">775</span>
+<span id="776">776</span>
+<span id="777">777</span>
+<span id="778">778</span>
+<span id="779">779</span>
+<span id="780">780</span>
+<span id="781">781</span>
+<span id="782">782</span>
+<span id="783">783</span>
+<span id="784">784</span>
+<span id="785">785</span>
+<span id="786">786</span>
+<span id="787">787</span>
+<span id="788">788</span>
+<span id="789">789</span>
+<span id="790">790</span>
+<span id="791">791</span>
+<span id="792">792</span>
+<span id="793">793</span>
+<span id="794">794</span>
+<span id="795">795</span>
+<span id="796">796</span>
+<span id="797">797</span>
+<span id="798">798</span>
+<span id="799">799</span>
+<span id="800">800</span>
+<span id="801">801</span>
+<span id="802">802</span>
+<span id="803">803</span>
+<span id="804">804</span>
+<span id="805">805</span>
+<span id="806">806</span>
+<span id="807">807</span>
+<span id="808">808</span>
+<span id="809">809</span>
+<span id="810">810</span>
+<span id="811">811</span>
+<span id="812">812</span>
+<span id="813">813</span>
+<span id="814">814</span>
+<span id="815">815</span>
+<span id="816">816</span>
+<span id="817">817</span>
+<span id="818">818</span>
+<span id="819">819</span>
+<span id="820">820</span>
+<span id="821">821</span>
+<span id="822">822</span>
+<span id="823">823</span>
+<span id="824">824</span>
+<span id="825">825</span>
+<span id="826">826</span>
+<span id="827">827</span>
+<span id="828">828</span>
+<span id="829">829</span>
+<span id="830">830</span>
+<span id="831">831</span>
+<span id="832">832</span>
+<span id="833">833</span>
 </pre><pre class="rust"><code><span class="doccomment">//! X.509 Certificate object definitions and operations</span>
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::error</span>::{<span class="ident">X509Error</span>, <span class="ident">X509Result</span>};
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::extensions</span>::<span class="kw-2">*</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::time::ASN1Time</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::traits::FromDer</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::utils::format_serial</span>;
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;validate&quot;</span>)]</span>
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::validate::Validate</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::validate</span>::<span class="kw-2">*</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::x509</span>::{
     <span class="ident">parse_serial</span>, <span class="ident">parse_signature_value</span>, <span class="ident">AlgorithmIdentifier</span>, <span class="ident">SubjectPublicKeyInfo</span>, <span class="ident">X509Name</span>,
     <span class="ident">X509Version</span>,
 };
 
-<span class="kw">use</span> <span class="ident">der_parser::ber</span>::{<span class="ident">parse_ber_optional</span>, <span class="ident">BerTag</span>, <span class="ident">BitStringObject</span>};
+<span class="kw">use</span> <span class="ident">asn1_rs</span>::{<span class="ident">BitString</span>, <span class="ident">FromDer</span>, <span class="ident">OptTaggedExplicit</span>};
+<span class="kw">use</span> <span class="ident">core::ops::Deref</span>;
+<span class="kw">use</span> <span class="ident">der_parser::ber::Tag</span>;
 <span class="kw">use</span> <span class="ident">der_parser::der</span>::<span class="kw-2">*</span>;
 <span class="kw">use</span> <span class="ident">der_parser::error</span>::<span class="kw-2">*</span>;
 <span class="kw">use</span> <span class="ident">der_parser::num_bigint::BigUint</span>;
-<span class="kw">use</span> <span class="ident">der_parser::oid::Oid</span>;
 <span class="kw">use</span> <span class="ident">der_parser</span>::<span class="kw-2">*</span>;
 <span class="kw">use</span> <span class="ident">nom</span>::{<span class="ident">Offset</span>, <span class="ident">Parser</span>};
+<span class="kw">use</span> <span class="ident">oid_registry::Oid</span>;
 <span class="kw">use</span> <span class="ident">oid_registry</span>::<span class="kw-2">*</span>;
 <span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;validate&quot;</span>)]</span>
-<span class="kw">use</span> <span class="ident">std::collections::HashSet</span>;
+<span class="kw">use</span> <span class="ident">time::Duration</span>;
 
 <span class="doccomment">/// An X.509 v3 Certificate.</span>
 <span class="doccomment">///</span>
@@ -791,14 +869,15 @@
 <span class="doccomment">/// using the path `x509.tbs_certificate.subject`.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// `X509Certificate` also contains convenience methods to access the most common fields (subject,</span>
-<span class="doccomment">/// issuer, etc.).</span>
+<span class="doccomment">/// issuer, etc.). These are provided using `Deref&lt;Target = TbsCertificate&gt;`, so documentation for</span>
+<span class="doccomment">/// these methods can be found in the [`TbsCertificate`] object.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// A `X509Certificate` is a zero-copy view over a buffer, so the lifetime is the same as the</span>
 <span class="doccomment">/// buffer containing the binary representation.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// ```rust</span>
+<span class="doccomment">/// # use x509_parser::prelude::FromDer;</span>
 <span class="doccomment">/// # use x509_parser::certificate::X509Certificate;</span>
-<span class="doccomment">/// # use x509_parser::traits::FromDer;</span>
 <span class="doccomment">/// #</span>
 <span class="doccomment">/// # static DER: &amp;&#39;static [u8] = include_bytes!(&quot;../assets/IGC_A.der&quot;);</span>
 <span class="doccomment">/// #</span>
@@ -824,45 +903,10 @@
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">X509Certificate</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="kw">pub</span> <span class="ident">tbs_certificate</span>: <span class="ident">TbsCertificate</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">signature_algorithm</span>: <span class="ident">AlgorithmIdentifier</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">signature_value</span>: <span class="ident">BitStringObject</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">signature_value</span>: <span class="ident">BitString</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">X509Certificate</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// Get the version of the encoded certificate</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">version</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">X509Version</span> {
-        <span class="self">self</span>.<span class="ident">tbs_certificate</span>.<span class="ident">version</span>
-    }
-
-    <span class="doccomment">/// Get the certificate subject.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">subject</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">X509Name</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">tbs_certificate</span>.<span class="ident">subject</span>
-    }
-
-    <span class="doccomment">/// Get the certificate issuer.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">issuer</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">X509Name</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">tbs_certificate</span>.<span class="ident">issuer</span>
-    }
-
-    <span class="doccomment">/// Get the certificate validity.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">validity</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">Validity</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">tbs_certificate</span>.<span class="ident">validity</span>
-    }
-
-    <span class="doccomment">/// Get the certificate public key information.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">public_key</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">SubjectPublicKeyInfo</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">tbs_certificate</span>.<span class="ident">subject_pki</span>
-    }
-
-    <span class="doccomment">/// Get the certificate extensions.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">extensions</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[<span class="ident">X509Extension</span>] {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">tbs_certificate</span>.<span class="ident">extensions</span>
-    }
-
     <span class="doccomment">/// Verify the cryptographic signature of this certificate</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// `public_key` is the public key of the **signer**. For a self-signed certificate,</span>
@@ -871,6 +915,8 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// For a leaf certificate, this is the public key of the certificate that signed it.</span>
     <span class="doccomment">/// It is usually an intermediate authority.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Not all algorithms are supported, this function is limited to what `ring` supports.</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;verify&quot;</span>)]</span>
     <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;verify&quot;</span>)))]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">verify_signature</span>(
@@ -882,7 +928,7 @@
         <span class="kw">let</span> <span class="ident">signature_alg</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">signature_algorithm</span>.<span class="ident">algorithm</span>;
         <span class="comment">// identify verification algorithm</span>
         <span class="kw">let</span> <span class="ident">verification_alg</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">signature::VerificationAlgorithm</span> <span class="op">=</span>
-            <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">signature_alg</span> <span class="op">==</span> <span class="ident">OID_PKCS1_SHA1WITHRSA</span> {
+            <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">signature_alg</span> <span class="op">==</span> <span class="ident">OID_PKCS1_SHA1WITHRSA</span> <span class="op">|</span><span class="op">|</span> <span class="kw-2">*</span><span class="ident">signature_alg</span> <span class="op">==</span> <span class="ident">OID_SHA1_WITH_RSA</span> {
                 <span class="kw-2">&amp;</span><span class="ident">signature::RSA_PKCS1_1024_8192_SHA1_FOR_LEGACY_USE_ONLY</span>
             } <span class="kw">else</span> <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">signature_alg</span> <span class="op">==</span> <span class="ident">OID_PKCS1_SHA256WITHRSA</span> {
                 <span class="kw-2">&amp;</span><span class="ident">signature::RSA_PKCS1_2048_8192_SHA256</span>
@@ -891,24 +937,64 @@
             } <span class="kw">else</span> <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">signature_alg</span> <span class="op">==</span> <span class="ident">OID_PKCS1_SHA512WITHRSA</span> {
                 <span class="kw-2">&amp;</span><span class="ident">signature::RSA_PKCS1_2048_8192_SHA512</span>
             } <span class="kw">else</span> <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">signature_alg</span> <span class="op">==</span> <span class="ident">OID_SIG_ECDSA_WITH_SHA256</span> {
-                <span class="kw-2">&amp;</span><span class="ident">signature::ECDSA_P256_SHA256_ASN1</span>
+                <span class="self">self</span>.<span class="ident">get_ec_curve_sha</span>(<span class="kw-2">&amp;</span><span class="ident">spki</span>.<span class="ident">algorithm</span>, <span class="number">256</span>)
+                    .<span class="ident">ok_or</span>(<span class="ident">X509Error::SignatureUnsupportedAlgorithm</span>)<span class="question-mark">?</span>
             } <span class="kw">else</span> <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">signature_alg</span> <span class="op">==</span> <span class="ident">OID_SIG_ECDSA_WITH_SHA384</span> {
-                <span class="kw-2">&amp;</span><span class="ident">signature::ECDSA_P384_SHA384_ASN1</span>
+                <span class="self">self</span>.<span class="ident">get_ec_curve_sha</span>(<span class="kw-2">&amp;</span><span class="ident">spki</span>.<span class="ident">algorithm</span>, <span class="number">384</span>)
+                    .<span class="ident">ok_or</span>(<span class="ident">X509Error::SignatureUnsupportedAlgorithm</span>)<span class="question-mark">?</span>
             } <span class="kw">else</span> <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">signature_alg</span> <span class="op">==</span> <span class="ident">OID_SIG_ED25519</span> {
                 <span class="kw-2">&amp;</span><span class="ident">signature::ED25519</span>
             } <span class="kw">else</span> {
                 <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">X509Error::SignatureUnsupportedAlgorithm</span>);
             };
         <span class="comment">// get public key</span>
-        <span class="kw">let</span> <span class="ident">key</span> <span class="op">=</span> <span class="ident">signature::UnparsedPublicKey::new</span>(<span class="ident">verification_alg</span>, <span class="ident">spki</span>.<span class="ident">subject_public_key</span>.<span class="ident">data</span>);
+        <span class="kw">let</span> <span class="ident">key</span> <span class="op">=</span>
+            <span class="ident">signature::UnparsedPublicKey::new</span>(<span class="ident">verification_alg</span>, <span class="kw-2">&amp;</span><span class="ident">spki</span>.<span class="ident">subject_public_key</span>.<span class="ident">data</span>);
         <span class="comment">// verify signature</span>
-        <span class="kw">let</span> <span class="ident">sig</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">signature_value</span>.<span class="ident">data</span>;
+        <span class="kw">let</span> <span class="ident">sig</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">signature_value</span>.<span class="ident">data</span>;
         <span class="ident">key</span>.<span class="ident">verify</span>(<span class="self">self</span>.<span class="ident">tbs_certificate</span>.<span class="ident">raw</span>, <span class="ident">sig</span>)
             .<span class="ident">or</span>(<span class="prelude-val">Err</span>(<span class="ident">X509Error::SignatureVerificationError</span>))
     }
+
+    <span class="doccomment">/// Find the verification algorithm for the given EC curve and SHA digest size</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Not all algorithms are supported, we are limited to what `ring` supports.</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;verify&quot;</span>)]</span>
+    <span class="kw">fn</span> <span class="ident">get_ec_curve_sha</span>(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        <span class="ident">pubkey_alg</span>: <span class="kw-2">&amp;</span><span class="ident">AlgorithmIdentifier</span>,
+        <span class="ident">sha_len</span>: <span class="ident">usize</span>,
+    ) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="kw">dyn</span> <span class="ident">ring::signature::VerificationAlgorithm</span><span class="op">&gt;</span> {
+        <span class="kw">use</span> <span class="ident">ring::signature</span>;
+        <span class="kw">let</span> <span class="ident">curve_oid</span> <span class="op">=</span> <span class="ident">pubkey_alg</span>.<span class="ident">parameters</span>.<span class="ident">as_ref</span>()<span class="question-mark">?</span>.<span class="ident">as_oid</span>().<span class="ident">ok</span>()<span class="question-mark">?</span>;
+        <span class="comment">// let curve_oid = pubkey_alg.parameters.as_ref()?.as_oid().ok()?;</span>
+        <span class="kw">if</span> <span class="ident">curve_oid</span> <span class="op">==</span> <span class="ident">OID_EC_P256</span> {
+            <span class="kw">match</span> <span class="ident">sha_len</span> {
+                <span class="number">256</span> =&gt; <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="ident">signature::ECDSA_P256_SHA256_ASN1</span>),
+                <span class="number">384</span> =&gt; <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="ident">signature::ECDSA_P256_SHA384_ASN1</span>),
+                <span class="kw">_</span> =&gt; <span class="prelude-val">None</span>,
+            }
+        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">curve_oid</span> <span class="op">==</span> <span class="ident">OID_NIST_EC_P384</span> {
+            <span class="kw">match</span> <span class="ident">sha_len</span> {
+                <span class="number">256</span> =&gt; <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="ident">signature::ECDSA_P384_SHA256_ASN1</span>),
+                <span class="number">384</span> =&gt; <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="ident">signature::ECDSA_P384_SHA384_ASN1</span>),
+                <span class="kw">_</span> =&gt; <span class="prelude-val">None</span>,
+            }
+        } <span class="kw">else</span> {
+            <span class="prelude-val">None</span>
+        }
+    }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">FromDer</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">X509Certificate</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">Deref</span> <span class="kw">for</span> <span class="ident">X509Certificate</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+    <span class="kw">type</span> <span class="ident">Target</span> <span class="op">=</span> <span class="ident">TbsCertificate</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>;
+
+    <span class="kw">fn</span> <span class="ident">deref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident"><span class="self">Self</span>::Target</span> {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">tbs_certificate</span>
+    }
+}
+
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">FromDer</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">X509Error</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">X509Certificate</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="doccomment">/// Parse a DER-encoded X.509 Certificate, and return the remaining of the input and the built</span>
     <span class="doccomment">/// object.</span>
     <span class="doccomment">///</span>
@@ -1028,6 +1114,7 @@
     }
 }
 
+<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">deprecated</span>)]</span>
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;validate&quot;</span>)]</span>
 <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;validate&quot;</span>)))]</span>
 <span class="kw">impl</span> <span class="ident">Validate</span> <span class="kw">for</span> <span class="ident">X509Certificate</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span> {
@@ -1036,9 +1123,7 @@
         <span class="ident">W</span>: <span class="ident">FnMut</span>(<span class="kw-2">&amp;</span><span class="ident">str</span>),
         <span class="ident">E</span>: <span class="ident">FnMut</span>(<span class="kw-2">&amp;</span><span class="ident">str</span>),
     {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">res</span> <span class="op">=</span> <span class="bool-val">true</span>;
-        <span class="ident">res</span> <span class="op">|</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">tbs_certificate</span>.<span class="ident">validate</span>(<span class="ident">warn</span>, <span class="ident">err</span>);
-        <span class="ident">res</span>
+        <span class="ident">X509StructureValidator</span>.<span class="ident">validate</span>(<span class="self">self</span>, <span class="kw-2">&amp;mut</span> <span class="ident">CallbackLogger::new</span>(<span class="ident">warn</span>, <span class="ident">err</span>))
     }
 }
 
@@ -1081,6 +1166,35 @@
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">TbsCertificate</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+    <span class="doccomment">/// Get the version of the encoded certificate</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">version</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">X509Version</span> {
+        <span class="self">self</span>.<span class="ident">version</span>
+    }
+
+    <span class="doccomment">/// Get the certificate subject.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">subject</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">X509Name</span> {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">subject</span>
+    }
+
+    <span class="doccomment">/// Get the certificate issuer.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">issuer</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">X509Name</span> {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">issuer</span>
+    }
+
+    <span class="doccomment">/// Get the certificate validity.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">validity</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">Validity</span> {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">validity</span>
+    }
+
+    <span class="doccomment">/// Get the certificate public key information.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">public_key</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">SubjectPublicKeyInfo</span> {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">subject_pki</span>
+    }
+
     <span class="doccomment">/// Returns the certificate extensions</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">extensions</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[<span class="ident">X509Extension</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>] {
@@ -1095,7 +1209,28 @@
 
     <span class="doccomment">/// Searches for an extension with the given `Oid`.</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// Note: if there are several extensions with the same `Oid`, the first one is returned.</span>
+    <span class="doccomment">/// Return `Ok(Some(extension))` if exactly one was found, `Ok(None)` if none was found,</span>
+    <span class="doccomment">/// or an error `DuplicateExtensions` if the extension is present twice or more.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_extension_unique</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">oid</span>: <span class="kw-2">&amp;</span><span class="ident">Oid</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">X509Extension</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>, <span class="ident">X509Error</span><span class="op">&gt;</span> {
+        <span class="ident">get_extension_unique</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">extensions</span>, <span class="ident">oid</span>)
+    }
+
+    <span class="doccomment">/// Searches for an extension with the given `Oid`.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// ## Duplicate extensions</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Note: if there are several extensions with the same `Oid`, the first one is returned, masking other values.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// RFC5280 forbids having duplicate extensions, but does not specify how errors should be handled.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// **Because of this, the `find_extension` method is not safe and should not be used!**</span>
+    <span class="doccomment">/// The [`get_extension_unique`](Self::get_extension_unique) method checks for duplicate extensions and should be</span>
+    <span class="doccomment">/// preferred.</span>
+    <span class="attribute">#[<span class="ident">deprecated</span>(
+        <span class="ident">since</span> <span class="op">=</span> <span class="string">&quot;0.13.0&quot;</span>,
+        <span class="ident">note</span> <span class="op">=</span> <span class="string">&quot;Do not use this function (duplicate extensions are not checked), use `get_extension_unique`&quot;</span>
+    )]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">find_extension</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">oid</span>: <span class="kw-2">&amp;</span><span class="ident">Oid</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">X509Extension</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">extensions</span>.<span class="ident">iter</span>().<span class="ident">find</span>(<span class="op">|</span><span class="kw-2">&amp;</span><span class="ident">ext</span><span class="op">|</span> <span class="ident">ext</span>.<span class="ident">oid</span> <span class="op">==</span> <span class="kw-2">*</span><span class="ident">oid</span>)
     }
@@ -1115,74 +1250,135 @@
             })
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">basic_constraints</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">bool</span>, <span class="kw-2">&amp;</span><span class="ident">BasicConstraints</span>)<span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">find_extension</span>(<span class="kw-2">&amp;</span><span class="ident">OID_X509_EXT_BASIC_CONSTRAINTS</span>)
+    <span class="doccomment">/// Attempt to get the certificate Basic Constraints extension</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Return `Ok(Some(extension))` if exactly one was found, `Ok(None)` if none was found,</span>
+    <span class="doccomment">/// or an error if the extension is present twice or more.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">basic_constraints</span>(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">BasicExtension</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">BasicConstraints</span><span class="op">&gt;</span><span class="op">&gt;</span>, <span class="ident">X509Error</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="self">self</span>
+            .<span class="ident">get_extension_unique</span>(<span class="kw-2">&amp;</span><span class="ident">OID_X509_EXT_BASIC_CONSTRAINTS</span>)<span class="question-mark">?</span>
             .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">ext</span><span class="op">|</span> <span class="kw">match</span> <span class="ident">ext</span>.<span class="ident">parsed_extension</span> {
-                <span class="ident">ParsedExtension::BasicConstraints</span>(<span class="kw-2">ref</span> <span class="ident">bc</span>) =&gt; <span class="prelude-val">Some</span>((<span class="ident">ext</span>.<span class="ident">critical</span>, <span class="ident">bc</span>)),
+                <span class="ident">ParsedExtension::BasicConstraints</span>(<span class="kw-2">ref</span> <span class="ident">bc</span>) =&gt; {
+                    <span class="prelude-val">Some</span>(<span class="ident">BasicExtension::new</span>(<span class="ident">ext</span>.<span class="ident">critical</span>, <span class="ident">bc</span>))
+                }
                 <span class="kw">_</span> =&gt; <span class="prelude-val">None</span>,
+            });
+        <span class="prelude-val">Ok</span>(<span class="ident">r</span>)
+    }
+
+    <span class="doccomment">/// Attempt to get the certificate Key Usage extension</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Return `Ok(Some(extension))` if exactly one was found, `Ok(None)` if none was found,</span>
+    <span class="doccomment">/// or an error if the extension is invalid, or is present twice or more.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">key_usage</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">BasicExtension</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">KeyUsage</span><span class="op">&gt;</span><span class="op">&gt;</span>, <span class="ident">X509Error</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">get_extension_unique</span>(<span class="kw-2">&amp;</span><span class="ident">OID_X509_EXT_KEY_USAGE</span>)<span class="question-mark">?</span>
+            .<span class="ident">map_or</span>(<span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>), <span class="op">|</span><span class="ident">ext</span><span class="op">|</span> <span class="kw">match</span> <span class="ident">ext</span>.<span class="ident">parsed_extension</span> {
+                <span class="ident">ParsedExtension::KeyUsage</span>(<span class="kw-2">ref</span> <span class="ident">value</span>) =&gt; {
+                    <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="ident">BasicExtension::new</span>(<span class="ident">ext</span>.<span class="ident">critical</span>, <span class="ident">value</span>)))
+                }
+                <span class="kw">_</span> =&gt; <span class="prelude-val">Err</span>(<span class="ident">X509Error::InvalidExtensions</span>),
             })
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">key_usage</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">bool</span>, <span class="kw-2">&amp;</span><span class="ident">KeyUsage</span>)<span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">find_extension</span>(<span class="kw-2">&amp;</span><span class="ident">OID_X509_EXT_KEY_USAGE</span>)
-            .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">ext</span><span class="op">|</span> <span class="kw">match</span> <span class="ident">ext</span>.<span class="ident">parsed_extension</span> {
-                <span class="ident">ParsedExtension::KeyUsage</span>(<span class="kw-2">ref</span> <span class="ident">ku</span>) =&gt; <span class="prelude-val">Some</span>((<span class="ident">ext</span>.<span class="ident">critical</span>, <span class="ident">ku</span>)),
-                <span class="kw">_</span> =&gt; <span class="prelude-val">None</span>,
+    <span class="doccomment">/// Attempt to get the certificate Extended Key Usage extension</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Return `Ok(Some(extension))` if exactly one was found, `Ok(None)` if none was found,</span>
+    <span class="doccomment">/// or an error if the extension is invalid, or is present twice or more.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">extended_key_usage</span>(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">BasicExtension</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">ExtendedKeyUsage</span><span class="op">&gt;</span><span class="op">&gt;</span>, <span class="ident">X509Error</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">get_extension_unique</span>(<span class="kw-2">&amp;</span><span class="ident">OID_X509_EXT_EXTENDED_KEY_USAGE</span>)<span class="question-mark">?</span>
+            .<span class="ident">map_or</span>(<span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>), <span class="op">|</span><span class="ident">ext</span><span class="op">|</span> <span class="kw">match</span> <span class="ident">ext</span>.<span class="ident">parsed_extension</span> {
+                <span class="ident">ParsedExtension::ExtendedKeyUsage</span>(<span class="kw-2">ref</span> <span class="ident">value</span>) =&gt; {
+                    <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="ident">BasicExtension::new</span>(<span class="ident">ext</span>.<span class="ident">critical</span>, <span class="ident">value</span>)))
+                }
+                <span class="kw">_</span> =&gt; <span class="prelude-val">Err</span>(<span class="ident">X509Error::InvalidExtensions</span>),
             })
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">extended_key_usage</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">bool</span>, <span class="kw-2">&amp;</span><span class="ident">ExtendedKeyUsage</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>)<span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">find_extension</span>(<span class="kw-2">&amp;</span><span class="ident">OID_X509_EXT_EXTENDED_KEY_USAGE</span>)
-            .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">ext</span><span class="op">|</span> <span class="kw">match</span> <span class="ident">ext</span>.<span class="ident">parsed_extension</span> {
-                <span class="ident">ParsedExtension::ExtendedKeyUsage</span>(<span class="kw-2">ref</span> <span class="ident">eku</span>) =&gt; <span class="prelude-val">Some</span>((<span class="ident">ext</span>.<span class="ident">critical</span>, <span class="ident">eku</span>)),
-                <span class="kw">_</span> =&gt; <span class="prelude-val">None</span>,
+    <span class="doccomment">/// Attempt to get the certificate Policy Constraints extension</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Return `Ok(Some(extension))` if exactly one was found, `Ok(None)` if none was found,</span>
+    <span class="doccomment">/// or an error if the extension is invalid, or is present twice or more.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">policy_constraints</span>(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">BasicExtension</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">PolicyConstraints</span><span class="op">&gt;</span><span class="op">&gt;</span>, <span class="ident">X509Error</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">get_extension_unique</span>(<span class="kw-2">&amp;</span><span class="ident">OID_X509_EXT_POLICY_CONSTRAINTS</span>)<span class="question-mark">?</span>
+            .<span class="ident">map_or</span>(<span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>), <span class="op">|</span><span class="ident">ext</span><span class="op">|</span> <span class="kw">match</span> <span class="ident">ext</span>.<span class="ident">parsed_extension</span> {
+                <span class="ident">ParsedExtension::PolicyConstraints</span>(<span class="kw-2">ref</span> <span class="ident">value</span>) =&gt; {
+                    <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="ident">BasicExtension::new</span>(<span class="ident">ext</span>.<span class="ident">critical</span>, <span class="ident">value</span>)))
+                }
+                <span class="kw">_</span> =&gt; <span class="prelude-val">Err</span>(<span class="ident">X509Error::InvalidExtensions</span>),
             })
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">policy_constraints</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">bool</span>, <span class="kw-2">&amp;</span><span class="ident">PolicyConstraints</span>)<span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">find_extension</span>(<span class="kw-2">&amp;</span><span class="ident">OID_X509_EXT_POLICY_CONSTRAINTS</span>)
-            .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">ext</span><span class="op">|</span> <span class="kw">match</span> <span class="ident">ext</span>.<span class="ident">parsed_extension</span> {
-                <span class="ident">ParsedExtension::PolicyConstraints</span>(<span class="kw-2">ref</span> <span class="ident">pc</span>) =&gt; <span class="prelude-val">Some</span>((<span class="ident">ext</span>.<span class="ident">critical</span>, <span class="ident">pc</span>)),
-                <span class="kw">_</span> =&gt; <span class="prelude-val">None</span>,
+    <span class="doccomment">/// Attempt to get the certificate Policy Constraints extension</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Return `Ok(Some(extension))` if exactly one was found, `Ok(None)` if none was found,</span>
+    <span class="doccomment">/// or an error if the extension is invalid, or is present twice or more.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">inhibit_anypolicy</span>(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">BasicExtension</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">InhibitAnyPolicy</span><span class="op">&gt;</span><span class="op">&gt;</span>, <span class="ident">X509Error</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">get_extension_unique</span>(<span class="kw-2">&amp;</span><span class="ident">OID_X509_EXT_INHIBITANT_ANY_POLICY</span>)<span class="question-mark">?</span>
+            .<span class="ident">map_or</span>(<span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>), <span class="op">|</span><span class="ident">ext</span><span class="op">|</span> <span class="kw">match</span> <span class="ident">ext</span>.<span class="ident">parsed_extension</span> {
+                <span class="ident">ParsedExtension::InhibitAnyPolicy</span>(<span class="kw-2">ref</span> <span class="ident">value</span>) =&gt; {
+                    <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="ident">BasicExtension::new</span>(<span class="ident">ext</span>.<span class="ident">critical</span>, <span class="ident">value</span>)))
+                }
+                <span class="kw">_</span> =&gt; <span class="prelude-val">Err</span>(<span class="ident">X509Error::InvalidExtensions</span>),
             })
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">inhibit_anypolicy</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">bool</span>, <span class="kw-2">&amp;</span><span class="ident">InhibitAnyPolicy</span>)<span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">find_extension</span>(<span class="kw-2">&amp;</span><span class="ident">OID_X509_EXT_INHIBITANT_ANY_POLICY</span>)
-            .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">ext</span><span class="op">|</span> <span class="kw">match</span> <span class="ident">ext</span>.<span class="ident">parsed_extension</span> {
-                <span class="ident">ParsedExtension::InhibitAnyPolicy</span>(<span class="kw-2">ref</span> <span class="ident">iap</span>) =&gt; <span class="prelude-val">Some</span>((<span class="ident">ext</span>.<span class="ident">critical</span>, <span class="ident">iap</span>)),
-                <span class="kw">_</span> =&gt; <span class="prelude-val">None</span>,
+    <span class="doccomment">/// Attempt to get the certificate Policy Mappings extension</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Return `Ok(Some(extension))` if exactly one was found, `Ok(None)` if none was found,</span>
+    <span class="doccomment">/// or an error if the extension is invalid, or is present twice or more.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">policy_mappings</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">BasicExtension</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">PolicyMappings</span><span class="op">&gt;</span><span class="op">&gt;</span>, <span class="ident">X509Error</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">get_extension_unique</span>(<span class="kw-2">&amp;</span><span class="ident">OID_X509_EXT_POLICY_MAPPINGS</span>)<span class="question-mark">?</span>
+            .<span class="ident">map_or</span>(<span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>), <span class="op">|</span><span class="ident">ext</span><span class="op">|</span> <span class="kw">match</span> <span class="ident">ext</span>.<span class="ident">parsed_extension</span> {
+                <span class="ident">ParsedExtension::PolicyMappings</span>(<span class="kw-2">ref</span> <span class="ident">value</span>) =&gt; {
+                    <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="ident">BasicExtension::new</span>(<span class="ident">ext</span>.<span class="ident">critical</span>, <span class="ident">value</span>)))
+                }
+                <span class="kw">_</span> =&gt; <span class="prelude-val">Err</span>(<span class="ident">X509Error::InvalidExtensions</span>),
             })
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">policy_mappings</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">bool</span>, <span class="kw-2">&amp;</span><span class="ident">PolicyMappings</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>)<span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">find_extension</span>(<span class="kw-2">&amp;</span><span class="ident">OID_X509_EXT_POLICY_MAPPINGS</span>)
-            .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">ext</span><span class="op">|</span> <span class="kw">match</span> <span class="ident">ext</span>.<span class="ident">parsed_extension</span> {
-                <span class="ident">ParsedExtension::PolicyMappings</span>(<span class="kw-2">ref</span> <span class="ident">pm</span>) =&gt; <span class="prelude-val">Some</span>((<span class="ident">ext</span>.<span class="ident">critical</span>, <span class="ident">pm</span>)),
-                <span class="kw">_</span> =&gt; <span class="prelude-val">None</span>,
+    <span class="doccomment">/// Attempt to get the certificate Subject Alternative Name extension</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Return `Ok(Some(extension))` if exactly one was found, `Ok(None)` if none was found,</span>
+    <span class="doccomment">/// or an error if the extension is invalid, or is present twice or more.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">subject_alternative_name</span>(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">BasicExtension</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">SubjectAlternativeName</span><span class="op">&gt;</span><span class="op">&gt;</span>, <span class="ident">X509Error</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">get_extension_unique</span>(<span class="kw-2">&amp;</span><span class="ident">OID_X509_EXT_SUBJECT_ALT_NAME</span>)<span class="question-mark">?</span>
+            .<span class="ident">map_or</span>(<span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>), <span class="op">|</span><span class="ident">ext</span><span class="op">|</span> <span class="kw">match</span> <span class="ident">ext</span>.<span class="ident">parsed_extension</span> {
+                <span class="ident">ParsedExtension::SubjectAlternativeName</span>(<span class="kw-2">ref</span> <span class="ident">value</span>) =&gt; {
+                    <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="ident">BasicExtension::new</span>(<span class="ident">ext</span>.<span class="ident">critical</span>, <span class="ident">value</span>)))
+                }
+                <span class="kw">_</span> =&gt; <span class="prelude-val">Err</span>(<span class="ident">X509Error::InvalidExtensions</span>),
             })
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">subject_alternative_name</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">bool</span>, <span class="kw-2">&amp;</span><span class="ident">SubjectAlternativeName</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>)<span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">find_extension</span>(<span class="kw-2">&amp;</span><span class="ident">OID_X509_EXT_SUBJECT_ALT_NAME</span>)
-            .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">ext</span><span class="op">|</span> <span class="kw">match</span> <span class="ident">ext</span>.<span class="ident">parsed_extension</span> {
-                <span class="ident">ParsedExtension::SubjectAlternativeName</span>(<span class="kw-2">ref</span> <span class="ident">san</span>) =&gt; <span class="prelude-val">Some</span>((<span class="ident">ext</span>.<span class="ident">critical</span>, <span class="ident">san</span>)),
-                <span class="kw">_</span> =&gt; <span class="prelude-val">None</span>,
-            })
-    }
-
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">name_constraints</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">bool</span>, <span class="kw-2">&amp;</span><span class="ident">NameConstraints</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>)<span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">find_extension</span>(<span class="kw-2">&amp;</span><span class="ident">OID_X509_EXT_NAME_CONSTRAINTS</span>)
-            .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">ext</span><span class="op">|</span> <span class="kw">match</span> <span class="ident">ext</span>.<span class="ident">parsed_extension</span> {
-                <span class="ident">ParsedExtension::NameConstraints</span>(<span class="kw-2">ref</span> <span class="ident">nc</span>) =&gt; <span class="prelude-val">Some</span>((<span class="ident">ext</span>.<span class="ident">critical</span>, <span class="ident">nc</span>)),
-                <span class="kw">_</span> =&gt; <span class="prelude-val">None</span>,
+    <span class="doccomment">/// Attempt to get the certificate Name Constraints extension</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Return `Ok(Some(extension))` if exactly one was found, `Ok(None)` if none was found,</span>
+    <span class="doccomment">/// or an error if the extension is invalid, or is present twice or more.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">name_constraints</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">BasicExtension</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">NameConstraints</span><span class="op">&gt;</span><span class="op">&gt;</span>, <span class="ident">X509Error</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">get_extension_unique</span>(<span class="kw-2">&amp;</span><span class="ident">OID_X509_EXT_NAME_CONSTRAINTS</span>)<span class="question-mark">?</span>
+            .<span class="ident">map_or</span>(<span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>), <span class="op">|</span><span class="ident">ext</span><span class="op">|</span> <span class="kw">match</span> <span class="ident">ext</span>.<span class="ident">parsed_extension</span> {
+                <span class="ident">ParsedExtension::NameConstraints</span>(<span class="kw-2">ref</span> <span class="ident">value</span>) =&gt; {
+                    <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="ident">BasicExtension::new</span>(<span class="ident">ext</span>.<span class="ident">critical</span>, <span class="ident">value</span>)))
+                }
+                <span class="kw">_</span> =&gt; <span class="prelude-val">Err</span>(<span class="ident">X509Error::InvalidExtensions</span>),
             })
     }
 
     <span class="doccomment">/// Returns true if certificate has `basicConstraints CA:true`</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_ca</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="self">self</span>.<span class="ident">basic_constraints</span>()
-            .<span class="ident">map</span>(<span class="op">|</span>(<span class="kw">_</span>, <span class="ident">bc</span>)<span class="op">|</span> <span class="ident">bc</span>.<span class="ident">ca</span>)
+            .<span class="ident">unwrap_or</span>(<span class="prelude-val">None</span>)
+            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">ext</span><span class="op">|</span> <span class="ident">ext</span>.<span class="ident">value</span>.<span class="ident">ca</span>)
             .<span class="ident">unwrap_or</span>(<span class="bool-val">false</span>)
     }
 
@@ -1193,15 +1389,27 @@
 
     <span class="doccomment">/// Get a formatted string of the certificate serial number, separated by &#39;:&#39;</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">raw_serial_as_string</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">String</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">s</span> <span class="op">=</span> <span class="self">self</span>
-            .<span class="ident">raw_serial</span>
-            .<span class="ident">iter</span>()
-            .<span class="ident">fold</span>(<span class="ident">String::with_capacity</span>(<span class="number">3</span> <span class="op">*</span> <span class="self">self</span>.<span class="ident">raw_serial</span>.<span class="ident">len</span>()), <span class="op">|</span><span class="ident">a</span>, <span class="ident">b</span><span class="op">|</span> {
-                <span class="ident">a</span> <span class="op">+</span> <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;{:02x}:&quot;</span>, <span class="ident">b</span>)
-            });
-        <span class="ident">s</span>.<span class="ident">pop</span>();
-        <span class="ident">s</span>
+        <span class="ident">format_serial</span>(<span class="self">self</span>.<span class="ident">raw_serial</span>)
     }
+}
+
+<span class="doccomment">/// Searches for an extension with the given `Oid`.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// Note: if there are several extensions with the same `Oid`, an error `DuplicateExtensions` is returned.</span>
+<span class="kw">fn</span> <span class="ident">get_extension_unique</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span><span class="op">&gt;</span>(
+    <span class="ident">extensions</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">X509Extension</span><span class="op">&lt;</span><span class="lifetime">&#39;b</span><span class="op">&gt;</span>],
+    <span class="ident">oid</span>: <span class="kw-2">&amp;</span><span class="ident">Oid</span>,
+) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">X509Extension</span><span class="op">&lt;</span><span class="lifetime">&#39;b</span><span class="op">&gt;</span><span class="op">&gt;</span>, <span class="ident">X509Error</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">res</span> <span class="op">=</span> <span class="prelude-val">None</span>;
+    <span class="kw">for</span> <span class="ident">ext</span> <span class="kw">in</span> <span class="ident">extensions</span> {
+        <span class="kw">if</span> <span class="ident">ext</span>.<span class="ident">oid</span> <span class="op">==</span> <span class="kw-2">*</span><span class="ident">oid</span> {
+            <span class="kw">if</span> <span class="ident">res</span>.<span class="ident">is_some</span>() {
+                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">X509Error::DuplicateExtensions</span>);
+            }
+            <span class="ident">res</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">ext</span>);
+        }
+    }
+    <span class="prelude-val">Ok</span>(<span class="ident">res</span>)
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">AsRef</span><span class="op">&lt;</span>[<span class="ident">u8</span>]<span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">TbsCertificate</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
@@ -1211,7 +1419,7 @@
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">FromDer</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">TbsCertificate</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">FromDer</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">X509Error</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">TbsCertificate</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="doccomment">/// Parse a DER-encoded TbsCertificate object</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// &lt;pre&gt;</span>
@@ -1242,7 +1450,7 @@
             <span class="kw">let</span> (<span class="ident">i</span>, <span class="ident">subject_pki</span>) <span class="op">=</span> <span class="ident">SubjectPublicKeyInfo::from_der</span>(<span class="ident">i</span>)<span class="question-mark">?</span>;
             <span class="kw">let</span> (<span class="ident">i</span>, <span class="ident">issuer_uid</span>) <span class="op">=</span> <span class="ident">UniqueIdentifier::from_der_issuer</span>(<span class="ident">i</span>)<span class="question-mark">?</span>;
             <span class="kw">let</span> (<span class="ident">i</span>, <span class="ident">subject_uid</span>) <span class="op">=</span> <span class="ident">UniqueIdentifier::from_der_subject</span>(<span class="ident">i</span>)<span class="question-mark">?</span>;
-            <span class="kw">let</span> (<span class="ident">i</span>, <span class="ident">extensions</span>) <span class="op">=</span> <span class="ident">parse_extensions</span>(<span class="ident">i</span>, <span class="ident">BerTag</span>(<span class="number">3</span>))<span class="question-mark">?</span>;
+            <span class="kw">let</span> (<span class="ident">i</span>, <span class="ident">extensions</span>) <span class="op">=</span> <span class="ident">parse_extensions</span>(<span class="ident">i</span>, <span class="ident">Tag</span>(<span class="number">3</span>))<span class="question-mark">?</span>;
             <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">start_i</span>.<span class="ident">offset</span>(<span class="ident">i</span>);
             <span class="kw">let</span> <span class="ident">tbs</span> <span class="op">=</span> <span class="ident">TbsCertificate</span> {
                 <span class="ident">version</span>,
@@ -1300,9 +1508,9 @@
             <span class="kw">let</span> (<span class="ident">i</span>, <span class="ident">issuer_uid</span>) <span class="op">=</span> <span class="ident">UniqueIdentifier::from_der_issuer</span>(<span class="ident">i</span>)<span class="question-mark">?</span>;
             <span class="kw">let</span> (<span class="ident">i</span>, <span class="ident">subject_uid</span>) <span class="op">=</span> <span class="ident">UniqueIdentifier::from_der_subject</span>(<span class="ident">i</span>)<span class="question-mark">?</span>;
             <span class="kw">let</span> (<span class="ident">i</span>, <span class="ident">extensions</span>) <span class="op">=</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">deep_parse_extensions</span> {
-                <span class="ident">parse_extensions</span>(<span class="ident">i</span>, <span class="ident">BerTag</span>(<span class="number">3</span>))<span class="question-mark">?</span>
+                <span class="ident">parse_extensions</span>(<span class="ident">i</span>, <span class="ident">Tag</span>(<span class="number">3</span>))<span class="question-mark">?</span>
             } <span class="kw">else</span> {
-                <span class="ident">parse_extensions_envelope</span>(<span class="ident">i</span>, <span class="ident">BerTag</span>(<span class="number">3</span>))<span class="question-mark">?</span>
+                <span class="ident">parse_extensions_envelope</span>(<span class="ident">i</span>, <span class="ident">Tag</span>(<span class="number">3</span>))<span class="question-mark">?</span>
             };
             <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">start_i</span>.<span class="ident">offset</span>(<span class="ident">i</span>);
             <span class="kw">let</span> <span class="ident">tbs</span> <span class="op">=</span> <span class="ident">TbsCertificate</span> {
@@ -1325,91 +1533,29 @@
     }
 }
 
+<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">deprecated</span>)]</span>
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;validate&quot;</span>)]</span>
 <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;validate&quot;</span>)))]</span>
 <span class="kw">impl</span> <span class="ident">Validate</span> <span class="kw">for</span> <span class="ident">TbsCertificate</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">validate</span><span class="op">&lt;</span><span class="ident">W</span>, <span class="ident">E</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw-2">mut</span> <span class="ident">warn</span>: <span class="ident">W</span>, <span class="kw-2">mut</span> <span class="ident">err</span>: <span class="ident">E</span>) -&gt; <span class="ident">bool</span>
+    <span class="kw">fn</span> <span class="ident">validate</span><span class="op">&lt;</span><span class="ident">W</span>, <span class="ident">E</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">warn</span>: <span class="ident">W</span>, <span class="ident">err</span>: <span class="ident">E</span>) -&gt; <span class="ident">bool</span>
     <span class="kw">where</span>
         <span class="ident">W</span>: <span class="ident">FnMut</span>(<span class="kw-2">&amp;</span><span class="ident">str</span>),
         <span class="ident">E</span>: <span class="ident">FnMut</span>(<span class="kw-2">&amp;</span><span class="ident">str</span>),
     {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">res</span> <span class="op">=</span> <span class="bool-val">true</span>;
-        <span class="comment">// version must be 0, 1 or 2</span>
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">version</span>.<span class="number">0</span> <span class="op">&gt;</span><span class="op">=</span> <span class="number">3</span> {
-            <span class="ident">err</span>(<span class="string">&quot;Invalid version&quot;</span>);
-            <span class="ident">res</span> <span class="op">=</span> <span class="bool-val">false</span>;
-        }
-        <span class="comment">// extensions require v3</span>
-        <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">extensions</span>().<span class="ident">is_empty</span>() <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">version</span> <span class="op">!</span><span class="op">=</span> <span class="ident">X509Version::V3</span> {
-            <span class="ident">err</span>(<span class="string">&quot;Extensions present but version is not 3&quot;</span>);
-            <span class="ident">res</span> <span class="op">=</span> <span class="bool-val">false</span>;
-        }
-        <span class="kw">let</span> <span class="ident">b</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">raw_serial</span>();
-        <span class="kw">if</span> <span class="ident">b</span>.<span class="ident">is_empty</span>() {
-            <span class="ident">err</span>(<span class="string">&quot;Serial is empty&quot;</span>);
-            <span class="ident">res</span> <span class="op">=</span> <span class="bool-val">false</span>;
-        } <span class="kw">else</span> {
-            <span class="comment">// check MSB of serial</span>
-            <span class="kw">if</span> <span class="ident">b</span>[<span class="number">0</span>] <span class="op">&amp;</span> <span class="number">0x80</span> <span class="op">!</span><span class="op">=</span> <span class="number">0</span> {
-                <span class="ident">warn</span>(<span class="string">&quot;Serial number is negative&quot;</span>);
-            }
-            <span class="comment">// check leading zeroes in serial</span>
-            <span class="kw">if</span> <span class="ident">b</span>.<span class="ident">len</span>() <span class="op">&gt;</span> <span class="number">1</span> <span class="op">&amp;&amp;</span> <span class="ident">b</span>[<span class="number">0</span>] <span class="op">==</span> <span class="number">0</span> <span class="op">&amp;&amp;</span> <span class="ident">b</span>[<span class="number">1</span>] <span class="op">&amp;</span> <span class="number">0x80</span> <span class="op">==</span> <span class="number">0</span> {
-                <span class="ident">warn</span>(<span class="string">&quot;Leading zeroes in serial number&quot;</span>);
-            }
-        }
-        <span class="comment">// subject/issuer: verify charsets</span>
-        <span class="comment">// - wildcards in PrintableString</span>
-        <span class="comment">// - non-IA5 in IA5String</span>
-        <span class="kw">for</span> <span class="ident">attr</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">subject</span>.<span class="ident">iter_attributes</span>() {
-            <span class="kw">match</span> <span class="ident">attr</span>.<span class="ident">attr_value</span>().<span class="ident">content</span> {
-                <span class="ident">DerObjectContent::PrintableString</span>(<span class="ident">s</span>) <span class="op">|</span> <span class="ident">DerObjectContent::IA5String</span>(<span class="ident">s</span>) =&gt; {
-                    <span class="kw">if</span> <span class="op">!</span><span class="ident">s</span>.<span class="ident">as_bytes</span>().<span class="ident">iter</span>().<span class="ident">all</span>(<span class="ident">u8::is_ascii</span>) {
-                        <span class="ident">warn</span>(<span class="kw-2">&amp;</span><span class="macro">format!</span>(
-                            <span class="string">&quot;Invalid charset in &#39;Subject&#39;, component {}&quot;</span>,
-                            <span class="ident">attr</span>.<span class="ident">attr_type</span>()
-                        ));
-                    }
-                }
-                <span class="kw">_</span> =&gt; (),
-            }
-        }
-        <span class="comment">// check for parse errors or unsupported extensions</span>
-        <span class="kw">for</span> <span class="ident">ext</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">extensions</span>() {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">ParsedExtension::UnsupportedExtension</span> { .. } <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">ext</span>.<span class="ident">parsed_extension</span> {
-                <span class="ident">warn</span>(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;Unsupported extension {}&quot;</span>, <span class="ident">ext</span>.<span class="ident">oid</span>));
-            }
-            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">ParsedExtension::ParseError</span> { <span class="ident">error</span> } <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">ext</span>.<span class="ident">parsed_extension</span> {
-                <span class="ident">err</span>(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;Parse error in extension {}: {}&quot;</span>, <span class="ident">ext</span>.<span class="ident">oid</span>, <span class="ident">error</span>));
-                <span class="ident">res</span> <span class="op">=</span> <span class="bool-val">false</span>;
-            }
-        }
-        <span class="comment">// check for duplicate extensions</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">m</span> <span class="op">=</span> <span class="ident">HashSet::new</span>();
-        <span class="kw">for</span> <span class="ident">ext</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">extensions</span>() {
-            <span class="kw">if</span> <span class="ident">m</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">ext</span>.<span class="ident">oid</span>) {
-                <span class="ident">err</span>(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;Duplicate extension {}&quot;</span>, <span class="ident">ext</span>.<span class="ident">oid</span>));
-                <span class="ident">res</span> <span class="op">=</span> <span class="bool-val">false</span>;
-            } <span class="kw">else</span> {
-                <span class="ident">m</span>.<span class="ident">insert</span>(<span class="ident">ext</span>.<span class="ident">oid</span>.<span class="ident">clone</span>());
-            }
-            <span class="comment">// specific extension checks</span>
-            <span class="comment">// SAN</span>
-            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">ParsedExtension::SubjectAlternativeName</span>(<span class="ident">san</span>) <span class="op">=</span> <span class="ident">ext</span>.<span class="ident">parsed_extension</span>() {
-                <span class="kw">for</span> <span class="ident">name</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">san</span>.<span class="ident">general_names</span> {
-                    <span class="kw">match</span> <span class="ident">name</span> {
-                        <span class="ident">GeneralName::DNSName</span>(<span class="kw-2">ref</span> <span class="ident">s</span>) <span class="op">|</span> <span class="ident">GeneralName::RFC822Name</span>(<span class="kw-2">ref</span> <span class="ident">s</span>) =&gt; {
-                            <span class="comment">// should be an ia5string</span>
-                            <span class="kw">if</span> <span class="op">!</span><span class="ident">s</span>.<span class="ident">as_bytes</span>().<span class="ident">iter</span>().<span class="ident">all</span>(<span class="ident">u8::is_ascii</span>) {
-                                <span class="ident">warn</span>(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;Invalid charset in &#39;SAN&#39; entry &#39;{}&#39;&quot;</span>, <span class="ident">s</span>));
-                            }
-                        }
-                        <span class="kw">_</span> =&gt; (),
-                    }
-                }
-            }
-        }
-        <span class="ident">res</span>
+        <span class="ident">TbsCertificateStructureValidator</span>.<span class="ident">validate</span>(<span class="self">self</span>, <span class="kw-2">&amp;mut</span> <span class="ident">CallbackLogger::new</span>(<span class="ident">warn</span>, <span class="ident">err</span>))
+    }
+}
+
+<span class="doccomment">/// Basic extension structure, used in search results</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">BasicExtension</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="ident">critical</span>: <span class="ident">bool</span>,
+    <span class="kw">pub</span> <span class="ident">value</span>: <span class="ident">T</span>,
+}
+
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">BasicExtension</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">critical</span>: <span class="ident">bool</span>, <span class="ident">value</span>: <span class="ident">T</span>) -&gt; <span class="self">Self</span> {
+        <span class="self">Self</span> { <span class="ident">critical</span>, <span class="ident">value</span> }
     }
 }
 
@@ -1425,7 +1571,7 @@
     <span class="doccomment">/// If the certificate is not currently valid, then `None` is</span>
     <span class="doccomment">/// returned.  Otherwise, the `Duration` until the certificate</span>
     <span class="doccomment">/// expires is returned.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">time_to_expiration</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">std::time::Duration</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">time_to_expiration</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">now</span> <span class="op">=</span> <span class="ident">ASN1Time::now</span>();
         <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">is_valid_at</span>(<span class="ident">now</span>) {
             <span class="kw">return</span> <span class="prelude-val">None</span>;
@@ -1448,7 +1594,7 @@
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">FromDer</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Validity</span> {
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">FromDer</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">X509Error</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Validity</span> {
     <span class="kw">fn</span> <span class="ident">from_der</span>(<span class="ident">i</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="ident">X509Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
         <span class="ident">parse_der_sequence_defined_g</span>(<span class="op">|</span><span class="ident">i</span>, <span class="kw">_</span><span class="op">|</span> {
             <span class="kw">let</span> (<span class="ident">i</span>, <span class="ident">not_before</span>) <span class="op">=</span> <span class="ident">ASN1Time::from_der</span>(<span class="ident">i</span>)<span class="question-mark">?</span>;
@@ -1463,35 +1609,25 @@
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">UniqueIdentifier</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="kw">pub</span> <span class="ident">BitStringObject</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>);
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">UniqueIdentifier</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="kw">pub</span> <span class="ident">BitString</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>);
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">UniqueIdentifier</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="comment">// issuerUniqueID  [1]  IMPLICIT UniqueIdentifier OPTIONAL</span>
     <span class="kw">fn</span> <span class="ident">from_der_issuer</span>(<span class="ident">i</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">u8</span>]) -&gt; <span class="ident">X509Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="ident"><span class="self">Self</span>::parse</span>(<span class="ident">i</span>, <span class="number">1</span>).<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">X509Error::InvalidIssuerUID</span>.<span class="ident">into</span>())
+        <span class="ident"><span class="self">Self</span>::parse</span>::<span class="op">&lt;</span><span class="number">1</span><span class="op">&gt;</span>(<span class="ident">i</span>).<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">X509Error::InvalidIssuerUID</span>.<span class="ident">into</span>())
     }
 
     <span class="comment">// subjectUniqueID [2]  IMPLICIT UniqueIdentifier OPTIONAL</span>
     <span class="kw">fn</span> <span class="ident">from_der_subject</span>(<span class="ident">i</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="ident">X509Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">UniqueIdentifier</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="ident"><span class="self">Self</span>::parse</span>(<span class="ident">i</span>, <span class="number">2</span>).<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">X509Error::InvalidSubjectUID</span>.<span class="ident">into</span>())
+        <span class="ident"><span class="self">Self</span>::parse</span>::<span class="op">&lt;</span><span class="number">2</span><span class="op">&gt;</span>(<span class="ident">i</span>).<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">X509Error::InvalidSubjectUID</span>.<span class="ident">into</span>())
     }
 
     <span class="comment">// Parse a [tag] UniqueIdentifier OPTIONAL</span>
     <span class="comment">//</span>
     <span class="comment">// UniqueIdentifier  ::=  BIT STRING</span>
-    <span class="kw">fn</span> <span class="ident">parse</span>(<span class="ident">i</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">tag</span>: <span class="ident">u32</span>) -&gt; <span class="ident">BerResult</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">UniqueIdentifier</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> (<span class="ident">rem</span>, <span class="ident">obj</span>) <span class="op">=</span> <span class="ident">parse_ber_optional</span>(<span class="ident">parse_der_tagged_implicit</span>(
-            <span class="ident">tag</span>,
-            <span class="ident">parse_der_content</span>(<span class="ident">DerTag::BitString</span>),
-        ))(<span class="ident">i</span>)<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">unique_id</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">obj</span>.<span class="ident">content</span> {
-            <span class="ident">DerObjectContent::Optional</span>(<span class="prelude-val">None</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>),
-            <span class="ident">DerObjectContent::Optional</span>(<span class="prelude-val">Some</span>(<span class="ident">o</span>)) =&gt; <span class="kw">match</span> <span class="ident">o</span>.<span class="ident">content</span> {
-                <span class="ident">DerObjectContent::BitString</span>(<span class="kw">_</span>, <span class="ident">b</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="ident">UniqueIdentifier</span>(<span class="ident">b</span>.<span class="ident">to_owned</span>()))),
-                <span class="kw">_</span> =&gt; <span class="prelude-val">Err</span>(<span class="ident">BerError::BerTypeError</span>),
-            },
-            <span class="kw">_</span> =&gt; <span class="prelude-val">Err</span>(<span class="ident">BerError::BerTypeError</span>),
-        }<span class="question-mark">?</span>;
+    <span class="kw">fn</span> <span class="ident">parse</span><span class="op">&lt;</span><span class="kw">const</span> <span class="ident">TAG</span>: <span class="ident">u32</span><span class="op">&gt;</span>(<span class="ident">i</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="ident">BerResult</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">UniqueIdentifier</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> (<span class="ident">rem</span>, <span class="ident">unique_id</span>) <span class="op">=</span> <span class="ident">OptTaggedExplicit</span>::<span class="op">&lt;</span><span class="ident">BitString</span>, <span class="ident">Error</span>, <span class="ident">TAG</span><span class="op">&gt;</span><span class="ident">::from_der</span>(<span class="ident">i</span>)<span class="question-mark">?</span>;
+        <span class="kw">let</span> <span class="ident">unique_id</span> <span class="op">=</span> <span class="ident">unique_id</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">u</span><span class="op">|</span> <span class="ident">UniqueIdentifier</span>(<span class="ident">u</span>.<span class="ident">into_inner</span>()));
         <span class="prelude-val">Ok</span>((<span class="ident">rem</span>, <span class="ident">unique_id</span>))
     }
 }
@@ -1507,12 +1643,30 @@
             <span class="ident">not_after</span>: <span class="ident">ASN1Time::now</span>(),
         };
         <span class="macro">assert_eq!</span>(<span class="ident">v</span>.<span class="ident">time_to_expiration</span>(), <span class="prelude-val">None</span>);
-        <span class="ident">v</span>.<span class="ident">not_after</span> <span class="op">=</span> (<span class="ident">v</span>.<span class="ident">not_after</span> <span class="op">+</span> <span class="ident">std::time::Duration::new</span>(<span class="number">60</span>, <span class="number">0</span>)).<span class="ident">unwrap</span>();
+        <span class="ident">v</span>.<span class="ident">not_after</span> <span class="op">=</span> (<span class="ident">v</span>.<span class="ident">not_after</span> <span class="op">+</span> <span class="ident">Duration::new</span>(<span class="number">60</span>, <span class="number">0</span>)).<span class="ident">unwrap</span>();
         <span class="macro">assert!</span>(<span class="ident">v</span>.<span class="ident">time_to_expiration</span>().<span class="ident">is_some</span>());
-        <span class="macro">assert!</span>(<span class="ident">v</span>.<span class="ident">time_to_expiration</span>().<span class="ident">unwrap</span>() <span class="op">&lt;</span><span class="op">=</span> <span class="ident">std::time::Duration::from_secs</span>(<span class="number">60</span>));
+        <span class="macro">assert!</span>(<span class="ident">v</span>.<span class="ident">time_to_expiration</span>().<span class="ident">unwrap</span>() <span class="op">&lt;</span><span class="op">=</span> <span class="ident">Duration::new</span>(<span class="number">60</span>, <span class="number">0</span>));
         <span class="comment">// The following assumes this timing won&#39;t take 10 seconds... I</span>
         <span class="comment">// think that is safe.</span>
-        <span class="macro">assert!</span>(<span class="ident">v</span>.<span class="ident">time_to_expiration</span>().<span class="ident">unwrap</span>() <span class="op">&gt;</span> <span class="ident">std::time::Duration::from_secs</span>(<span class="number">50</span>));
+        <span class="macro">assert!</span>(<span class="ident">v</span>.<span class="ident">time_to_expiration</span>().<span class="ident">unwrap</span>() <span class="op">&gt;</span> <span class="ident">Duration::new</span>(<span class="number">50</span>, <span class="number">0</span>));
+    }
+
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">extension_duplication</span>() {
+        <span class="kw">let</span> <span class="ident">extensions</span> <span class="op">=</span> <span class="macro">vec!</span>[
+            <span class="ident">X509Extension::new</span>(<span class="macro">oid!</span> {<span class="number">1.2</span>}, <span class="bool-val">true</span>, <span class="kw-2">&amp;</span>[], <span class="ident">ParsedExtension::Unparsed</span>),
+            <span class="ident">X509Extension::new</span>(<span class="macro">oid!</span> {<span class="number">1.3</span>}, <span class="bool-val">true</span>, <span class="kw-2">&amp;</span>[], <span class="ident">ParsedExtension::Unparsed</span>),
+            <span class="ident">X509Extension::new</span>(<span class="macro">oid!</span> {<span class="number">1.2</span>}, <span class="bool-val">true</span>, <span class="kw-2">&amp;</span>[], <span class="ident">ParsedExtension::Unparsed</span>),
+            <span class="ident">X509Extension::new</span>(<span class="macro">oid!</span> {<span class="number">1.4</span>}, <span class="bool-val">true</span>, <span class="kw-2">&amp;</span>[], <span class="ident">ParsedExtension::Unparsed</span>),
+            <span class="ident">X509Extension::new</span>(<span class="macro">oid!</span> {<span class="number">1.4</span>}, <span class="bool-val">true</span>, <span class="kw-2">&amp;</span>[], <span class="ident">ParsedExtension::Unparsed</span>),
+        ];
+
+        <span class="kw">let</span> <span class="ident">r2</span> <span class="op">=</span> <span class="ident">get_extension_unique</span>(<span class="kw-2">&amp;</span><span class="ident">extensions</span>, <span class="kw-2">&amp;</span><span class="macro">oid!</span> {<span class="number">1.2</span>});
+        <span class="macro">assert!</span>(<span class="ident">r2</span>.<span class="ident">is_err</span>());
+        <span class="kw">let</span> <span class="ident">r3</span> <span class="op">=</span> <span class="ident">get_extension_unique</span>(<span class="kw-2">&amp;</span><span class="ident">extensions</span>, <span class="kw-2">&amp;</span><span class="macro">oid!</span> {<span class="number">1.3</span>});
+        <span class="macro">assert!</span>(<span class="ident">r3</span>.<span class="ident">is_ok</span>());
+        <span class="kw">let</span> <span class="ident">r4</span> <span class="op">=</span> <span class="ident">get_extension_unique</span>(<span class="kw-2">&amp;</span><span class="ident">extensions</span>, <span class="kw-2">&amp;</span><span class="macro">oid!</span> {<span class="number">1.4</span>});
+        <span class="macro">assert!</span>(<span class="ident">r4</span>.<span class="ident">is_err</span>());
     }
 }
 </code></pre></div>

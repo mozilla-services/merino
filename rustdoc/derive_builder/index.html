@@ -3,8 +3,8 @@
         </a><h2 class="location"></h2>
     </nav>
     <nav class="sidebar"><a class="sidebar-logo" href="../derive_builder/index.html"><div class="logo-container"><img class="rust-logo" src="../rust-logo.svg" alt="logo"></div>
-        </a><h2 class="location"><a href="#">Crate derive_builder</a></h2><div class="sidebar-elems"><div class="block"><ul><li class="version">Version 0.10.2</li><li><a id="all-types" href="all.html">All Items</a></li></div></ul><section><div class="block"><ul><li><a href="#structs">Structs</a></li></ul></div></section><div id="sidebar-vars" data-name="derive_builder" data-ty="mod" data-relpath=""></div><script defer src="sidebar-items.js"></script></div></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../derive_builder/index.html"><img class="rust-logo" src="../rust-logo.svg" alt="logo"></a><nav class="sub"><div class="theme-picker hidden"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="22" height="22" alt="Pick another theme!" src="../brush.svg"></button><div id="theme-choices" role="menu"></div></div><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../wheel.svg"></a></div></form></nav></div><section id="main-content" class="content"><div class="main-heading">
-    <h1 class="fqn"><span class="in-band">Crate <a class="mod" href="#">derive_builder</a><button id="copy-path" onclick="copy_path(this)" title="Copy item path to clipboard"><img src="../clipboard.svg" width="19" height="18" alt="Copy item path"></button></span></h1><span class="out-of-band"><a class="srclink" href="../src/derive_builder/lib.rs.html#1-566">source</a> · <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span></div><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Derive a builder for a struct</p>
+        </a><h2 class="location"><a href="#">Crate derive_builder</a></h2><div class="sidebar-elems"><div class="block"><ul><li class="version">Version 0.11.2</li><li><a id="all-types" href="all.html">All Items</a></li></div></ul><section><div class="block"><ul><li><a href="#structs">Structs</a></li></ul></div></section><div id="sidebar-vars" data-name="derive_builder" data-ty="mod" data-relpath=""></div><script defer src="sidebar-items.js"></script></div></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../derive_builder/index.html"><img class="rust-logo" src="../rust-logo.svg" alt="logo"></a><nav class="sub"><div class="theme-picker hidden"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="22" height="22" alt="Pick another theme!" src="../brush.svg"></button><div id="theme-choices" role="menu"></div></div><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../wheel.svg"></a></div></form></nav></div><section id="main-content" class="content"><div class="main-heading">
+    <h1 class="fqn"><span class="in-band">Crate <a class="mod" href="#">derive_builder</a><button id="copy-path" onclick="copy_path(this)" title="Copy item path to clipboard"><img src="../clipboard.svg" width="19" height="18" alt="Copy item path"></button></span></h1><span class="out-of-band"><a class="srclink" href="../src/derive_builder/lib.rs.html#1-737">source</a> · <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span></div><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Derive a builder for a struct</p>
 <p>This crate implements the <a href="https://web.archive.org/web/20170701044756/https://aturon.github.io/ownership/builders.html">builder pattern</a> for you.
 Just apply <code>#[derive(Builder)]</code> to a struct <code>Foo</code>, and it will derive an additional
 struct <code>FooBuilder</code> with <strong>setter</strong>-methods for all fields and a <strong>build</strong>-method
@@ -34,11 +34,11 @@ struct <code>FooBuilder</code> with <strong>setter</strong>-methods for all fiel
         <span class="ident">new</span>
     }
 
-    <span class="kw">fn</span> <span class="ident">build</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Lorem</span>, <span class="ident">String</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">build</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Lorem</span>, <span class="ident">LoremBuilderError</span><span class="op">&gt;</span> {
         <span class="prelude-val">Ok</span>(<span class="ident">Lorem</span> {
             <span class="ident">ipsum</span>: <span class="ident">Clone::clone</span>(<span class="self">self</span>.<span class="ident">ipsum</span>
                 .<span class="ident">as_ref</span>()
-                .<span class="ident">ok_or</span>(<span class="string">&quot;ipsum must be initialized&quot;</span>)<span class="question-mark">?</span>),
+                .<span class="ident">ok_or</span>(<span class="ident">LoremBuilderError::from</span>(<span class="ident">UninitializedFieldError::new</span>(<span class="string">&quot;ipsum&quot;</span>)))<span class="question-mark">?</span>),
         })
     }
 }</code></pre></div>
@@ -104,7 +104,7 @@ for your every-day use cases. Thats quite a safe bet - we checked this for you. 
 Switching to consuming signatures (=<code>self</code>) is unlikely to give you any performance
 gain, but very likely to restrict your API for non-chained use cases.</p>
 <h2 id="more-features"><a href="#more-features">More Features</a></h2><h3 id="hidden-fields"><a href="#hidden-fields">Hidden Fields</a></h3>
-<p>You can hide fields by skipping their setters on the builder struct.</p>
+<p>You can hide fields by skipping their setters on (and presence in) the builder struct.</p>
 <ul>
 <li>Opt-out — skip setters via <code>#[builder(setter(skip))]</code> on individual fields.</li>
 <li>Opt-in — set <code>#[builder(setter(skip))]</code> on the whole struct
@@ -113,21 +113,50 @@ and enable individual setters via <code>#[builder(setter)]</code>.</li>
 <p>The types of skipped fields must implement <code>Default</code>.</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Builder</span>)]</span>
-<span class="kw">struct</span> <span class="ident">SetterOptOut</span> {
+<span class="kw">struct</span> <span class="ident">HiddenField</span> {
     <span class="ident">setter_present</span>: <span class="ident">u32</span>,
     <span class="attribute">#[<span class="ident">builder</span>(<span class="ident">setter</span>(<span class="ident">skip</span>))]</span>
     <span class="ident">setter_skipped</span>: <span class="ident">u32</span>,
 }</code></pre></div>
 <p>Alternatively, you can use the more verbose form:</p>
 <ul>
-<li><code>#[builder(setter(skip = &quot;true&quot;))]</code></li>
-<li><code>#[builder(setter(skip = &quot;false&quot;))]</code></li>
+<li><code>#[builder(setter(skip = true))]</code></li>
+<li><code>#[builder(setter(skip = false))]</code></li>
+</ul>
+<h3 id="custom-setters-skip-autogenerated-setters"><a href="#custom-setters-skip-autogenerated-setters">Custom setters (skip autogenerated setters)</a></h3>
+<p>Similarly to <code>setter(skip)</code>, you can say that you will provide your own setter methods.
+This simply suppresses the generation of the setter, leaveing the field in the builder,
+as <code>Option&lt;T&gt;</code>.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Builder</span>)]</span>
+<span class="kw">struct</span> <span class="ident">SetterOptOut</span> {
+    <span class="attribute">#[<span class="ident">builder</span>(<span class="ident">setter</span>(<span class="ident">custom</span>))]</span>
+    <span class="ident">custom_setter</span>: <span class="ident">u32</span>,
+}
+<span class="kw">impl</span> <span class="ident">SetterOptOutBuilder</span> {
+    <span class="kw">fn</span> <span class="ident">custom_setter</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="ident">u32</span>) {
+        <span class="self">self</span>.<span class="ident">custom_setter</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">value</span>);
+    }
+}</code></pre></div>
+<p>Again, the more verbose form is accepted:</p>
+<ul>
+<li><code>#[builder(setter(custom = true))]</code></li>
+<li><code>#[builder(setter(custom = false))]</code></li>
 </ul>
 <h3 id="setter-visibility"><a href="#setter-visibility">Setter Visibility</a></h3>
 <p>Setters are public by default. You can precede your struct (or field) with <code>#[builder(public)]</code>
 to make this explicit.</p>
 <p>Otherwise precede your struct (or field) with <code>#[builder(private)]</code> to opt into private
 setters.</p>
+<h3 id="generated-builder-struct-name"><a href="#generated-builder-struct-name">Generated builder struct name</a></h3>
+<p>By default, the builder struct for <code>struct Foo</code> is <code>FooBuilder</code>.
+You can override this:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Builder</span>)]</span>
+<span class="attribute">#[<span class="ident">builder</span>(<span class="ident">name</span> <span class="op">=</span> <span class="string">&quot;FooConstructor&quot;</span>)]</span>
+<span class="kw">struct</span> <span class="ident">Foo</span> { }
+
+<span class="kw">let</span> <span class="ident">foo</span>: <span class="ident">Foo</span> <span class="op">=</span> <span class="ident">FooConstructor::default</span>().<span class="ident">build</span>()<span class="question-mark">?</span>;</code></pre></div>
 <h3 id="setter-nameprefix"><a href="#setter-nameprefix">Setter Name/Prefix</a></h3>
 <p>Setter methods are named after their corresponding field by default.</p>
 <ul>
@@ -363,6 +392,87 @@ those used by Serde, Diesel, or others.</p>
     <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">non_snake_case</span>)]</span>
     <span class="ident">Im_a_Mac</span>: <span class="ident">bool</span>,
 }</code></pre></div>
+<h4 id="pass-through-attributes"><a href="#pass-through-attributes">Pass-through Attributes</a></h4>
+<p>You can set attributes on elements of the builder using the <code>builder_*_attr</code> attributes:</p>
+<ul>
+<li><code>builder_struct_attr</code> adds attributes after <code>#[derive(...)]</code> on the builder struct.</li>
+<li><code>builder_impl_attr</code> adds attributes on the <code>impl</code> block</li>
+<li><code>builder_field_attr</code> adds attributes to field declarations in the builder struct.</li>
+<li><code>builder_setter_attr</code> adds attributes to the setter in the <code>impl</code> block.</li>
+</ul>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Builder</span>)]</span>
+<span class="attribute">#[<span class="ident">builder</span>(<span class="ident">derive</span>(<span class="ident">serde::Serialize</span>))]</span>
+<span class="attribute">#[<span class="ident">builder_struct_attr</span>(<span class="ident">serde</span>(<span class="ident">rename_all</span> <span class="op">=</span> <span class="string">&quot;camelCase&quot;</span>))]</span>
+<span class="kw">struct</span> <span class="ident">Lorem</span> {
+    <span class="attribute">#[<span class="ident">builder_field_attr</span>(<span class="ident">serde</span>(<span class="ident">rename</span><span class="op">=</span><span class="string">&quot;dolor&quot;</span>))]</span>
+    <span class="ident">ipsum</span>: <span class="ident">String</span>,
+}
+
+<span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">show</span> <span class="op">=</span> <span class="ident">LoremBuilder::default</span>();
+<span class="ident">show</span>.<span class="ident">ipsum</span>(<span class="string">&quot;sit&quot;</span>.<span class="ident">into</span>());
+<span class="macro">assert_eq!</span>(<span class="ident">serde_json::to_string</span>(<span class="kw-2">&amp;</span><span class="ident">show</span>).<span class="ident">unwrap</span>(), <span class="string">r#&quot;{&quot;dolor&quot;:&quot;sit&quot;}&quot;#</span>);</code></pre></div>
+<h2 id="error-return-type-from-autogenerated-build-function"><a href="#error-return-type-from-autogenerated-build-function">Error return type from autogenerated <code>build</code> function</a></h2>
+<p>By default, <code>build</code> returns an autogenerated error type:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="attribute">#[<span class="ident">doc</span><span class="op">=</span><span class="string">&quot;Error type for LoremBuilder&quot;</span>]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
+<span class="attribute">#[<span class="ident">non_exhaustive</span>]</span>
+<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">LoremBuilderError</span> { <span class="comment">// where `LoremBuilder` is the name of the builder struct</span>
+    <span class="doccomment">/// Uninitialized field</span>
+    <span class="ident">UninitializedField</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>),
+    <span class="doccomment">/// Custom validation error</span>
+    <span class="ident">ValidationError</span>(<span class="ident">String</span>),
+}
+
+<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">LoremBuilderError</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">s</span>: <span class="ident">String</span>) -&gt; <span class="self">Self</span> { <span class="ident"><span class="self">Self</span>::ValidationError</span>(<span class="ident">s</span>) }
+}
+<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">UninitializedFieldError</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">LoremBuilderError</span> { <span class="comment">// ...</span>
+<span class="kw">impl</span> <span class="ident">Display</span> <span class="kw">for</span> <span class="ident">LoremBuilderError</span> { <span class="comment">// ...</span>
+<span class="kw">impl</span> <span class="ident">std::error::Error</span> <span class="kw">for</span> <span class="ident">LoremBuilderError</span> {}</code></pre></div>
+<p>Alternatively, you can specify your own error type:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Builder</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>)]</span>
+<span class="attribute">#[<span class="ident">builder</span>(<span class="ident">build_fn</span>(<span class="ident">error</span> <span class="op">=</span> <span class="string">&quot;OurLoremError&quot;</span>))]</span>
+<span class="kw">struct</span> <span class="ident">Lorem</span> {
+    <span class="kw">pub</span> <span class="ident">ipsum</span>: <span class="ident">u32</span>,
+}
+
+<span class="kw">struct</span> <span class="ident">OurLoremError</span>(<span class="ident">String</span>);
+
+<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">UninitializedFieldError</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">OurLoremError</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">ufe</span>: <span class="ident">UninitializedFieldError</span>) -&gt; <span class="ident">OurLoremError</span> { <span class="ident">OurLoremError</span>(<span class="ident">ufe</span>.<span class="ident">to_string</span>()) }
+}
+
+<span class="kw">let</span> <span class="ident">err</span>: <span class="ident">OurLoremError</span> <span class="op">=</span> <span class="ident">LoremBuilder::default</span>().<span class="ident">build</span>().<span class="ident">unwrap_err</span>();
+<span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span><span class="ident">err</span>.<span class="number">0</span>, <span class="string">&quot;Field not initialized: ipsum&quot;</span>);</code></pre></div>
+<h2 id="completely-custom-fields-in-the-builder"><a href="#completely-custom-fields-in-the-builder">Completely custom fields in the builder</a></h2>
+<p>Instead of having an <code>Option</code>, you can have whatever type you like:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Default</span>, <span class="ident">Builder</span>, <span class="ident">Clone</span>)]</span>
+<span class="attribute">#[<span class="ident">builder</span>(<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>))]</span>
+<span class="kw">struct</span> <span class="ident">Lorem</span> {
+    <span class="attribute">#[<span class="ident">builder</span>(<span class="ident">setter</span>(<span class="ident">into</span>), <span class="ident">field</span>(<span class="kw">type</span> <span class="op">=</span> <span class="string">&quot;u32&quot;</span>))]</span>
+    <span class="ident">ipsum</span>: <span class="ident">u32</span>,
+
+    <span class="attribute">#[<span class="ident">builder</span>(<span class="ident">field</span>(<span class="kw">type</span> <span class="op">=</span> <span class="string">&quot;String&quot;</span>, <span class="ident">build</span> <span class="op">=</span> <span class="string">&quot;()&quot;</span>))]</span>
+    <span class="ident">dolor</span>: (),
+
+    <span class="attribute">#[<span class="ident">builder</span>(<span class="ident">field</span>(<span class="kw">type</span> <span class="op">=</span> <span class="string">&quot;&amp;&#39;static str&quot;</span>, <span class="ident">build</span> <span class="op">=</span> <span class="string">&quot;self.amet.parse()?&quot;</span>))]</span>
+    <span class="ident">amet</span>: <span class="ident">u32</span>,
+}
+
+<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">std::num::ParseIntError</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">LoremBuilderError</span> { <span class="comment">// ...</span>
+
+<span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">builder</span> <span class="op">=</span> <span class="ident">LoremBuilder::default</span>();
+<span class="ident">builder</span>.<span class="ident">ipsum</span>(<span class="number">42u16</span>).<span class="ident">dolor</span>(<span class="string">&quot;sit&quot;</span>.<span class="ident">into</span>()).<span class="ident">amet</span>(<span class="string">&quot;12&quot;</span>);
+<span class="macro">assert_eq!</span>(<span class="ident">builder</span>, <span class="ident">LoremBuilder</span> { <span class="ident">ipsum</span>: <span class="number">42</span>, <span class="ident">dolor</span>: <span class="string">&quot;sit&quot;</span>.<span class="ident">into</span>(), <span class="ident">amet</span>: <span class="string">&quot;12&quot;</span> });
+<span class="kw">let</span> <span class="ident">lorem</span> <span class="op">=</span> <span class="ident">builder</span>.<span class="ident">build</span>().<span class="ident">unwrap</span>();
+<span class="macro">assert_eq!</span>(<span class="ident">lorem</span>, <span class="ident">Lorem</span> { <span class="ident">ipsum</span>: <span class="number">42</span>, <span class="ident">dolor</span>: (), <span class="ident">amet</span>: <span class="number">12</span> });</code></pre></div>
+<p>The builder field type (<code>type =</code>) must implement <code>Default</code>.</p>
+<p>The argument to <code>build</code> must be a literal string containing Rust code for the contents of a block, which must evaluate to the type of the target field.
+It may refer to the builder struct as <code>self</code>, use <code>?</code>, etc.</p>
 <h2 id="no_std-support-on-nightly"><a href="#no_std-support-on-nightly"><strong><code>#![no_std]</code></strong> Support (on Nightly)</a></h2>
 <p>You can activate support for <code>#![no_std]</code> by adding <code>#[builder(no_std)]</code> to your struct
 and <code>#![feature(alloc)] extern crate alloc</code> to your crate.</p>

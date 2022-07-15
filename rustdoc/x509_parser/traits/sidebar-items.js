@@ -1,1 +1,0 @@
-initSidebarItems({"trait":[["FromDer","Parse a DER-encoded object, and return the remaining of the input and the built object."]]});
