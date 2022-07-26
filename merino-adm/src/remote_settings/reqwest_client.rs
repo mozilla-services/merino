@@ -10,7 +10,7 @@ use remote_settings_client::client::net::{
     Headers as RsHeaders, Method as RsMethod, Requester as RsRequester, Response as RsResponse,
     Url as RsUrl,
 };
-use reqwest::{Method, Response};
+use reqwest::{header::CONTENT_TYPE, Method, Response};
 
 /// An remote-settings-client HTTP client that uses Reqwest.
 #[derive(Debug)]
@@ -63,6 +63,7 @@ impl RsRequester for ReqwestClient {
         match self
             .reqwest_client
             .request(method.clone(), url.clone())
+            .header(CONTENT_TYPE, "application/json")
             .headers(headers)
             .body(data)
             .timeout(std::time::Duration::from_secs(3))
