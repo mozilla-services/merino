@@ -113,6 +113,7 @@
 <span id="108">108</span>
 <span id="109">109</span>
 <span id="110">110</span>
+<span id="111">111</span>
 </pre><pre class="rust"><code><span class="comment">// This Source Code Form is subject to the terms of the Mozilla Public</span>
 <span class="comment">// License, v. 2.0. If a copy of the MPL was not distributed with this</span>
 <span class="comment">// file, You can obtain one at https://mozilla.org/MPL/2.0/.</span>
@@ -125,7 +126,7 @@
     <span class="ident">Headers</span> <span class="kw">as</span> <span class="ident">RsHeaders</span>, <span class="ident">Method</span> <span class="kw">as</span> <span class="ident">RsMethod</span>, <span class="ident">Requester</span> <span class="kw">as</span> <span class="ident">RsRequester</span>, <span class="ident">Response</span> <span class="kw">as</span> <span class="ident">RsResponse</span>,
     <span class="ident">Url</span> <span class="kw">as</span> <span class="ident">RsUrl</span>,
 };
-<span class="kw">use</span> <span class="ident">reqwest</span>::{<span class="ident">Method</span>, <span class="ident">Response</span>};
+<span class="kw">use</span> <span class="ident">reqwest</span>::{<span class="ident">header::CONTENT_TYPE</span>, <span class="ident">Method</span>, <span class="ident">Response</span>};
 
 <span class="doccomment">/// An remote-settings-client HTTP client that uses Reqwest.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
@@ -178,6 +179,7 @@
         <span class="kw">match</span> <span class="self">self</span>
             .<span class="ident">reqwest_client</span>
             .<span class="ident">request</span>(<span class="ident">method</span>.<span class="ident">clone</span>(), <span class="ident">url</span>.<span class="ident">clone</span>())
+            .<span class="ident">header</span>(<span class="ident">CONTENT_TYPE</span>, <span class="string">&quot;application/json&quot;</span>)
             .<span class="ident">headers</span>(<span class="ident">headers</span>)
             .<span class="ident">body</span>(<span class="ident">data</span>)
             .<span class="ident">timeout</span>(<span class="ident">std::time::Duration::from_secs</span>(<span class="number">3</span>))
@@ -224,5 +226,5 @@
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="merino_adm" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0 (a8314ef7d 2022-06-27)" ></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="merino_adm" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.1 (e092d0b6b 2022-07-16)" ></div>
 </body></html>
