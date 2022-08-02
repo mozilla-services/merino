@@ -7,7 +7,9 @@ from typing import Dict, List, Set, Tuple
 
 import pytest
 import requests
-from models import ResponseContent, Step, Suggestion
+from requests import Response as RequestsResponse
+
+from models import ResponseContent, Service, Step, Suggestion
 
 # We need to exclude the following fields on the response level:
 # The request ID is dynamic in nature and the value cannot be validated here.
@@ -20,10 +22,14 @@ CONTENT_EXCLUDE: Set[str] = {"request_id", "suggestions"}
 SUGGESTION_EXCLUDE: Set[str] = {"icon"}
 
 
-@pytest.fixture(scope="session", name="merino_url")
-def fixture_merino_url(request) -> str:
-    """Read the merino URL from the pytest config."""
-    return request.config.option.merino_url
+@pytest.fixture(name="hosts", scope="session")
+def fixture_hosts(request) -> Dict[Service, str]:
+    """Return a dict mapping from a service name to a host name."""
+
+    return {
+        Service.KINTO: request.config.option.kinto_url,
+        Service.MERINO: request.config.option.merino_url,
+    }
 
 
 def suggestion_id(suggestion: Suggestion) -> Tuple:
@@ -74,28 +80,33 @@ def assert_200_response(
             continue
 
 
-def test_merino(merino_url: str, steps: List[Step], kinto_icon_urls: Dict[str, str]):
+def test_merino(
+    hosts: Dict[Service, str], steps: List[Step], kinto_icon_urls: Dict[str, str]
+):
     """Test for requesting suggestions from Merino."""
 
     for step in steps:
         # Each step in a test scenario consists of a request and a response.
         # Use the parameters to perform the request and verify the response.
 
-        method = step.request.method
-        url = f"{merino_url}{step.request.path}"
-        headers = {header.name: header.value for header in step.request.headers}
+        method: str = step.request.method
+        url: str = f"{hosts[step.request.service]}{step.request.path}"
+        headers: Dict[str, str] = {
+            header.name: header.value for header in step.request.headers
+        }
 
-        r = requests.request(method, url, headers=headers)
+        response: RequestsResponse = requests.request(method, url, headers=headers)
 
-        error_message = (
+        error_message: str = (
             f"Expected status code {step.response.status_code},\n"
-            f"but the status code in the response from Merino is {r.status_code}.\n"
-            f"The response content is '{r.text}'."
+            f"but the status code in the response from {step.request.service.name} is "
+            f"{response.status_code}.\n"
+            f"The response content is '{response.text}'."
         )
 
-        assert r.status_code == step.response.status_code, error_message
+        assert response.status_code == step.response.status_code, error_message
 
-        if r.status_code == 200:
+        if response.status_code == 200:
             # If the response status code is 200 OK, use the
             # assert_200_response() helper function to validate the content of
             # the response from Merino. This includes creating a pydantic model
@@ -104,18 +115,18 @@ def test_merino(merino_url: str, steps: List[Step], kinto_icon_urls: Dict[str, s
             # content for this step in the test scenario.
             assert_200_response(
                 step_content=step.response.content,
-                merino_content=ResponseContent(**r.json()),
+                merino_content=ResponseContent(**response.json()),
                 kinto_icon_urls=kinto_icon_urls,
             )
             continue
 
-        if r.status_code == 204:
+        if response.status_code == 204:
             # If the response status code is 204 No Content, load the response content
             # as text and compare against the value in the response model.
-            assert r.text == step.response.content
+            assert response.text == step.response.content
             continue
 
         # If the request to Merino was not successful, load the response
         # content into a Python dict and compare against the value in the
         # response model
-        assert r.json() == step.response.content
+        assert response.json() == step.response.content

@@ -2,10 +2,18 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-from typing import Any, List, Optional, Union
+from enum import Enum
+from typing import Any, Dict, List, Optional, Union
 from uuid import UUID
 
 from pydantic import BaseModel, Extra, Field
+
+
+class Service(Enum):
+    """Enum with service options."""
+
+    KINTO: str = "kinto"
+    MERINO: str = "merino"
 
 
 class Header(BaseModel):
@@ -16,11 +24,14 @@ class Header(BaseModel):
 
 
 class Request(BaseModel):
-    """Class that holds information about a HTTP request to Merino."""
+    """Class that holds information about an HTTP request."""
 
+    service: Service
     method: str
     path: str
     headers: List[Header] = []
+    data: Optional[Dict[str, str]]
+    file: Optional[str]
 
 
 class Suggestion(BaseModel, extra=Extra.allow):
