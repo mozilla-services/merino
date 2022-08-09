@@ -1,15 +1,81 @@
 # client
 
-This directory contains a Python-based test framework for the contract tests.
+This directory contains a Python-based test framework for the contract tests. 
+The HTTP client used in the framework supports:
 
-The HTTP client used in the framework requests suggestions from Merino and
-performs checks against the responses. The framework implements response models
-for the Merino API.
+* Requests to Kinto (Remote Settings) for record population, with response checks.
+* Requests for suggestions from Merino, with response checks.
+
+For more details on contract test design, refer to the contract-tests 
+[README][contract_tests_readme].
+
+## Scenarios
+
+The client is instructed on request and response check actions via scenarios recorded 
+in a file. A scenario is defined by a name, a description and steps.
+
+### Steps
 
 #### Kinto Service
-* The optional delay can be defined to pause execution of requests to for suggestion refresh.
 
+* The Kinto service scenario step populates the records used by the Merino service
+* A Kinto `request` requires 3 fields:
+  * `service` - Set the value to `kinto`, to direct requests to the Kinto service. 
+  * `delay` - (optional) Set seconds to pause before execution of request.
+  * `filename` - Set the file with records to upload. The files are located in 
+                 '..\contract-tests\volumes\kinto'.
+  * `data_type` - Set to `data` or `offline-expansion-data`.
+* A Kinto `response` requires the `status_code` field, which is generally set to `200`.
+  The `content` of a Kinto service response is not checked.
 
+Example:
+```yaml
+- request:
+    service: kinto
+    filename: "data-01.json"
+    data_type: "data"
+  response:
+    status_code: 200
+```
 
 #### Merino Service
-* The optional delay can be defined to pause execution of requests to for suggestion refresh.
+
+* To direct requests to the Merino service, set the `service` value of `request` to 
+`merino`.
+  * `delay` - (optional) Set seconds to pause before execution of request.
+
+Example:
+```yaml
+- name: wiki_fruit__apple
+  description: Test that Merino successfully returns a WikiFruit suggestion
+  steps:
+    - request:
+        service: merino
+        method: GET
+        path: '/api/v1/suggest?q=apple'
+        headers:
+          - name: User-Agent
+            value: 'Mozilla/5.0 (Windows NT 10.0; rv:10.0) Gecko/20100101 Firefox/91.0'
+          - name: Accept-Language
+            value: 'en-US'
+      response:
+        status_code: 200
+        content:
+          client_variants: []
+          server_variants: []
+          request_id: null
+          suggestions:
+            - block_id: 1
+              full_keyword: 'apple'
+              title: 'Wikipedia - Apple'
+              url: 'https://en.wikipedia.org/wiki/Apple'
+              impression_url: 'https://127.0.0.1/'
+              click_url: 'https://127.0.0.1/'
+              provider: 'test_wiki_fruit'
+              advertiser: 'test_advertiser'
+              is_sponsored: false
+              icon: 'https://en.wikipedia.org/favicon.ico'
+              score: 0.0
+```
+
+[contract_tests_readme]: ../README.md
