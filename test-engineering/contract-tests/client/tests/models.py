@@ -22,7 +22,7 @@ class Request(BaseModel):
     path: str
     headers: List[Header] = []
     # Delay is optional, providing time for data refresh
-    delay: Optional[int] = 0
+    delay: Optional[float] = 0
 
 
 class Suggestion(BaseModel, extra=Extra.allow):
