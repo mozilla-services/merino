@@ -77,14 +77,14 @@ class Response(BaseModel):
     """Class that holds information about an HTTP response from Merino."""
 
     status_code: int
-    content: Optional[Union[ResponseContent, Any]]
+    content: Union[ResponseContent, Any]
 
 
 class Step(BaseModel):
     """Class that holds information about a step in a test scenario."""
 
     request: Union[KintoRequest, MerinoRequest]
-    response: Response
+    response: Optional[Response]
 
 
 class Scenario(BaseModel):

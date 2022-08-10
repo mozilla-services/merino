@@ -38,38 +38,8 @@ def fixture_kinto_step(
 
     def kinto_step(step: Step) -> None:
         record: KintoRecord = kinto_records.get(step.request.filename)
-
-        error_message: str = (
-            "Suggestion data did not upload as expected.\n"
-            "Expected Status Code: {expected}\n"
-            "Actual Status Code: {actual}\n"
-            "Response Content: '{content}'"
-        )
-
-        # Attachment
-        attachment_response = kinto.upload_attachment(
-            kinto_environment, record, step.request.data_type
-        )
-
-        assert (
-            attachment_response.status_code == step.response.status_code
-        ), error_message.format(
-            expected=step.response.status_code,
-            actual=attachment_response.status_code,
-            content=attachment_response.text,
-        )
-
-        # Icons
-        for icon_id in record.attachment.icon_ids:
-            icon_response = kinto.upload_icon(kinto_environment, icon_id)
-
-            assert (
-                icon_response.status_code == step.response.status_code
-            ), error_message.format(
-                expected=step.response.status_code,
-                actual=icon_response.status_code,
-                content=icon_response.text,
-            )
+        kinto.upload_attachment(kinto_environment, record, step.request.data_type)
+        kinto.upload_icons(kinto_environment, record.attachment.icon_ids)
 
     return kinto_step
 

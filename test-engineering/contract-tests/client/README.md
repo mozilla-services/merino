@@ -3,7 +3,7 @@
 This directory contains a Python-based test framework for the contract tests. 
 The HTTP client used in the framework supports:
 
-* Requests to Kinto (Remote Settings) for record population, with response checks.
+* Requests to Kinto (Remote Settings) for record population.
 * Requests for suggestions from Merino, with response checks.
 
 For more details on contract test design, refer to the contract-tests 
@@ -25,8 +25,8 @@ in a file. A scenario is defined by a name, a description and steps.
   * `filename` - Set the file with records to upload. The files are located in 
                  '..\contract-tests\volumes\kinto'.
   * `data_type` - Set to `data` or `offline-expansion-data`.
-* A Kinto `response` requires the `status_code` field, which is generally set to `200`.
-  The `content` of a Kinto service response is not checked.
+* A Kinto service scenario step will not check a `response` defined in the scenario, 
+  but will raise an error in the event of an unexpected HTTP response.
 
 Example:
 ```yaml
@@ -34,8 +34,6 @@ Example:
     service: kinto
     filename: "data-01.json"
     data_type: "data"
-  response:
-    status_code: 200
 ```
 
 #### Merino Service

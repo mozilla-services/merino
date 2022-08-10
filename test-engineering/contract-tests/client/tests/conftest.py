@@ -52,7 +52,6 @@ def fixture_kinto_icon_urls(
         """Fetch the icon URL for the given Kinto record ID from Kinto."""
 
         response: RequestsResponse = kinto.get_record(kinto_environment, record_id)
-        response.raise_for_status()
 
         icon_location: str = response.json()["data"]["attachment"]["location"]
 

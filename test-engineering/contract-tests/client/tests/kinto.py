@@ -42,12 +42,14 @@ def get_record(environment: KintoEnvironment, record_id: str) -> RequestsRespons
         f"collections/{environment.collection}/"
         f"records/{record_id}"
     )
-    return requests.get(url)
+    response: RequestsResponse = requests.get(url)
+    response.raise_for_status()
+    return response
 
 
 def upload_attachment(
     environment: KintoEnvironment, record: KintoRecord, data_type: str
-) -> RequestsResponse:
+) -> None:
     """Upload attachment to Kinto for the given record."""
 
     url: str = (
@@ -57,7 +59,7 @@ def upload_attachment(
         f"records/{record.record_id}/"
         f"attachment"
     )
-    return requests.post(
+    response: RequestsResponse = requests.post(
         url=url,
         files={
             "attachment": (
@@ -68,26 +70,29 @@ def upload_attachment(
         },
         data={'data': f'{{"type": "{data_type}"}}'},
     )
+    response.raise_for_status()
 
 
-def upload_icon(environment: KintoEnvironment, icon_id: str) -> RequestsResponse:
-    """Upload icon attachment to Kinto for the given icon ID."""
+def upload_icons(environment: KintoEnvironment, icon_ids: Set[str]) -> None:
+    """Upload icon attachments to Kinto for the given icon IDs."""
 
-    url: str = (
-        f"{environment.api}/v1/"
-        f"buckets/{environment.bucket}/"
-        f"collections/{environment.collection}/"
-        f"records/icon-{icon_id}/"
-        f"attachment"
-    )
-    return requests.post(
-        url=url,
-        files={
-            "attachment": (
-                f"icon-{icon_id}.png",
-                f"icon-{icon_id}",
-                "image/png",
-            ),
-        },
-        data={'data': '{"type": "icon"}'},
-    )
+    for icon_id in icon_ids:
+        url: str = (
+            f"{environment.api}/v1/"
+            f"buckets/{environment.bucket}/"
+            f"collections/{environment.collection}/"
+            f"records/icon-{icon_id}/"
+            f"attachment"
+        )
+        response: RequestsResponse = requests.post(
+            url=url,
+            files={
+                "attachment": (
+                    f"icon-{icon_id}.png",
+                    f"icon-{icon_id}",
+                    "image/png",
+                ),
+            },
+            data={'data': '{"type": "icon"}'},
+        )
+        response.raise_for_status()
