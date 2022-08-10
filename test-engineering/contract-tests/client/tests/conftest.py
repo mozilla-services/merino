@@ -6,11 +6,10 @@ import json
 import os
 import pathlib
 from functools import lru_cache
-from typing import Dict, Set
+from typing import Any, Dict, Set
 
 import pytest
 import yaml
-from _pytest.fixtures import SubRequest
 from requests import Response as RequestsResponse
 
 import kinto
@@ -30,7 +29,7 @@ REQUIRED_OPTIONS = (
 
 
 @pytest.fixture(scope="session", name="kinto_environment")
-def fixture_kinto_environment(request: SubRequest) -> KintoEnvironment:
+def fixture_kinto_environment(request: Any) -> KintoEnvironment:
     """Return Kinto environment data."""
 
     return KintoEnvironment(
@@ -42,7 +41,7 @@ def fixture_kinto_environment(request: SubRequest) -> KintoEnvironment:
 
 @pytest.fixture(scope="session", name="kinto_icon_urls")
 def fixture_kinto_icon_urls(
-    request: SubRequest, kinto_environment: KintoEnvironment
+    request: Any, kinto_environment: KintoEnvironment
 ) -> Dict[str, str]:
     """Return a map from suggestion title to icon URL."""
 
@@ -66,7 +65,7 @@ def fixture_kinto_icon_urls(
 
 
 @pytest.fixture(scope="session", name="kinto_records")
-def fixture_kinto_records(request: SubRequest) -> Dict[str, KintoRecord]:
+def fixture_kinto_records(request: Any) -> Dict[str, KintoRecord]:
     """Return a map from data file name to suggestion data."""
 
     kinto_data_dir: str = request.config.option.kinto_data_dir
