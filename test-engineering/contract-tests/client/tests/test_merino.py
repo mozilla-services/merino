@@ -30,14 +30,11 @@ def fixture_merino_url(request) -> str:
     return request.config.option.merino_url
 
 
-@pytest.fixture(scope="session", name="step_functions")
-def step_request_functions(
-    merino_url: str,
-    kinto_environment: KintoEnvironment,
-    kinto_icon_urls: Dict[str, str],
-    kinto_records: Dict[str, KintoRecord],
-) -> Dict[Service, Callable]:
-    """Return a dict mapping from a service name to request function."""
+@pytest.fixture(scope="session", name="kinto_step")
+def fixture_kinto_step(
+    kinto_environment: KintoEnvironment, kinto_records: Dict[str, KintoRecord]
+) -> Callable:
+    """Define execution instructions for Kinto scenario step."""
 
     def kinto_step(step: Step) -> None:
         record: KintoRecord = kinto_records.get(step.request.filename)
@@ -73,6 +70,13 @@ def step_request_functions(
                 actual=icon_response.status_code,
                 content=icon_response.text,
             )
+
+    return kinto_step
+
+
+@pytest.fixture(scope="session", name="merino_step")
+def fixture_merino_step(merino_url: str, kinto_icon_urls: Dict[str, str]) -> Callable:
+    """Define execution instructions for Merino scenario step."""
 
     def merino_step(step: Step) -> None:
         method: str = step.request.method
@@ -115,6 +119,15 @@ def step_request_functions(
         # content into a Python dict and compare against the value in the
         # response model
         assert response.json() == step.response.content
+
+    return merino_step
+
+
+@pytest.fixture(scope="session", name="step_functions")
+def step_request_functions(
+    kinto_step: Callable, merino_step: Callable
+) -> Dict[Service, Callable]:
+    """Return a dict mapping from a service name to request function."""
 
     return {
         Service.KINTO: kinto_step,
