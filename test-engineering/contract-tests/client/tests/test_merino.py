@@ -89,7 +89,7 @@ def test_merino(merino_url: str, steps: List[Step], kinto_icon_urls: Dict[str, s
         delay = step.request.delay
 
         # Process delay if defined in request model
-        if delay > 0:
+        if (delay := step.request.delay) is not None:
             time.sleep(delay)
 
         r = requests.request(method, url, headers=headers)
