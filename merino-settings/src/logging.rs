@@ -68,7 +68,7 @@ pub enum LogFormat {
 ///strings.
 ///
 /// Every entry in this struct is guaranteed to be parsable as a valid Directive.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct DirectiveWrapper(Vec<String>);
 
 impl Serialize for DirectiveWrapper {

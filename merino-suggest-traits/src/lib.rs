@@ -136,7 +136,7 @@ impl<F> fake::Dummy<F> for SuggestionResponse {
 }
 
 /// The relation between an object and a cache.
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum CacheStatus {
     /// The object was pulled fresh from the cache.
     Hit,
@@ -351,7 +351,7 @@ pub enum SuggestError {
 }
 
 /// Languages supported by the client.
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq)]
 pub struct SupportedLanguages(pub AcceptLanguage);
 
 impl SupportedLanguages {

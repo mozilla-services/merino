@@ -10,7 +10,7 @@ use serde::Serialize;
 use super::FIREFOX_TEST_VERSIONS;
 
 /// The form factor of the device that sent a given suggestion request.
-#[derive(Clone, Debug, Hash, PartialEq, Serialize)]
+#[derive(Clone, Debug, Hash, PartialEq, Eq, Serialize)]
 pub enum FormFactor {
     /// A desktop computer.
     Desktop,
@@ -45,7 +45,7 @@ impl<F> fake::Dummy<F> for FormFactor {
 }
 
 /// Simplified Operating System Family
-#[derive(Clone, Debug, Hash, PartialEq, Serialize)]
+#[derive(Clone, Debug, Hash, PartialEq, Eq, Serialize)]
 pub enum OsFamily {
     /// The Windows operating system.
     Windows,
@@ -97,7 +97,7 @@ impl<F> fake::Dummy<F> for OsFamily {
 }
 
 /// The web browser used to make a suggestion request.
-#[derive(Clone, Debug, Hash, PartialEq, Serialize)]
+#[derive(Clone, Debug, Hash, PartialEq, Eq, Serialize)]
 pub enum Browser {
     /// The Firefox web browser with the major version number.
     Firefox(u32),
@@ -124,7 +124,7 @@ impl<F> fake::Dummy<F> for Browser {
 }
 
 /// The user agent from a suggestion request.
-#[derive(Clone, Debug, Hash, PartialEq, Serialize)]
+#[derive(Clone, Debug, Hash, PartialEq, Eq, Serialize)]
 pub struct DeviceInfo {
     /// The operating system family indicated in the User-Agent header.
     pub os_family: OsFamily,

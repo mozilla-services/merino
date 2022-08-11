@@ -2,10 +2,11 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-
+import time
 from typing import Dict, List, Set, Tuple
 
 import pytest
+
 import requests
 from models import ResponseContent, Step, Suggestion
 
@@ -69,7 +70,8 @@ def assert_200_response(
 
         if "wiki_fruit" in suggestion.provider:
             # The icon URL is static for WikiFruit suggestions
-            expected_suggestion = expected_suggestions_by_id[suggestion_id(suggestion)]
+            expected_suggestion = expected_suggestions_by_id[suggestion_id(
+                suggestion)]
             assert suggestion.icon == expected_suggestion.icon
             continue
 
@@ -84,6 +86,11 @@ def test_merino(merino_url: str, steps: List[Step], kinto_icon_urls: Dict[str, s
         method = step.request.method
         url = f"{merino_url}{step.request.path}"
         headers = {header.name: header.value for header in step.request.headers}
+        delay = step.request.delay
+
+        # Process delay if defined in request model
+        if (delay := step.request.delay) is not None:
+            time.sleep(delay)
 
         r = requests.request(method, url, headers=headers)
 
