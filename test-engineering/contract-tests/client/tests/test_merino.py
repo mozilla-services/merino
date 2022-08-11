@@ -9,8 +9,7 @@ import pytest
 import requests
 from requests import Response as RequestsResponse
 
-import kinto
-from kinto import KintoEnvironment, KintoRecord
+from kinto import KintoEnvironment, KintoRecord, upload_attachment, upload_icons
 from models import ResponseContent, Service, Step, Suggestion
 
 # We need to exclude the following fields on the response level:
@@ -38,8 +37,8 @@ def fixture_kinto_step(
 
     def kinto_step(step: Step) -> None:
         record: KintoRecord = kinto_records.get(step.request.filename)
-        kinto.upload_attachment(kinto_environment, record, step.request.data_type)
-        kinto.upload_icons(kinto_environment, record.attachment.icon_ids)
+        upload_attachment(kinto_environment, record, step.request.data_type)
+        upload_icons(kinto_environment, record.attachment.icon_ids)
 
     return kinto_step
 
@@ -94,7 +93,7 @@ def fixture_merino_step(merino_url: str, kinto_icon_urls: Dict[str, str]) -> Cal
 
 
 @pytest.fixture(scope="session", name="step_functions")
-def step_request_functions(
+def fixture_step_functions(
     kinto_step: Callable, merino_step: Callable
 ) -> Dict[Service, Callable]:
     """Return a dict mapping from a service name to request function."""
@@ -164,5 +163,4 @@ def test_merino(steps: List[Step], step_functions: Dict[Service, Callable]):
         if (delay := step.request.delay) is not None:
             time.sleep(delay)
 
-        step_function: Callable = step_functions[step.request.service]
-        step_function(step)
+        step_functions[step.request.service](step)

@@ -12,7 +12,7 @@ from requests import Response as RequestsResponse
 class KintoEnvironment(BaseModel):
     """Class that holds information about Kinto environment variables."""
 
-    api: str
+    server: str
     bucket: str
     collection: str
 
@@ -37,7 +37,7 @@ def get_record(environment: KintoEnvironment, record_id: str) -> RequestsRespons
     """Get attachment information from Kinto for the given record ID."""
 
     url: str = (
-        f"{environment.api}/v1/"
+        f"{environment.server}/v1/"
         f"buckets/{environment.bucket}/"
         f"collections/{environment.collection}/"
         f"records/{record_id}"
@@ -53,7 +53,7 @@ def upload_attachment(
     """Upload attachment to Kinto for the given record."""
 
     url: str = (
-        f"{environment.api}/v1/"
+        f"{environment.server}/v1/"
         f"buckets/{environment.bucket}/"
         f"collections/{environment.collection}/"
         f"records/{record.record_id}/"
@@ -78,7 +78,7 @@ def upload_icons(environment: KintoEnvironment, icon_ids: Set[str]) -> None:
 
     for icon_id in icon_ids:
         url: str = (
-            f"{environment.api}/v1/"
+            f"{environment.server}/v1/"
             f"buckets/{environment.bucket}/"
             f"collections/{environment.collection}/"
             f"records/icon-{icon_id}/"

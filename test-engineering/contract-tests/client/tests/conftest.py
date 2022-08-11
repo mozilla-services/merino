@@ -12,9 +12,8 @@ import pytest
 import yaml
 from requests import Response as RequestsResponse
 
-import kinto
 from exceptions import MissingKintoDataFilesError
-from kinto import KintoAttachment, KintoEnvironment, KintoRecord
+from kinto import KintoAttachment, KintoEnvironment, KintoRecord, get_record
 from models import KintoSuggestion, Scenario
 
 REQUIRED_OPTIONS = (
@@ -33,7 +32,7 @@ def fixture_kinto_environment(request: Any) -> KintoEnvironment:
     """Return Kinto environment data."""
 
     return KintoEnvironment(
-        api=request.config.option.kinto_url,
+        server=request.config.option.kinto_url,
         bucket=request.config.option.kinto_bucket,
         collection=request.config.option.kinto_collection,
     )
@@ -51,7 +50,7 @@ def fixture_kinto_icon_urls(
     def fetch_icon_url(*, record_id: str) -> str:
         """Fetch the icon URL for the given Kinto record ID from Kinto."""
 
-        response: RequestsResponse = kinto.get_record(kinto_environment, record_id)
+        response: RequestsResponse = get_record(kinto_environment, record_id)
 
         icon_location: str = response.json()["data"]["attachment"]["location"]
 

@@ -1,4 +1,4 @@
-# client
+# Merino Contract Test Client
 
 This directory contains a Python-based test framework for the contract tests. 
 The HTTP client used in the framework supports:
@@ -11,8 +11,9 @@ For more details on contract test design, refer to the contract-tests
 
 ## Scenarios
 
-The client is instructed on request and response check actions via scenarios recorded 
-in a file. A scenario is defined by a name, a description and steps.
+The client is instructed on requests and responses to check actions via scenarios, 
+recorded in the scenarios.yml file. A scenario is defined by a name, a description 
+and steps.
 
 ### Steps
 
@@ -23,7 +24,7 @@ in a file. A scenario is defined by a name, a description and steps.
   * `service` - Set the value to `kinto`, to direct requests to the Kinto service. 
   * `delay` - (optional) Set seconds to pause before execution of request.
   * `filename` - Set the file with records to upload. The files are located in 
-                 '..\contract-tests\volumes\kinto'.
+                 `..\contract-tests\volumes\kinto`.
   * `data_type` - Set to `data` or `offline-expansion-data`.
 * A Kinto service scenario step will not check a `response` defined in the scenario, 
   but will raise an error in the event of an unexpected HTTP response.
@@ -38,9 +39,19 @@ Example:
 
 #### Merino Service
 
-* To direct requests to the Merino service, set the `service` value of `request` to 
-`merino`.
+* The Merino service scenario step sends queries to merino and checks the validity of 
+  the responses.
+* A Merino `request` requires 4 fields:
+  * `service` - Set the value to `merino`, to direct requests to the Merino service. 
   * `delay` - (optional) Set seconds to pause before execution of request.
+  * `method` - Set the HTTP request method.
+  * `path` - Set the query and parameters for the request method.
+  * `headers` - Set a list of HTTP request headers.
+* A Merino `response` requires 2 fields:
+  * `status_code` - Set the expected HTTP response status code.
+  * `content` - Set a list of expected merino suggestion content.
+    * The `request_id` is excluded from verification and can be set to `null` in the 
+    scenario.
 
 Example:
 ```yaml
