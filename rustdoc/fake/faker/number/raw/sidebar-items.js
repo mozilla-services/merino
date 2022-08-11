@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["Digit",""],["NumberWithFormat",""]]});
+window.SIDEBAR_ITEMS = {"struct":[["Digit",""],["NumberWithFormat",""]]};

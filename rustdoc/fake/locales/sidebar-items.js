@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["EN",""],["FR_FR",""],["ZH_CN",""],["ZH_TW",""]],"trait":[["Data",""]]});
+window.SIDEBAR_ITEMS = {"struct":[["EN",""],["FR_FR",""],["ZH_CN",""],["ZH_TW",""]],"trait":[["Data",""]]};

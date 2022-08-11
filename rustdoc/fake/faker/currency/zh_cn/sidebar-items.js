@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["CurrencyCode",""],["CurrencyName",""],["CurrencySymbol",""]]});
+window.SIDEBAR_ITEMS = {"fn":[["CurrencyCode",""],["CurrencyName",""],["CurrencySymbol",""]]};

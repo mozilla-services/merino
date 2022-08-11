@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["ClientVariantFilterProvider","A provider that gives suggestions base"]]});
+window.SIDEBAR_ITEMS = {"struct":[["ClientVariantFilterProvider","A provider that gives suggestions base"]]};

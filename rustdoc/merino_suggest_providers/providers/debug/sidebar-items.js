@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["DebugProvider","A toy suggester to test the system."]]});
+window.SIDEBAR_ITEMS = {"struct":[["DebugProvider","A toy suggester to test the system."]]};

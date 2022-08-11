@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["City",""],["Continent",""],["Country",""],["Location",""],["Postal",""],["RepresentedCountry",""],["Subdivision",""],["Traits",""]]});
+window.SIDEBAR_ITEMS = {"struct":[["City",""],["Continent",""],["Country",""],["Location",""],["Postal",""],["RepresentedCountry",""],["Subdivision",""],["Traits",""]]};

@@ -1,1 +1,1 @@
-initSidebarItems({"derive":[["BerAlias",""],["BerSequence",""],["BerSet",""],["DerAlias",""],["DerSequence",""],["DerSet",""]]});
+window.SIDEBAR_ITEMS = {"derive":[["BerAlias",""],["BerSequence",""],["BerSet",""],["DerAlias",""],["DerSequence",""],["DerSet",""]]};

@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["FixedProvider","A suggester that always provides the same suggestion, with a configurable title."]]});
+window.SIDEBAR_ITEMS = {"struct":[["FixedProvider","A suggester that always provides the same suggestion, with a configurable title."]]};

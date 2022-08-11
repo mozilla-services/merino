@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["TimeoutProvider","A combinator provider that returns an empty set of suggestions if the wrapped provider takes too long."]]});
+window.SIDEBAR_ITEMS = {"struct":[["TimeoutProvider","A combinator provider that returns an empty set of suggestions if the wrapped provider takes too long."]]};

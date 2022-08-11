@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["Paragraph",""],["Paragraphs",""],["Sentence",""],["Sentences",""],["Word",""],["Words",""]]});
+window.SIDEBAR_ITEMS = {"struct":[["Paragraph",""],["Paragraphs",""],["Sentence",""],["Sentences",""],["Word",""],["Words",""]]};

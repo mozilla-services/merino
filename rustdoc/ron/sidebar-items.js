@@ -1,1 +1,1 @@
-initSidebarItems({"mod":[["de",""],["error",""],["extensions",""],["ser",""],["value","Value module."]]});
+window.SIDEBAR_ITEMS = {"mod":[["de",""],["error",""],["extensions",""],["ser",""],["value","Value module."]]};

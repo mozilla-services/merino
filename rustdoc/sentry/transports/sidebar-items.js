@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["DefaultTransportFactory","Creates the default HTTP transport."],["ReqwestHttpTransport","A [`Transport`] that sends events via the `reqwest` library."]],"type":[["HttpTransport","The default http transport."]]});
+window.SIDEBAR_ITEMS = {"struct":[["DefaultTransportFactory","Creates the default HTTP transport."],["ReqwestHttpTransport","A [`Transport`] that sends events via the `reqwest` library."]],"type":[["HttpTransport","The default http transport."]]};

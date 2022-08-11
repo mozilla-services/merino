@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["Bs",""],["BsAdj",""],["BsNoun",""],["BsVerb",""],["Buzzword",""],["BuzzwordMiddle",""],["BuzzwordTail",""],["CatchPhase",""],["CompanyName",""],["CompanySuffix",""],["Industry",""],["Profession",""]]});
+window.SIDEBAR_ITEMS = {"struct":[["Bs",""],["BsAdj",""],["BsNoun",""],["BsVerb",""],["Buzzword",""],["BuzzwordMiddle",""],["BuzzwordTail",""],["CatchPhase",""],["CompanyName",""],["CompanySuffix",""],["Industry",""],["Profession",""]]};

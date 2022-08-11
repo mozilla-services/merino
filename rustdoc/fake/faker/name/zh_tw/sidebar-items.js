@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["FirstName",""],["LastName",""],["Name",""],["NameWithTitle",""],["Suffix",""],["Title",""]]});
+window.SIDEBAR_ITEMS = {"fn":[["FirstName",""],["LastName",""],["Name",""],["NameWithTitle",""],["Suffix",""],["Title",""]]};

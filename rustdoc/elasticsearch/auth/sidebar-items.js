@@ -1,1 +1,1 @@
-initSidebarItems({"enum":[["ClientCertificate",""],["Credentials","Credentials for authentication"]]});
+window.SIDEBAR_ITEMS = {"enum":[["ClientCertificate",""],["Credentials","Credentials for authentication"]]};

@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["Digit",""],["NumberWithFormat",""]]});
+window.SIDEBAR_ITEMS = {"fn":[["Digit",""],["NumberWithFormat",""]]};

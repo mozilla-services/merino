@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["WikiFruit","A toy suggester to test the system."]]});
+window.SIDEBAR_ITEMS = {"struct":[["WikiFruit","A toy suggester to test the system."]]};

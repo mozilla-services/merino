@@ -1,1 +1,1 @@
-initSidebarItems({"mod":[["utils","Contains functions to retrieve various contexts that can be useful to attach to events"]],"struct":[["ContextIntegration","Adds Contexts to Sentry Events."]]});
+window.SIDEBAR_ITEMS = {"mod":[["utils","Contains functions to retrieve various contexts that can be useful to attach to events"]],"struct":[["ContextIntegration","Adds Contexts to Sentry Events."]]};

@@ -1,1 +1,1 @@
-initSidebarItems({"mod":[["metrics","Middlewares for reporting Metrics in Merino."],["sentry","Middlewares for using Sentry in Merino."]]});
+window.SIDEBAR_ITEMS = {"mod":[["metrics","Middlewares for reporting Metrics in Merino."],["sentry","Middlewares for using Sentry in Merino."]]};

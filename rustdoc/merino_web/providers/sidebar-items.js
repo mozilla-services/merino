@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["SuggestionProviderRef","The SuggestionProvider stored in Actix’s app_data."]]});
+window.SIDEBAR_ITEMS = {"struct":[["SuggestionProviderRef","The SuggestionProvider stored in Actix’s app_data."]]};

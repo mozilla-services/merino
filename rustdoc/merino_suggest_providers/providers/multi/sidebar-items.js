@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["Multi","A provider that aggregates suggestions from multiple suggesters."]]});
+window.SIDEBAR_ITEMS = {"struct":[["Multi","A provider that aggregates suggestions from multiple suggesters."]]};

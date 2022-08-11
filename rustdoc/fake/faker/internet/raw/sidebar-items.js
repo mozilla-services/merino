@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["Color",""],["DomainSuffix",""],["FreeEmail",""],["FreeEmailProvider",""],["IP",""],["IPv4",""],["IPv6",""],["MACAddress",""],["Password",""],["SafeEmail",""],["UserAgent",""],["Username",""]]});
+window.SIDEBAR_ITEMS = {"struct":[["Color",""],["DomainSuffix",""],["FreeEmail",""],["FreeEmailProvider",""],["IP",""],["IPv4",""],["IPv6",""],["MACAddress",""],["Password",""],["SafeEmail",""],["UserAgent",""],["Username",""]]};

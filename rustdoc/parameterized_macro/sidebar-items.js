@@ -1,1 +1,1 @@
-initSidebarItems({"attr":[["parameterized",""]]});
+window.SIDEBAR_ITEMS = {"attr":[["parameterized",""]]};

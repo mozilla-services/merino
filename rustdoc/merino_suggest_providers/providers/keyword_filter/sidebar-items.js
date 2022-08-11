@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["KeywordFilterProvider","A combinator provider that filters the results from the wrapped provider using a blocklist from the settings."]]});
+window.SIDEBAR_ITEMS = {"struct":[["KeywordFilterProvider","A combinator provider that filters the results from the wrapped provider using a blocklist from the settings."]]};

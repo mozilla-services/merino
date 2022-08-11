@@ -1,1 +1,1 @@
-initSidebarItems({"derive":[["Dummy",""]]});
+window.SIDEBAR_ITEMS = {"derive":[["Dummy",""]]};

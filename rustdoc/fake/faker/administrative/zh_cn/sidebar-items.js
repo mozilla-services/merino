@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["HealthInsuranceCode",""]]});
+window.SIDEBAR_ITEMS = {"fn":[["HealthInsuranceCode",""]]};

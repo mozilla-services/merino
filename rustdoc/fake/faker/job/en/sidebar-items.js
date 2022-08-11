@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["Field",""],["Position",""],["Seniority",""],["Title",""]]});
+window.SIDEBAR_ITEMS = {"fn":[["Field",""],["Position",""],["Seniority",""],["Title",""]]};

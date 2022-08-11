@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["CellNumber",""],["PhoneNumber",""]]});
+window.SIDEBAR_ITEMS = {"fn":[["CellNumber",""],["PhoneNumber",""]]};

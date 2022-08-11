@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["Cause","The cause of an exception"],["Error","Details about the exception raised by Elasticsearch"],["Exception","An exception raised by Elasticsearch."],["Response","A response from Elasticsearch"]]});
+window.SIDEBAR_ITEMS = {"struct":[["Cause","The cause of an exception"],["Error","Details about the exception raised by Elasticsearch"],["Exception","An exception raised by Elasticsearch."],["Response","A response from Elasticsearch"]]};

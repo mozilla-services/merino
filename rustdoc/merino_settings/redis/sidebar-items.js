@@ -1,1 +1,1 @@
-initSidebarItems({"mod":[["serde_redis_connection",""]],"struct":[["AsConnectionInfo",""]]});
+window.SIDEBAR_ITEMS = {"mod":[["serde_redis_connection",""]],"struct":[["AsConnectionInfo",""]]};

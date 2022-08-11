@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["Duration","A `Duration` type to represent a span of time, typically used for system timeouts."]],"type":[["Instant",""]]});
+window.SIDEBAR_ITEMS = {"struct":[["Duration","A `Duration` type to represent a span of time, typically used for system timeouts."]],"type":[["Instant",""]]};

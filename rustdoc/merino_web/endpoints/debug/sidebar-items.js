@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["configure","Handles required Dockerflow Endpoints."]],"struct":[["settings","In debug mode, show the settings of the app."]]});
+window.SIDEBAR_ITEMS = {"fn":[["configure","Handles required Dockerflow Endpoints."]],"struct":[["settings","In debug mode, show the settings of the app."]]};

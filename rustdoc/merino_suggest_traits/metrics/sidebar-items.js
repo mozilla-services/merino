@@ -1,1 +1,1 @@
-initSidebarItems({"trait":[["TimedMicros","Trait for recording timer values with additional precision."]]});
+window.SIDEBAR_ITEMS = {"trait":[["TimedMicros","Trait for recording timer values with additional precision."]]};

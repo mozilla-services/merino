@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["CellNumber",""],["PhoneNumber",""]]});
+window.SIDEBAR_ITEMS = {"struct":[["CellNumber",""],["PhoneNumber",""]]};

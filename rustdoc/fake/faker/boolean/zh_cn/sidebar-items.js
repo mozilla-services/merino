@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["Boolean",""]]});
+window.SIDEBAR_ITEMS = {"fn":[["Boolean",""]]};

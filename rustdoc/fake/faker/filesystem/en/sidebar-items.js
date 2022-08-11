@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["DirPath",""],["FileExtension",""],["FileName",""],["FilePath",""],["MimeType",""],["Semver",""]]});
+window.SIDEBAR_ITEMS = {"fn":[["DirPath",""],["FileExtension",""],["FileName",""],["FilePath",""],["MimeType",""],["Semver",""]]};

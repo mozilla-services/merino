@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["StealthProvider","A provider that runs `inner`, but doesn’t return any results."]]});
+window.SIDEBAR_ITEMS = {"struct":[["StealthProvider","A provider that runs `inner`, but doesn’t return any results."]]};

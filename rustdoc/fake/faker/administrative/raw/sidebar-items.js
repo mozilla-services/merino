@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["HealthInsuranceCode",""]]});
+window.SIDEBAR_ITEMS = {"struct":[["HealthInsuranceCode",""]]};
