@@ -124,7 +124,7 @@ impl<F> fake::Dummy<F> for Browser {
 }
 
 /// The user agent from a suggestion request.
-#[derive(Clone, Debug, Hash, PartialEq, Serialize)]
+#[derive(Clone, Debug, Hash, PartialEq, Eq, Serialize)]
 pub struct DeviceInfo {
     /// The operating system family indicated in the User-Agent header.
     pub os_family: OsFamily,
