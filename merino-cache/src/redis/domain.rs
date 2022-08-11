@@ -66,7 +66,7 @@ impl From<RedisSuggestions> for Vec<Suggestion> {
 }
 
 /// The result from the Redis `TTL` command, converting the two error codes (-1 and -2) into enum variants.
-#[derive(Debug, PartialEq, Clone, Copy)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy)]
 pub enum RedisTtl {
     /// The key requested does not exist.
     KeyDoesNotExist,
