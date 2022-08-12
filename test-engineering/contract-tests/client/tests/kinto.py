@@ -37,9 +37,10 @@ class KintoAttachment(BaseModel):
     """Class that holds information about an attachment in Kinto."""
 
     filename: str
-    filecontent: bytes
+    filecontent: Optional[bytes]
+    location: Optional[str]
     mimetype: str
-    suggestions: List[KintoSuggestion]
+    suggestions: Optional[List[KintoSuggestion]]
 
 
 class KintoRecord(BaseModel):
@@ -49,7 +50,11 @@ class KintoRecord(BaseModel):
     attachment: KintoAttachment
 
 
-def get_record(environment: KintoEnvironment, record_id: str) -> RequestsResponse:
+class KintoResponse(BaseModel):
+    data: KintoRecord
+
+
+def get_record(environment: KintoEnvironment, record_id: str) -> KintoRecord:
     """Get attachment information from Kinto for the given record ID."""
 
     url: str = (
@@ -60,7 +65,9 @@ def get_record(environment: KintoEnvironment, record_id: str) -> RequestsRespons
     )
     response: RequestsResponse = requests.get(url)
     response.raise_for_status()
-    return response
+
+    kinto_response: KintoResponse = KintoResponse(**response.json())
+    return kinto_response.data
 
 
 def upload_attachment(

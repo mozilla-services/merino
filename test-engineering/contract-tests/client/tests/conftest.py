@@ -10,7 +10,6 @@ from typing import Any, Dict, List
 
 import pytest
 import yaml
-from requests import Response as RequestsResponse
 
 from exceptions import MissingKintoDataFilesError
 from kinto import (
@@ -88,11 +87,8 @@ def fixture_kinto_icon_urls(
     def fetch_icon_url(*, record_id: str) -> str:
         """Fetch the icon URL for the given Kinto record ID from Kinto."""
 
-        response: RequestsResponse = get_record(kinto_environment, record_id)
-
-        icon_location: str = response.json()["data"]["attachment"]["location"]
-
-        return f"{attachments_url}/{icon_location}"
+        record: KintoRecord = get_record(kinto_environment, record_id)
+        return f"{attachments_url}/{record.attachment.location}"
 
     return {
         suggestion.title: fetch_icon_url(record_id=f"icon-{suggestion.icon}")
