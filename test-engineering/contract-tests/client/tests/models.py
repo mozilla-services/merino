@@ -93,19 +93,3 @@ class Scenario(BaseModel):
     name: str
     description: str
     steps: List[Step]
-
-
-class KintoSuggestion(BaseModel):
-    """Class that holds information about a Suggestion in Kinto."""
-
-    id: int
-    url: str
-    iab_category: str
-    icon: str
-    advertiser: str
-    title: str
-    keywords: List[str] = Field(default_factory=list)
-    # Both impression_url and click_url are optional. They're absent for
-    # Mozilla-provided Wikipedia suggestions.
-    click_url: Optional[str]
-    impression_url: Optional[str]

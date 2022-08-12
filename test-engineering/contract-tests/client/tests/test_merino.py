@@ -37,8 +37,13 @@ def fixture_kinto_step(
 
     def kinto_step(step: Step) -> None:
         record: KintoRecord = kinto_records.get(step.request.filename)
+
         upload_attachment(kinto_environment, record, step.request.data_type)
-        upload_icons(kinto_environment, record.attachment.icon_ids)
+
+        icon_ids: Set[str] = {
+            suggestion.icon for suggestion in record.attachment.suggestions
+        }
+        upload_icons(kinto_environment, icon_ids)
 
     return kinto_step
 
