@@ -161,9 +161,6 @@ def test_merino(steps: List[Step], step_functions: Dict[Service, Callable]):
     """Test for requesting suggestions from Merino."""
 
     for step in steps:
-        # Each step in a test scenario consists of a request and a response.
-        # Use the parameters to perform the request and verify the response.
-
         # Process delay if defined in request model
         if (delay := step.request.delay) is not None:
             time.sleep(delay)

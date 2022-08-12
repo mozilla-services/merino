@@ -27,6 +27,8 @@ class Request(BaseModel):
     """Class that holds information about an HTTP request."""
 
     service: Service
+    # Delay is optional, providing time for data refresh
+    delay: Optional[float] = None
 
 
 class KintoRequest(Request):
@@ -42,8 +44,6 @@ class MerinoRequest(Request):
     method: str
     path: str
     headers: List[Header] = []
-    # Delay is optional, providing time for data refresh
-    delay: Optional[float] = None
 
 
 class Suggestion(BaseModel, extra=Extra.allow):
