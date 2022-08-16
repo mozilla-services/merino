@@ -51,6 +51,7 @@ class KintoRecord(BaseModel):
 
 
 class KintoResponse(BaseModel):
+    """Class that holds Kinto API response data"""
     data: KintoRecord
 
 

@@ -53,7 +53,7 @@ def fixture_kinto_records(request: Any) -> Dict[str, KintoRecord]:
     for data_file in pathlib.Path(kinto_data_dir).glob("*.json"):
 
         content: bytes = data_file.read_bytes()
-        suggestion: List[KintoSuggestion] = [
+        suggestions: List[KintoSuggestion] = [
             KintoSuggestion(**suggestion)
             for suggestion in json.loads(data_file.read_text())
         ]
@@ -63,7 +63,7 @@ def fixture_kinto_records(request: Any) -> Dict[str, KintoRecord]:
                 filename=data_file.name,
                 filecontent=content,
                 mimetype="application/json",
-                suggestions=suggestion,
+                suggestions=suggestions,
             ),
         )
 
