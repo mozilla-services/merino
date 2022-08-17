@@ -2,10 +2,18 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-from typing import Any, List, Optional, Union
+from enum import Enum
+from typing import Any, List, Literal, Optional, Union
 from uuid import UUID
 
 from pydantic import BaseModel, Extra, Field
+
+
+class Service(Enum):
+    """Enum with service options."""
+
+    KINTO: str = "kinto"
+    MERINO: str = "merino"
 
 
 class Header(BaseModel):
@@ -16,13 +24,26 @@ class Header(BaseModel):
 
 
 class Request(BaseModel):
-    """Class that holds information about a HTTP request to Merino."""
+    """Class that holds information about an HTTP request."""
+
+    service: Service
+    # Delay is optional, providing time for data refresh
+    delay: Optional[float] = None
+
+
+class KintoRequest(Request):
+    """Class that holds information about a Kinto HTTP request."""
+
+    data_type: Literal["data", "offline-expansion-data"]
+    filename: str
+
+
+class MerinoRequest(Request):
+    """Class that holds information about a Merino HTTP request."""
 
     method: str
     path: str
     headers: List[Header] = []
-    # Delay is optional, providing time for data refresh
-    delay: Optional[float] = None
 
 
 class Suggestion(BaseModel, extra=Extra.allow):
@@ -53,18 +74,17 @@ class ResponseContent(BaseModel):
 
 
 class Response(BaseModel):
-    """Class that holds information about a HTTP response from Merino."""
+    """Class that holds information about an HTTP response from Merino."""
 
     status_code: int
     content: Union[ResponseContent, Any]
-    headers: List[Header] = []
 
 
 class Step(BaseModel):
     """Class that holds information about a step in a test scenario."""
 
-    request: Request
-    response: Response
+    request: Union[KintoRequest, MerinoRequest]
+    response: Optional[Response]
 
 
 class Scenario(BaseModel):
@@ -73,19 +93,3 @@ class Scenario(BaseModel):
     name: str
     description: str
     steps: List[Step]
-
-
-class KintoSuggestion(BaseModel):
-    """Class that holds information about a Suggestion in Kinto."""
-
-    id: int
-    url: str
-    iab_category: str
-    icon: str
-    advertiser: str
-    title: str
-    keywords: List[str] = Field(default_factory=list)
-    # Both impression_url and click_url are optional. They're absent for
-    # Mozilla-provided Wikipedia suggestions.
-    click_url: Optional[str]
-    impression_url: Optional[str]

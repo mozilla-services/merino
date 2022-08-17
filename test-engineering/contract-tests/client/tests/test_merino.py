@@ -3,12 +3,14 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 import time
-from typing import Dict, List, Set, Tuple
+from typing import Callable, Dict, List, Set, Tuple
 
 import pytest
-
 import requests
-from models import ResponseContent, Step, Suggestion
+from requests import Response as RequestsResponse
+
+from kinto import KintoEnvironment, KintoRecord, upload_attachment, upload_icons
+from models import ResponseContent, Service, Step, Suggestion
 
 # We need to exclude the following fields on the response level:
 # The request ID is dynamic in nature and the value cannot be validated here.
@@ -17,7 +19,7 @@ CONTENT_EXCLUDE: Set[str] = {"request_id", "suggestions"}
 
 # We need to exclude the following field on the suggestion level:
 # The icon URL for RS suggestions is dynamic in nature and handed to Merino by
-# Kinto. We validate that in a seperate step.
+# Kinto. We validate that in a separate step.
 SUGGESTION_EXCLUDE: Set[str] = {"icon"}
 
 
@@ -25,6 +27,86 @@ SUGGESTION_EXCLUDE: Set[str] = {"icon"}
 def fixture_merino_url(request) -> str:
     """Read the merino URL from the pytest config."""
     return request.config.option.merino_url
+
+
+@pytest.fixture(scope="session", name="kinto_step")
+def fixture_kinto_step(
+    kinto_environment: KintoEnvironment, kinto_records: Dict[str, KintoRecord]
+) -> Callable:
+    """Define execution instructions for Kinto scenario step."""
+
+    def kinto_step(step: Step) -> None:
+        record: KintoRecord = kinto_records.get(step.request.filename)
+
+        upload_attachment(kinto_environment, record, step.request.data_type)
+
+        icon_ids: Set[str] = {
+            suggestion.icon for suggestion in record.attachment.suggestions
+        }
+        upload_icons(kinto_environment, icon_ids)
+
+    return kinto_step
+
+
+@pytest.fixture(scope="session", name="merino_step")
+def fixture_merino_step(merino_url: str, kinto_icon_urls: Dict[str, str]) -> Callable:
+    """Define execution instructions for Merino scenario step."""
+
+    def merino_step(step: Step) -> None:
+        method: str = step.request.method
+        url: str = f"{merino_url}{step.request.path}"
+        headers: Dict[str, str] = {
+            header.name: header.value for header in step.request.headers
+        }
+
+        response: RequestsResponse = requests.request(method, url, headers=headers)
+
+        error_message: str = (
+            f"The expected status code is {step.response.status_code},\n"
+            f"but the status code in the response is {response.status_code}.\n"
+            f"The response content is '{response.text}'."
+        )
+
+        assert response.status_code == step.response.status_code, error_message
+
+        if response.status_code == 200:
+            # If the response status code is 200 OK, use the
+            # assert_200_response() helper function to validate the content of
+            # the response from Merino. This includes creating a pydantic model
+            # instance for checking the field types and comparing a dict
+            # representation of the model instance with the expected response
+            # content for this step in the test scenario.
+            assert_200_response(
+                step_content=step.response.content,
+                merino_content=ResponseContent(**response.json()),
+                kinto_icon_urls=kinto_icon_urls,
+            )
+            return
+
+        if response.status_code == 204:
+            # If the response status code is 204 No Content, load the response content
+            # as text and compare against the value in the response model.
+            assert response.text == step.response.content
+            return
+
+        # If the request to Merino was not successful, load the response
+        # content into a Python dict and compare against the value in the
+        # response model
+        assert response.json() == step.response.content
+
+    return merino_step
+
+
+@pytest.fixture(scope="session", name="step_functions")
+def fixture_step_functions(
+    kinto_step: Callable, merino_step: Callable
+) -> Dict[Service, Callable]:
+    """Return a dict mapping from a service name to request function."""
+
+    return {
+        Service.KINTO: kinto_step,
+        Service.MERINO: merino_step,
+    }
 
 
 def suggestion_id(suggestion: Suggestion) -> Tuple:
@@ -70,59 +152,17 @@ def assert_200_response(
 
         if "wiki_fruit" in suggestion.provider:
             # The icon URL is static for WikiFruit suggestions
-            expected_suggestion = expected_suggestions_by_id[suggestion_id(
-                suggestion)]
+            expected_suggestion = expected_suggestions_by_id[suggestion_id(suggestion)]
             assert suggestion.icon == expected_suggestion.icon
             continue
 
 
-def test_merino(merino_url: str, steps: List[Step], kinto_icon_urls: Dict[str, str]):
+def test_merino(steps: List[Step], step_functions: Dict[Service, Callable]):
     """Test for requesting suggestions from Merino."""
 
     for step in steps:
-        # Each step in a test scenario consists of a request and a response.
-        # Use the parameters to perform the request and verify the response.
-
-        method = step.request.method
-        url = f"{merino_url}{step.request.path}"
-        headers = {header.name: header.value for header in step.request.headers}
-        delay = step.request.delay
-
         # Process delay if defined in request model
         if (delay := step.request.delay) is not None:
             time.sleep(delay)
 
-        r = requests.request(method, url, headers=headers)
-
-        error_message = (
-            f"Expected status code {step.response.status_code},\n"
-            f"but the status code in the response from Merino is {r.status_code}.\n"
-            f"The response content is '{r.text}'."
-        )
-
-        assert r.status_code == step.response.status_code, error_message
-
-        if r.status_code == 200:
-            # If the response status code is 200 OK, use the
-            # assert_200_response() helper function to validate the content of
-            # the response from Merino. This includes creating a pydantic model
-            # instance for checking the field types and comparing a dict
-            # representation of the model instance with the expected response
-            # content for this step in the test scenario.
-            assert_200_response(
-                step_content=step.response.content,
-                merino_content=ResponseContent(**r.json()),
-                kinto_icon_urls=kinto_icon_urls,
-            )
-            continue
-
-        if r.status_code == 204:
-            # If the response status code is 204 No Content, load the response content
-            # as text and compare against the value in the response model.
-            assert r.text == step.response.content
-            continue
-
-        # If the request to Merino was not successful, load the response
-        # content into a Python dict and compare against the value in the
-        # response model
-        assert r.json() == step.response.content
+        step_functions[step.request.service](step)

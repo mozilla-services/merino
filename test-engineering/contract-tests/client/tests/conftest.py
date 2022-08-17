@@ -6,12 +6,20 @@ import json
 import os
 import pathlib
 from functools import lru_cache
-from typing import Dict
+from typing import Any, Dict, List
 
 import pytest
-import requests
 import yaml
-from models import KintoSuggestion, Scenario
+
+from exceptions import MissingKintoDataFilesError
+from kinto import (
+    KintoAttachment,
+    KintoEnvironment,
+    KintoRecord,
+    KintoSuggestion,
+    get_record,
+)
+from models import Scenario
 
 REQUIRED_OPTIONS = (
     "scenarios_file",
@@ -24,30 +32,68 @@ REQUIRED_OPTIONS = (
 )
 
 
+@pytest.fixture(scope="session", name="kinto_environment")
+def fixture_kinto_environment(request: Any) -> KintoEnvironment:
+    """Return Kinto environment data."""
+
+    return KintoEnvironment(
+        server=request.config.option.kinto_url,
+        bucket=request.config.option.kinto_bucket,
+        collection=request.config.option.kinto_collection,
+    )
+
+
+@pytest.fixture(scope="session", name="kinto_records")
+def fixture_kinto_records(request: Any) -> Dict[str, KintoRecord]:
+    """Return a map from data file name to suggestion data."""
+
+    # Load Kinto data from the given Kinto data directory
+    kinto_data_dir: str = request.config.option.kinto_data_dir
+    kinto_records: Dict[str, KintoRecord] = {}
+    for data_file in pathlib.Path(kinto_data_dir).glob("*.json"):
+
+        content: bytes = data_file.read_bytes()
+        suggestions: List[KintoSuggestion] = [
+            KintoSuggestion(**suggestion)
+            for suggestion in json.loads(data_file.read_text())
+        ]
+        kinto_records[data_file.name] = KintoRecord(
+            id=data_file.stem,
+            attachment=KintoAttachment(
+                filename=data_file.name,
+                filecontent=content,
+                mimetype="application/json",
+                suggestions=suggestions,
+            ),
+        )
+
+    if not kinto_records:
+        raise MissingKintoDataFilesError(kinto_data_dir)
+
+    return kinto_records
+
+
 @pytest.fixture(scope="session", name="kinto_icon_urls")
-def fixture_kinto_icon_urls(request) -> Dict[str, str]:
+def fixture_kinto_icon_urls(
+    request: Any,
+    kinto_environment: KintoEnvironment,
+    kinto_records: Dict[str, KintoRecord],
+) -> Dict[str, str]:
     """Return a map from suggestion title to icon URL."""
 
-    api = f"{request.config.option.kinto_url}/v1"
-    bucket = f"{api}/buckets/{request.config.option.kinto_bucket}"
-    collection = f"{bucket}/collections/{request.config.option.kinto_collection}"
-    attachments_url = request.config.option.kinto_attachments_url
+    attachments_url: str = request.config.option.kinto_attachments_url
 
     @lru_cache(maxsize=None)
     def fetch_icon_url(*, record_id: str) -> str:
         """Fetch the icon URL for the given Kinto record ID from Kinto."""
-        record_url = f"{collection}/records/{record_id}"
 
-        response = requests.get(record_url)
-        response.raise_for_status()
-
-        icon_location = response.json()["data"]["attachment"]["location"]
-
-        return f"{attachments_url}/{icon_location}"
+        record: KintoRecord = get_record(kinto_environment, record_id)
+        return f"{attachments_url}/{record.attachment.location}"
 
     return {
         suggestion.title: fetch_icon_url(record_id=f"icon-{suggestion.icon}")
-        for suggestion in request.config.kinto_suggestions
+        for record in kinto_records.values()
+        for suggestion in record.attachment.suggestions
     }
 
 
@@ -63,14 +109,6 @@ def pytest_configure(config):
 
     config.merino_scenarios = [
         Scenario(**scenario) for scenario in loaded_scenarios["scenarios"]
-    ]
-
-    kinto_data_dir = pathlib.Path(config.option.kinto_data_dir)
-
-    config.kinto_suggestions = [
-        KintoSuggestion(**suggestion_data)
-        for data_file in kinto_data_dir.glob("*.json")
-        for suggestion_data in json.loads(data_file.read_text())
     ]
 
 
