@@ -13,9 +13,10 @@ import yaml
 
 from exceptions import MissingKintoDataFilesError
 from kinto import (
-    KintoAttachment,
     KintoEnvironment,
-    KintoRecord,
+    KintoRequestAttachment,
+    KintoRequestRecord,
+    KintoResponseRecord,
     KintoSuggestion,
     get_record,
 )
@@ -44,12 +45,12 @@ def fixture_kinto_environment(request: Any) -> KintoEnvironment:
 
 
 @pytest.fixture(scope="session", name="kinto_records")
-def fixture_kinto_records(request: Any) -> Dict[str, KintoRecord]:
+def fixture_kinto_records(request: Any) -> Dict[str, KintoRequestRecord]:
     """Return a map from data file name to suggestion data."""
 
     # Load Kinto data from the given Kinto data directory
     kinto_data_dir: str = request.config.option.kinto_data_dir
-    kinto_records: Dict[str, KintoRecord] = {}
+    kinto_records: Dict[str, KintoRequestRecord] = {}
     for data_file in pathlib.Path(kinto_data_dir).glob("*.json"):
 
         content: bytes = data_file.read_bytes()
@@ -57,9 +58,9 @@ def fixture_kinto_records(request: Any) -> Dict[str, KintoRecord]:
             KintoSuggestion(**suggestion)
             for suggestion in json.loads(data_file.read_text())
         ]
-        kinto_records[data_file.name] = KintoRecord(
+        kinto_records[data_file.name] = KintoRequestRecord(
             id=data_file.stem,
-            attachment=KintoAttachment(
+            attachment=KintoRequestAttachment(
                 filename=data_file.name,
                 filecontent=content,
                 mimetype="application/json",
@@ -77,7 +78,7 @@ def fixture_kinto_records(request: Any) -> Dict[str, KintoRecord]:
 def fixture_kinto_icon_urls(
     request: Any,
     kinto_environment: KintoEnvironment,
-    kinto_records: Dict[str, KintoRecord],
+    kinto_records: Dict[str, KintoRequestRecord],
 ) -> Dict[str, str]:
     """Return a map from suggestion title to icon URL."""
 
@@ -87,7 +88,7 @@ def fixture_kinto_icon_urls(
     def fetch_icon_url(*, record_id: str) -> str:
         """Fetch the icon URL for the given Kinto record ID from Kinto."""
 
-        record: KintoRecord = get_record(kinto_environment, record_id)
+        record: KintoResponseRecord = get_record(kinto_environment, record_id)
         return f"{attachments_url}/{record.attachment.location}"
 
     return {
