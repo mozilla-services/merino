@@ -76,12 +76,13 @@ workflows:
 jobs:
   checks:
     docker:
-      - image: mozilla/cidockerbases:rust-latest
+      - image: cimg/rust:1.63
         auth:
           username: $DOCKER_USER
           password: $DOCKER_PASS
     steps:
       - checkout
+      - setup-rust-check
       - rust-check
 
   build-and-test:
@@ -240,12 +241,16 @@ jobs:
 
   docs-build:
     docker:
-      - image: mozilla/cidockerbases:rust-latest
+      - image: cimg/rust:1.63
         auth:
           username: $DOCKER_USER
           password: $DOCKER_PASS
     steps:
       - checkout
+      - run:
+          name: Setup Build docs
+          command: |
+            cargo install mdbook
       - run:
           name: Build docs
           command: |
@@ -292,6 +297,13 @@ commands:
             else
               echo "${DOCKER_PASS}" | docker login -u="${DOCKER_USER}" --password-stdin
             fi
+
+  setup-rust-check:
+    steps:
+      - run:
+          name: Setup Rust Checks
+          command: |
+            cargo install cargo-audit
 
   rust-check:
     steps:
