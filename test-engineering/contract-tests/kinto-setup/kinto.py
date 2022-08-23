@@ -90,8 +90,8 @@ def upload_attachments(
                     record.attachment.filecontent,
                     record.attachment.mimetype,
                 ),
-                "data": (None, f'{{"type": "{record.data_type}"}}'),
             },
+            data={"data": f'{{"type": "{record.data_type}"}}'},
         )
         response.raise_for_status()
 
@@ -117,7 +117,7 @@ def upload_icons(
                     f"icon-{icon_id}",
                     "image/png",
                 ),
-                "data": (None, '{"type": "icon"}'),
             },
+            data={"data": '{"type": "icon"}'},
         )
         response.raise_for_status()

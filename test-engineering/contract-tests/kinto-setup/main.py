@@ -2,12 +2,15 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+import re
 from pathlib import Path
 from time import sleep
+from typing import List, Optional
 
-import re
 import requests
 import typer
+from requests import HTTPError
+
 from kinto import (
     KintoAttachment,
     KintoRecord,
@@ -16,8 +19,6 @@ from kinto import (
     upload_attachments,
     upload_icons,
 )
-from requests import HTTPError
-
 
 # Pattern to extract data types of Kinto attachment files.
 PATTERN_DATA_TYPE = re.compile(r"^(?P<data_type>.*)-\d{2}$")
@@ -32,18 +33,25 @@ def main(
     """Run the CLI application."""
 
     # Load Kinto data from the given Kinto data directory
-    kinto_records = [
-        KintoRecord(
-            record_id=data_file.stem,
-            attachment=KintoAttachment(
-                filename=data_file.name,
-                mimetype="application/json",
-                filecontent=data_file.read_bytes(),
-            ),
-            data_type=re.match(PATTERN_DATA_TYPE, data_file.stem).group("data_type"),
+    kinto_records: List[KintoRecord] = []
+    for data_file in kinto_data_dir.glob("*.json"):
+
+        match: Optional[re.Match[str]] = re.match(PATTERN_DATA_TYPE, data_file.stem)
+        if not match:
+            typer.echo(f"Kinto data file name {data_file.stem} is invalid", err=True)
+            raise typer.Exit(code=1)
+
+        kinto_records.append(
+            KintoRecord(
+                record_id=data_file.stem,
+                attachment=KintoAttachment(
+                    filename=data_file.name,
+                    mimetype="application/json",
+                    filecontent=data_file.read_bytes(),
+                ),
+                data_type=match.group("data_type"),
+            )
         )
-        for data_file in kinto_data_dir.glob("*.json")
-    ]
 
     if not kinto_records:
         typer.echo(f"Cannot find Kinto data files in {kinto_data_dir}", err=True)
