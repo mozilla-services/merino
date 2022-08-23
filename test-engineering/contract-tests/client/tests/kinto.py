@@ -37,25 +37,47 @@ class KintoAttachment(BaseModel):
     """Class that holds information about an attachment in Kinto."""
 
     filename: str
-    filecontent: Optional[bytes]
-    location: Optional[str]
     mimetype: str
-    suggestions: Optional[List[KintoSuggestion]]
+
+
+class KintoRequestAttachment(KintoAttachment):
+    """Class that holds information about an attachment for the Kinto API."""
+
+    filecontent: bytes
+    suggestions: List[KintoSuggestion]
+
+
+class KintoResponseAttachment(KintoAttachment):
+    """Class that holds information about an attachment from the Kinto API."""
+
+    location: str
 
 
 class KintoRecord(BaseModel):
     """Class that holds information about a record in Kinto."""
 
     id: str
-    attachment: KintoAttachment
+
+
+class KintoRequestRecord(KintoRecord):
+    """Class that holds information about a record for the Kinto API."""
+
+    attachment: KintoRequestAttachment
+
+
+class KintoResponseRecord(KintoRecord):
+    """Class that holds information about a record from the Kinto API."""
+
+    attachment: KintoResponseAttachment
 
 
 class KintoResponse(BaseModel):
     """Class that holds Kinto API response data"""
-    data: KintoRecord
+
+    data: KintoResponseRecord
 
 
-def get_record(environment: KintoEnvironment, record_id: str) -> KintoRecord:
+def get_record(environment: KintoEnvironment, record_id: str) -> KintoResponseRecord:
     """Get attachment information from Kinto for the given record ID."""
 
     url: str = (
@@ -72,7 +94,7 @@ def get_record(environment: KintoEnvironment, record_id: str) -> KintoRecord:
 
 
 def upload_attachment(
-    environment: KintoEnvironment, record: KintoRecord, data_type: str
+    environment: KintoEnvironment, record: KintoRequestRecord, data_type: str
 ) -> None:
     """Upload attachment to Kinto for the given record."""
 
@@ -92,7 +114,7 @@ def upload_attachment(
                 record.attachment.mimetype,
             ),
         },
-        data={'data': f'{{"type": "{data_type}"}}'},
+        data={"data": f'{{"type": "{data_type}"}}'},
     )
     response.raise_for_status()
 
@@ -117,6 +139,6 @@ def upload_icons(environment: KintoEnvironment, icon_ids: Set[str]) -> None:
                     "image/png",
                 ),
             },
-            data={'data': '{"type": "icon"}'},
+            data={"data": '{"type": "icon"}'},
         )
         response.raise_for_status()

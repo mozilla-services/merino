@@ -9,8 +9,16 @@ import pytest
 import requests
 from requests import Response as RequestsResponse
 
-from kinto import KintoEnvironment, KintoRecord, upload_attachment, upload_icons
-from models import ResponseContent, Service, Step, Suggestion
+from kinto import KintoEnvironment, KintoRequestRecord, upload_attachment, upload_icons
+from models import (
+    KintoRequest,
+    MerinoRequest,
+    Response,
+    ResponseContent,
+    Service,
+    Step,
+    Suggestion,
+)
 
 # We need to exclude the following fields on the response level:
 # The request ID is dynamic in nature and the value cannot be validated here.
@@ -26,17 +34,24 @@ SUGGESTION_EXCLUDE: Set[str] = {"icon"}
 @pytest.fixture(scope="session", name="merino_url")
 def fixture_merino_url(request) -> str:
     """Read the merino URL from the pytest config."""
-    return request.config.option.merino_url
+
+    merino_url: str = request.config.option.merino_url
+    return merino_url
 
 
 @pytest.fixture(scope="session", name="kinto_step")
 def fixture_kinto_step(
-    kinto_environment: KintoEnvironment, kinto_records: Dict[str, KintoRecord]
+    kinto_environment: KintoEnvironment, kinto_records: Dict[str, KintoRequestRecord]
 ) -> Callable:
     """Define execution instructions for Kinto scenario step."""
 
     def kinto_step(step: Step) -> None:
-        record: KintoRecord = kinto_records.get(step.request.filename)
+        if type(step.request) is not KintoRequest:
+            raise TypeError(
+                f"Unsupported request type {type(step.request)} for Kinto service step."
+            )
+
+        record: KintoRequestRecord = kinto_records[step.request.filename]
 
         upload_attachment(kinto_environment, record, step.request.data_type)
 
@@ -53,6 +68,18 @@ def fixture_merino_step(merino_url: str, fetch_kinto_icon_url: Callable) -> Call
     """Define execution instructions for Merino scenario step."""
 
     def merino_step(step: Step) -> None:
+        if type(step.request) is not MerinoRequest:
+            raise TypeError(
+                f"Unsupported request type {type(step.request)} for Merino service "
+                f"step."
+            )
+
+        if type(step.response) is not Response:
+            raise TypeError(
+                f"Unsupported response type {type(step.request)} for Merino service "
+                f"step."
+            )
+
         method: str = step.request.method
         url: str = f"{merino_url}{step.request.path}"
         headers: Dict[str, str] = {
