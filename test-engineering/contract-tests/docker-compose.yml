@@ -8,10 +8,11 @@ services:
     environment:
       # The configuration preset to use
       MERINO__ENV: "ci"
-      MERINO__REMOTE_SETTINGS__CRON_INTERVAL_SEC: 3
+      MERINO__LOG_FULL_REQUEST: "true"
+      MERINO__REMOTE_SETTINGS__CRON_INTERVAL_SEC: "1"
       MERINO__REMOTE_SETTINGS__DEFAULT_BUCKET: main
       MERINO__REMOTE_SETTINGS__DEFAULT_COLLECTION: quicksuggest
-      MERINO__REMOTE_SETTINGS__RESYNC_INTERVAL_SEC: 1
+      MERINO__REMOTE_SETTINGS__RESYNC_INTERVAL_SEC: "2"
       MERINO__REMOTE_SETTINGS__SERVER: http://kinto:8888
     depends_on:
       - kinto
@@ -78,6 +79,5 @@ services:
       KINTO_URL: http://kinto:8888
       KINTO_BUCKET: main
       KINTO_COLLECTION: quicksuggest
-      KINTO_DATA_DIR: /tmp/kinto
     command: >
       /wait-for-it.sh kinto:8888 --strict -- python main.py

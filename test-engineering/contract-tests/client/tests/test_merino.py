@@ -64,7 +64,7 @@ def fixture_kinto_step(
 
 
 @pytest.fixture(scope="session", name="merino_step")
-def fixture_merino_step(merino_url: str, kinto_icon_urls: Dict[str, str]) -> Callable:
+def fixture_merino_step(merino_url: str, fetch_kinto_icon_url: Callable) -> Callable:
     """Define execution instructions for Merino scenario step."""
 
     def merino_step(step: Step) -> None:
@@ -106,7 +106,7 @@ def fixture_merino_step(merino_url: str, kinto_icon_urls: Dict[str, str]) -> Cal
             assert_200_response(
                 step_content=step.response.content,
                 merino_content=ResponseContent(**response.json()),
-                kinto_icon_urls=kinto_icon_urls,
+                fetch_kinto_icon_url=fetch_kinto_icon_url,
             )
             return
 
@@ -145,7 +145,7 @@ def assert_200_response(
     *,
     step_content: ResponseContent,
     merino_content: ResponseContent,
-    kinto_icon_urls: Dict[str, str],
+    fetch_kinto_icon_url: Callable,
 ) -> None:
     """Check that the content for a 200 OK response is what we expect."""
 
@@ -174,7 +174,10 @@ def assert_200_response(
     for suggestion in merino_content.suggestions:
         if "remote_settings" in suggestion.provider:
             # The icon URL is not static for RS suggestions
-            assert suggestion.icon == kinto_icon_urls[suggestion.title]
+            expected_suggestion_icon: str = fetch_kinto_icon_url(
+                suggestion_title=suggestion.title
+            )
+            assert suggestion.icon == expected_suggestion_icon
             continue
 
         if "wiki_fruit" in suggestion.provider:

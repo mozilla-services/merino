@@ -5,8 +5,7 @@
 import json
 import os
 import pathlib
-from functools import lru_cache
-from typing import Any, Dict, List
+from typing import Any, Callable, Dict, List
 
 import pytest
 import yaml
@@ -74,28 +73,29 @@ def fixture_kinto_records(request: Any) -> Dict[str, KintoRequestRecord]:
     return kinto_records
 
 
-@pytest.fixture(scope="session", name="kinto_icon_urls")
-def fixture_kinto_icon_urls(
+@pytest.fixture(scope="session", name="fetch_kinto_icon_url")
+def fixture_fetch_kinto_icon_url(
     request: Any,
     kinto_environment: KintoEnvironment,
     kinto_records: Dict[str, KintoRequestRecord],
-) -> Dict[str, str]:
-    """Return a map from suggestion title to icon URL."""
+) -> Callable:
+    """Return a function that will query for an icon URL from a suggestion title"""
 
     attachments_url: str = request.config.option.kinto_attachments_url
 
-    @lru_cache(maxsize=None)
-    def fetch_icon_url(*, record_id: str) -> str:
+    def fetch_icon_url(*, suggestion_title: str) -> str:
         """Fetch the icon URL for the given Kinto record ID from Kinto."""
 
+        record_id: str = next(
+            f"icon-{suggestion.icon}"
+            for record in kinto_records.values()
+            for suggestion in record.attachment.suggestions
+            if suggestion.title == suggestion_title
+        )
         record: KintoResponseRecord = get_record(kinto_environment, record_id)
         return f"{attachments_url}/{record.attachment.location}"
 
-    return {
-        suggestion.title: fetch_icon_url(record_id=f"icon-{suggestion.icon}")
-        for record in kinto_records.values()
-        for suggestion in record.attachment.suggestions
-    }
+    return fetch_icon_url
 
 
 def pytest_configure(config):

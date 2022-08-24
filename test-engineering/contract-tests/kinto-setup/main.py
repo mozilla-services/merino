@@ -3,22 +3,13 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 import re
-from pathlib import Path
 from time import sleep
-from typing import List, Optional
 
 import requests
 import typer
 from requests import HTTPError
 
-from kinto import (
-    KintoAttachment,
-    KintoRecord,
-    create_bucket,
-    create_collection,
-    upload_attachments,
-    upload_icons,
-)
+from kinto import create_bucket, create_collection
 
 # Pattern to extract data types of Kinto attachment files.
 PATTERN_DATA_TYPE = re.compile(r"^(?P<data_type>.*)-\d{2}$")
@@ -28,42 +19,8 @@ def main(
     kinto_url: str = typer.Argument(..., envvar="KINTO_URL"),
     kinto_bucket: str = typer.Argument(..., envvar="KINTO_BUCKET"),
     kinto_collection: str = typer.Argument(..., envvar="KINTO_COLLECTION"),
-    kinto_data_dir: Path = typer.Argument(..., envvar="KINTO_DATA_DIR"),
 ):
     """Run the CLI application."""
-
-    # Load Kinto data from the given Kinto data directory
-    kinto_records: List[KintoRecord] = []
-    for data_file in kinto_data_dir.glob("*.json"):
-
-        match: Optional[re.Match[str]] = re.match(PATTERN_DATA_TYPE, data_file.stem)
-        if not match:
-            typer.echo(f"Kinto data file name {data_file.stem} is invalid", err=True)
-            raise typer.Exit(code=1)
-
-        kinto_records.append(
-            KintoRecord(
-                record_id=data_file.stem,
-                attachment=KintoAttachment(
-                    filename=data_file.name,
-                    mimetype="application/json",
-                    filecontent=data_file.read_bytes(),
-                ),
-                data_type=match.group("data_type"),
-            )
-        )
-
-    if not kinto_records:
-        typer.echo(f"Cannot find Kinto data files in {kinto_data_dir}", err=True)
-        raise typer.Exit(code=1)
-
-    # Load unique icon IDs from the JSON files and store them in a set
-    icon_ids = {
-        suggestion["icon"]
-        for record in kinto_records
-        for suggestion in record.attachment.json_suggestions
-    }
-
     kinto_api = f"{kinto_url}/v1"
 
     try:
@@ -72,18 +29,6 @@ def main(
             api=kinto_api,
             bucket=kinto_bucket,
             collection=kinto_collection,
-        )
-        upload_attachments(
-            api=kinto_api,
-            bucket=kinto_bucket,
-            collection=kinto_collection,
-            records=kinto_records,
-        )
-        upload_icons(
-            api=kinto_api,
-            bucket=kinto_bucket,
-            collection=kinto_collection,
-            icon_ids=icon_ids,
         )
     except HTTPError as exc:
         typer.echo(f"An error occured while setting up Kinto: {exc}", err=True)
