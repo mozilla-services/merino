@@ -131,52 +131,9 @@ scenarios:
                 url: 'https://example.com/target/coffee'
                 impression_url: 'https://example.com/impression/coffee'
                 click_url: 'https://example.com/click/coffee'
-                provider: 'test_remote_settings'
+                provider: 'adm'
                 advertiser: 'Example.com'
                 is_sponsored: true
-                # The client test framework knows how to interpret a value of `null` for this field.
-                icon: null
-                score: 0.3
-
-  - name: remote_settings__offline_expansion_orange
-    description: Test that Merino successfully returns a Remote Settings suggestion for Offline Expansion
-    steps:
-      - request:
-          service: kinto
-          filename: "data-01.json"
-          data_type: "data"
-      - request:
-          service: kinto
-          filename: "data-02.json"
-          data_type: "data"
-      - request:
-          service: kinto
-          filename: "offline-expansion-data-01.json"
-          data_type: "offline-expansion-data"
-      - request:
-          delay: 3 # Wait for remote settings data to load into merino
-          service: merino
-          method: GET
-          path: '/api/v1/suggest?q=orange'
-          headers:
-            - name: User-Agent
-              value: 'Mozilla/5.0 (Windows NT 10.0; rv:10.0) Gecko/20100101 Firefox/91.0'
-            - name: Accept-Language
-              value: 'en-US'
-        response:
-          status_code: 200
-          content:
-            client_variants: []
-            server_variants: []
-            request_id: null
-            suggestions:
-              - block_id: 10
-                full_keyword: 'orange'
-                title: 'Orange - Offline Expansion'
-                url: 'https://example.org/target/orange-offline-expansion'
-                provider: 'test_remote_settings'
-                advertiser: 'Example.org'
-                is_sponsored: false
                 # The client test framework knows how to interpret a value of `null` for this field.
                 icon: null
                 score: 0.3
@@ -226,8 +183,51 @@ scenarios:
                 url: 'https://example.org/target/banana'
                 impression_url: 'https://example.org/impression/banana'
                 click_url: 'https://example.org/click/banana'
-                provider: 'test_remote_settings'
+                provider: 'adm'
                 advertiser: 'Example.org'
-                is_sponsored: true
+                is_sponsored: false
+                icon: null
+                score: 0.3
+
+  - name: remote_settings__offline_expansion_orange
+    description: Test that Merino successfully returns a Remote Settings suggestion for Offline Expansion
+    steps:
+      - request:
+          service: kinto
+          filename: "data-01.json"
+          data_type: "data"
+      - request:
+          service: kinto
+          filename: "data-02.json"
+          data_type: "data"
+      - request:
+          service: kinto
+          filename: "offline-expansion-data-01.json"
+          data_type: "offline-expansion-data"
+      - request:
+          delay: 3 # Wait for remote settings data to load into merino
+          service: merino
+          method: GET
+          path: '/api/v1/suggest?q=orange'
+          headers:
+            - name: User-Agent
+              value: 'Mozilla/5.0 (Windows NT 10.0; rv:10.0) Gecko/20100101 Firefox/91.0'
+            - name: Accept-Language
+              value: 'en-US'
+        response:
+          status_code: 200
+          content:
+            client_variants: []
+            server_variants: []
+            request_id: null
+            suggestions:
+              - block_id: 10
+                full_keyword: 'orange'
+                title: 'Orange - Offline Expansion'
+                url: 'https://example.org/target/orange-offline-expansion'
+                provider: 'adm'
+                advertiser: 'Example.org'
+                is_sponsored: false
+                # The client test framework knows how to interpret a value of `null` for this field.
                 icon: null
                 score: 0.3

@@ -16,6 +16,6 @@ Please set the following environment variables in `docker-compose.yml`:
 
 ```text
 mypy \
-test-engineering/contract-tests/kinto-setup/ \
---config-file=test-engineering/contract-tests/kinto-setup/mypy.ini
+  test-engineering/contract-tests/kinto-setup/ \
+  --config-file=test-engineering/contract-tests/kinto-setup/mypy.ini
 ```
