@@ -36,7 +36,7 @@ and steps.
   * `service` - Set the value to `kinto`, to direct requests to the Kinto service. 
   * `delay` - (optional) Set seconds to pause before execution of request.
   * `filename` - Set the file with records to upload. The files are located in 
-                 `..\contract-tests\volumes\kinto`.
+                 `..\volumes\kinto`.
   * `data_type` - Set to `data` or `offline-expansion-data`.
 * A Kinto service scenario step will not check a `response` defined in the scenario, 
   but will raise an error in the event of an unexpected HTTP response.
