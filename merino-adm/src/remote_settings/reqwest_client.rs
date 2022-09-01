@@ -11,23 +11,29 @@ use remote_settings_client::client::net::{
     Url as RsUrl,
 };
 use reqwest::{header::CONTENT_TYPE, Method, Response};
+use std::time::Duration;
 
 /// An remote-settings-client HTTP client that uses Reqwest.
 #[derive(Debug)]
 pub struct ReqwestClient {
     /// The client that will be used to make http requests.
     reqwest_client: reqwest::Client,
+    /// The HTTP timeout in seconds.
+    http_timeout: Duration,
 }
 
 impl ReqwestClient {
     /// Instantiate a new Reqwest client to perform HTTP requests.
-    pub fn try_new() -> Result<ReqwestClient, Error> {
+    pub fn try_new(http_timeout: Duration) -> Result<ReqwestClient, Error> {
         let reqwest_client = reqwest::Client::builder()
             // Disable the connection pool to avoid the IncompleteMessage errors.
             // See #259 for more details.
             .pool_max_idle_per_host(0)
             .build()?;
-        Ok(Self { reqwest_client })
+        Ok(Self {
+            reqwest_client,
+            http_timeout,
+        })
     }
 }
 
@@ -66,7 +72,7 @@ impl RsRequester for ReqwestClient {
             .header(CONTENT_TYPE, "application/json")
             .headers(headers)
             .body(data)
-            .timeout(std::time::Duration::from_secs(3))
+            .timeout(self.http_timeout)
             .send()
             .await
             .and_then(Response::error_for_status)

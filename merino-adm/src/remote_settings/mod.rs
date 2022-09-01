@@ -92,7 +92,7 @@ impl RemoteSettingsSuggester {
         settings: &RemoteSettingsGlobalSettings,
         config: &RemoteSettingsConfig,
     ) -> Result<remote_settings_client::Client, SetupError> {
-        let reqwest_client = ReqwestClient::try_new()
+        let reqwest_client = ReqwestClient::try_new(settings.http_timeout)
             .context("Unable to create the Reqwest client")
             .map_err(SetupError::Network)?;
         let client = remote_settings_client::Client::builder()

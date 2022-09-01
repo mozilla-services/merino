@@ -12,6 +12,7 @@ services:
       MERINO__REMOTE_SETTINGS__CRON_INTERVAL_SEC: "1"
       MERINO__REMOTE_SETTINGS__DEFAULT_BUCKET: main
       MERINO__REMOTE_SETTINGS__DEFAULT_COLLECTION: quicksuggest
+      MERINO__REMOTE_SETTINGS__HTTP_TIMEOUT_SEC: "10"
       MERINO__REMOTE_SETTINGS__RESYNC_INTERVAL_SEC: "2"
       MERINO__REMOTE_SETTINGS__SERVER: http://kinto:8888
     depends_on:
@@ -42,7 +43,7 @@ services:
       KINTO_DATA_DIR: /tmp/kinto
       KINTO_ATTACHMENTS_URL: http://kinto-attachments:80
     command: >
-      /wait-for-it.sh merino:8000 --strict -- pytest -vv
+      /wait-for-it.sh -t 60 merino:8000 --strict -- pytest -vv
 
   kinto:
     image: mozilla/kinto-dist:25.0.0
