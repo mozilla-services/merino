@@ -9,7 +9,13 @@ import pytest
 import requests
 from requests import Response as RequestsResponse
 
-from kinto import KintoEnvironment, KintoRequestRecord, upload_attachment, upload_icons
+from kinto import (
+    KintoEnvironment,
+    KintoRequestRecord,
+    delete_records,
+    upload_attachment,
+    upload_icons,
+)
 from models import (
     KintoRequest,
     MerinoRequest,
@@ -185,6 +191,15 @@ def assert_200_response(
             expected_suggestion = expected_suggestions_by_id[suggestion_id(suggestion)]
             assert suggestion.icon == expected_suggestion.icon
             continue
+
+
+@pytest.fixture(scope="function", autouse=True)
+def fixture_function_teardown(kinto_environment: KintoEnvironment):
+    """Execute instructions after each test."""
+
+    yield  # Allow test to execute
+
+    delete_records(kinto_environment)
 
 
 def test_merino(steps: List[Step], step_functions: Dict[Service, Callable]):
