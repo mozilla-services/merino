@@ -77,6 +77,19 @@ class KintoResponse(BaseModel):
     data: KintoResponseRecord
 
 
+def delete_records(environment: KintoEnvironment) -> None:
+    """Clear all record information from Kinto."""
+
+    url: str = (
+        f"{environment.server}/v1/"
+        f"buckets/{environment.bucket}/"
+        f"collections/{environment.collection}/"
+        f"records"
+    )
+    response: RequestsResponse = requests.delete(url)
+    response.raise_for_status()
+
+
 def get_record(environment: KintoEnvironment, record_id: str) -> KintoResponseRecord:
     """Get attachment information from Kinto for the given record ID."""
 

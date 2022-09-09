@@ -40,6 +40,8 @@ and steps.
   * `data_type` - Set to `data` or `offline-expansion-data`.
 * A Kinto service scenario step will not check a `response` defined in the scenario, 
   but will raise an error in the event of an unexpected HTTP response.
+* All records populated by Kinto service scenario steps are deleted as part of the 
+  scenario teardown.
 
 Example:
 ```yaml
