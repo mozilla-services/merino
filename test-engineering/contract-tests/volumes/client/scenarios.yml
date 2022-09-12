@@ -233,7 +233,9 @@ scenarios:
                 score: 0.3
 
   - name: remote_settings__refresh
-    description: Test that Merino successfully returns a refreshed output for the same suggestion search term.
+    description: >
+      Test that Merino successfully returns refreshed output in the cases of /
+      suggestion content updates and additions
     steps:
       - request:
           service: kinto
@@ -265,9 +267,24 @@ scenarios:
                 provider: 'adm'
                 advertiser: 'Example.org'
                 is_sponsored: true
-                # The client test framework knows how to interpret a value of `null` for this field.
                 icon: null
                 score: 0.3
+      - request:
+          service: merino
+          method: GET
+          path: '/api/v1/suggest?q=flower'
+          headers:
+            - name: User-Agent
+              value: 'Mozilla/5.0 (Windows NT 10.0; rv:10.0) Gecko/20100101 Firefox/91.0'
+            - name: Accept-Language
+              value: 'en-US'
+        response:
+          status_code: 200
+          content:
+            client_variants: []
+            server_variants: []
+            request_id: null
+            suggestions: []
       - request:
           service: kinto
           filename: "data-04.json"
@@ -289,7 +306,7 @@ scenarios:
             server_variants: []
             request_id: null
             suggestions:
-              - block_id: 7
+              - block_id: 6
                 full_keyword: 'tree'
                 title: 'Tree 2'
                 url: 'https://example.org/target/tree2'
@@ -298,6 +315,32 @@ scenarios:
                 provider: 'adm'
                 advertiser: 'Example.org'
                 is_sponsored: true
-                # The client test framework knows how to interpret a value of `null` for this field.
+                icon: null
+                score: 0.3
+      - request:
+          service: merino
+          method: GET
+          path: '/api/v1/suggest?q=flower'
+          headers:
+            - name: User-Agent
+              value: 'Mozilla/5.0 (Windows NT 10.0; rv:10.0) Gecko/20100101 Firefox/91.0'
+            - name: Accept-Language
+              value: 'en-US'
+        response:
+          status_code: 200
+          content:
+            client_variants: []
+            server_variants: []
+            request_id: null
+            suggestions:
+              - block_id: 7
+                full_keyword: 'flower'
+                title: 'Flower'
+                url: 'https://example.org/target/flower'
+                impression_url: 'https://example.org/impression/flower'
+                click_url: 'https://example.org/click/flower'
+                provider: 'adm'
+                advertiser: 'Example.org'
+                is_sponsored: true
                 icon: null
                 score: 0.3
