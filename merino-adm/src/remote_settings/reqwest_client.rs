@@ -18,22 +18,22 @@ use std::time::Duration;
 pub struct ReqwestClient {
     /// The client that will be used to make http requests.
     reqwest_client: reqwest::Client,
-    /// The HTTP timeout in seconds.
-    http_timeout: Duration,
 }
 
 impl ReqwestClient {
     /// Instantiate a new Reqwest client to perform HTTP requests.
-    pub fn try_new(http_timeout: Duration) -> Result<ReqwestClient, Error> {
+    pub fn try_new(
+        http_request_timeout: Duration,
+        http_connect_timeout: Duration,
+    ) -> Result<ReqwestClient, Error> {
         let reqwest_client = reqwest::Client::builder()
             // Disable the connection pool to avoid the IncompleteMessage errors.
             // See #259 for more details.
             .pool_max_idle_per_host(0)
+            .connect_timeout(http_connect_timeout)
+            .timeout(http_request_timeout)
             .build()?;
-        Ok(Self {
-            reqwest_client,
-            http_timeout,
-        })
+        Ok(Self { reqwest_client })
     }
 }
 
@@ -72,7 +72,6 @@ impl RsRequester for ReqwestClient {
             .header(CONTENT_TYPE, "application/json")
             .headers(headers)
             .body(data)
-            .timeout(self.http_timeout)
             .send()
             .await
             .and_then(Response::error_for_status)
