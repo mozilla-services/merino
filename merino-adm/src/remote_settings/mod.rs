@@ -92,9 +92,10 @@ impl RemoteSettingsSuggester {
         settings: &RemoteSettingsGlobalSettings,
         config: &RemoteSettingsConfig,
     ) -> Result<remote_settings_client::Client, SetupError> {
-        let reqwest_client = ReqwestClient::try_new()
-            .context("Unable to create the Reqwest client")
-            .map_err(SetupError::Network)?;
+        let reqwest_client =
+            ReqwestClient::try_new(settings.http_request_timeout, settings.http_connect_timeout)
+                .context("Unable to create the Reqwest client")
+                .map_err(SetupError::Network)?;
         let client = remote_settings_client::Client::builder()
             .bucket_name(
                 config

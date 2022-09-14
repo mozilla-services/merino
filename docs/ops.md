@@ -163,6 +163,10 @@ provider below.
     than `resync_interval_sec` of the Remote Settings leaf provider.
   - Retry if the regular resync fails.
 
+- `remote_settings.http_timeout_sec`
+  (`MERINO__REMOTE_SETTINGS__HTTP_TIMEOUT_SEC`) - The HTTP timeout (in seconds)
+  for the underlying HTTP client of the Remote Settings client.
+
 ### Location
 
 Configuration for determining the location of users.

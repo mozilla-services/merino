@@ -193,6 +193,18 @@ pub struct RemoteSettingsGlobalSettings {
     /// by the provider.
     pub default_collection: String,
 
+    /// The HTTP request timeout (in seconds) for the underlying client of the Remote Settings client:
+    /// [`ReqwestClient`](merino-adm::reqwest_client::ReqwestClient).
+    #[serde_as(as = "DurationSeconds")]
+    #[serde(rename = "http_request_timeout_sec")]
+    pub http_request_timeout: Duration,
+
+    /// The HTTP connect timeout (in seconds) for the underlying client of the Remote Settings client:
+    /// [`ReqwestClient`](merino-adm::reqwest_client::ReqwestClient).
+    #[serde_as(as = "DurationSeconds")]
+    #[serde(rename = "http_connect_timeout_sec")]
+    pub http_connect_timeout: Duration,
+
     /// The interval (in seconds) of the Remote Settings cron job. This should
     /// be set smaller than `RemoteSettingsConfig::resync_interval`.
     #[serde_as(as = "DurationSeconds")]
