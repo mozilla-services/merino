@@ -53,21 +53,10 @@ class KintoResponseAttachment(KintoAttachment):
     location: str
 
 
-class KintoRecord(BaseModel):
-    """Class that holds information about a record in Kinto."""
-
-    id: str
-
-
-class KintoRequestRecord(KintoRecord):
-    """Class that holds information about a record for the Kinto API."""
-
-    attachment: KintoRequestAttachment
-
-
-class KintoResponseRecord(KintoRecord):
+class KintoResponseRecord(BaseModel):
     """Class that holds information about a record from the Kinto API."""
 
+    id: str
     attachment: KintoResponseAttachment
 
 
@@ -107,7 +96,10 @@ def get_record(environment: KintoEnvironment, record_id: str) -> KintoResponseRe
 
 
 def upload_attachment(
-    environment: KintoEnvironment, record: KintoRequestRecord, data_type: str
+    environment: KintoEnvironment,
+    record_id: str,
+    attachment: KintoRequestAttachment,
+    data_type: str,
 ) -> None:
     """Upload attachment to Kinto for the given record."""
 
@@ -115,16 +107,16 @@ def upload_attachment(
         f"{environment.server}/v1/"
         f"buckets/{environment.bucket}/"
         f"collections/{environment.collection}/"
-        f"records/{record.id}/"
+        f"records/{record_id}/"
         f"attachment"
     )
     response: RequestsResponse = requests.post(
         url=url,
         files={
             "attachment": (
-                record.attachment.filename,
-                record.attachment.filecontent,
-                record.attachment.mimetype,
+                attachment.filename,
+                attachment.filecontent,
+                attachment.mimetype,
             ),
         },
         data={"data": f'{{"type": "{data_type}"}}'},
