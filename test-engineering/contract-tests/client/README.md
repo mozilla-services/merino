@@ -29,7 +29,7 @@ and steps.
 
 #### Name
 
-A test name should identify the use case under test . Names are written in snake case
+A test name should identify the use case under test. Names are written in snake case
 with double-underscores `__` for scenario and behavior delineation.
 
 Example:
@@ -123,9 +123,9 @@ Example:
 
 ## Local Execution
 
-To execute the test scenarios outside the client Docker container, create a python
+To execute the test scenarios outside the client Docker container, create a Python
 virtual environment, set environment variables, expose the Merino and Kinto API ports
-in the docker-compose.yml and use a pytest command. It is recommended to execute the
+in the `docker-compose.yml` and use a pytest command. It is recommended to execute the
 tests within a Python virtual environment to prevent dependency cross contamination.
 
 1. Create a Virtual Environment

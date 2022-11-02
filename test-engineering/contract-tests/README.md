@@ -1,4 +1,4 @@
-# Merino Contract Tests
+# Merino Contract Tests 🤖
 
 This directory contains source code for automated contract tests for Merino.
 
@@ -21,7 +21,7 @@ The following sequence diagram depicts container interactions during the
 
 The `client` container consists of a Python-based test framework that executes the
 contract tests. The HTTP client used in the framework can be instructed to prepare
-remote settings data through requests to kinto and can verify merino functionality
+Remote Settings data through requests to kinto and can verify merino functionality
 through requests to the merino service.
 
 For more details see the client [README][client_readme]
@@ -36,7 +36,7 @@ For more details, see the merino [README][merino_readme] or project
 ### kinto-setup
 
 The `kinto-setup` container consists of a Python-based program responsible for
-defining the remote settings bucket, "main", and collection, "quicksuggest", prior
+defining the Remote Settings bucket, "main", and collection, "quicksuggest", prior
 to the `merino` container startup, a pre-requisite.
 
 For more details see the kinto-setup [README][kinto_setup_readme]

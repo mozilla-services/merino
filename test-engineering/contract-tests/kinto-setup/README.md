@@ -3,7 +3,7 @@
 ## Overview
 
 This directory contains source code for setting up Kinto for contract tests.
-Specifically, it is responsible for the creation of the remote settings bucket and
+Specifically, it is responsible for the creation of the Remote Settings bucket and
 collection, a pre-requisite for the Merino service.
 
 For more details on contract test design, refer to the contract-tests
@@ -21,9 +21,9 @@ mypy \
 
 ## Local Execution
 
-To execute the kinto-setup outside the Docker container, create a python virtual
+To execute the kinto-setup outside the Docker container, create a Python virtual
 environment, set environment variables, expose the Kinto API port in the
-docker-compose.yml and use a python command. It is recommended to execute the setup
+docker-compose.yml and use a Python command. It is recommended to execute the setup
 within a Python virtual environment to prevent dependency cross contamination.
 
 1. Create a Virtual Environment
