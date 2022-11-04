@@ -34,6 +34,7 @@ class Request(BaseModel):
 class KintoRequest(Request):
     """Class that holds information about a Kinto HTTP request."""
 
+    record_id: str
     data_type: Literal["data", "offline-expansion-data"]
     filename: str
 
