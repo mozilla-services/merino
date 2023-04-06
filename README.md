@@ -1,3 +1,8 @@
+# DEPRECATION NOTE!!
+
+This repo has been archived, you can find the new repo for this service
+at [here](https://github.com/mozilla-services/merino-py).
+
 # Merino
 
 A service to provide address bar suggestions to Firefox. For more details, see
